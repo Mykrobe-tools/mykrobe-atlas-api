@@ -8,7 +8,7 @@ echo $CURRENT_VERSION > /var/go/releases/CURRENT_VERSION
 mkdir -p /var/go/releases/$CURRENT_VERSION
 cd /var/go/releases/$CURRENT_VERSION
 
-cp -rf /var/lib/go-agent/pipelines/dev-mend-api/. .
+cp -rf /var/lib/go-agent/pipelines/dev-atlas-api/. .
 
 # remove current images
 docker rm -f mend-api db || true

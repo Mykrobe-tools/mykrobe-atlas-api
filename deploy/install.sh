@@ -2,7 +2,7 @@ export CURRENT_VERSION=`cat /var/go/releases/CURRENT_VERSION`
 export PREVIOUS_VERSION=`cat /var/go/releases/PREVIOUS_VERSION`
 
 # remove unwanted containers
-docker rm -f mend-api db || true
+docker rm -f atlas-api db || true
 cd /var/go/releases/$CURRENT_VERSION/deploy
 
 # run docker-compose up
@@ -19,7 +19,7 @@ echo 'End volumes cleanup'
 
 # generate the api doc
 echo 'Start doc update'
-docker exec -i mend-api script /dev/null -c 'apidoc -i src/server/'
+docker exec -i atlas-api script /dev/null -c 'apidoc -i src/server/'
 echo 'End doc update'
 
 # all ok set PREVIOUS_VERSION

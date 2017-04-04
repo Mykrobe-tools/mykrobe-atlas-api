@@ -5,10 +5,10 @@ db:
     - /home/ubuntu/data/db:/data/db
   restart: always
   command: --smallfiles --auth
-mend-api:
+atlas-api:
   build: ..
   dockerfile: ./deploy/Dockerfile
-  container_name: mend-api
+  container_name: atlas-api
   volumes:
     - /home/ubuntu/data/apidoc:/app/doc
     - /home/ubuntu/data/uploads:/app/uploads
