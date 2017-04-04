@@ -1,0 +1,207 @@
+{
+	"variables": [],
+	"info": {
+		"name": "Atlas-API",
+		"_postman_id": "0b492629-16f9-bd75-28e3-7e869d0a81d9",
+		"description": "",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Registration",
+			"request": {
+				"url": "http://localhost:3000/users",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n   \"firstname\": \"Simon\",\n   \"lastname\": \"Heys\",\n   \"phone\": \"+44 7968 716851\",\n   \"password\": \"password\",\n   \"email\": \"simon@si.com\"\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Login",
+			"request": {
+				"url": "http://localhost:3000/auth/login",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"email\": \"simon@si.com\",\n\t\"password\": \"password\"\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Verify",
+			"request": {
+				"url": "http://localhost:3000/auth/verify",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"verificationToken\": \"XLBdGKUmPzq59IIXTCjvfHZR3DiSu1Sy\"\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Forgot",
+			"request": {
+				"url": "http://localhost:3000/auth/forgot",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"email\": \"yassire@ceremium5.com\"\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Reset",
+			"request": {
+				"url": "http://localhost:3000/auth/reset",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"resetPasswordToken\" : \"l2a5l2GTRiKX1sb3Q0EetQw0MwOomFnJ\",\n\t\"password\": \"password2\"\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Resend",
+			"request": {
+				"url": "http://localhost:3000/auth/resend",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"email\": \"yassire@ceremium5.com\"\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "List users",
+			"request": {
+				"url": "http://localhost:3000/users",
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjU4ZTI2ODE5NDlhMDQ2MTczM2QwMWMwYiIsImlhdCI6MTQ5MTI5MzIyNX0.-9uqNfp36QYTl-bToo0PosaTHnDNZfDmr8ZwtV5LPsc",
+						"description": ""
+					}
+				],
+				"body": {},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Update user",
+			"request": {
+				"url": "http://localhost:3000/users/58e2632000dab316dbe8014b",
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjU4ZTI2ODE5NDlhMDQ2MTczM2QwMWMwYiIsImlhdCI6MTQ5MTI5MzIyNX0.-9uqNfp36QYTl-bToo0PosaTHnDNZfDmr8ZwtV5LPsc",
+						"description": ""
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"phone\": \"0666033959\",\n\t\"lastname\": \"El Hani\"\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Delete account",
+			"request": {
+				"url": "http://localhost:3000/users/58e2632000dab316dbe8014b",
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjU4ZTI2ODE5NDlhMDQ2MTczM2QwMWMwYiIsImlhdCI6MTQ5MTI5MzIyNX0.-9uqNfp36QYTl-bToo0PosaTHnDNZfDmr8ZwtV5LPsc",
+						"description": ""
+					}
+				],
+				"body": {},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Assign role",
+			"request": {
+				"url": "http://localhost:3000/users/58e26670437f241715f00aaf/role",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjU4ZTI2ODE5NDlhMDQ2MTczM2QwMWMwYiIsImlhdCI6MTQ5MTI5MzIyNX0.-9uqNfp36QYTl-bToo0PosaTHnDNZfDmr8ZwtV5LPsc",
+						"description": ""
+					}
+				],
+				"body": {},
+				"description": ""
+			},
+			"response": []
+		}
+	]
+}

@@ -1,0 +1,26 @@
+db:
+  image: mongo
+  container_name: db
+  volumes:
+    - /home/ubuntu/data/db:/data/db
+  restart: always
+  command: --smallfiles --auth
+mend-api:
+  build: ..
+  dockerfile: ./deploy/Dockerfile
+  container_name: mend-api
+  volumes:
+    - /home/ubuntu/data/apidoc:/app/doc
+    - /home/ubuntu/data/uploads:/app/uploads
+  restart: always
+  ports:
+    - 3000:3000
+  environment:
+    - NODE_ENV=production
+    - MONGO_USER=admin
+    - MONGO_PASSWORD=5HKCO4SDkTfy
+    - AWS_ACCESS_KEY_ID={{AWS_ACCESS_KEY}}
+    - AWS_SECRET_ACCESS_KEY={{AWS_SECRET_KEY}}
+    - AWS_REGION={{AWS_REGION}}
+  links:
+    - db

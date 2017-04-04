@@ -1,0 +1,64 @@
+FROM ubuntu:14.04
+MAINTAINER Yassire Elhani <mark@makeandship.com>
+
+RUN rm /bin/sh && ln -s /bin/bash /bin/sh
+
+ENV NODE_VERSION 6.9.4
+ENV NVM_DIR /usr/local/nvm
+
+RUN echo "deb mirror://mirrors.ubuntu.com/mirrors.txt trusty main restricted universe multiverse" > /etc/apt/sources.list; \
+	echo "deb mirror://mirrors.ubuntu.com/mirrors.txt trusty-updates main restricted universe multiverse" >> /etc/apt/sources.list; \
+	echo "deb mirror://mirrors.ubuntu.com/mirrors.txt trusty-backports main restricted universe multiverse" >> /etc/apt/sources.list; \
+	echo "deb mirror://mirrors.ubuntu.com/mirrors.txt trusty-security main restricted universe multiverse" >> /etc/apt/sources.list
+
+# install required software before using nvm/node/npm/bower
+RUN apt-get update 
+RUN apt-get install -y curl 
+RUN apt-get install -y git 
+RUN apt-get install -y python 
+RUN apt-get install -y build-essential 
+RUN apt-get install -y libssl-dev
+RUN apt-get install -y imagemagick
+
+# download and install nvm
+RUN curl https://raw.githubusercontent.com/creationix/nvm/v0.32.1/install.sh | bash \
+	&& source $NVM_DIR/nvm.sh \
+    && nvm install $NODE_VERSION \
+    && nvm alias default $NODE_VERSION \
+    && nvm use default
+
+ENV NODE_PATH $NVM_DIR/v$NODE_VERSION/lib/node_modules
+ENV PATH      $NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH
+
+ENV NODE_PATH $NVM_DIR/v$NODE_VERSION/lib/node_modules
+ENV PATH      $NVM_DIR/v$NODE_VERSION/bin:$PATH
+
+# install global packages
+RUN npm install -g forever
+
+# server installation directory
+RUN mkdir /app
+
+# install dependencies as a cachable step
+ADD package.json /tmp/package.json
+RUN cd /tmp && npm install
+
+# push this app to the deployment directory
+WORKDIR /app
+ADD . /app
+
+# move cached installs into the app
+RUN cp -a /tmp/node_modules /app/
+
+# build and compile the source
+RUN npm install -g gulp
+RUN gulp
+
+# install apidoc
+RUN npm install -g apidoc
+
+# run local api on 3000
+EXPOSE 3000
+
+# run up the server
+CMD NODE_ENV=$NODE_ENV forever -l forever.log -o out.log -e err.log /app/dist/index.js

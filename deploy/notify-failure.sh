@@ -1,0 +1,1 @@
+curl -X POST --data "payload={\"channel\": \"#makingshipping\", \"username\": \"Go CD\", \"text\": \"$1\", \"icon_emoji\": \":x:\"}" https://hooks.slack.com/services/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
