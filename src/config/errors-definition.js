@@ -57,5 +57,11 @@ export default {
       defaultMessage: 'You are not allowed to perform this action.',
       parent: errors.AtlasAPIError
     });
+    errors.create({
+      name: 'CreateExperimentError',
+      code: 10008,
+      defaultMessage: 'Cannot create new experiment.',
+      parent: errors.AtlasAPIError
+    });
   }
 };
