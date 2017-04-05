@@ -45,7 +45,10 @@ function create(req, res) {
  * @returns {User}
  */
 function update(req, res) {
-  res.jsend('update experiment');
+  const experiment = Object.assign(req.experiment, req.body);
+  experiment.save()
+    .then(savedExperiment => res.jsend(savedExperiment))
+    .catch(e => res.jerror(new errors.CreateExperimentError(e.message)));
 }
 
 /**

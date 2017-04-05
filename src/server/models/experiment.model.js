@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import errors from 'errors';
 import ExperimentJSONTransformer from '../transformers/ExperimentJSONTransformer';
 import DistanceJSONTransformer from '../transformers/DistanceJSONTransformer';
 import LocationJSONTransformer from '../transformers/LocationJSONTransformer';
@@ -68,6 +69,22 @@ ExperimentSchema.method({
  * Statics
  */
 ExperimentSchema.statics = {
+  /**
+   * Get experiment
+   * @param {ObjectId} id - The objectId of experiment.
+   * @returns {Promise<Experiment, APIError>}
+   */
+  get(id) {
+    return this.findById(id)
+      .exec()
+      .then((experiment) => {
+        if (experiment) {
+          return experiment;
+        }
+        return Promise.reject(new errors.ObjectNotFound(`Experiment not found with id ${id}`));
+      })
+      .catch(e => Promise.reject(new errors.ObjectNotFound(e.message)));
+  },
   /**
    * List a limit of 50 experiments
    * @param {number} skip - Number of experiments to be skipped.
