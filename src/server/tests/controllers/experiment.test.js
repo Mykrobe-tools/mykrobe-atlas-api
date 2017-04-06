@@ -10,6 +10,7 @@ require('../teardown');
 
 const users = require('../fixtures/users');
 const experiments = require('../fixtures/experiments');
+const metadata = require('../fixtures/metadata');
 
 chai.config.includeStack = true;
 chai.use(dirtyChai);
@@ -179,6 +180,42 @@ describe('## Experiment APIs', () => {
     it('should return an error if experiment not found', (done) => {
       request(app)
         .delete('/experiments/589dcdd38d71fee259dc4e00')
+        .set('Authorization', `Bearer ${token}`)
+        .expect(httpStatus.OK)
+        .end((err, res) => {
+          expect(res.body.status).to.equal('error');
+          expect(res.body.message).to.equal('Experiment not found with id 589dcdd38d71fee259dc4e00');
+          done();
+        });
+    });
+  });
+  describe('# PUT /experiments/:id/metadata', () => {
+    it('should update experiment metadata', (done) => {
+      request(app)
+        .put(`/experiments/${id}/metadata`)
+        .set('Authorization', `Bearer ${token}`)
+        .send(metadata.basic)
+        .expect(httpStatus.OK)
+        .end((err, res) => {
+          expect(res.body.status).to.equal('success');
+          expect(res.body.data.metadata.patientId).to.equal('12345');
+          expect(res.body.data.metadata.siteId).to.equal('abc');
+          expect(res.body.data.metadata.genderAtBirth).to.equal('Male');
+          expect(res.body.data.metadata.countryOfBirth).to.equal('UK');
+          expect(res.body.data.metadata.bmi).to.equal(12);
+          expect(res.body.data.metadata.injectingDrugUse).to.equal('notice');
+          expect(res.body.data.metadata.homeless).to.equal('Yes');
+          expect(res.body.data.metadata.imprisoned).to.equal('Yes');
+          expect(res.body.data.metadata.smoker).to.equal('No');
+          expect(res.body.data.metadata.diabetic).to.equal('Yes');
+          expect(res.body.data.metadata.hivStatus).to.equal('Negative');
+          done();
+        });
+    });
+
+    it('should return an error if experiment not found', (done) => {
+      request(app)
+        .put('/experiments/589dcdd38d71fee259dc4e00/metadata')
         .set('Authorization', `Bearer ${token}`)
         .expect(httpStatus.OK)
         .end((err, res) => {

@@ -37,6 +37,10 @@ const ExperimentSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
   },
+  metadata: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Metadata'
+  },
   location: LocationSchema,
   collected: Date,
   uploaded: Date,
@@ -121,6 +125,6 @@ LocationSchema.set('toJSON', {
 });
 
 /**
- * @typedef User
+ * @typedef Experiment
  */
 export default mongoose.model('Experiment', ExperimentSchema);

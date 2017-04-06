@@ -1,10 +1,11 @@
 import errors from 'errors';
 import Experiment from '../models/experiment.model';
+import Metadata from '../models/metadata.model';
 import ExperimentJSONTransformer from '../transformers/ExperimentJSONTransformer';
 import ArrayJSONTransformer from '../transformers/ArrayJSONTransformer';
 
 /**
- * Load user and append to req.
+ * Load experiment and append to req.
  */
 function load(req, res, next, id) {
   Experiment.get(id)
@@ -16,19 +17,16 @@ function load(req, res, next, id) {
 }
 
 /**
- * Get user
- * @returns {User}
+ * Get experiment
+ * @returns {Experiment}
  */
 function get(req, res) {
   return res.jsend(req.experiment);
 }
 
 /**
- * Create new user
- * @property {string} req.body.firstname - The firstname of user.
- * @property {string} req.body.lastname - The lastname of user.
- * @property {string} req.body.profile - The profile of user.
- * @returns {User}
+ * Create new experiment
+ * @returns {Experiment}
  */
 function create(req, res) {
   const experiment = new Experiment(req.body);
@@ -39,10 +37,8 @@ function create(req, res) {
 }
 
 /**
- * Update existing user
- * @property {string} req.body.firstname - The firstname of user.
- * @property {string} req.body.lastname - The lastname of user.
- * @returns {User}
+ * Update existing experiment
+ * @returns {Experiment}
  */
 function update(req, res) {
   const experiment = Object.assign(req.experiment, req.body);
@@ -79,11 +75,25 @@ function remove(req, res) {
     .catch(e => res.jerror(e));
 }
 
+/**
+ * Update experiment metadata
+ * @returns {Experiment}
+ */
+function updateMetadata(req, res) {
+  const metadata = new Metadata(req.body);
+  const experiment = req.experiment;
+  experiment.metadata = metadata;
+  experiment.save()
+    .then(savedExperiment => res.jsend(savedExperiment))
+    .catch(e => res.jerror(new errors.CreateExperimentError(e.message)));
+}
+
 export default {
   load,
   get,
   create,
   update,
   list,
-  remove
+  remove,
+  updateMetadata
 };
