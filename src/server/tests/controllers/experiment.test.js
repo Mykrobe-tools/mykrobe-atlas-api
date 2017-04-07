@@ -5,6 +5,7 @@ import dirtyChai from 'dirty-chai';
 import app from '../../../index';
 import User from '../../models/user.model';
 import Experiment from '../../models/experiment.model';
+import Organisation from '../../models/organisation.model';
 
 require('../teardown');
 
@@ -20,6 +21,7 @@ let id = null;
 
 beforeEach((done) => {
   const userData = new User(users.admin);
+  const organisationData = new Organisation(experiments.tuberculosis.organisation);
   const experimentData = new Experiment(experiments.tuberculosis);
   userData.save()
               .then(() => {
@@ -28,10 +30,14 @@ beforeEach((done) => {
                   .send({ email: 'admin@nhs.co.uk', password: 'password' })
                   .end((err, res) => {
                     token = res.body.data.token;
-                    experimentData.save()
-                      .then((savedExperiment) => {
-                        id = savedExperiment.id;
-                        done();
+                    organisationData.save()
+                      .then((savedOrganisation) => {
+                        experimentData.organisation = savedOrganisation;
+                        experimentData.save()
+                          .then((savedExperiment) => {
+                            id = savedExperiment.id;
+                            done();
+                          });
                       });
                   });
               });
@@ -40,7 +46,10 @@ beforeEach((done) => {
 afterEach((done) => {
   User.remove({})
     .then(() => {
-      Experiment.remove({}, done);
+      Organisation.remove({})
+        .then(() => {
+          Experiment.remove({}, done);
+        });
     });
 });
 

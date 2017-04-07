@@ -64,5 +64,14 @@ export default {
       verificationToken: Joi.string().required(),
       phone: config.usePassword() ? Joi.string().optional() : Joi.string().required()
     }
+  },
+
+  // POST /experiments
+  createExperiment: {
+    body: {
+      organisation: Joi.object({
+        name: Joi.string().required()
+      })
+    }
   }
 };

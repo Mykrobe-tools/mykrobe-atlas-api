@@ -1,6 +1,7 @@
 import errors from 'errors';
 import Experiment from '../models/experiment.model';
 import Metadata from '../models/metadata.model';
+import Organisation from '../models/organisation.model';
 import ExperimentJSONTransformer from '../transformers/ExperimentJSONTransformer';
 import ArrayJSONTransformer from '../transformers/ArrayJSONTransformer';
 
@@ -31,7 +32,19 @@ function get(req, res) {
 function create(req, res) {
   const experiment = new Experiment(req.body);
   experiment.owner = req.dbUser;
-  experiment.save()
+
+  if (req.body.organisation) {
+    return Organisation.findOrganisationAndUpdate(req.body.organisation, req.body.organisation)
+      .then((organisation) => {
+        experiment.organisation = organisation;
+        experiment.save()
+          .then(savedExperiment => res.jsend(savedExperiment))
+          .catch(e => res.jerror(new errors.CreateExperimentError(e.message)));
+      })
+      .catch(e => res.jerror(new errors.CreateExperimentError(e.message)));
+  }
+
+  return experiment.save()
     .then(savedExperiment => res.jsend(savedExperiment))
     .catch(e => res.jerror(new errors.CreateExperimentError(e.message)));
 }

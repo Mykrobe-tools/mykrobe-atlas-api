@@ -32,7 +32,10 @@ const LocationSchema = new mongoose.Schema({
  * Experiment Schema
  */
 const ExperimentSchema = new mongoose.Schema({
-  organisation: Object,
+  organisation: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Organisation'
+  },
   owner: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
@@ -80,6 +83,7 @@ ExperimentSchema.statics = {
    */
   get(id) {
     return this.findById(id)
+      .populate('organisation')
       .exec()
       .then((experiment) => {
         if (experiment) {

@@ -1,6 +1,7 @@
 import chai, { expect } from 'chai';
 import dirtyChai from 'dirty-chai';
 import Experiment from '../../models/experiment.model';
+import Organisation from '../../models/organisation.model';
 
 require('../../../index');
 const experiments = require('../fixtures/experiments');
@@ -11,27 +12,39 @@ let id = null;
 
 beforeEach((done) => {
   const experimentData = new Experiment(experiments.tuberculosis);
-  experimentData.save()
-    .then((experiment) => {
-      id = experiment.id;
-      done();
+  const organisationData = new Organisation(experiments.tuberculosis.organisation);
+  organisationData.save()
+    .then((organisation) => {
+      experimentData.organisation = organisation;
+      experimentData.save()
+        .then((experiment) => {
+          id = experiment.id;
+          done();
+        });
     });
 });
 
 afterEach((done) => {
-  Experiment.remove({}, done);
+  Experiment.remove({})
+    .then(() => {
+      Organisation.remove({}, done);
+    });
 });
 
 describe('## Experiment Functions', () => {
   it('should save a new experiment', (done) => {
     const experimentData = new Experiment(experiments.pneumonia);
-    experimentData.save()
-      .then((experiment) => {
-        expect(experiment.organisation.name).to.equal('Diagnostic systems');
-        expect(experiment.location.name).to.equal('India');
-        expect(experiment.location.lat).to.equal(1.4);
-        expect(experiment.jaccardIndex.version).to.equal('1.0');
-        done();
+    const organisationData = new Organisation(experimentData.organisation);
+    organisationData.save()
+      .then((organisation) => {
+        experimentData.organisation = organisation;
+        experimentData.save()
+          .then((experiment) => {
+            expect(experiment.location.name).to.equal('India');
+            expect(experiment.location.lat).to.equal(1.4);
+            expect(experiment.jaccardIndex.version).to.equal('1.0');
+            done();
+          });
       });
   });
   it('should fetch the experiment by id', (done) => {
