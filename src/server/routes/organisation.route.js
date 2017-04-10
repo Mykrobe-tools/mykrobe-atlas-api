@@ -7,61 +7,23 @@ const router = express.Router(); // eslint-disable-line new-cap
 
 
   /**
-   * @apiDefine ExperimentResponse
+   * @apiDefine OrganisationResponse
    * @apiSuccessExample Success-Response:
    *     HTTP/1.1 200 OK
    *     {
    *       "status": "success",
    *       "data": {
-   *         "owner": {
-   *           "firstname": "Sean",
-   *           "lastname": "Leavy",
-   *           "phone": "+44 7968 716851",
-   *           "email": "sean@gmail.com",
-   *           "id": "58e2697c87f269174c48cedf"
-   *         },
-   *         "organisation": {
-   *           "name": "Apex Entertainment"
-   *         },
-   *         "location": {
-   *           "name": "London",
-   *           "lat": 3.4,
-   *           "lng": -2.3,
-   *           "id": "58e4c7526555100f447d50ef"
-   *         },
-   *         "collected": "2017-04-17T00:00:00.000Z",
-   *         "uploaded": "2017-04-20T00:00:00.000Z",
-   *         "jaccardIndex": {
-   *           "analysed": "2017-04-20T00:00:00.000Z",
-   *           "engine": "",
-   *           "version": "1.0",
-   *           "experiments": [],
-   *           "id": "58e4c7526555100f447d50ee"
-   *         },
-   *           "snpDistance": {
-   *             "analysed": "2017-04-21T00:00:00.000Z",
-   *             "engine": "",
-   *             "version": "1.0",
-   *             "experiments": [],
-   *             "id": "58e4c7526555100f447d50ed"
-   *         },
-   *           "geoDistance": {
-   *             "analysed": "2017-04-22T00:00:00.000Z",
-   *             "engine": "",
-   *             "version": "1.0",
-   *             "experiments": [],
-   *             "id": "58e4c7526555100f447d50ec"
-   *           },
+   *         "name": "Apex Entertainment",
    *         "id": "58e4c7526555100f447d50eb"
    *       }
    *     }
    */
 router.route('/')
   /**
-   * @api {get} /experiments Get experiments list
+   * @api {get} /organisations Get organisations list
    *
-   * @apiName List experiments
-   * @apiGroup Experiments
+   * @apiName List organisations
+   * @apiGroup Organisations
    * @apiUse Header
    *
    * @apiSuccessExample Success-Response:
@@ -69,82 +31,21 @@ router.route('/')
    *     {
    *       "status": "success",
    *       "data": [{
-   *         "owner": {
-   *           "firstname": "Sean",
-   *           "lastname": "Leavy",
-   *           "phone": "+44 7968 716851",
-   *           "email": "sean@gmail.com",
-   *           "id": "58e2697c87f269174c48cedf"
-   *         },
-   *         "organisation": {
-   *           "name": "Apex Entertainment"
-   *         },
-   *         "location": {
-   *           "name": "London",
-   *           "lat": 3.4,
-   *           "lng": -2.3,
-   *           "id": "58e4c7526555100f447d50ef"
-   *         },
-   *         "collected": "2017-04-17T00:00:00.000Z",
-   *         "uploaded": "2017-04-20T00:00:00.000Z",
-   *         "jaccardIndex": {
-   *           "analysed": "2017-04-20T00:00:00.000Z",
-   *           "engine": "",
-   *           "version": "1.0",
-   *           "experiments": [],
-   *           "id": "58e4c7526555100f447d50ee"
-   *         },
-   *           "snpDistance": {
-   *             "analysed": "2017-04-21T00:00:00.000Z",
-   *             "engine": "",
-   *             "version": "1.0",
-   *             "experiments": [],
-   *             "id": "58e4c7526555100f447d50ed"
-   *         },
-   *           "geoDistance": {
-   *             "analysed": "2017-04-22T00:00:00.000Z",
-   *             "engine": "",
-   *             "version": "1.0",
-   *             "experiments": [],
-   *             "id": "58e4c7526555100f447d50ec"
-   *           },
-   *         "id": "58e4c7526555100f447d50eb"
+   *         "name": "Apex Entertainment"
    *       }]
    *     }
    */
   .get(expressJwt({ secret: config.jwtSecret }),
        organisationController.list)
   /**
-   * @api {post} /experiments Create new experiment
+   * @api {post} /organisations Create new organisation
    *
-   * @apiName Create new experiment
-   * @apiGroup Experiments
+   * @apiName Create new organisation
+   * @apiGroup Organisations
    * @apiUse Header
-   * @apiUse ExperimentResponse
+   * @apiUse OrganisationResponse
    *
-   * @apiParam {Object} organisation The experiment organisation.
-   * @apiParam {String} organisation.name The name of organisation.
-   * @apiParam {Object} location The experiment location.
-   * @apiParam {String} location.name The location name.
-   * @apiParam {Number} location.lat The location lat.
-   * @apiParam {Number} location.lng The location lng.
-   * @apiParam {Date} collected The collection date.
-   * @apiParam {Date} uploaded The upload date.
-   * @apiParam {Object} jaccardIndex The experiment jaccardIndex.
-   * @apiParam {Date} jaccardIndex.analysed The analysis date.
-   * @apiParam {String} jaccardIndex.engine The engine.
-   * @apiParam {String} jaccardIndex.version The version.
-   * @apiParam {Array} jaccardIndex.experiments The experiments.
-   * @apiParam {Object} snpDistance The experiment snpDistance.
-   * @apiParam {Date} snpDistance.analysed The analysis date.
-   * @apiParam {String} snpDistance.engine The engine.
-   * @apiParam {String} snpDistance.version The version.
-   * @apiParam {Array} snpDistance.experiments The experiments.
-   * @apiParam {Object} geoDistance The experiment geoDistance.
-   * @apiParam {Date} geoDistance.analysed The analysis date.
-   * @apiParam {String} geoDistance.engine The engine.
-   * @apiParam {String} geoDistance.version The version.
-   * @apiParam {Array} geoDistance.experiments The experiments.
+   * @apiParam {String} name The name of organisation.
    *
    */
   .post(expressJwt({ secret: config.jwtSecret }),
@@ -152,68 +53,46 @@ router.route('/')
 
 router.route('/:id')
   /**
-   * @api {get} /experiments/:id Read an experiment
+   * @api {get} /organisations/:id Read an organisation
    *
-   * @apiName Read experiment
-   * @apiGroup Experiments
+   * @apiName Read organisation
+   * @apiGroup Organisations
    * @apiUse Header
-   * @apiUse ExperimentResponse
+   * @apiUse OrganisationResponse
    *
-   * @apiParam {String} id The experiment ID.
+   * @apiParam {String} id The organisation ID.
    *
    */
   .get(expressJwt({ secret: config.jwtSecret }),
        organisationController.get)
   /**
-   * @api {put} /experiments/:id Update existing experiment
+   * @api {put} /organisations/:id Update existing organisation
    *
-   * @apiName Update experiment
-   * @apiGroup Experiments
+   * @apiName Update organisation
+   * @apiGroup Organisations
    * @apiUse Header
-   * @apiUse ExperimentResponse
+   * @apiUse OrganisationResponse
    *
-   * @apiParam {String} id The experiment ID.
-   * @apiParam {Object} organisation The experiment organisation.
-   * @apiParam {String} organisation.name The name of organisation.
-   * @apiParam {Object} location The experiment location.
-   * @apiParam {String} location.name The location name.
-   * @apiParam {Number} location.lat The location lat.
-   * @apiParam {Number} location.lng The location lng.
-   * @apiParam {Date} collected The collection date.
-   * @apiParam {Date} uploaded The upload date.
-   * @apiParam {Object} jaccardIndex The experiment jaccardIndex.
-   * @apiParam {Date} jaccardIndex.analysed The analysis date.
-   * @apiParam {String} jaccardIndex.engine The engine.
-   * @apiParam {String} jaccardIndex.version The version.
-   * @apiParam {Array} jaccardIndex.experiments The experiments.
-   * @apiParam {Object} snpDistance The experiment snpDistance.
-   * @apiParam {Date} snpDistance.analysed The analysis date.
-   * @apiParam {String} snpDistance.engine The engine.
-   * @apiParam {String} snpDistance.version The version.
-   * @apiParam {Array} snpDistance.experiments The experiments.
-   * @apiParam {Object} geoDistance The experiment geoDistance.
-   * @apiParam {Date} geoDistance.analysed The analysis date.
-   * @apiParam {String} geoDistance.engine The engine.
-   * @apiParam {String} geoDistance.version The version.
-   * @apiParam {Array} geoDistance.experiments The experiments.
+   * @apiParam {String} id The organisation ID.
+   * @apiParam {String} name The name of organisation.
    *
    */
   .put(expressJwt({ secret: config.jwtSecret }),
        organisationController.update)
   /**
-   * @api {delete} /experiments/:id Delete existing experiment
+   * @api {delete} /organisations/:id Delete existing organisation
    *
-   * @apiName Delete experiment
-   * @apiGroup Experiments
+   * @apiName Delete organisation
+   * @apiGroup Organisations
    * @apiUse Header
    *
-   * @apiParam {String} id The experiment ID.
+   * @apiParam {String} id The organisation ID.
    *
    * @apiSuccessExample Success-Response:
    *     HTTP/1.1 200 OK
    *     {
    *       "status": "success",
-   *       "data": "Experiment was successfully deleted."
+   *       "data": "Organisation was successfully deleted."
    *     }
    *
    */
