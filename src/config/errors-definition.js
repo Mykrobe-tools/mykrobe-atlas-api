@@ -81,5 +81,11 @@ export default {
       defaultMessage: 'Cannot update organisation.',
       parent: errors.AtlasAPIError
     });
+    errors.create({
+      name: 'UploadFileError',
+      code: 10012,
+      defaultMessage: 'Cannot upload sequence file.',
+      parent: errors.AtlasAPIError
+    });
   }
 };

@@ -4,6 +4,9 @@ import Metadata from '../models/metadata.model';
 import Organisation from '../models/organisation.model';
 import ExperimentJSONTransformer from '../transformers/ExperimentJSONTransformer';
 import ArrayJSONTransformer from '../transformers/ArrayJSONTransformer';
+import Resumable from '../helpers/Resumable';
+
+const config = require('../../config/env');
 
 /**
  * Load experiment and append to req.
@@ -101,6 +104,27 @@ function updateMetadata(req, res) {
     .catch(e => res.jerror(new errors.CreateExperimentError(e.message)));
 }
 
+/**
+ * Upload sequence file
+ * @returns {Experiment}
+ */
+function uploadFile(req, res) {
+  const experiment = req.experiment;
+  if (!req.file) {
+    return res.jerror(new errors.UploadFileError('No files found to upload'));
+  }
+  return Resumable.setUploadDirectory(`${config.uploadDir}/experiments/${experiment.id}/file`, (err) => {
+    if (err) {
+      return res.jerror(new errors.UploadFileError(err.message));
+    }
+    const postUpload = Resumable.post(req);
+    if (postUpload.complete) {
+      return res.jsend(postUpload);
+    }
+    return res.jerror(postUpload);
+  });
+}
+
 export default {
   load,
   get,
@@ -108,5 +132,6 @@ export default {
   update,
   list,
   remove,
-  updateMetadata
+  updateMetadata,
+  uploadFile
 };
