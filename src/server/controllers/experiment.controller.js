@@ -110,9 +110,16 @@ function updateMetadata(req, res) {
  */
 function uploadFile(req, res) {
   const experiment = req.experiment;
+
+  if (req.body.provider && req.body.url) {
+    const queue = config.monqClient.queue(req.body.provider);
+    return queue.enqueue('upload', req.body, () => res.jsend(`Upload triggered from ${req.body.provider}`));
+  }
+
   if (!req.file) {
     return res.jerror(new errors.UploadFileError('No files found to upload'));
   }
+
   return Resumable.setUploadDirectory(`${config.uploadDir}/experiments/${experiment.id}/file`, (err) => {
     if (err) {
       return res.jerror(new errors.UploadFileError(err.message));
