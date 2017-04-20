@@ -79,6 +79,10 @@ export default {
   uploadFile: {
     params: {
       id: Joi.string().hex().required()
+    },
+    body: {
+      path: Joi.string(),
+      provider: Joi.string().valid('dropbox', 'box', 'googleDrive', 'oneDrive')
     }
   }
 };

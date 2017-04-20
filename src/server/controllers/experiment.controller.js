@@ -111,15 +111,23 @@ function updateMetadata(req, res) {
 function uploadFile(req, res) {
   const experiment = req.experiment;
 
-  if (req.body.provider && req.body.url) {
+  // from 3rd party provider
+  if (req.body.provider && req.body.path) {
     const queue = config.monqClient.queue(req.body.provider);
-    return queue.enqueue('upload', req.body, () => res.jsend(`Upload triggered from ${req.body.provider}`));
+    return Resumable.setUploadDirectory(`${config.uploadDir}/experiments/${experiment.id}/file`, (err) => {
+      if (err) {
+        return res.jerror(new errors.UploadFileError(err.message));
+      }
+      return queue.enqueue('download', { path: req.body.path, id: experiment.id }, () => res.jsend(`Download triggered from ${req.body.provider}`));
+    });
   }
 
+  // no file provided to upload
   if (!req.file) {
     return res.jerror(new errors.UploadFileError('No files found to upload'));
   }
 
+  // from local file
   return Resumable.setUploadDirectory(`${config.uploadDir}/experiments/${experiment.id}/file`, (err) => {
     if (err) {
       return res.jerror(new errors.UploadFileError(err.message));
@@ -132,6 +140,18 @@ function uploadFile(req, res) {
   });
 }
 
+/**
+ * Sends the files as API response
+ */
+function readFile(req, res) {
+  const experiment = req.experiment;
+  if (experiment.file) {
+    const path = `${config.uploadDir}/experiments/${experiment.id}/file`;
+    return res.sendFile(`${path}/${experiment.file}`);
+  }
+  return res.jerror('No file found for this Experiment');
+}
+
 export default {
   load,
   get,
@@ -140,5 +160,6 @@ export default {
   list,
   remove,
   updateMetadata,
-  uploadFile
+  uploadFile,
+  readFile
 };

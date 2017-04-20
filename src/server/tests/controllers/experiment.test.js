@@ -348,5 +348,55 @@ describe('## Experiment APIs', () => {
           done();
         });
     });
+    describe('when provider and path are present', () => {
+      it('should only allow valid providers', (done) => {
+        request(app)
+          .put(`/experiments/${id}/file`)
+          .set('Authorization', `Bearer ${token}`)
+          .send({ provider: 'ftp', path: '/tmp/file.json' })
+          .expect(httpStatus.OK)
+          .end((err, res) => {
+            expect(res.body.status).to.equal('error');
+            expect(res.body.message).to.equal('"provider" must be one of [dropbox, box, googleDrive, oneDrive]');
+            done();
+          });
+      });
+      it('should push message to dropbox queue', (done) => {
+        request(app)
+          .put(`/experiments/${id}/file`)
+          .set('Authorization', `Bearer ${token}`)
+          .send({ provider: 'dropbox', path: '/tmp/file.json' })
+          .expect(httpStatus.OK)
+          .end((err, res) => {
+            expect(res.body.status).to.equal('success');
+            expect(res.body.data).to.equal('Download triggered from dropbox');
+            done();
+          });
+      });
+    });
+  });
+  describe('# GET /experiments/:id/file', () => {
+    it('should return an error if no file found', (done) => {
+      request(app)
+        .get(`/experiments/${id}/file`)
+        .set('Authorization', `Bearer ${token}`)
+        .expect(httpStatus.OK)
+        .end((err, res) => {
+          expect(res.body.status).to.equal('error');
+          expect(res.body.data).to.equal('No file found for this Experiment');
+          done();
+        });
+    });
+    it('should be a protected route', (done) => {
+      request(app)
+        .get(`/experiments/${id}/file`)
+        .set('Authorization', 'Bearer INVALID_TOKEN')
+        .expect(httpStatus.UNAUTHORIZED)
+        .end((err, res) => {
+          expect(res.body.status).to.equal('error');
+          expect(res.body.message).to.equal('jwt malformed');
+          done();
+        });
+    });
   });
 });

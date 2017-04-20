@@ -359,7 +359,22 @@ router.route('/:id/file')
   .put(validate(paramValidation.uploadFile),
        expressJwt({ secret: config.jwtSecret }),
        upload.single('files'),
-       experimentController.uploadFile);
+       experimentController.uploadFile)
+  /**
+   * @api {get} /experiments/:id/file View sequence file
+   * @apiName View sequence file
+   * @apiGroup Experiments
+   * @apiUse Header
+   *
+   * @apiParam {String} id experiments unique ID.
+   *
+   * @apiSuccess {Buffer} file the sequence file.
+   *
+   * @apiError UNAUTHORIZED.
+   *
+   */
+  .get(expressJwt({ secret: config.jwtSecret }),
+       experimentController.readFile);
 /** Load user when API with id route parameter is hit */
 router.param('id', experimentController.load);
 
