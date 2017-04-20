@@ -63,5 +63,23 @@ export default {
       defaultMessage: 'Cannot create new experiment.',
       parent: errors.AtlasAPIError
     });
+    errors.create({
+      name: 'UpdateExperimentError',
+      code: 10009,
+      defaultMessage: 'Cannot update experiment.',
+      parent: errors.AtlasAPIError
+    });
+    errors.create({
+      name: 'CreateOrganisationError',
+      code: 10010,
+      defaultMessage: 'Cannot create new organisation.',
+      parent: errors.AtlasAPIError
+    });
+    errors.create({
+      name: 'UpdateOrganisationError',
+      code: 10011,
+      defaultMessage: 'Cannot update organisation.',
+      parent: errors.AtlasAPIError
+    });
   }
 };

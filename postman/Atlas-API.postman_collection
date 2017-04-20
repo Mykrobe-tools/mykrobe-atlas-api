@@ -252,6 +252,156 @@
 				"description": ""
 			},
 			"response": []
+		},
+		{
+			"name": "Upload metadata",
+			"request": {
+				"url": "http://localhost:3000/experiments/58e4b23d9676f606d0530044/metadata",
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjU4ZTI2OTdjODdmMjY5MTc0YzQ4Y2VkZiIsImlhdCI6MTQ5MTM4MzM1MH0.luJ-XGfWH2Msay4rjTByV65Q6-GSr82FU3pRk-pOgDw",
+						"description": ""
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"patientId\": \"1234-abc\",\n\t\"siteId\": \"123\",\n\t\"genderAtBirth\": \"Male\",\n\t\"countryOfBirth\": \"UK\",\n\t\"bmi\": 21,\n\t\"injectingDrugUse\": \"notice\",\n\t\"homeless\": \"No\",\n\t\"imprisoned\": \"Yes\",\n\t\"smoker\": \"Yes\",\n\t\"diabetic\": \"No\",\n\t\"hivStatus\": \"Negative\",\n\t\"art\": \"hum\"\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Create organisation",
+			"request": {
+				"url": "http://localhost:3000/organisations",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjU4ZTI2OTdjODdmMjY5MTc0YzQ4Y2VkZiIsImlhdCI6MTQ5MTM4MzM1MH0.luJ-XGfWH2Msay4rjTByV65Q6-GSr82FU3pRk-pOgDw",
+						"description": ""
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"name\": \"Kingston Hospital\"\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Read organisation",
+			"request": {
+				"url": "http://localhost:3000/organisations/58e7a4f6b2f356170d7b5f1d",
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjU4ZTI2OTdjODdmMjY5MTc0YzQ4Y2VkZiIsImlhdCI6MTQ5MTM4MzM1MH0.luJ-XGfWH2Msay4rjTByV65Q6-GSr82FU3pRk-pOgDw",
+						"description": ""
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"name\": \"Kingston Hospital\"\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Update organisation",
+			"request": {
+				"url": "http://localhost:3000/organisations/58e7a4f6b2f356170d7b5f1d",
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjU4ZTI2OTdjODdmMjY5MTc0YzQ4Y2VkZiIsImlhdCI6MTQ5MTM4MzM1MH0.luJ-XGfWH2Msay4rjTByV65Q6-GSr82FU3pRk-pOgDw",
+						"description": ""
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"name\": \"Kingston Lab\"\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Delete organisation",
+			"request": {
+				"url": "http://localhost:3000/organisations/58e7a4f6b2f356170d7b5f1d",
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjU4ZTI2OTdjODdmMjY5MTc0YzQ4Y2VkZiIsImlhdCI6MTQ5MTM4MzM1MH0.luJ-XGfWH2Msay4rjTByV65Q6-GSr82FU3pRk-pOgDw",
+						"description": ""
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"name\": \"Kingston Lab\"\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "List organisations",
+			"request": {
+				"url": "http://localhost:3000/organisations",
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjU4ZTI2OTdjODdmMjY5MTc0YzQ4Y2VkZiIsImlhdCI6MTQ5MTM4MzM1MH0.luJ-XGfWH2Msay4rjTByV65Q6-GSr82FU3pRk-pOgDw",
+						"description": ""
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"name\": \"Kingston Lab\"\n}"
+				},
+				"description": ""
+			},
+			"response": []
 		}
 	]
 }

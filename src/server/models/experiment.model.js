@@ -32,10 +32,17 @@ const LocationSchema = new mongoose.Schema({
  * Experiment Schema
  */
 const ExperimentSchema = new mongoose.Schema({
-  organisation: Object,
+  organisation: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Organisation'
+  },
   owner: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
+  },
+  metadata: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Metadata'
   },
   location: LocationSchema,
   collected: Date,
@@ -76,6 +83,7 @@ ExperimentSchema.statics = {
    */
   get(id) {
     return this.findById(id)
+      .populate('organisation')
       .exec()
       .then((experiment) => {
         if (experiment) {
@@ -121,6 +129,6 @@ LocationSchema.set('toJSON', {
 });
 
 /**
- * @typedef User
+ * @typedef Experiment
  */
 export default mongoose.model('Experiment', ExperimentSchema);
