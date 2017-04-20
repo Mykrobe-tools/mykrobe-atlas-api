@@ -91,7 +91,6 @@ UserSchema.statics = {
    */
   get(id) {
     return this.findById(id)
-      .populate('buddies')
       .exec()
       .then((user) => {
         if (user) {
@@ -173,7 +172,6 @@ UserSchema.statics = {
    */
   list({ skip = 0, limit = 50 } = {}) {
     return this.find()
-      .populate('buddies')
       .skip(skip)
       .limit(limit)
       .exec();

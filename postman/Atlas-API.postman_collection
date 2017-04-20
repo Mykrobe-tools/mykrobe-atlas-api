@@ -202,6 +202,56 @@
 				"description": ""
 			},
 			"response": []
+		},
+		{
+			"name": "Create experiment",
+			"request": {
+				"url": "http://localhost:3000/experiments",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjU4ZTI2OTdjODdmMjY5MTc0YzQ4Y2VkZiIsImlhdCI6MTQ5MTM4MzM1MH0.luJ-XGfWH2Msay4rjTByV65Q6-GSr82FU3pRk-pOgDw",
+						"description": ""
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"organisation\": {\n\t\t\"name\": \"Apex Entertainment\"\n\t},\n\t\"location\": {\n\t\t\"name\": \"London\",\n\t\t\"lat\": 3.4,\n\t\t\"lng\": -2.3\n\t},\n\t\"collected\": \"2017-04-17\",\n\t\"uploaded\": \"2017-04-20\",\n\t\"resistance\": {},\n\t\"jaccardIndex\": {\n\t\t\"analysed\": \"2017-04-20\",\n\t\t\"engine\": \"\",\n\t\t\"version\": \"1.0\",\n\t\t\"experiments\": []\n\t},\n\t\"snpDistance\": {\n\t\t\"analysed\": \"2017-04-21\",\n\t\t\"engine\": \"\",\n\t\t\"version\": \"1.0\",\n\t\t\"experiments\": []\n\t},\n\t\"geoDistance\": {\n\t\t\"analysed\": \"2017-04-22\",\n\t\t\"engine\": \"\",\n\t\t\"version\": \"1.0\",\n\t\t\"experiments\": []\n\t}\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "List experiments",
+			"request": {
+				"url": "http://localhost:3000/experiments",
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjU4ZTI2OTdjODdmMjY5MTc0YzQ4Y2VkZiIsImlhdCI6MTQ5MTM4MzM1MH0.luJ-XGfWH2Msay4rjTByV65Q6-GSr82FU3pRk-pOgDw",
+						"description": ""
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"organisation\": {\n\t\t\"name\": \"Apex Entertainment\"\n\t},\n\t\"location\": {\n\t\t\"name\": \"London\",\n\t\t\"lat\": 3.4,\n\t\t\"lng\": -2.3\n\t},\n\t\"collected\": \"2017-04-17\",\n\t\"uploaded\": \"2017-04-20\",\n\t\"resistance\": {},\n\t\"jaccardIndex\": {\n\t\t\"analysed\": \"2017-04-20\",\n\t\t\"engine\": \"\",\n\t\t\"version\": \"1.0\",\n\t\t\"experiments\": []\n\t},\n\t\"snpDistance\": {\n\t\t\"analysed\": \"2017-04-21\",\n\t\t\"engine\": \"\",\n\t\t\"version\": \"1.0\",\n\t\t\"experiments\": []\n\t},\n\t\"geoDistance\": {\n\t\t\"analysed\": \"2017-04-22\",\n\t\t\"engine\": \"\",\n\t\t\"version\": \"1.0\",\n\t\t\"experiments\": []\n\t}\n}"
+				},
+				"description": ""
+			},
+			"response": []
 		}
 	]
 }

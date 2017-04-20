@@ -26,7 +26,7 @@ class ArrayJSONTransformer extends JSONTransformer {
 
       // if mongoose class - take the Object
       if (typeof (transformed.toObject) === 'function') {
-        transformed = transformed.toObject();
+        transformed = transformed.toJSON();
       }
 
       if (Transformer) {
