@@ -19,7 +19,8 @@ const defaults = {
     from: 'no-reply@makeandship.com',
     subject: 'Reset password request',
     html: `Please click on the following link to reset your password ${process.env.ATLAS_APP}/auth/reset/%s`
-  }
+  },
+  dropboxAccessToken: process.env.DROPBOX_ACCESS_TOKEN
 };
 
 const functions = {

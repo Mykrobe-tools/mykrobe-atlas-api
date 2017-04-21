@@ -234,4 +234,169 @@ describe('## Experiment APIs', () => {
         });
     });
   });
+  describe('# PUT /experiments/:id/file', () => {
+    it('should upload file using resumable', (done) => {
+      request(app)
+        .put(`/experiments/${id}/file`)
+        .set('Authorization', `Bearer ${token}`)
+        .attach('files', 'src/server/tests/fixtures/files/333-08.json')
+        .field('resumableChunkNumber', 1)
+        .field('resumableChunkSize', 1048576)
+        .field('resumableCurrentChunkSize', 251726)
+        .field('resumableTotalSize', 251726)
+        .field('resumableType', 'application/json')
+        .field('resumableIdentifier', '251726-333-08json')
+        .field('resumableFilename', '333-08.json')
+        .field('resumableRelativePath', '333-08.json')
+        .field('resumableTotalChunks', 1)
+        .field('checksum', '4f36e4cbfc9dfc37559e13bd3a309d50')
+        .expect(httpStatus.OK)
+        .end((err, res) => {
+          expect(res.body.status).to.equal('success');
+          expect(res.body.data.complete).to.equal(true);
+          expect(res.body.data.message).to.equal('Chunk 1 uploaded');
+          expect(res.body.data.filename).to.equal('333-08.json');
+          done();
+        });
+    });
+    it('should return an error if experiment not found', (done) => {
+      request(app)
+        .put('/experiments/589dcdd38d71fee259dc4e00/file')
+        .set('Authorization', `Bearer ${token}`)
+        .attach('files', 'src/server/tests/fixtures/files/333-08.json')
+        .field('resumableChunkNumber', 1)
+        .field('resumableChunkSize', 1048576)
+        .field('resumableCurrentChunkSize', 251726)
+        .field('resumableTotalSize', 251726)
+        .field('resumableType', 'application/json')
+        .field('resumableIdentifier', '251726-333-08json')
+        .field('resumableFilename', '333-08.json')
+        .field('resumableRelativePath', '333-08.json')
+        .field('resumableTotalChunks', 1)
+        .field('checksum', '4f36e4cbfc9dfc37559e13bd3a309d50')
+        .expect(httpStatus.OK)
+        .end((err, res) => {
+          expect(res.body.status).to.equal('error');
+          expect(res.body.message).to.equal('Experiment not found with id 589dcdd38d71fee259dc4e00');
+          done();
+        });
+    });
+    it('should return an error if no file attached', (done) => {
+      request(app)
+        .put(`/experiments/${id}/file`)
+        .set('Authorization', `Bearer ${token}`)
+        .field('resumableChunkNumber', 1)
+        .field('resumableChunkSize', 1048576)
+        .field('resumableCurrentChunkSize', 251726)
+        .field('resumableTotalSize', 251726)
+        .field('resumableType', 'application/json')
+        .field('resumableIdentifier', '251726-333-08json')
+        .field('resumableFilename', '333-08.json')
+        .field('resumableRelativePath', '333-08.json')
+        .field('resumableTotalChunks', 1)
+        .field('checksum', '4f36e4cbfc9dfc37559e13bd3a309d50')
+        .expect(httpStatus.OK)
+        .end((err, res) => {
+          expect(res.body.status).to.equal('error');
+          expect(res.body.message).to.equal('No files found to upload');
+          done();
+        });
+    });
+    it('should return an error if checksum is not valid', (done) => {
+      request(app)
+        .put(`/experiments/${id}/file`)
+        .set('Authorization', `Bearer ${token}`)
+        .attach('files', 'src/server/tests/fixtures/files/333-08.json')
+        .field('resumableChunkNumber', 1)
+        .field('resumableChunkSize', 1048576)
+        .field('resumableCurrentChunkSize', 251726)
+        .field('resumableTotalSize', 251726)
+        .field('resumableType', 'application/json')
+        .field('resumableIdentifier', '251726-333-08json')
+        .field('resumableFilename', '333-08.json')
+        .field('resumableRelativePath', '333-08.json')
+        .field('resumableTotalChunks', 1)
+        .field('checksum', '4f36e4cbfc9dfc37559e13bd3a309d55')
+        .expect(httpStatus.OK)
+        .end((err, res) => {
+          expect(res.body.status).to.equal('error');
+          expect(res.body.data.complete).to.equal(false);
+          expect(res.body.data.message).to.equal("Uploaded file checksum doesn't match original checksum");
+          done();
+        });
+    });
+    it('should return an error if chunk size is not correct', (done) => {
+      request(app)
+        .put(`/experiments/${id}/file`)
+        .set('Authorization', `Bearer ${token}`)
+        .attach('files', 'src/server/tests/fixtures/files/333-08.json')
+        .field('resumableChunkNumber', 1)
+        .field('resumableChunkSize', 1048576)
+        .field('resumableCurrentChunkSize', 251726)
+        .field('resumableTotalSize', 251700)
+        .field('resumableType', 'application/json')
+        .field('resumableIdentifier', '251726-333-08json')
+        .field('resumableFilename', '333-08.json')
+        .field('resumableRelativePath', '333-08.json')
+        .field('resumableTotalChunks', 1)
+        .field('checksum', '4f36e4cbfc9dfc37559e13bd3a309d50')
+        .expect(httpStatus.OK)
+        .end((err, res) => {
+          expect(res.body.status).to.equal('error');
+          expect(res.body.data.complete).to.equal(false);
+          expect(res.body.data.message).to.equal('Incorrect individual chunk size');
+          done();
+        });
+    });
+    describe('when provider and path are present', () => {
+      it('should only allow valid providers', (done) => {
+        request(app)
+          .put(`/experiments/${id}/file`)
+          .set('Authorization', `Bearer ${token}`)
+          .send({ provider: 'ftp', path: '/tmp/file.json' })
+          .expect(httpStatus.OK)
+          .end((err, res) => {
+            expect(res.body.status).to.equal('error');
+            expect(res.body.message).to.equal('"provider" must be one of [dropbox, box, googleDrive, oneDrive]');
+            done();
+          });
+      });
+      it('should push message to dropbox queue', (done) => {
+        request(app)
+          .put(`/experiments/${id}/file`)
+          .set('Authorization', `Bearer ${token}`)
+          .send({ provider: 'dropbox', path: '/tmp/file.json' })
+          .expect(httpStatus.OK)
+          .end((err, res) => {
+            expect(res.body.status).to.equal('success');
+            expect(res.body.data).to.equal('Download triggered from dropbox');
+            done();
+          });
+      });
+    });
+  });
+  describe('# GET /experiments/:id/file', () => {
+    it('should return an error if no file found', (done) => {
+      request(app)
+        .get(`/experiments/${id}/file`)
+        .set('Authorization', `Bearer ${token}`)
+        .expect(httpStatus.OK)
+        .end((err, res) => {
+          expect(res.body.status).to.equal('error');
+          expect(res.body.data).to.equal('No file found for this Experiment');
+          done();
+        });
+    });
+    it('should be a protected route', (done) => {
+      request(app)
+        .get(`/experiments/${id}/file`)
+        .set('Authorization', 'Bearer INVALID_TOKEN')
+        .expect(httpStatus.UNAUTHORIZED)
+        .end((err, res) => {
+          expect(res.body.status).to.equal('error');
+          expect(res.body.message).to.equal('jwt malformed');
+          done();
+        });
+    });
+  });
 });

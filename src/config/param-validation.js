@@ -73,5 +73,16 @@ export default {
         name: Joi.string().required()
       })
     }
+  },
+
+  // PUT /experiments/:id/file
+  uploadFile: {
+    params: {
+      id: Joi.string().hex().required()
+    },
+    body: {
+      path: Joi.string(),
+      provider: Joi.string().valid('dropbox', 'box', 'googleDrive', 'oneDrive')
+    }
   }
 };

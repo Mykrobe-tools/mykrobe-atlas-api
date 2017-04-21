@@ -50,7 +50,8 @@ const ExperimentSchema = new mongoose.Schema({
   resistance: Object,
   jaccardIndex: DistanceSchema,
   snpDistance: DistanceSchema,
-  geoDistance: DistanceSchema
+  geoDistance: DistanceSchema,
+  file: String
 });
 
 // Add reference to experiements

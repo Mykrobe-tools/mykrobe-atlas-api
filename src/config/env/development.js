@@ -6,5 +6,6 @@ export default {
   jwtSecret: 'Wai6nZh6Mi3U08r7WPki6B2IPP2RgC25',
   db: 'mongodb://localhost/atlas-dev',
   nodemailer,
+  uploadDir: '/tmp/uploads',
   port: 3000
 };

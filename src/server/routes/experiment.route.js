@@ -1,11 +1,13 @@
 import express from 'express';
 import expressJwt from 'express-jwt';
 import validate from 'express-validation';
+import multer from 'multer';
 import paramValidation from '../../config/param-validation';
 import experimentController from '../controllers/experiment.controller';
 import userController from '../controllers/user.controller';
 import config from '../../config/env';
 
+const upload = multer({ dest: 'tmp/' });
 const router = express.Router(); // eslint-disable-line new-cap
 
 
@@ -115,8 +117,7 @@ router.route('/')
    *       }]
    *     }
    */
-  .get(expressJwt({ secret: config.jwtSecret }),
-       experimentController.list)
+  .get(expressJwt({ secret: config.jwtSecret }), experimentController.list)
   /**
    * @api {post} /experiments Create new experiment
    *
@@ -151,9 +152,9 @@ router.route('/')
    *
    */
   .post(expressJwt({ secret: config.jwtSecret }),
-       validate(paramValidation.createExperiment),
-       userController.loadCurrentUser,
-       experimentController.create);
+        validate(paramValidation.createExperiment),
+        userController.loadCurrentUser,
+        experimentController.create);
 
 router.route('/:id')
   /**
@@ -203,8 +204,7 @@ router.route('/:id')
    * @apiParam {Array} geoDistance.experiments The experiments.
    *
    */
-  .put(expressJwt({ secret: config.jwtSecret }),
-       experimentController.update)
+  .put(expressJwt({ secret: config.jwtSecret }), experimentController.update)
   /**
    * @api {delete} /experiments/:id Delete existing experiment
    *
@@ -222,8 +222,7 @@ router.route('/:id')
    *     }
    *
    */
-  .delete(expressJwt({ secret: config.jwtSecret }),
-       experimentController.remove);
+  .delete(expressJwt({ secret: config.jwtSecret }), experimentController.remove);
 router.route('/:id/metadata')
   /**
    * @api {put} /experiments/:id/metadata Upload metadata
@@ -331,8 +330,51 @@ router.route('/:id/metadata')
    *   }
    *
    */
-  .put(expressJwt({ secret: config.jwtSecret }),
-       experimentController.updateMetadata);
+  .put(expressJwt({ secret: config.jwtSecret }), experimentController.updateMetadata);
+router.route('/:id/file')
+  /**
+   * @api {put} /experiments/:id/file Upload sequence file
+   *
+   * @apiName Upload sequence file
+   * @apiGroup Experiments
+   * @apiUse Header
+   *
+   * @apiParam {String} id The experiment ID.
+   * @apiParam {Buffer} files The file to upload.
+   *
+   * @apiSuccessExample Success-Response:
+   *     HTTP/1.1 200 OK
+   *   {
+   *     "status":"success",
+   *     "data":{
+   *       "complete":true,
+   *       "message":"Chunk 1 uploaded",
+   *       "filename":"333-08.json",
+   *       "originalFilename":"251726-333-08json",
+   *       "identifier":"251726-333-08json"
+   *    }
+   *  }
+   *
+   */
+  .put(validate(paramValidation.uploadFile),
+       expressJwt({ secret: config.jwtSecret }),
+       upload.single('files'),
+       experimentController.uploadFile)
+  /**
+   * @api {get} /experiments/:id/file View sequence file
+   * @apiName View sequence file
+   * @apiGroup Experiments
+   * @apiUse Header
+   *
+   * @apiParam {String} id experiments unique ID.
+   *
+   * @apiSuccess {Buffer} file the sequence file.
+   *
+   * @apiError UNAUTHORIZED.
+   *
+   */
+  .get(expressJwt({ secret: config.jwtSecret }),
+       experimentController.readFile);
 /** Load user when API with id route parameter is hit */
 router.param('id', experimentController.load);
 
