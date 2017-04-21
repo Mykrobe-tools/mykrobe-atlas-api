@@ -76,6 +76,7 @@
     "nodemailer": "^3.1.8",
     "nodemailer-mock": "^1.2.1",
     "nodemailer-ses-transport": "^1.5.0",
+    "onedrive-api": "^0.0.9",
     "password-hash": "1.2.2",
     "path": "^0.12.7",
     "randomstring": "^1.1.5",
