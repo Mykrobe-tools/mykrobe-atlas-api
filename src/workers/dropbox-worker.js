@@ -25,14 +25,16 @@ worker.register({ download: (data, next) => {
           .then((experiment) => {
             experiment.file = response.metadata.name; // eslint-disable-line no-param-reassign
             experiment.save()
-              .then(() => winston.info('Download completed and experiment saved'));
+              .then(() => {
+                winston.info('Download completed and experiment saved');
+                next();
+              });
           });
       });
     })
     .catch((error) => {
       next(error);
     });
-  next();
 }
 });
 
