@@ -1,13 +1,13 @@
 # remove the failed deployment directory
-CURRENT_VERSION=$(cat /var/go/releases/CURRENT_VERSION)
-rm -R /var/go/releases/$CURRENT_VERSION
+CURRENT_VERSION=$(cat /var/go/releases/server/CURRENT_VERSION)
+rm -R /var/go/releases/server/$CURRENT_VERSION
 
 # remove the failed image
 docker images | grep $CURRENT_VERSION | awk '{print $1}' | xargs docker rmi
 
 # work with the prior working version
-PREVIOUS_VERSION=$(cat /var/go/releases/PREVIOUS_VERSION)
-cd /var/go/releases/$PREVIOUS_VERSION/deploy
+PREVIOUS_VERSION=$(cat /var/go/releases/server/PREVIOUS_VERSION)
+cd /var/go/releases/server/$PREVIOUS_VERSION/deploy
 
 # remove current images
 docker ps -a -q | xargs --no-run-if-empty docker rm -f 
