@@ -20,7 +20,8 @@ const defaults = {
     subject: 'Reset password request',
     html: `Please click on the following link to reset your password ${process.env.ATLAS_APP}/auth/reset/%s`
   },
-  dropboxAccessToken: process.env.DROPBOX_ACCESS_TOKEN
+  boxClientId: process.env.BOX_CLIENT_ID,
+  boxClientSecret: process.env.BOX_CLIENT_SECRET
 };
 
 const functions = {

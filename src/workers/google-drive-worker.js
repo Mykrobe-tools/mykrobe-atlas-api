@@ -1,20 +1,36 @@
 import winston from 'winston';
+import fs from 'fs';
 import googleDrive from 'google-drive';
 import config from '../config/env';
+import Experiment from '../server/models/experiment.model';
 
 const client = config.monqClient;
 const worker = client.worker(['googleDrive']);
 
 worker.register({ download: (data, next) => {
-  winston.info('start download');
-  const token = 'ya29.GlwzBICYfSgZWi28aZq3l2d3ec3P_lFx-ntMU-WPh6mYs-1bhvqXNYd0fpnSmNwbcwWeFsgWLnbLFuLd2eiuflCtIWht6iBGD51uAg_TwMsLhdJtNkQVFLMKfzlt9g';
-  googleDrive(token).files().list((err, response, body) => {
-    const res = JSON.parse(body);
-    res.items.forEach((item) => {
-      winston.info(`file:${item.title} id:${item.id}`);
-    });
-    next();
-  });
+  const token = data.accessToken;
+  const output = fs.createWriteStream(`${config.uploadDir}/experiments/${data.id}/file/${data.fileId}`);
+  googleDrive(token).files(data.fileId).get((err) => {
+    if (err) {
+      next(err);
+    }
+    else {
+      Experiment.get(data.id)
+        .then((experiment) => {
+          experiment.file = data.fileId; // eslint-disable-line no-param-reassign
+          experiment.save()
+            .then(() => {
+              winston.info('Download completed and experiment saved');
+              next();
+            });
+        })
+        .catch((error) => {
+          winston.info(`Error:${error}`);
+          next(error);
+        });
+    }
+  })
+  .pipe(output);
 }
 });
 

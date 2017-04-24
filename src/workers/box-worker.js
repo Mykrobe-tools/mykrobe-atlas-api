@@ -1,25 +1,41 @@
 import winston from 'winston';
 import BoxSDK from 'box-node-sdk';
+import fs from 'fs';
 import config from '../config/env';
+import Experiment from '../server/models/experiment.model';
 
 const client = config.monqClient;
 const worker = client.worker(['box']);
 
 const sdk = new BoxSDK({
-  clientID: 'st6bwkk028q2qm57mytcf1uldgm5jh58',
-  clientSecret: 'WT51KL9KPlBGgkvZs0tKqyCJEWJ7SKPb'
+  clientID: config.boxClientId,
+  clientSecret: config.boxClientSecret
 });
 
 // Create a basic API client
-const boxClient = sdk.getBasicClient('TIMfFVeMOs9civbyodRFluRw5K7NM3R2');
-
 worker.register({ download: (data, next) => {
-  winston.info('start download');
-  boxClient.folders.getItems('0', { fields: 'name,shared_link,permissions,collections,sync_state' }, (err, res) => {
-    res.entries.forEach((entry) => {
-      winston.info(`file:${entry.name} id:${entry.id}`);
-    });
-    next();
+  const boxClient = sdk.getBasicClient(data.accessToken);
+  boxClient.files.getReadStream(data.fileId, null, (err, stream) => {
+    if (err) {
+      next(err);
+    }
+    else {
+      const output = fs.createWriteStream(`${config.uploadDir}/experiments/${data.id}/file/${data.fileId}`);
+      stream.pipe(output);
+      Experiment.get(data.id)
+        .then((experiment) => {
+          experiment.file = data.fileId; // eslint-disable-line no-param-reassign
+          experiment.save()
+            .then(() => {
+              winston.info('Download completed and experiment saved');
+              next();
+            });
+        })
+        .catch((error) => {
+          winston.info(`Error:${error}`);
+          next(error);
+        });
+    }
   });
 }
 });

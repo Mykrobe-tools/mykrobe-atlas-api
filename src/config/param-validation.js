@@ -81,7 +81,8 @@ export default {
       id: Joi.string().hex().required()
     },
     body: {
-      path: Joi.string(),
+      fileId: Joi.string(),
+      accessToken: Joi.string(),
       provider: Joi.string().valid('dropbox', 'box', 'googleDrive', 'oneDrive')
     }
   }

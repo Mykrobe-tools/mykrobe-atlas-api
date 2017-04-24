@@ -348,12 +348,12 @@ describe('## Experiment APIs', () => {
           done();
         });
     });
-    describe('when provider and path are present', () => {
+    describe('when provider and fileId are present', () => {
       it('should only allow valid providers', (done) => {
         request(app)
           .put(`/experiments/${id}/file`)
           .set('Authorization', `Bearer ${token}`)
-          .send({ provider: 'ftp', path: '/tmp/file.json' })
+          .send({ provider: 'ftp', fileId: '/tmp/file.json', accessToken: 'dummy-token' })
           .expect(httpStatus.OK)
           .end((err, res) => {
             expect(res.body.status).to.equal('error');
@@ -365,11 +365,47 @@ describe('## Experiment APIs', () => {
         request(app)
           .put(`/experiments/${id}/file`)
           .set('Authorization', `Bearer ${token}`)
-          .send({ provider: 'dropbox', path: '/tmp/file.json' })
+          .send({ provider: 'dropbox', fileId: '/tmp/file.json', accessToken: 'dummy-token' })
           .expect(httpStatus.OK)
           .end((err, res) => {
             expect(res.body.status).to.equal('success');
             expect(res.body.data).to.equal('Download triggered from dropbox');
+            done();
+          });
+      });
+      it('should push message to box queue', (done) => {
+        request(app)
+          .put(`/experiments/${id}/file`)
+          .set('Authorization', `Bearer ${token}`)
+          .send({ provider: 'box', fileId: '1234', accessToken: 'dummy-token' })
+          .expect(httpStatus.OK)
+          .end((err, res) => {
+            expect(res.body.status).to.equal('success');
+            expect(res.body.data).to.equal('Download triggered from box');
+            done();
+          });
+      });
+      it('should push message to google drive queue', (done) => {
+        request(app)
+          .put(`/experiments/${id}/file`)
+          .set('Authorization', `Bearer ${token}`)
+          .send({ provider: 'googleDrive', fileId: '1234', accessToken: 'dummy-token' })
+          .expect(httpStatus.OK)
+          .end((err, res) => {
+            expect(res.body.status).to.equal('success');
+            expect(res.body.data).to.equal('Download triggered from googleDrive');
+            done();
+          });
+      });
+      it('should push message to one drive queue', (done) => {
+        request(app)
+          .put(`/experiments/${id}/file`)
+          .set('Authorization', `Bearer ${token}`)
+          .send({ provider: 'oneDrive', fileId: '1234', accessToken: 'dummy-token' })
+          .expect(httpStatus.OK)
+          .end((err, res) => {
+            expect(res.body.status).to.equal('success');
+            expect(res.body.data).to.equal('Download triggered from oneDrive');
             done();
           });
       });
