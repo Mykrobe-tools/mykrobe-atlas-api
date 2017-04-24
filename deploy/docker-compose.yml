@@ -14,7 +14,7 @@ atlas-api:
     - /home/ubuntu/data/uploads:/app/uploads
   restart: always
   ports:
-    - 3000:3000
+    - 3001:3000
   environment:
     - NODE_ENV=production
     - MONGO_USER=admin

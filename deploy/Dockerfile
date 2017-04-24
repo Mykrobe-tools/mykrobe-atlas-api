@@ -18,7 +18,6 @@ RUN apt-get install -y git
 RUN apt-get install -y python 
 RUN apt-get install -y build-essential 
 RUN apt-get install -y libssl-dev
-RUN apt-get install -y imagemagick
 
 # download and install nvm
 RUN curl https://raw.githubusercontent.com/creationix/nvm/v0.32.1/install.sh | bash \
