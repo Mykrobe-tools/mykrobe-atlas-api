@@ -10,6 +10,11 @@ const defaults = {
   adminRole: 'Admin',
   notification: 'email',
   username: 'email',
+  ses: {
+    accessKeyId: process.env.AWS_ACCESS_KEY,
+    secretAccessKey: process.env.AWS_SECRET_KEY,
+    region: process.env.AWS_REGION
+  },
   verifyAccountOptions: {
     from: 'no-reply@makeandship.com',
     subject: 'Please verify your account',
