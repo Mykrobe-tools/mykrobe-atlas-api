@@ -60,6 +60,7 @@ router.route('/')
    * @apiParam {String} lastname the user lastname.
    * @apiParam {String} phone the user phone.
    * @apiParam {String} email the user email.
+   * @apiParam {String} password the user password.
    *
    *
    * @apiError ValidationError Invalid params.

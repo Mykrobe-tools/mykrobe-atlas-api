@@ -15,16 +15,6 @@ const defaults = {
     secretAccessKey: process.env.AWS_SECRET_KEY,
     region: process.env.AWS_REGION
   },
-  verifyAccountOptions: {
-    from: 'no-reply@makeandship.com',
-    subject: 'Please verify your account',
-    html: `Please click on the following link to verify your account ${process.env.ATLAS_APP}/auth/verify/%s`
-  },
-  resetPasswordOptions: {
-    from: 'no-reply@makeandship.com',
-    subject: 'Reset password request',
-    html: `Please click on the following link to reset your password ${process.env.ATLAS_APP}/auth/reset/%s`
-  },
   dropboxAccessToken: process.env.DROPBOX_ACCESS_TOKEN
 };
 

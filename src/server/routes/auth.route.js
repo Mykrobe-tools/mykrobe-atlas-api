@@ -142,17 +142,18 @@ router.route('/reset')
    * @apiUse NotFound
    *
    * @apiParam {String} verificationToken The user unique verificationToken.
-   * @apiParam {String} phone The user unique phone.
    *
    * @apiSuccessExample Success-Response:
    *     HTTP/1.1 200 OK
    *     {
    *       "status": "success",
    *       "data": {
-   *            "phone": "+447968700000",
-   *            "token": "GciOiJIUzI1NiIsInR5cCI6IkpXVCJ9",
-   *            "id": "589dcbe140e9440ed36bb616"
-   *         }
+   *         "firstname": "David",
+   *         "lastname": "Krool",
+   *         "phone": "+44 7968 716851",
+   *         "email": "david@gmail.com",
+   *         "id": "59099f897120c90b8e1a2365"
+   *       }
    *     }
    */
 router.route('/verify')

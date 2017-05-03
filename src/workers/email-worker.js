@@ -8,9 +8,12 @@ const transporter = nodemailer.createTransport(sesTransport(config.ses));
 const worker = client.worker(['email']);
 
 worker.register({ forgot: (data, next) => {
-  const mailOptions = config.resetPasswordOptions;
-  mailOptions.to = data.to;
-  mailOptions.html = mailOptions.html.replace('%s', data.token);
+  const mailOptions = {
+    from: 'no-reply@makeandship.com',
+    subject: 'Reset password request',
+    html: `Please click on the following link to reset your password ${process.env.ATLAS_APP}/auth/reset/${data.token}`,
+    to: data.to
+  };
   transporter.sendMail(mailOptions, (err, info) => {
     if (err) {
       winston.info(err);
@@ -23,9 +26,12 @@ worker.register({ forgot: (data, next) => {
 });
 
 worker.register({ welcome: (data, next) => {
-  const mailOptions = config.verifyAccountOptions;
-  mailOptions.to = data.to;
-  mailOptions.html = mailOptions.html.replace('%s', data.token);
+  const mailOptions = {
+    from: 'no-reply@makeandship.com',
+    subject: 'Please verify your account',
+    html: `Please click on the following link to verify your account ${process.env.ATLAS_APP}/auth/verify/${data.token}`,
+    to: data.to
+  };
   transporter.sendMail(mailOptions, (err, info) => {
     if (err) {
       winston.info(err);
