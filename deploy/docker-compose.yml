@@ -19,8 +19,8 @@ atlas-api:
     - NODE_ENV=production
     - MONGO_USER=admin
     - MONGO_PASSWORD=5HKCO4SDkTfy
-    - AWS_ACCESS_KEY_ID={{AWS_ACCESS_KEY}}
-    - AWS_SECRET_ACCESS_KEY={{AWS_SECRET_KEY}}
+    - AWS_ACCESS_KEY={{AWS_ACCESS_KEY}}
+    - AWS_SECRET_KEY={{AWS_SECRET_KEY}}
     - AWS_REGION={{AWS_REGION}}
   links:
     - db
