@@ -4,6 +4,7 @@ import usersRoutes from './users.route';
 import authRoutes from './auth.route';
 import experimentRoutes from './experiment.route';
 import organisationRoutes from './organisation.route';
+import dataRoutes from './data.route';
 
 const router = express.Router(); // eslint-disable-line new-cap
 /**
@@ -62,5 +63,8 @@ router.use('/experiments', experimentRoutes);
 
 // mount organisations routes at /organisations
 router.use('/organisations', organisationRoutes);
+
+// mount data routes at /data
+router.use('/data', dataRoutes);
 
 export default router;
