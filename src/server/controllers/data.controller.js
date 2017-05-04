@@ -13,18 +13,10 @@ import Metadata from '../models/metadata.model';
  */
 function clean(req, res) {
   User.remove({})
-    .then(() => {
-      Experiment.remove({})
-        .then(() => {
-          Organisation.remove({})
-            .then(() => {
-              Metadata.remove({})
-                .then(() => {
-                  res.jsend('Data cleared successfully');
-                });
-            });
-        });
-    });
+    .then(() => Experiment.remove({}))
+    .then(() => Organisation.remove({}))
+    .then(() => Metadata.remove({}))
+    .then(() => res.jsend('data cleared successfully'));
 }
 
 /**
