@@ -1,5 +1,7 @@
 import ModelJSONTransformer from './ModelJSONTransformer';
 import BlacklistTransformer from './BlacklistTransformer';
+import UserJSONTransformer from './UserJSONTransformer';
+import OrganisationJSONTransformer from './OrganisationJSONTransformer';
 
 const BLACKLIST = ['__v'];
 
@@ -14,6 +16,12 @@ class ExperimentJSONTransformer extends ModelJSONTransformer {
   transform() {
     let res = super.transform();
     res = new BlacklistTransformer(res, { blacklist: BLACKLIST }).transform();
+    if (res.owner) {
+      res.owner = new UserJSONTransformer(res.owner).transform();
+    }
+    if (res.organisation) {
+      res.organisation = new OrganisationJSONTransformer(res.organisation).transform();
+    }
     return res;
   }
 }
