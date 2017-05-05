@@ -17,7 +17,7 @@ function download(uri, filename, callback) {
 }
 
 worker.register({ download: (data, next) => {
-  const dbx = new Dropbox({ accessToken: config.dropboxAccessToken });
+  const dbx = new Dropbox({ accessToken: data.accessToken });
   dbx.filesGetTemporaryLink({ path: data.path })
     .then((response) => {
       download(response.link, `${config.uploadDir}/experiments/${data.id}/file/${response.metadata.name}`, () => {
@@ -29,6 +29,10 @@ worker.register({ download: (data, next) => {
                 winston.info('Download completed and experiment saved');
                 next();
               });
+          })
+          .catch((error) => {
+            winston.info(`Error:${error}`);
+            next(error);
           });
       });
     })

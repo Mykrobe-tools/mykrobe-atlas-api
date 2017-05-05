@@ -112,13 +112,13 @@ function uploadFile(req, res) {
   const experiment = req.experiment;
 
   // from 3rd party provider
-  if (req.body.provider && req.body.path) {
+  if (req.body.provider && req.body.accessToken) {
     const queue = config.monqClient.queue(req.body.provider);
     return Resumable.setUploadDirectory(`${config.uploadDir}/experiments/${experiment.id}/file`, (err) => {
       if (err) {
         return res.jerror(new errors.UploadFileError(err.message));
       }
-      return queue.enqueue('download', { path: req.body.path, id: experiment.id }, () => res.jsend(`Download triggered from ${req.body.provider}`));
+      return queue.enqueue('download', { path: req.body.path, id: experiment.id, accessToken: req.body.accessToken, fileId: req.body.fileId }, () => res.jsend(`Download triggered from ${req.body.provider}`));
     });
   }
 

@@ -15,7 +15,8 @@ const defaults = {
     secretAccessKey: process.env.AWS_SECRET_KEY,
     region: process.env.AWS_REGION
   },
-  dropboxAccessToken: process.env.DROPBOX_ACCESS_TOKEN
+  boxClientId: process.env.BOX_CLIENT_ID,
+  boxClientSecret: process.env.BOX_CLIENT_SECRET
 };
 
 const functions = {
