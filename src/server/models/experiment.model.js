@@ -84,7 +84,7 @@ ExperimentSchema.statics = {
    */
   get(id) {
     return this.findById(id)
-      .populate('organisation')
+      .populate(['organisation', 'owner'])
       .exec()
       .then((experiment) => {
         if (experiment) {
@@ -102,6 +102,7 @@ ExperimentSchema.statics = {
    */
   list({ skip = 0, limit = 50 } = {}) {
     return this.find()
+      .populate(['organisation', 'owner'])
       .skip(skip)
       .limit(limit)
       .exec();

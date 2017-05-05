@@ -24,7 +24,7 @@ beforeEach((done) => {
   const organisationData = new Organisation(experiments.tuberculosis.organisation);
   const experimentData = new Experiment(experiments.tuberculosis);
   userData.save()
-              .then(() => {
+              .then((savedUser) => {
                 request(app)
                   .post('/auth/login')
                   .send({ email: 'admin@nhs.co.uk', password: 'password' })
@@ -33,6 +33,7 @@ beforeEach((done) => {
                     organisationData.save()
                       .then((savedOrganisation) => {
                         experimentData.organisation = savedOrganisation;
+                        experimentData.owner = savedUser;
                         experimentData.save()
                           .then((savedExperiment) => {
                             id = savedExperiment.id;
@@ -96,6 +97,34 @@ describe('## Experiment APIs', () => {
           expect(res.body.status).to.equal('success');
           expect(res.body.data.organisation.name).to.equal('Apex Entertainment');
           expect(res.body.data.location.name).to.equal('London');
+          done();
+        });
+    });
+
+    it('should populate the owner', (done) => {
+      request(app)
+        .get(`/experiments/${id}`)
+        .set('Authorization', `Bearer ${token}`)
+        .expect(httpStatus.OK)
+        .end((err, res) => {
+          expect(res.body.status).to.equal('success');
+          const owner = res.body.data.owner;
+          expect(owner.firstname).to.equal('David');
+          expect(owner.lastname).to.equal('Robin');
+          expect(owner.email).to.equal('admin@nhs.co.uk');
+          done();
+        });
+    });
+
+    it('should populate the organisation', (done) => {
+      request(app)
+        .get(`/experiments/${id}`)
+        .set('Authorization', `Bearer ${token}`)
+        .expect(httpStatus.OK)
+        .end((err, res) => {
+          expect(res.body.status).to.equal('success');
+          const organisation = res.body.data.organisation;
+          expect(organisation.name).to.equal('Apex Entertainment');
           done();
         });
     });
