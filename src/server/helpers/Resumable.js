@@ -2,9 +2,11 @@ import path from 'path';
 import fs from 'fs';
 import mkdirp from 'mkdirp';
 import crypto from 'crypto';
+import Experiment from '../models/experiment.model';
 
 let uploadDirectory;
 const maxFileSize = null;
+const config = require('../../config/env');
 
 // set local upload directory
 function setUploadDirectory(uploadDir, done) {
@@ -151,4 +153,20 @@ function validateChecksum(filename, checksum) {
   return generatedChecksum === checksum;
 }
 
-export default { post, setUploadDirectory };
+function reassembleChunks(id, name, cb) {
+  fs.readdir(`${config.uploadDir}/experiments/${id}/file`, (err, files) => {
+    files.forEach((file) => {
+      const readableStream = fs.createReadStream(`${config.uploadDir}/experiments/${id}/file/${file}`);
+      readableStream.pipe(fs.createWriteStream(`${config.uploadDir}/experiments/${id}/file/${name}`));
+      fs.unlinkSync(`${config.uploadDir}/experiments/${id}/file/${file}`);
+    });
+    Experiment.get(id)
+      .then((foundExperiment) => {
+        foundExperiment.file = name; // eslint-disable-line no-param-reassign
+        foundExperiment.save()
+          .then(cb);
+      });
+  });
+}
+
+export default { post, setUploadDirectory, reassembleChunks };

@@ -134,7 +134,7 @@ function uploadFile(req, res) {
     }
     const postUpload = Resumable.post(req);
     if (postUpload.complete) {
-      return res.jsend(postUpload);
+      return Resumable.reassembleChunks(experiment.id, req.body.resumableFilename, () => res.jsend('File uploaded and reassembled'));
     }
     return res.jerror(postUpload);
   });

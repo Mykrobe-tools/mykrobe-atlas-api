@@ -282,9 +282,7 @@ describe('## Experiment APIs', () => {
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).to.equal('success');
-          expect(res.body.data.complete).to.equal(true);
-          expect(res.body.data.message).to.equal('Chunk 1 uploaded');
-          expect(res.body.data.filename).to.equal('333-08.json');
+          expect(res.body.data).to.equal('File uploaded and reassembled');
           done();
         });
     });
