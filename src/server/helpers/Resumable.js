@@ -99,6 +99,7 @@ function validateRequest(chunkNumber, chunkSize, totalSize, identifier, filename
     valid: true,
     message: null
   };
+
   // Validation: Check if the request is sane
   if (chunkNumber === 0 ||
       chunkSize === 0 ||
@@ -169,4 +170,46 @@ function reassembleChunks(id, name, cb) {
   });
 }
 
-export default { post, setUploadDirectory, reassembleChunks };
+// handle get requests
+function get(req) {
+  const chunkNumber = req.query.resumableChunkNumber || 0;
+  const chunkSize = req.query.resumableChunkSize || 0;
+  const totalSize = req.query.resumableTotalSize || 0;
+  const identifier = req.query.resumableIdentifier || '';
+  const filename = req.query.resumableFilename || '';
+  const checksum = req.query.checksum || '';
+
+  const chunkFilename = getChunkFilename(chunkNumber, identifier);
+
+  const status = {
+    valid: true,
+    message: null,
+    filename: chunkFilename,
+    originalFilename: filename,
+    identifier
+  };
+
+  const validation = validateRequest(chunkNumber, chunkSize, totalSize, identifier, filename);
+  if (!validation.valid) {
+    status.valid = validation.valid;
+    status.message = validation.message;
+    return status;
+  }
+
+  if (!fs.existsSync(chunkFilename)) {
+    status.valid = false;
+    status.message = `Chunk ${chunkNumber} not uploaded yet`;
+    return status;
+  }
+
+  const validChecksum = validateChecksum(chunkFilename, checksum);
+  if (!validChecksum) {
+    status.valid = false;
+    status.message = 'Uploaded file checksum doesn\'t match original checksum';
+    return status;
+  }
+
+  return status;
+}
+
+export default { post, setUploadDirectory, reassembleChunks, get };

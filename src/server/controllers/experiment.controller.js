@@ -1,10 +1,12 @@
 import errors from 'errors';
+import httpStatus from 'http-status';
 import Experiment from '../models/experiment.model';
 import Metadata from '../models/metadata.model';
 import Organisation from '../models/organisation.model';
 import ExperimentJSONTransformer from '../transformers/ExperimentJSONTransformer';
 import ArrayJSONTransformer from '../transformers/ArrayJSONTransformer';
 import Resumable from '../helpers/Resumable';
+import APIError from '../helpers/APIError';
 
 const config = require('../../config/env');
 
@@ -152,6 +154,15 @@ function readFile(req, res) {
   return res.jerror('No file found for this Experiment');
 }
 
+function uploadStatus(req, res) {
+  const validateGetRequest = Resumable.get(req);
+  if (validateGetRequest.valid) {
+    return res.jsend(validateGetRequest);
+  }
+  const err = new APIError(validateGetRequest.message, httpStatus.NO_CONTENT);
+  return res.jerror(err);
+}
+
 export default {
   load,
   get,
@@ -161,5 +172,6 @@ export default {
   remove,
   updateMetadata,
   uploadFile,
-  readFile
+  readFile,
+  uploadStatus
 };

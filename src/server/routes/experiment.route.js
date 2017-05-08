@@ -375,6 +375,31 @@ router.route('/:id/file')
    */
   .get(expressJwt({ secret: config.jwtSecret }),
        experimentController.readFile);
+router.route('/:id/upload-status')
+  /**
+   * @api {put} /experiments/:id/upload-status Resumable upload status
+   *
+   * @apiName Resumable upload status
+   * @apiGroup Experiments
+   * @apiUse Header
+   *
+   * @apiParam {String} id The experiment ID.
+   *
+   * @apiSuccessExample Success-Response:
+   *     HTTP/1.1 200 OK
+   *   {
+   *     "status":"success",
+   *     "data":{}
+   *  }
+   * @apiErrorExample Error-Response:
+   *     HTTP/1.1 204 NO_CONTENT
+   *   {
+   *     "status":"error",
+   *     "data":{}
+   *  }
+   *
+   */
+  .get(experimentController.uploadStatus);
 /** Load user when API with id route parameter is hit */
 router.param('id', experimentController.load);
 
