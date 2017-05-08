@@ -7,7 +7,7 @@
   "private": true,
   "apidoc": {
     "title": "Atlas api documentation",
-    "url": "https://api.alats-dev.makeandship.com"
+    "url": "https://api.atlas-dev.makeandship.com"
   },
   "engines": {
     "node": ">=4.6.0",
