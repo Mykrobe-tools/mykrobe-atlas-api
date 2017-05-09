@@ -357,7 +357,7 @@ router.route('/:id/file')
    *
    */
   .put(validate(paramValidation.uploadFile),
-       upload.single('files'),
+       upload.single('file'),
        experimentController.uploadFile)
   /**
    * @api {get} /experiments/:id/file View sequence file
