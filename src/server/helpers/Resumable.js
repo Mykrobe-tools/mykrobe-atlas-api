@@ -26,7 +26,7 @@ function post(req) {
   const fields = req.body;
   const files = req.file;
   const chunkNumber = fields.resumableChunkNumber;
-  const chunkSize = fields.resumableChunkSize;
+  const chunkSize = parseInt(fields.resumableChunkSize, 10);
   const totalSize = parseInt(fields.resumableTotalSize, 10);
   const identifier = cleanIdentifier(fields.resumableIdentifier);
   const filename = fields.resumableFilename;
@@ -160,7 +160,7 @@ function reassembleChunks(id, name, cb) {
   fs.readdir(`${config.uploadDir}/experiments/${id}/file`, (err, files) => {
     files.forEach((file) => {
       const readableStream = fs.createReadStream(`${config.uploadDir}/experiments/${id}/file/${file}`);
-      readableStream.pipe(fs.createWriteStream(`${config.uploadDir}/experiments/${id}/file/${name}`));
+      readableStream.pipe(fs.createWriteStream(`${config.uploadDir}/experiments/${id}/file/${name}`, { flags: 'a' }));
       fs.unlinkSync(`${config.uploadDir}/experiments/${id}/file/${file}`);
     });
     Experiment.get(id)
