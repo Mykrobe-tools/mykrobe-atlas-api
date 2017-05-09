@@ -2,10 +2,12 @@ import request from 'supertest-as-promised';
 import httpStatus from 'http-status';
 import chai, { expect } from 'chai';
 import dirtyChai from 'dirty-chai';
+import fs from 'fs';
 import app from '../../../index';
 import User from '../../models/user.model';
 import Experiment from '../../models/experiment.model';
 import Organisation from '../../models/organisation.model';
+import config from '../../../config/env';
 
 require('../teardown');
 
@@ -283,6 +285,30 @@ describe('## Experiment APIs', () => {
         .end((err, res) => {
           expect(res.body.status).to.equal('success');
           expect(res.body.data).to.equal('File uploaded and reassembled');
+          done();
+        });
+    });
+    it('should create the reassembled file in the system', (done) => {
+      request(app)
+        .put(`/experiments/${id}/file`)
+        .set('Authorization', `Bearer ${token}`)
+        .attach('files', 'src/server/tests/fixtures/files/333-08.json')
+        .field('resumableChunkNumber', 1)
+        .field('resumableChunkSize', 1048576)
+        .field('resumableCurrentChunkSize', 251726)
+        .field('resumableTotalSize', 251726)
+        .field('resumableType', 'application/json')
+        .field('resumableIdentifier', '251726-333-08json')
+        .field('resumableFilename', '333-08.json')
+        .field('resumableRelativePath', '333-08.json')
+        .field('resumableTotalChunks', 1)
+        .field('checksum', '4f36e4cbfc9dfc37559e13bd3a309d50')
+        .expect(httpStatus.OK)
+        .end((err, res) => {
+          const filePath = `${config.uploadDir}/experiments/${id}/file/333-08.json`;
+          expect(res.body.status).to.equal('success');
+          expect(res.body.data).to.equal('File uploaded and reassembled');
+          expect(fs.existsSync(filePath)).to.equal(true);
           done();
         });
     });
