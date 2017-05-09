@@ -51,7 +51,7 @@ function post(req) {
                                      totalSize,
                                      identifier,
                                      filename,
-                                     files.size);
+                                     parseInt(files.size, 10));
   if (!validation.valid) {
     status.message = validation.message;
     return status;
