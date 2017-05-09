@@ -357,7 +357,6 @@ router.route('/:id/file')
    *
    */
   .put(validate(paramValidation.uploadFile),
-       expressJwt({ secret: config.jwtSecret }),
        upload.single('files'),
        experimentController.uploadFile)
   /**
@@ -399,7 +398,8 @@ router.route('/:id/upload-status')
    *  }
    *
    */
-  .get(experimentController.uploadStatus);
+  .get(expressJwt({ secret: config.jwtSecret }),
+       experimentController.uploadStatus);
 /** Load user when API with id route parameter is hit */
 router.param('id', experimentController.load);
 
