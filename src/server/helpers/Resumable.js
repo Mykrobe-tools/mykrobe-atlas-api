@@ -2,9 +2,11 @@ import path from 'path';
 import fs from 'fs';
 import mkdirp from 'mkdirp';
 import crypto from 'crypto';
+import Experiment from '../models/experiment.model';
 
 let uploadDirectory;
 const maxFileSize = null;
+const config = require('../../config/env');
 
 // set local upload directory
 function setUploadDirectory(uploadDir, done) {
@@ -97,6 +99,7 @@ function validateRequest(chunkNumber, chunkSize, totalSize, identifier, filename
     valid: true,
     message: null
   };
+
   // Validation: Check if the request is sane
   if (chunkNumber === 0 ||
       chunkSize === 0 ||
@@ -151,4 +154,62 @@ function validateChecksum(filename, checksum) {
   return generatedChecksum === checksum;
 }
 
-export default { post, setUploadDirectory };
+function reassembleChunks(id, name, cb) {
+  fs.readdir(`${config.uploadDir}/experiments/${id}/file`, (err, files) => {
+    files.forEach((file) => {
+      const readableStream = fs.createReadStream(`${config.uploadDir}/experiments/${id}/file/${file}`);
+      readableStream.pipe(fs.createWriteStream(`${config.uploadDir}/experiments/${id}/file/${name}`));
+      fs.unlinkSync(`${config.uploadDir}/experiments/${id}/file/${file}`);
+    });
+    Experiment.get(id)
+      .then((foundExperiment) => {
+        foundExperiment.file = name; // eslint-disable-line no-param-reassign
+        foundExperiment.save()
+          .then(cb);
+      });
+  });
+}
+
+// handle get requests
+function get(req) {
+  const chunkNumber = req.query.resumableChunkNumber || 0;
+  const chunkSize = req.query.resumableChunkSize || 0;
+  const totalSize = req.query.resumableTotalSize || 0;
+  const identifier = req.query.resumableIdentifier || '';
+  const filename = req.query.resumableFilename || '';
+  const checksum = req.query.checksum || '';
+
+  const chunkFilename = getChunkFilename(chunkNumber, identifier);
+
+  const status = {
+    valid: true,
+    message: null,
+    filename: chunkFilename,
+    originalFilename: filename,
+    identifier
+  };
+
+  const validation = validateRequest(chunkNumber, chunkSize, totalSize, identifier, filename);
+  if (!validation.valid) {
+    status.valid = validation.valid;
+    status.message = validation.message;
+    return status;
+  }
+
+  if (!fs.existsSync(chunkFilename)) {
+    status.valid = false;
+    status.message = `Chunk ${chunkNumber} not uploaded yet`;
+    return status;
+  }
+
+  const validChecksum = validateChecksum(chunkFilename, checksum);
+  if (!validChecksum) {
+    status.valid = false;
+    status.message = 'Uploaded file checksum doesn\'t match original checksum';
+    return status;
+  }
+
+  return status;
+}
+
+export default { post, setUploadDirectory, reassembleChunks, get };
