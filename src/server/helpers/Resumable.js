@@ -4,6 +4,8 @@ import mkdirp from 'mkdirp';
 import crypto from 'crypto';
 import Experiment from '../models/experiment.model';
 
+const spawn = require('child_process').spawnSync;
+
 let uploadDirectory;
 const maxFileSize = null;
 const config = require('../../config/env');
@@ -62,9 +64,9 @@ function post(req) {
   }
 
   // save uploaded chunk to disk
-  fs.renameSync(files.path, chunkFilename);
-  status.message = `Chunk ${chunkNumber} uploaded`;
+  spawn('mv', [files.path, chunkFilename]);
 
+  status.message = `Chunk ${chunkNumber} uploaded`;
   let currentTestChunk = 1;
   const numberOfChunks = Math.max(Math.floor(totalSize / (chunkSize * 1.0)), 1);
 

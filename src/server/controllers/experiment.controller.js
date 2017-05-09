@@ -155,12 +155,18 @@ function readFile(req, res) {
 }
 
 function uploadStatus(req, res) {
-  const validateGetRequest = Resumable.get(req);
-  if (validateGetRequest.valid) {
-    return res.jsend(validateGetRequest);
-  }
-  const err = new APIError(validateGetRequest.message, httpStatus.NO_CONTENT);
-  return res.jerror(err);
+  const experiment = req.experiment;
+  return Resumable.setUploadDirectory(`${config.uploadDir}/experiments/${experiment.id}/file`, (err) => {
+    if (err) {
+      return res.jerror(new errors.UploadFileError(err.message));
+    }
+    const validateGetRequest = Resumable.get(req);
+    if (validateGetRequest.valid) {
+      return res.jsend(validateGetRequest);
+    }
+    const error = new APIError(validateGetRequest.message, httpStatus.NO_CONTENT);
+    return res.jerror(error);
+  });
 }
 
 export default {

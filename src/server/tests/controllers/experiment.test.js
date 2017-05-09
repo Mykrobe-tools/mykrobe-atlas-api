@@ -526,5 +526,16 @@ describe('## Experiment APIs', () => {
             });
         });
     });
+    it('should be a protected route', (done) => {
+      request(app)
+        .get(`/experiments/${id}/upload-status?resumableChunkNumber=1&resumableChunkSize=1048576&resumableTotalSize=251726&resumableIdentifier=251726-333-08json&resumableFilename=333-08.json&checksum=4f36e4cbfc9dfc37559e13bd3a309d50`)
+        .set('Authorization', 'Bearer INVALID_TOKEN')
+        .expect(httpStatus.UNAUTHORIZED)
+        .end((err, res) => {
+          expect(res.body.status).to.equal('error');
+          expect(res.body.message).to.equal('jwt malformed');
+          done();
+        });
+    });
   });
 });
