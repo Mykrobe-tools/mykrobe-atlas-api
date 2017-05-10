@@ -47,6 +47,7 @@ function create(req, res) {
       .then((organisation) => {
         experiment.organisation = organisation;
         experiment.save()
+          .then(ESHelper.indexExperiment(experiment))
           .then(savedExperiment => res.jsend(savedExperiment))
           .catch(e => res.jerror(new errors.CreateExperimentError(e.message)));
       })
@@ -54,6 +55,7 @@ function create(req, res) {
   }
 
   return experiment.save()
+    .then(ESHelper.indexExperiment(experiment))
     .then(savedExperiment => res.jsend(savedExperiment))
     .catch(e => res.jerror(new errors.CreateExperimentError(e.message)));
 }
@@ -65,7 +67,10 @@ function create(req, res) {
 function update(req, res) {
   const experiment = Object.assign(req.experiment, req.body);
   experiment.save()
-    .then(savedExperiment => res.jsend(savedExperiment))
+    .then((savedExperiment) => {
+      ESHelper.updateExperiment(savedExperiment);
+      return res.jsend(savedExperiment);
+    })
     .catch(e => res.jerror(new errors.CreateExperimentError(e.message)));
 }
 
@@ -90,6 +95,7 @@ function list(req, res) {
 function remove(req, res) {
   const experiment = req.experiment;
   experiment.remove()
+    .then(ESHelper.deleteExperiment(experiment.id))
     .then(() => res.jsend('Experiment was successfully deleted.'))
     .catch(e => res.jerror(e));
 }

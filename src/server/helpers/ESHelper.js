@@ -52,6 +52,27 @@ class ESHelper {
     });
   }
 
+  // Delete one experiment
+  static deleteExperiment(id) {
+    return client.delete({
+      index: config.esIndexName,
+      type: 'experiment',
+      id
+    });
+  }
+
+  // Update one experiment
+  static updateExperiment(experiment) {
+    return client.update({
+      index: config.esIndexName,
+      type: 'experiment',
+      id: experiment.id,
+      body: {
+        doc: experiment.toJSON()
+      }
+    });
+  }
+
   // Index all experiments
   static indexExperiments() {
     return Experiment.list()
