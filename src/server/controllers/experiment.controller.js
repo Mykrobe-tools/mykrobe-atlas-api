@@ -67,10 +67,8 @@ function create(req, res) {
 function update(req, res) {
   const experiment = Object.assign(req.experiment, req.body);
   experiment.save()
-    .then((savedExperiment) => {
-      ESHelper.updateExperiment(savedExperiment);
-      return res.jsend(savedExperiment);
-    })
+    .then(ESHelper.updateExperiment(experiment))
+    .then(savedExperiment => res.jsend(savedExperiment))
     .catch(e => res.jerror(new errors.CreateExperimentError(e.message)));
 }
 
