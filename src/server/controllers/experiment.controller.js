@@ -1,6 +1,7 @@
 import errors from 'errors';
 import httpStatus from 'http-status';
 import mkdirp from 'mkdirp-promise';
+import Promise from 'bluebird';
 import Experiment from '../models/experiment.model';
 import Metadata from '../models/metadata.model';
 import Organisation from '../models/organisation.model';
@@ -9,6 +10,7 @@ import ArrayJSONTransformer from '../transformers/ArrayJSONTransformer';
 import Resumable from '../helpers/Resumable';
 import APIError from '../helpers/APIError';
 import DownloadersFactory from '../helpers/DownloadersFactory';
+import ESHelper from '../helpers/ESHelper';
 
 const config = require('../../config/env');
 
@@ -69,13 +71,10 @@ function update(req, res) {
 
 /**
  * Get user list.
- * @property {number} req.query.skip - Number of users to be skipped.
- * @property {number} req.query.limit - Limit number of users to be returned.
  * @returns {User[]}
  */
 function list(req, res) {
-  const { limit = 50, skip = 0 } = req.query;
-  Experiment.list({ limit, skip })
+  Experiment.list()
     .then((experiments) => {
       const transformer = new ArrayJSONTransformer(experiments,
         { transformer: ExperimentJSONTransformer });
@@ -172,6 +171,18 @@ function uploadStatus(req, res) {
   });
 }
 
+/**
+ * Reindex all experiments to ES
+ */
+function reindex(req, res) {
+  Promise.resolve()
+    .then(ESHelper.deleteIndexIfExists)
+    .then(ESHelper.createIndex)
+    .then(ESHelper.indexExperiments)
+    .then(() => res.jsend('All Experiments have been indexed.'))
+    .catch(err => res.jerror(err.message));
+}
+
 export default {
   load,
   get,
@@ -182,5 +193,6 @@ export default {
   updateMetadata,
   uploadFile,
   readFile,
-  uploadStatus
+  uploadStatus,
+  reindex
 };

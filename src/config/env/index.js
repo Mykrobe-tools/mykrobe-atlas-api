@@ -10,6 +10,8 @@ const defaults = {
   adminRole: 'Admin',
   notification: 'email',
   username: 'email',
+  esCluster: process.env.ES_CLUSTER_URL,
+  esIndexName: 'atlas',
   ses: {
     accessKeyId: process.env.AWS_ACCESS_KEY,
     secretAccessKey: process.env.AWS_SECRET_KEY,

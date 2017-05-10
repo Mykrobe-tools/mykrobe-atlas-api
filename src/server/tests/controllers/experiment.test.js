@@ -618,4 +618,28 @@ describe('## Experiment APIs', () => {
         });
     });
   });
+  describe('# POST /experiments/reindex', () => {
+    it('should reindex all experiments to ES', (done) => {
+      request(app)
+        .post('/experiments/reindex')
+        .set('Authorization', `Bearer ${token}`)
+        .expect(httpStatus.OK)
+        .end((err, res) => {
+          expect(res.body.status).to.equal('success');
+          expect(res.body.data).to.equal('All Experiments have been indexed.');
+          done();
+        });
+    });
+    it('should be a protected route', (done) => {
+      request(app)
+        .post('/experiments/reindex')
+        .set('Authorization', 'Bearer INVALID_TOKEN')
+        .expect(httpStatus.UNAUTHORIZED)
+        .end((err, res) => {
+          expect(res.body.status).to.equal('error');
+          expect(res.body.message).to.equal('jwt malformed');
+          done();
+        });
+    });
+  });
 });

@@ -417,6 +417,25 @@ router.route('/:id/upload-status')
    */
   .get(expressJwt({ secret: config.jwtSecret }),
        experimentController.uploadStatus);
+router.route('/reindex')
+  /**
+   * @api {post} /experiments/reindex Reindex all experiments
+   *
+   * @apiName Reindex experiments
+   * @apiGroup Elasticsearch
+   * @apiUse Header
+   *
+   *
+   * @apiSuccessExample Success-Response:
+   *     HTTP/1.1 200 OK
+   *   {
+   *     "status":"success",
+   *     "data":"All Experiments have been indexed."
+   *  }
+   *
+   */
+  .post(expressJwt({ secret: config.jwtSecret }),
+       experimentController.reindex);
 /** Load user when API with id route parameter is hit */
 router.param('id', experimentController.load);
 
