@@ -1,5 +1,6 @@
 import errors from 'errors';
 import httpStatus from 'http-status';
+import mkdirp from 'mkdirp-promise';
 import Experiment from '../models/experiment.model';
 import Metadata from '../models/metadata.model';
 import Organisation from '../models/organisation.model';
@@ -7,6 +8,7 @@ import ExperimentJSONTransformer from '../transformers/ExperimentJSONTransformer
 import ArrayJSONTransformer from '../transformers/ArrayJSONTransformer';
 import Resumable from '../helpers/Resumable';
 import APIError from '../helpers/APIError';
+import DownloadersFactory from '../helpers/DownloadersFactory';
 
 const config = require('../../config/env');
 
@@ -114,14 +116,15 @@ function uploadFile(req, res) {
   const experiment = req.experiment;
 
   // from 3rd party provider
-  if (req.body.provider && req.body.accessToken) {
-    const queue = config.monqClient.queue(req.body.provider);
-    return Resumable.setUploadDirectory(`${config.uploadDir}/experiments/${experiment.id}/file`, (err) => {
-      if (err) {
-        return res.jerror(new errors.UploadFileError(err.message));
-      }
-      return queue.enqueue('download', { path: req.body.path, id: experiment.id, accessToken: req.body.accessToken, fileId: req.body.fileId }, () => res.jsend(`Download triggered from ${req.body.provider}`));
-    });
+  if (req.body.provider && req.body.path) {
+    const path = `${config.uploadDir}/experiments/${experiment.id}/file`;
+    return mkdirp(path)
+      .then(() => {
+        const downloader = DownloadersFactory.create(`${path}/${req.body.name}`, req.body);
+        downloader.download();
+        return res.jsend(`Download started from ${req.body.provider}`);
+      })
+      .catch(err => res.jerror(new errors.UploadFileError(err.message)));
   }
 
   // no file provided to upload

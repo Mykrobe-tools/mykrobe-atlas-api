@@ -401,12 +401,12 @@ describe('## Experiment APIs', () => {
           done();
         });
     });
-    describe('when provider and fileId are present', () => {
+    describe('when provider and path are present', () => {
       it('should only allow valid providers', (done) => {
         request(app)
           .put(`/experiments/${id}/file`)
           .set('Authorization', `Bearer ${token}`)
-          .send({ provider: 'ftp', fileId: '/tmp/file.json', accessToken: 'dummy-token' })
+          .send({ provider: 'ftp', name: 'fake.json', path: 'https://jsonplaceholder.typicode.com/posts/1' })
           .expect(httpStatus.OK)
           .end((err, res) => {
             expect(res.body.status).to.equal('error');
@@ -414,51 +414,131 @@ describe('## Experiment APIs', () => {
             done();
           });
       });
-      it('should push message to dropbox queue', (done) => {
+      it('should be a protected route', (done) => {
         request(app)
           .put(`/experiments/${id}/file`)
-          .set('Authorization', `Bearer ${token}`)
-          .send({ provider: 'dropbox', fileId: '/tmp/file.json', accessToken: 'dummy-token' })
+          .set('Authorization', 'Bearer INVALID_TOKEN')
+          .send({ provider: 'dropbox', name: 'fake.json', path: 'https://jsonplaceholder.typicode.com/posts/1' })
           .expect(httpStatus.OK)
           .end((err, res) => {
-            expect(res.body.status).to.equal('success');
-            expect(res.body.data).to.equal('Download triggered from dropbox');
+            expect(res.body.status).to.equal('error');
+            expect(res.body.message).to.equal('jwt malformed');
             done();
           });
       });
-      it('should push message to box queue', (done) => {
+      it('should download files from dropbox', (done) => {
         request(app)
           .put(`/experiments/${id}/file`)
           .set('Authorization', `Bearer ${token}`)
-          .send({ provider: 'box', fileId: '1234', accessToken: 'dummy-token' })
+          .send({ provider: 'dropbox', name: 'fake.json', path: 'https://jsonplaceholder.typicode.com/posts/1' })
           .expect(httpStatus.OK)
           .end((err, res) => {
             expect(res.body.status).to.equal('success');
-            expect(res.body.data).to.equal('Download triggered from box');
+            expect(res.body.data).to.equal('Download started from dropbox');
             done();
           });
       });
-      it('should push message to google drive queue', (done) => {
+      it('should save the dropbox file to the filesystem', (done) => {
         request(app)
           .put(`/experiments/${id}/file`)
           .set('Authorization', `Bearer ${token}`)
-          .send({ provider: 'googleDrive', fileId: '1234', accessToken: 'dummy-token' })
+          .send({ provider: 'dropbox', name: 'fake.json', path: 'https://jsonplaceholder.typicode.com/posts/1' })
           .expect(httpStatus.OK)
           .end((err, res) => {
+            const filePath = `${config.uploadDir}/experiments/${id}/file/fake.json`;
             expect(res.body.status).to.equal('success');
-            expect(res.body.data).to.equal('Download triggered from googleDrive');
+            expect(res.body.data).to.equal('Download started from dropbox');
+            expect(fs.existsSync(filePath)).to.equal(true);
             done();
           });
       });
-      it('should push message to one drive queue', (done) => {
+      it('should download files from box', (done) => {
         request(app)
           .put(`/experiments/${id}/file`)
           .set('Authorization', `Bearer ${token}`)
-          .send({ provider: 'oneDrive', fileId: '1234', accessToken: 'dummy-token' })
+          .send({ provider: 'box', name: 'fake.json', path: 'https://jsonplaceholder.typicode.com/posts/1' })
           .expect(httpStatus.OK)
           .end((err, res) => {
             expect(res.body.status).to.equal('success');
-            expect(res.body.data).to.equal('Download triggered from oneDrive');
+            expect(res.body.data).to.equal('Download started from box');
+            done();
+          });
+      });
+      it('should save the box file to the filesystem', (done) => {
+        request(app)
+          .put(`/experiments/${id}/file`)
+          .set('Authorization', `Bearer ${token}`)
+          .send({ provider: 'box', name: 'fake.json', path: 'https://jsonplaceholder.typicode.com/posts/1' })
+          .expect(httpStatus.OK)
+          .end((err, res) => {
+            const filePath = `${config.uploadDir}/experiments/${id}/file/fake.json`;
+            expect(res.body.status).to.equal('success');
+            expect(res.body.data).to.equal('Download started from box');
+            expect(fs.existsSync(filePath)).to.equal(true);
+            done();
+          });
+      });
+      it('should download files from google drive', (done) => {
+        request(app)
+          .put(`/experiments/${id}/file`)
+          .set('Authorization', `Bearer ${token}`)
+          .send({ provider: 'googleDrive', name: 'fake.json', path: 'https://jsonplaceholder.typicode.com/posts/1', accessToken: 'dummy-token' })
+          .expect(httpStatus.OK)
+          .end((err, res) => {
+            expect(res.body.status).to.equal('success');
+            expect(res.body.data).to.equal('Download started from googleDrive');
+            done();
+          });
+      });
+      it('should make accessToken mandatory for googleDrive', (done) => {
+        request(app)
+          .put(`/experiments/${id}/file`)
+          .set('Authorization', `Bearer ${token}`)
+          .send({ provider: 'googleDrive', name: 'fake.json', path: 'https://jsonplaceholder.typicode.com/posts/1' })
+          .expect(httpStatus.OK)
+          .end((err, res) => {
+            expect(res.body.status).to.equal('error');
+            expect(res.body.message).to.equal('"accessToken" is required');
+            done();
+          });
+      });
+      it('should save the google drive file to the filesystem', (done) => {
+        request(app)
+          .put(`/experiments/${id}/file`)
+          .set('Authorization', `Bearer ${token}`)
+          .send({ provider: 'googleDrive', name: 'fake.json', path: 'https://jsonplaceholder.typicode.com/posts/1', accessToken: 'dummy-token' })
+          .expect(httpStatus.OK)
+          .end((err, res) => {
+            const filePath = `${config.uploadDir}/experiments/${id}/file/fake.json`;
+            expect(res.body.status).to.equal('success');
+            expect(res.body.data).to.equal('Download started from googleDrive');
+            expect(fs.existsSync(filePath)).to.equal(true);
+            done();
+          });
+      });
+      it('should download files from one drive', (done) => {
+        request(app)
+          .put(`/experiments/${id}/file`)
+          .set('Authorization', `Bearer ${token}`)
+          .send({ provider: 'oneDrive', name: 'fake.json', path: 'https://jsonplaceholder.typicode.com/posts/1' })
+          .expect(httpStatus.OK)
+          .end((err, res) => {
+            expect(res.body.status).to.equal('success');
+            expect(res.body.data).to.equal('Download started from oneDrive');
+            done();
+          });
+      });
+      it('should save the one drive file to the filesystem', (done) => {
+        request(app)
+          .put(`/experiments/${id}/file`)
+          .set('Authorization', `Bearer ${token}`)
+          .send({ provider: 'oneDrive', name: 'fake.json', path: 'https://jsonplaceholder.typicode.com/posts/1' })
+          .expect(httpStatus.OK)
+          .end((err, res) => {
+            const filePath = `${config.uploadDir}/experiments/${id}/file/fake.json`;
+            expect(res.body.status).to.equal('success');
+            expect(res.body.data).to.equal('Download started from oneDrive');
+            expect(fs.existsSync(filePath)).to.equal(true);
             done();
           });
       });
