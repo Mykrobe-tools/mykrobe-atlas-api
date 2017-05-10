@@ -333,30 +333,47 @@ router.route('/:id/metadata')
   .put(expressJwt({ secret: config.jwtSecret }), experimentController.updateMetadata);
 router.route('/:id/file')
   /**
-   * @api {put} /experiments/:id/file Upload sequence file
+   * @api {put} /experiments/:id/file Upload local file
    *
-   * @apiName Upload sequence file
+   * @apiName Upload local file
    * @apiGroup Experiments
    * @apiUse Header
    *
    * @apiParam {String} id The experiment ID.
-   * @apiParam {Buffer} files The file to upload.
+   * @apiParam {Buffer} file The file to upload.
    *
    * @apiSuccessExample Success-Response:
    *     HTTP/1.1 200 OK
    *   {
    *     "status":"success",
-   *     "data":{
-   *       "complete":true,
-   *       "message":"Chunk 1 uploaded",
-   *       "filename":"333-08.json",
-   *       "originalFilename":"251726-333-08json",
-   *       "identifier":"251726-333-08json"
-   *    }
+   *     "data":"File uploaded and reassembled"
    *  }
    *
    */
-  .put(validate(paramValidation.uploadFile),
+
+  /**
+   * @api {put} /experiments/:id/file Download file from 3rd party
+   *
+   * @apiName Download file from 3rd party
+   * @apiGroup Experiments
+   * @apiUse Header
+   *
+   * @apiParam {String} id The experiment ID.
+   * @apiParam {String} name The file name.
+   * @apiParam {String} path The file path.
+   * @apiParam {string="dropBox","box","oneDrive","gooleDrive"} provider The provider.
+   * @apiParam {String} [accessToken] The access token.
+   *
+   * @apiSuccessExample Success-Response:
+   *     HTTP/1.1 200 OK
+   *   {
+   *     "status":"success",
+   *     "data":"Download started from dropbox"
+   *  }
+   *
+   */
+  .put(expressJwt({ secret: config.jwtSecret }),
+       validate(paramValidation.uploadFile),
        upload.single('file'),
        experimentController.uploadFile)
   /**
