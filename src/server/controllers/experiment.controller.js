@@ -107,6 +107,7 @@ function updateMetadata(req, res) {
   const experiment = req.experiment;
   experiment.metadata = metadata;
   experiment.save()
+    .then(ESHelper.updateExperiment(experiment))
     .then(savedExperiment => res.jsend(savedExperiment))
     .catch(e => res.jerror(new errors.CreateExperimentError(e.message)));
 }
