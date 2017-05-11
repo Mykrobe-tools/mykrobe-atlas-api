@@ -23,5 +23,6 @@ atlas-api:
     - AWS_SECRET_KEY={{AWS_SECRET_KEY}}
     - AWS_REGION={{AWS_REGION}}
     - ATLAS_APP={{ATLAS_APP}}
+    - ES_CLUSTER_URL={{ES_CLUSTER_URL}}
   links:
     - db

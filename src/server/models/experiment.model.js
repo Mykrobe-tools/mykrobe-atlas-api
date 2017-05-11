@@ -84,7 +84,7 @@ ExperimentSchema.statics = {
    */
   get(id) {
     return this.findById(id)
-      .populate(['organisation', 'owner'])
+      .populate(['organisation', 'owner', 'metadata'])
       .exec()
       .then((experiment) => {
         if (experiment) {
@@ -95,16 +95,12 @@ ExperimentSchema.statics = {
       .catch(e => Promise.reject(new errors.ObjectNotFound(e.message)));
   },
   /**
-   * List a limit of 50 experiments
-   * @param {number} skip - Number of experiments to be skipped.
-   * @param {number} limit - Limit number of experiments to be returned.
+   * List all experiments
    * @returns {Promise<Experiment[]>}
    */
-  list({ skip = 0, limit = 50 } = {}) {
+  list() {
     return this.find()
-      .populate(['organisation', 'owner'])
-      .skip(skip)
-      .limit(limit)
+      .populate(['organisation', 'owner', 'metadata'])
       .exec();
   }
 };
