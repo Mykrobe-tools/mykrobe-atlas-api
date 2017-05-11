@@ -39,6 +39,19 @@ class ESHelper {
   static createIndex() {
     return client.indices.create({
       index: config.esIndexName,
+      body: {
+        mappings: {
+          experiment: {
+            properties: {
+              metadata: {
+                properties: {
+                  countryOfBirth: { type: 'string', index: 'not_analyzed' }
+                }
+              }
+            }
+          }
+        }
+      }
     });
   }
 
@@ -80,6 +93,22 @@ class ESHelper {
         const promises = experiments.map(experiment => ESHelper.indexExperiment(experiment));
         return Promise.all(promises);
       });
+  }
+
+  // Search distinct metadata values
+  static searchMetadataValues(attribute) {
+    return client.search({
+      index: config.esIndexName,
+      type: 'experiment',
+      body: {
+        size: 0,
+        aggs: {
+          values: {
+            terms: { field: `metadata.${attribute}`, size: 0 }
+          }
+        }
+      }
+    });
   }
 
 }

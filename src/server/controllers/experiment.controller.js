@@ -11,6 +11,7 @@ import Resumable from '../helpers/Resumable';
 import APIError from '../helpers/APIError';
 import DownloadersFactory from '../helpers/DownloadersFactory';
 import ESHelper from '../helpers/ESHelper';
+import DistinctValuesESTransformer from '../transformers/es/DistinctValuesESTransformer';
 
 const config = require('../../config/env');
 
@@ -188,6 +189,18 @@ function reindex(req, res) {
     .catch(err => res.jerror(err.message));
 }
 
+/**
+ * Search distinct metadata values from ES
+ */
+function metadataDistinctValues(req, res) {
+  ESHelper.searchMetadataValues(req.params.attribute)
+    .then((resp) => {
+      const transformer = new DistinctValuesESTransformer(resp);
+      res.jsend(transformer.transform());
+    })
+    .catch(err => res.jerror(new errors.SearchMetadataValues(err.message)));
+}
+
 export default {
   load,
   get,
@@ -199,5 +212,6 @@ export default {
   uploadFile,
   readFile,
   uploadStatus,
-  reindex
+  reindex,
+  metadataDistinctValues
 };

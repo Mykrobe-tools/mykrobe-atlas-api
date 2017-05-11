@@ -87,5 +87,11 @@ export default {
       defaultMessage: 'Cannot upload sequence file.',
       parent: errors.AtlasAPIError
     });
+    errors.create({
+      name: 'SearchMetadataValuesError',
+      code: 10013,
+      defaultMessage: 'Failed to search in ES.',
+      parent: errors.AtlasAPIError
+    });
   }
 };

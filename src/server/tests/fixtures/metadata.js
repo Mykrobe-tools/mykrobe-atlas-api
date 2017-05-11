@@ -3,7 +3,7 @@ export default {
     patientId: '12345',
     siteId: 'abc',
     genderAtBirth: 'Male',
-    countryOfBirth: 'UK',
+    countryOfBirth: 'Hong Kong',
     bmi: 12,
     injectingDrugUse: 'notice',
     homeless: 'Yes',

@@ -436,6 +436,29 @@ router.route('/reindex')
    */
   .post(expressJwt({ secret: config.jwtSecret }),
        experimentController.reindex);
+router.route('/metadata/:attribute/values')
+  /**
+   * @api {get} /experiments/metadata/:attribute/values Get metadata values
+   *
+   * @apiName Metadata distinct values
+   * @apiGroup Elasticsearch
+   * @apiUse Header
+   *
+   *
+   * @apiSuccessExample Success-Response:
+   *     HTTP/1.1 200 OK
+   *     {
+   *       "status": "success",
+   *       "data": [
+   *         "value1",
+   *         "value2",
+   *         "value3"
+   *       ]
+   *     }
+   *
+   */
+  .get(expressJwt({ secret: config.jwtSecret }),
+       experimentController.metadataDistinctValues);
 /** Load user when API with id route parameter is hit */
 router.param('id', experimentController.load);
 
