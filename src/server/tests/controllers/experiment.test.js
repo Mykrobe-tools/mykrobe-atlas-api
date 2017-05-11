@@ -8,6 +8,7 @@ import User from '../../models/user.model';
 import Experiment from '../../models/experiment.model';
 import Organisation from '../../models/organisation.model';
 import config from '../../../config/env';
+import ESHelper from '../../helpers/ESHelper';
 
 require('../teardown');
 
@@ -37,6 +38,7 @@ beforeEach((done) => {
                         experimentData.organisation = savedOrganisation;
                         experimentData.owner = savedUser;
                         experimentData.save()
+                          .then(ESHelper.indexExperiment(experimentData))
                           .then((savedExperiment) => {
                             id = savedExperiment.id;
                             done();
