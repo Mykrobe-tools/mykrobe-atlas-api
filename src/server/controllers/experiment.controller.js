@@ -1,6 +1,7 @@
 import errors from 'errors';
 import httpStatus from 'http-status';
 import mkdirp from 'mkdirp-promise';
+import Promise from 'bluebird';
 import Experiment from '../models/experiment.model';
 import Metadata from '../models/metadata.model';
 import Organisation from '../models/organisation.model';
@@ -9,6 +10,8 @@ import ArrayJSONTransformer from '../transformers/ArrayJSONTransformer';
 import Resumable from '../helpers/Resumable';
 import APIError from '../helpers/APIError';
 import DownloadersFactory from '../helpers/DownloadersFactory';
+import ESHelper from '../helpers/ESHelper';
+import DistinctValuesESTransformer from '../transformers/es/DistinctValuesESTransformer';
 
 const config = require('../../config/env');
 
@@ -45,6 +48,7 @@ function create(req, res) {
       .then((organisation) => {
         experiment.organisation = organisation;
         experiment.save()
+          .then(ESHelper.indexExperiment(experiment))
           .then(savedExperiment => res.jsend(savedExperiment))
           .catch(e => res.jerror(new errors.CreateExperimentError(e.message)));
       })
@@ -52,6 +56,7 @@ function create(req, res) {
   }
 
   return experiment.save()
+    .then(ESHelper.indexExperiment(experiment))
     .then(savedExperiment => res.jsend(savedExperiment))
     .catch(e => res.jerror(new errors.CreateExperimentError(e.message)));
 }
@@ -63,19 +68,17 @@ function create(req, res) {
 function update(req, res) {
   const experiment = Object.assign(req.experiment, req.body);
   experiment.save()
+    .then(ESHelper.updateExperiment(experiment))
     .then(savedExperiment => res.jsend(savedExperiment))
     .catch(e => res.jerror(new errors.CreateExperimentError(e.message)));
 }
 
 /**
  * Get user list.
- * @property {number} req.query.skip - Number of users to be skipped.
- * @property {number} req.query.limit - Limit number of users to be returned.
  * @returns {User[]}
  */
 function list(req, res) {
-  const { limit = 50, skip = 0 } = req.query;
-  Experiment.list({ limit, skip })
+  Experiment.list()
     .then((experiments) => {
       const transformer = new ArrayJSONTransformer(experiments,
         { transformer: ExperimentJSONTransformer });
@@ -91,6 +94,7 @@ function list(req, res) {
 function remove(req, res) {
   const experiment = req.experiment;
   experiment.remove()
+    .then(ESHelper.deleteExperiment(experiment.id))
     .then(() => res.jsend('Experiment was successfully deleted.'))
     .catch(e => res.jerror(e));
 }
@@ -104,6 +108,7 @@ function updateMetadata(req, res) {
   const experiment = req.experiment;
   experiment.metadata = metadata;
   experiment.save()
+    .then(ESHelper.updateExperiment(experiment))
     .then(savedExperiment => res.jsend(savedExperiment))
     .catch(e => res.jerror(new errors.CreateExperimentError(e.message)));
 }
@@ -172,6 +177,30 @@ function uploadStatus(req, res) {
   });
 }
 
+/**
+ * Reindex all experiments to ES
+ */
+function reindex(req, res) {
+  Promise.resolve()
+    .then(ESHelper.deleteIndexIfExists)
+    .then(ESHelper.createIndex)
+    .then(ESHelper.indexExperiments)
+    .then(() => res.jsend('All Experiments have been indexed.'))
+    .catch(err => res.jerror(err.message));
+}
+
+/**
+ * Search distinct metadata values from ES
+ */
+function metadataDistinctValues(req, res) {
+  ESHelper.searchMetadataValues(req.params.attribute)
+    .then((resp) => {
+      const transformer = new DistinctValuesESTransformer(resp);
+      res.jsend(transformer.transform());
+    })
+    .catch(err => res.jerror(new errors.SearchMetadataValues(err.message)));
+}
+
 export default {
   load,
   get,
@@ -182,5 +211,7 @@ export default {
   updateMetadata,
   uploadFile,
   readFile,
-  uploadStatus
+  uploadStatus,
+  reindex,
+  metadataDistinctValues
 };

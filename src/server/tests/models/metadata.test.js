@@ -30,7 +30,7 @@ describe('## Metadata Functions', () => {
         expect(savedMetadata.patientId).to.equal('12345');
         expect(savedMetadata.siteId).to.equal('abc');
         expect(savedMetadata.genderAtBirth).to.equal('Male');
-        expect(savedMetadata.countryOfBirth).to.equal('UK');
+        expect(savedMetadata.countryOfBirth).to.equal('Hong Kong');
         expect(savedMetadata.bmi).to.equal(12);
         expect(savedMetadata.injectingDrugUse).to.equal('notice');
         expect(savedMetadata.homeless).to.equal('Yes');
@@ -47,7 +47,7 @@ describe('## Metadata Functions', () => {
         expect(foundMetadata.patientId).to.equal('12345');
         expect(foundMetadata.siteId).to.equal('abc');
         expect(foundMetadata.genderAtBirth).to.equal('Male');
-        expect(foundMetadata.countryOfBirth).to.equal('UK');
+        expect(foundMetadata.countryOfBirth).to.equal('Hong Kong');
         expect(foundMetadata.bmi).to.equal(12);
         expect(foundMetadata.injectingDrugUse).to.equal('notice');
         expect(foundMetadata.homeless).to.equal('Yes');
@@ -73,7 +73,7 @@ describe('## Metadata Functions', () => {
         expect(json.patientId).to.equal('12345');
         expect(json.siteId).to.equal('abc');
         expect(json.genderAtBirth).to.equal('Male');
-        expect(json.countryOfBirth).to.equal('UK');
+        expect(json.countryOfBirth).to.equal('Hong Kong');
         expect(json.bmi).to.equal(12);
         expect(json.injectingDrugUse).to.equal('notice');
         expect(json.homeless).to.equal('Yes');

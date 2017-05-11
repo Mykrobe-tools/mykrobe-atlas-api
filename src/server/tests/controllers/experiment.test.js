@@ -7,7 +7,9 @@ import app from '../../../index';
 import User from '../../models/user.model';
 import Experiment from '../../models/experiment.model';
 import Organisation from '../../models/organisation.model';
+import Metadata from '../../models/metadata.model';
 import config from '../../../config/env';
+import ESHelper from '../../helpers/ESHelper';
 
 require('../teardown');
 
@@ -24,6 +26,7 @@ let id = null;
 beforeEach((done) => {
   const userData = new User(users.admin);
   const organisationData = new Organisation(experiments.tuberculosis.organisation);
+  const metadataData = new Metadata(metadata.basic);
   const experimentData = new Experiment(experiments.tuberculosis);
   userData.save()
               .then((savedUser) => {
@@ -34,12 +37,17 @@ beforeEach((done) => {
                     token = res.body.data.token;
                     organisationData.save()
                       .then((savedOrganisation) => {
-                        experimentData.organisation = savedOrganisation;
-                        experimentData.owner = savedUser;
-                        experimentData.save()
-                          .then((savedExperiment) => {
-                            id = savedExperiment.id;
-                            done();
+                        metadataData.save()
+                          .then((savedMetadata) => {
+                            experimentData.organisation = savedOrganisation;
+                            experimentData.owner = savedUser;
+                            experimentData.metadata = savedMetadata;
+                            experimentData.save()
+                              .then(ESHelper.indexExperiment(experimentData))
+                              .then((savedExperiment) => {
+                                id = savedExperiment.id;
+                                done();
+                              });
                           });
                       });
                   });
@@ -241,7 +249,7 @@ describe('## Experiment APIs', () => {
           expect(res.body.data.metadata.patientId).to.equal('12345');
           expect(res.body.data.metadata.siteId).to.equal('abc');
           expect(res.body.data.metadata.genderAtBirth).to.equal('Male');
-          expect(res.body.data.metadata.countryOfBirth).to.equal('UK');
+          expect(res.body.data.metadata.countryOfBirth).to.equal('Hong Kong');
           expect(res.body.data.metadata.bmi).to.equal(12);
           expect(res.body.data.metadata.injectingDrugUse).to.equal('notice');
           expect(res.body.data.metadata.homeless).to.equal('Yes');
@@ -609,6 +617,30 @@ describe('## Experiment APIs', () => {
     it('should be a protected route', (done) => {
       request(app)
         .get(`/experiments/${id}/upload-status?resumableChunkNumber=1&resumableChunkSize=1048576&resumableTotalSize=251726&resumableIdentifier=251726-333-08json&resumableFilename=333-08.json&checksum=4f36e4cbfc9dfc37559e13bd3a309d50`)
+        .set('Authorization', 'Bearer INVALID_TOKEN')
+        .expect(httpStatus.UNAUTHORIZED)
+        .end((err, res) => {
+          expect(res.body.status).to.equal('error');
+          expect(res.body.message).to.equal('jwt malformed');
+          done();
+        });
+    });
+  });
+  describe('# POST /experiments/reindex', () => {
+    it('should reindex all experiments to ES', (done) => {
+      request(app)
+        .post('/experiments/reindex')
+        .set('Authorization', `Bearer ${token}`)
+        .expect(httpStatus.OK)
+        .end((err, res) => {
+          expect(res.body.status).to.equal('success');
+          expect(res.body.data).to.equal('All Experiments have been indexed.');
+          done();
+        });
+    });
+    it('should be a protected route', (done) => {
+      request(app)
+        .post('/experiments/reindex')
         .set('Authorization', 'Bearer INVALID_TOKEN')
         .expect(httpStatus.UNAUTHORIZED)
         .end((err, res) => {
