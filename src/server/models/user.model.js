@@ -40,6 +40,10 @@ const UserSchema = new mongoose.Schema({
   valid: {
     type: Boolean,
     default: false
+  },
+  organisation: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Organisation'
   }
 });
 
