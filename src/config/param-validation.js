@@ -87,4 +87,5 @@ export default {
       provider: Joi.string().valid('dropbox', 'box', 'googleDrive', 'oneDrive')
     }
   }
+
 };

@@ -40,6 +40,10 @@ const UserSchema = new mongoose.Schema({
   valid: {
     type: Boolean,
     default: false
+  },
+  organisation: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Organisation'
   }
 });
 
@@ -91,6 +95,7 @@ UserSchema.statics = {
    */
   get(id) {
     return this.findById(id)
+      .populate('organisation')
       .exec()
       .then((user) => {
         if (user) {

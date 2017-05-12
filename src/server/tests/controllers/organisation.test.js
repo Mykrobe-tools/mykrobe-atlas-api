@@ -135,6 +135,22 @@ describe('## Experiment APIs', () => {
           done();
         });
     });
+    it('should update organisation template', (done) => {
+      const data = {
+        template: 'Microtitre plate'
+      };
+      request(app)
+        .put(`/organisations/${id}`)
+        .set('Authorization', `Bearer ${token}`)
+        .send(data)
+        .expect(httpStatus.OK)
+        .end((err, res) => {
+          expect(res.body.status).to.equal('success');
+          expect(res.body.data.name).to.equal('Apex Entertainment');
+          expect(res.body.data.template).to.equal('Microtitre plate');
+          done();
+        });
+    });
   });
 
   describe('# GET /organisations', () => {

@@ -198,7 +198,7 @@ function metadataDistinctValues(req, res) {
       const transformer = new DistinctValuesESTransformer(resp);
       res.jsend(transformer.transform());
     })
-    .catch(err => res.jerror(new errors.SearchMetadataValues(err.message)));
+    .catch(err => res.jerror(new errors.SearchMetadataValuesError(err.message)));
 }
 
 export default {

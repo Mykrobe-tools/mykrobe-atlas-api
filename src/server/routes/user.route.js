@@ -23,7 +23,12 @@ router.route('/')
    *                "lastname": "Kitting",
    *                "phone": "07686833972",
    *                "email": "john@nhs.co.uk",
-   *                "id": "588624076182796462cb133e"
+   *                "id": "588624076182796462cb133e",
+   *                "organisation": {
+   *                  "name": "Apex Entertainment",
+   *                  "template": "MODS",
+   *                  "id": "590c2f0ed71d08031b7ca81e"
+   *                }
    *              }
    *     }
    */

@@ -4,6 +4,7 @@ import errors from 'errors';
 import httpStatus from 'http-status';
 import randomstring from 'randomstring';
 import User from '../models/user.model';
+import Organisation from '../models/organisation.model';
 import APIError from '../helpers/APIError';
 
 const config = require('../../config/env');
@@ -97,8 +98,11 @@ function verify(req, res) {
       const candidateUser = user;
       candidateUser.valid = true;
       candidateUser.verificationToken = null;
-
-      return candidateUser.save();
+      return Organisation.findOne({})
+        .then((organisation) => {
+          candidateUser.organisation = organisation;
+          return candidateUser.save();
+        });
     })
     .then(verifiedUser => res.jsend(verifiedUser))
     .catch(e => res.jerror(e));

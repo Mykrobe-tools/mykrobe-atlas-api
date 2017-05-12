@@ -1,5 +1,6 @@
 import ModelJSONTransformer from './ModelJSONTransformer';
 import BlacklistTransformer from './BlacklistTransformer';
+import OrganisationJSONTransformer from './OrganisationJSONTransformer';
 
 const BLACKLIST = ['__v', 'password', 'verificationToken', 'resetPasswordToken', 'valid'];
 
@@ -14,6 +15,9 @@ class UserJSONTransformer extends ModelJSONTransformer {
   transform() {
     let res = super.transform();
     res = new BlacklistTransformer(res, { blacklist: BLACKLIST }).transform();
+    if (res.organisation) {
+      res.organisation = new OrganisationJSONTransformer(res.organisation).transform();
+    }
     return res;
   }
 }

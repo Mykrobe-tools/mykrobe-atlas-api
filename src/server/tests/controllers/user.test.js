@@ -4,6 +4,7 @@ import chai, { expect } from 'chai';
 import dirtyChai from 'dirty-chai';
 import app from '../../../index';
 import User from '../../models/user.model';
+import Organisation from '../../models/organisation.model';
 
 require('../teardown');
 
@@ -31,7 +32,9 @@ beforeEach((done) => {
 });
 
 afterEach((done) => {
-  User.remove({ }, done);
+  User.remove({})
+    .then(Organisation.remove({}))
+    .then(done);
 });
 
 describe('## User APIs', () => {
@@ -159,6 +162,15 @@ describe('## User APIs', () => {
   });
 
   describe('# GET /users/:id', () => {
+    beforeEach((done) => {
+      const org = new Organisation({ name: 'Apex Entertainment', template: 'MODS' });
+      org.save()
+        .then((savedOrg) => {
+          savedUser.organisation = savedOrg;
+          savedUser.save()
+            .then(done);
+        });
+    });
     it('should get user details', (done) => {
       request(app)
         .get(`/users/${savedUser.id}`)
@@ -171,7 +183,20 @@ describe('## User APIs', () => {
           done();
         });
     });
-
+    it('should get user details with organisation', (done) => {
+      request(app)
+        .get(`/users/${savedUser.id}`)
+        .set('Authorization', `Bearer ${token}`)
+        .expect(httpStatus.OK)
+        .end((err, res) => {
+          expect(res.body.status).to.equal('success');
+          expect(res.body.data.firstname).to.equal(savedUser.firstname);
+          expect(res.body.data.lastname).to.equal(savedUser.lastname);
+          expect(res.body.data.organisation.name).to.equal('Apex Entertainment');
+          expect(res.body.data.organisation.template).to.equal('MODS');
+          done();
+        });
+    });
     it('should report error with message - Not found, when user does not exists', (done) => {
       request(app)
         .get('/users/56c787ccc67fc16ccc1a5e92')
@@ -463,6 +488,36 @@ describe('## User APIs', () => {
           expect(res.body.status).to.equal('success');
           expect(res.body.data.email).to.equal('admin@nhs.co.uk');
           done();
+        });
+    });
+    it('should link the user to an empty organisation', (done) => {
+      Organisation.remove({})
+        .then(() => {
+          request(app)
+            .post('/auth/verify')
+            .send({ verificationToken: '107165' })
+            .end((err, res) => {
+              expect(res.body.status).to.equal('success');
+              expect(res.body.data.email).to.equal('admin@nhs.co.uk');
+              expect(res.body.data.organisation).to.equal(null);
+              done();
+            });
+        });
+    });
+    it('should link the user to an organisation', (done) => {
+      const org = new Organisation({ name: 'Apex Entertainment', template: 'MODS' });
+      org.save()
+        .then(() => {
+          request(app)
+            .post('/auth/verify')
+            .send({ verificationToken: '107165' })
+            .end((err, res) => {
+              expect(res.body.status).to.equal('success');
+              expect(res.body.data.email).to.equal('admin@nhs.co.uk');
+              expect(res.body.data.organisation.name).to.equal('Apex Entertainment');
+              expect(res.body.data.organisation.template).to.equal('MODS');
+              done();
+            });
         });
     });
     it('should return an error if token is invalid', (done) => {

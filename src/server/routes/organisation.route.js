@@ -14,6 +14,7 @@ const router = express.Router(); // eslint-disable-line new-cap
    *       "status": "success",
    *       "data": {
    *         "name": "Apex Entertainment",
+   *         "template": "Apex template",
    *         "id": "58e4c7526555100f447d50eb"
    *       }
    *     }
