@@ -95,6 +95,7 @@ UserSchema.statics = {
    */
   get(id) {
     return this.findById(id)
+      .populate('organisation')
       .exec()
       .then((user) => {
         if (user) {
