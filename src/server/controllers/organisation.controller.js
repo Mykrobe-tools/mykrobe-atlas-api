@@ -73,11 +73,24 @@ function remove(req, res) {
     .catch(e => res.jerror(e));
 }
 
+/**
+ * Update metadata template
+ * @returns {Organisation}
+ */
+function updateTemplate(req, res) {
+  const organisation = req.organisation;
+  organisation.template = req.body.template;
+  organisation.save()
+    .then(savedOrganisation => res.jsend(savedOrganisation))
+    .catch(e => res.jerror(new errors.UpdateOrganisationError(e.message)));
+}
+
 export default {
   load,
   get,
   create,
   update,
   list,
-  remove
+  remove,
+  updateTemplate
 };

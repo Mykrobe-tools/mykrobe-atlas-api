@@ -1,5 +1,7 @@
 import express from 'express';
 import expressJwt from 'express-jwt';
+import validate from 'express-validation';
+import paramValidation from '../../config/param-validation';
 import organisationController from '../controllers/organisation.controller';
 import config from '../../config/env';
 
@@ -14,6 +16,7 @@ const router = express.Router(); // eslint-disable-line new-cap
    *       "status": "success",
    *       "data": {
    *         "name": "Apex Entertainment",
+   *         "template": "Apex template",
    *         "id": "58e4c7526555100f447d50eb"
    *       }
    *     }
@@ -98,6 +101,22 @@ router.route('/:id')
    */
   .delete(expressJwt({ secret: config.jwtSecret }),
        organisationController.remove);
+router.route('/:id/template')
+  /**
+   * @api {put} /organisations/:id/template Assign metadata template
+   *
+   * @apiName Assign metadata template
+   * @apiGroup Organisations
+   * @apiUse Header
+   * @apiUse OrganisationResponse
+   *
+   * @apiParam {String} id The organisation ID.
+   * @apiParam {String} template The organisation template name.
+   *
+   */
+  .put(expressJwt({ secret: config.jwtSecret }),
+       validate(paramValidation.updateTemplate),
+       organisationController.updateTemplate);
 
 /** Load user when API with id route parameter is hit */
 router.param('id', organisationController.load);

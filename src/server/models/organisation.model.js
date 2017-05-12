@@ -6,7 +6,8 @@ import OrganisationJSONTransformer from '../transformers/OrganisationJSONTransfo
  * Organisation Schema
  */
 const OrganisationSchema = new mongoose.Schema({
-  name: String
+  name: String,
+  template: String
 });
 
 /**

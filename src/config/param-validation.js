@@ -86,5 +86,15 @@ export default {
       accessToken: Joi.string().when('provider', { is: 'googleDrive', then: Joi.required() }),
       provider: Joi.string().valid('dropbox', 'box', 'googleDrive', 'oneDrive')
     }
+  },
+
+  // PUT /organisations/:id/template
+  updateTemplate: {
+    params: {
+      id: Joi.string().hex().required()
+    },
+    body: {
+      template: Joi.string().required()
+    }
   }
 };

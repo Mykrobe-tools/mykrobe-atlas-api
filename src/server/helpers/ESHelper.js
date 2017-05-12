@@ -104,7 +104,7 @@ class ESHelper {
         size: 0,
         aggs: {
           values: {
-            terms: { field: `metadata.${attribute}`, size: 0 }
+            terms: { field: `metadata.${attribute}` }
           }
         }
       }
