@@ -152,7 +152,12 @@ router.route('/reset')
    *         "lastname": "Krool",
    *         "phone": "+44 7968 716851",
    *         "email": "david@gmail.com",
-   *         "id": "59099f897120c90b8e1a2365"
+   *         "id": "59099f897120c90b8e1a2365",
+   *         "organisation": {
+   *           "name": "Apex Entertainment",
+   *           "template": "MODS",
+   *           "id": "590c2f0ed71d08031b7ca81e"
+   *         }
    *       }
    *     }
    */

@@ -20,7 +20,12 @@ router.route('/')
    *         "lastname":"Kitting",
    *         "phone":"+447686833972",
    *         "email":"john@gmail.com",
-   *         "id":"58dcc9212c252a077e3973ec"
+   *         "id":"58dcc9212c252a077e3973ec",
+   *         "organisation": {
+   *           "name": "Apex Entertainment",
+   *           "template": "MODS",
+   *           "id": "590c2f0ed71d08031b7ca81e"
+   *         }
    *     }
    *   }
    */

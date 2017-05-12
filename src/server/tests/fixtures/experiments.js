@@ -1,7 +1,8 @@
 export default {
   tuberculosis: {
     organisation: {
-      name: 'Apex Entertainment'
+      name: 'Apex Entertainment',
+      template: 'MODS'
     },
     location: {
       name: 'London',

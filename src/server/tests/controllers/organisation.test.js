@@ -135,6 +135,22 @@ describe('## Experiment APIs', () => {
           done();
         });
     });
+    it('should update organisation template', (done) => {
+      const data = {
+        template: 'Microtitre plate'
+      };
+      request(app)
+        .put(`/organisations/${id}`)
+        .set('Authorization', `Bearer ${token}`)
+        .send(data)
+        .expect(httpStatus.OK)
+        .end((err, res) => {
+          expect(res.body.status).to.equal('success');
+          expect(res.body.data.name).to.equal('Apex Entertainment');
+          expect(res.body.data.template).to.equal('Microtitre plate');
+          done();
+        });
+    });
   });
 
   describe('# GET /organisations', () => {
@@ -172,57 +188,6 @@ describe('## Experiment APIs', () => {
         .end((err, res) => {
           expect(res.body.status).to.equal('error');
           expect(res.body.message).to.equal('Organisation not found with id 589dcdd38d71fee259dc4e00');
-          done();
-        });
-    });
-  });
-
-  describe('# PUT /organisations/:id/template', () => {
-    it('should set the organisation template', (done) => {
-      request(app)
-        .put(`/organisations/${id}/template`)
-        .set('Authorization', `Bearer ${token}`)
-        .send({ template: 'Apex template' })
-        .expect(httpStatus.OK)
-        .end((err, res) => {
-          expect(res.body.status).to.equal('success');
-          expect(res.body.data.template).to.equal('Apex template');
-          expect(res.body.data.name).to.equal('Apex Entertainment');
-          done();
-        });
-    });
-    it('should return an error if organisation not found', (done) => {
-      request(app)
-        .put('/organisations/589dcdd38d71fee259dc4e00/template')
-        .set('Authorization', `Bearer ${token}`)
-        .send({ template: 'Apex template' })
-        .expect(httpStatus.OK)
-        .end((err, res) => {
-          expect(res.body.status).to.equal('error');
-          expect(res.body.message).to.equal('Organisation not found with id 589dcdd38d71fee259dc4e00');
-          done();
-        });
-    });
-    it('should return an error if template is not valid', (done) => {
-      request(app)
-        .put(`/organisations/${id}/template`)
-        .set('Authorization', `Bearer ${token}`)
-        .expect(httpStatus.OK)
-        .end((err, res) => {
-          expect(res.body.status).to.equal('error');
-          expect(res.body.message).to.equal('"template" is required');
-          done();
-        });
-    });
-    it('should be a protected route', (done) => {
-      request(app)
-        .put(`/organisations/${id}/template`)
-        .set('Authorization', 'Bearer INVALID_TOKEN')
-        .send({ template: 'Apex template' })
-        .expect(httpStatus.OK)
-        .end((err, res) => {
-          expect(res.body.status).to.equal('error');
-          expect(res.body.message).to.equal('jwt malformed');
           done();
         });
     });

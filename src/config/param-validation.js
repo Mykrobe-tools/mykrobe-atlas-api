@@ -88,16 +88,6 @@ export default {
     }
   },
 
-  // PUT /organisations/:id/template
-  updateTemplate: {
-    params: {
-      id: Joi.string().hex().required()
-    },
-    body: {
-      template: Joi.string().required()
-    }
-  },
-
   // GET /experiments/search
   searchExperiment: {
     query: {
