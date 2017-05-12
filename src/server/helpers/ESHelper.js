@@ -111,6 +111,39 @@ class ESHelper {
     });
   }
 
+  // Search by metadata fields
+  static searchByMetadataFields(filters) {
+    const filtersArray = [];
+    const size = filters.per || config.resultsPerPage;
+    const page = filters.page || 1;
+    const from = size * (page - 1);
+
+    delete filters.per; // eslint-disable-line no-param-reassign
+    delete filters.page; // eslint-disable-line no-param-reassign
+
+    Object.keys(filters).forEach((key) => {
+      const json = { };
+      json[`metadata.${key}`] = filters[key];
+      filtersArray.push({
+        match: json
+      });
+    });
+
+    return client.search({
+      index: config.esIndexName,
+      type: 'experiment',
+      body: {
+        from,
+        size,
+        query: {
+          bool: {
+            must: filtersArray
+          }
+        }
+      }
+    });
+  }
+
 }
 
 export default ESHelper;

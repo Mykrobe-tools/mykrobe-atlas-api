@@ -96,5 +96,13 @@ export default {
     body: {
       template: Joi.string().required()
     }
+  },
+
+  // GET /experiments/search
+  searchExperiment: {
+    query: {
+      page: Joi.number().integer().min(1)
+    }
   }
+
 };

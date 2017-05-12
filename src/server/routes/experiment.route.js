@@ -155,6 +155,70 @@ router.route('/')
         validate(paramValidation.createExperiment),
         userController.loadCurrentUser,
         experimentController.create);
+router.route('/search')
+  /**
+   * @api {get} /experiments/search Get experiments from ES
+   *
+   * @apiName List experiments
+   * @apiGroup Elasticsearch
+   * @apiUse Header
+   *
+   * @apiSuccessExample Success-Response:
+   *     HTTP/1.1 200 OK
+   *     {
+   *       "status": "success",
+   *       "data": {
+   *       "summary": {
+   *          "hits": 5
+   *       },
+   *       "results": [{
+   *         "owner": {
+   *           "firstname": "Sean",
+   *           "lastname": "Leavy",
+   *           "phone": "+44 7968 716851",
+   *           "email": "sean@gmail.com",
+   *           "id": "58e2697c87f269174c48cedf"
+   *         },
+   *         "organisation": {
+   *           "name": "Apex Entertainment"
+   *         },
+   *         "location": {
+   *           "name": "London",
+   *           "lat": 3.4,
+   *           "lng": -2.3,
+   *           "id": "58e4c7526555100f447d50ef"
+   *         },
+   *         "collected": "2017-04-17T00:00:00.000Z",
+   *         "uploaded": "2017-04-20T00:00:00.000Z",
+   *         "jaccardIndex": {
+   *           "analysed": "2017-04-20T00:00:00.000Z",
+   *           "engine": "",
+   *           "version": "1.0",
+   *           "experiments": [],
+   *           "id": "58e4c7526555100f447d50ee"
+   *         },
+   *           "snpDistance": {
+   *             "analysed": "2017-04-21T00:00:00.000Z",
+   *             "engine": "",
+   *             "version": "1.0",
+   *             "experiments": [],
+   *             "id": "58e4c7526555100f447d50ed"
+   *         },
+   *           "geoDistance": {
+   *             "analysed": "2017-04-22T00:00:00.000Z",
+   *             "engine": "",
+   *             "version": "1.0",
+   *             "experiments": [],
+   *             "id": "58e4c7526555100f447d50ec"
+   *           },
+   *         "id": "58e4c7526555100f447d50eb"
+   *       }]
+   *      }
+   *     }
+   */
+  .get(expressJwt({ secret: config.jwtSecret }),
+       validate(paramValidation.searchExperiment),
+       experimentController.search);
 
 router.route('/:id')
   /**

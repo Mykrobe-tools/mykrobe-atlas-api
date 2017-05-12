@@ -12,6 +12,7 @@ const defaults = {
   username: 'email',
   esCluster: process.env.ES_CLUSTER_URL,
   esIndexName: 'atlas',
+  resultsPerPage: 50,
   ses: {
     accessKeyId: process.env.AWS_ACCESS_KEY,
     secretAccessKey: process.env.AWS_SECRET_KEY,
