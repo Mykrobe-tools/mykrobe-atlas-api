@@ -12,6 +12,7 @@ import APIError from '../helpers/APIError';
 import DownloadersFactory from '../helpers/DownloadersFactory';
 import ESHelper from '../helpers/ESHelper';
 import DistinctValuesESTransformer from '../transformers/es/DistinctValuesESTransformer';
+import ExperimentsESTransformer from '../transformers/es/ExperimentsESTransformer';
 
 const config = require('../../config/env');
 
@@ -74,8 +75,8 @@ function update(req, res) {
 }
 
 /**
- * Get user list.
- * @returns {User[]}
+ * Get experiments list.
+ * @returns {Experiment[]}
  */
 function list(req, res) {
   Experiment.list()
@@ -88,8 +89,8 @@ function list(req, res) {
 }
 
 /**
- * Delete user.
- * @returns {User}
+ * Delete experiment.
+ * @returns {Experiment}
  */
 function remove(req, res) {
   const experiment = req.experiment;
@@ -201,6 +202,19 @@ function metadataDistinctValues(req, res) {
     .catch(err => res.jerror(new errors.SearchMetadataValuesError(err.message)));
 }
 
+/**
+ * Get experiments list from ES.
+ * @returns {Experiment[]}
+ */
+function search(req, res) {
+  ESHelper.searchByMetadataFields(req.query)
+    .then((resp) => {
+      const transformer = new ExperimentsESTransformer(resp, { includeSummary: true });
+      res.jsend(transformer.transform());
+    })
+    .catch(err => res.jerror(new errors.SearchMetadataValuesError(err.message)));
+}
+
 export default {
   load,
   get,
@@ -213,5 +227,6 @@ export default {
   readFile,
   uploadStatus,
   reindex,
-  metadataDistinctValues
+  metadataDistinctValues,
+  search
 };

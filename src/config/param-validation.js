@@ -86,6 +86,13 @@ export default {
       accessToken: Joi.string().when('provider', { is: 'googleDrive', then: Joi.required() }),
       provider: Joi.string().valid('dropbox', 'box', 'googleDrive', 'oneDrive')
     }
+  },
+
+  // GET /experiments/search
+  searchExperiment: {
+    query: {
+      page: Joi.number().integer().min(1)
+    }
   }
 
 };
