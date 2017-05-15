@@ -1,5 +1,5 @@
 FROM ubuntu:14.04
-MAINTAINER Yassire Elhani <mark@makeandship.com>
+MAINTAINER Yassire Elhani <yassire@makeandship.com>
 
 RUN rm /bin/sh && ln -s /bin/bash /bin/sh
 
