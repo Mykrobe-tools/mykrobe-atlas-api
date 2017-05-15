@@ -29,7 +29,7 @@ worker.register({ welcome: (data, next) => {
   const mailOptions = {
     from: 'no-reply@makeandship.com',
     subject: 'Please verify your account',
-    html: `Please click on the following link to verify your account ${process.env.ATLAS_APP}/auth/verify/${data.token}`,
+    html: `Please click on the following link to verify your account ${process.env.ATLAS_APP}/auth/verify/${data.token}?email=${data.to}`,
     to: data.to
   };
   transporter.sendMail(mailOptions, (err, info) => {
