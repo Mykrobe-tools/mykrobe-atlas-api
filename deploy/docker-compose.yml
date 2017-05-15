@@ -24,5 +24,6 @@ atlas-api:
     - AWS_REGION={{AWS_REGION}}
     - ATLAS_APP={{ATLAS_APP}}
     - ES_CLUSTER_URL={{ES_CLUSTER_URL}}
+    - ES_INDEX_NAME={{ES_INDEX_NAME}}
   links:
     - db
