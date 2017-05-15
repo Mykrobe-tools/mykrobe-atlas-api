@@ -627,15 +627,14 @@ describe('## Experiment APIs', () => {
     });
   });
   describe('# POST /experiments/reindex', () => {
-    it.only('should reindex all experiments to ES', (done) => {
+    it('should reindex all experiments to ES', (done) => {
       request(app)
         .post('/experiments/reindex')
         .set('Authorization', `Bearer ${token}`)
         .expect(httpStatus.OK)
         .end((err, res) => {
-          console.log(res.body);
-          // expect(res.body.status).to.equal('success');
-          // expect(res.body.data).to.equal('All Experiments have been indexed.');
+          expect(res.body.status).to.equal('success');
+          expect(res.body.data).to.equal('All Experiments have been indexed.');
           done();
         });
     });
