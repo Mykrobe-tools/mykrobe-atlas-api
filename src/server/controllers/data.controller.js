@@ -113,44 +113,116 @@ function saveMetadata() {
     collectionDate: faker.date.past(),
     prospectiveIsolate: faker.random.boolean(),
     patientAge: getRandomInt(8, 80),
-    countryIsolate: faker.random.boolean(),
-    cityIsolate: faker.random.boolean(),
+    countryIsolate: faker.address.country(),
+    cityIsolate: faker.address.city(),
     dateArrived: faker.date.past(),
-    anatomicalOrigin: faker.lorem.word(),
-    smear: faker.lorem.word(),
-    wgsPlatform: faker.lorem.word(),
+    anatomicalOrigin: _.sample([
+      'respiratory',
+      'Lymph node',
+      'CSF',
+      'Gastric',
+      'Bone',
+      'Other known site',
+      'Non-respiratory, site not known',
+      'Not known'
+    ]),
+    smear: _.sample(['Negative', '+', '++', '+++', 'Not known']),
+    wgsPlatform: _.sample(['HiSeq', 'MiSeq', 'NextSeq', 'Other']),
     wgsPlatformOther: faker.lorem.word(),
     otherGenotypeInformation: faker.random.boolean(),
-    genexpert: faker.lorem.word(),
-    hain: faker.lorem.word(),
-    hainRif: faker.lorem.word(),
-    hainInh: faker.lorem.word(),
-    hainFl: faker.lorem.word(),
-    hainAm: faker.lorem.word(),
-    hainEth: faker.lorem.word(),
+    genexpert: _.sample(['RIF sensitive', 'RIF resistant', 'Inconclusive', 'Not tested']),
+    hain: _.sample([
+      'Not tested',
+      'INH/RIF test',
+      'Fluoroquinolone / aminoglycoside / ethambutol test',
+      'Both'
+    ]),
+    hainRif: _.sample([
+      'RIF sensitive',
+      'RIF resistant',
+      'RIF inconclusive',
+      'RIF test failed'
+    ]),
+    hainInh: _.sample([
+      'INH sensitive ',
+      'INH resistant',
+      'INH inconclusive',
+      'INH test failed'
+    ]),
+    hainFl: _.sample([
+      'FL sensitive ',
+      'FL resistant',
+      'FL inconclusive',
+      'FL test failed'
+    ]),
+    hainAm: _.sample([
+      'AM sensitive ',
+      'AM resistant',
+      'AM inconclusive',
+      'AM test failed'
+    ]),
+    hainEth: _.sample([
+      'ETH sensitive ',
+      'ETH resistant',
+      'ETH inconclusive',
+      'ETH test failed'
+    ]),
     phenotypeInformationFirstLineDrugs: faker.random.boolean(),
     phenotypeInformationOtherDrugs: faker.random.boolean(),
     susceptibility: {},
     susceptibilityNotTestedReason: {},
     previousTbinformation: faker.random.boolean(),
-    recentMdrTb: faker.lorem.word(),
+    recentMdrTb: _.sample([
+      'Yes',
+      'No',
+      'Not known'
+    ]),
     priorTreatmentDate: faker.date.past(),
-    tbProphylaxis: faker.lorem.word(),
+    tbProphylaxis: _.sample([
+      'Yes',
+      'No',
+      'Not known'
+    ]),
     tbProphylaxisDate: faker.date.past(),
     currentTbinformation: faker.random.boolean(),
     startProgrammaticTreatment: faker.random.boolean(),
     intensiveStartDate: faker.date.past(),
     intensiveStopDate: faker.date.past(),
-    startProgrammaticContinuationTreatment: faker.lorem.word(),
+    startProgrammaticContinuationTreatment: _.sample([
+      'Yes',
+      'No',
+      'Not known'
+    ]),
     continuationStartDate: faker.date.past(),
     continuationStopDate: faker.date.past(),
-    nonStandardTreatment: faker.lorem.word(),
+    nonStandardTreatment: _.sample([
+      'Yes',
+      'No',
+      'Not known'
+    ]),
     drugOutsidePhase: {},
     drugOutsidePhaseStartDate: {},
     drugOutsidePhaseEndDate: {},
-    sputumSmearConversion: faker.lorem.word(),
-    sputumCultureConversion: faker.lorem.word(),
-    whoOutcomeCategory: faker.lorem.word(),
+    sputumSmearConversion: _.sample([
+      'Sputum smear negative at 2-3 months',
+      'Sputum smear positive at 2-3 months',
+      'Not known or not done'
+    ]),
+    sputumCultureConversion: _.sample([
+      'Sputum culture negative at 2-3 months',
+      'Sputum culture positive at 2-3 months',
+      'Not known or not done'
+    ]),
+    whoOutcomeCategory: _.sample([
+      'Cured',
+      'Treatment completed',
+      'Treatment failed',
+      'Died',
+      'Lost to follow-up or defaulted',
+      'Not evaluated',
+      'Treatment success',
+      'Not known'
+    ]),
     dateOfDeath: faker.date.past()
   });
   return metadata.save();
