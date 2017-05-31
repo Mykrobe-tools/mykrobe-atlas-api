@@ -1,8 +1,10 @@
 export CURRENT_VERSION=`cat /var/go/releases/server/CURRENT_VERSION`
 export PREVIOUS_VERSION=`cat /var/go/releases/server/PREVIOUS_VERSION`
 
-# remove unwanted containers
+# remove unwanted containers and images
 docker rm -f atlas-api db || true
+docker images -q --filter "dangling=true" | xargs --no-run-if-empty docker rmi
+
 cd /var/go/releases/server/$CURRENT_VERSION/deploy
 
 # run docker-compose up
