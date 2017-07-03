@@ -9,8 +9,8 @@ definitions:
   services:
     mongo:
       image: mongo
-    database:
-      image: mongo
+    elasticsearch:
+      image: elasticsearch
         
 pipelines:
   default:
@@ -22,3 +22,4 @@ pipelines:
           - npm test
         services:
           - mongo
+          - elasticsearch
