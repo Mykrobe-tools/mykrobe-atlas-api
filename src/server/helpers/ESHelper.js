@@ -45,25 +45,25 @@ class ESHelper {
             properties: {
               metadata: {
                 properties: {
-                  countryOfBirth: { type: 'string', index: 'not_analyzed' },
-                  countryIsolate: { type: 'string', index: 'not_analyzed' },
-                  cityIsolate: { type: 'string', index: 'not_analyzed' },
-                  anatomicalOrigin: { type: 'string', index: 'not_analyzed' },
-                  smear: { type: 'string', index: 'not_analyzed' },
-                  wgsPlatform: { type: 'string', index: 'not_analyzed' },
-                  genexpert: { type: 'string', index: 'not_analyzed' },
-                  hain: { type: 'string', index: 'not_analyzed' },
-                  hainRif: { type: 'string', index: 'not_analyzed' },
-                  hainInh: { type: 'string', index: 'not_analyzed' },
-                  hainFl: { type: 'string', index: 'not_analyzed' },
-                  hainEth: { type: 'string', index: 'not_analyzed' },
-                  hainAm: { type: 'string', index: 'not_analyzed' },
-                  recentMdrTb: { type: 'string', index: 'not_analyzed' },
-                  startProgrammaticContinuationTreatment: { type: 'string', index: 'not_analyzed' },
-                  nonStandardTreatment: { type: 'string', index: 'not_analyzed' },
-                  sputumSmearConversion: { type: 'string', index: 'not_analyzed' },
-                  sputumCultureConversion: { type: 'string', index: 'not_analyzed' },
-                  whoOutcomeCategory: { type: 'string', index: 'not_analyzed' }
+                  countryOfBirth: { type: 'keyword', index: true },
+                  countryIsolate: { type: 'keyword', index: true },
+                  cityIsolate: { type: 'keyword', index: true },
+                  anatomicalOrigin: { type: 'keyword', index: true },
+                  smear: { type: 'keyword', index: true },
+                  wgsPlatform: { type: 'keyword', index: true },
+                  genexpert: { type: 'keyword', index: true },
+                  hain: { type: 'keyword', index: true },
+                  hainRif: { type: 'keyword', index: true },
+                  hainInh: { type: 'keyword', index: true },
+                  hainFl: { type: 'keyword', index: true },
+                  hainEth: { type: 'keyword', index: true },
+                  hainAm: { type: 'keyword', index: true },
+                  recentMdrTb: { type: 'keyword', index: true },
+                  startProgrammaticContinuationTreatment: { type: 'keyword', index: true },
+                  nonStandardTreatment: { type: 'keyword', index: true },
+                  sputumSmearConversion: { type: 'keyword', index: true },
+                  sputumCultureConversion: { type: 'keyword', index: true },
+                  whoOutcomeCategory: { type: 'keyword', index: true }
                 }
               }
             }

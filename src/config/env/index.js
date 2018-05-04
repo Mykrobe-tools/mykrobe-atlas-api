@@ -11,7 +11,7 @@ const defaults = {
   notification: 'email',
   username: 'email',
   esCluster: process.env.ES_CLUSTER_URL,
-  esIndexName: process.env.ES_INDEX_NAME,
+  esIndexName: process.env.ES_INDEX_NAME || 'atlas',
   resultsPerPage: 50,
   ses: {
     accessKeyId: process.env.AWS_ACCESS_KEY,
