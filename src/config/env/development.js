@@ -1,15 +1,15 @@
-import nodemailer from 'nodemailer-mock';
+import nodemailer from "nodemailer-mock";
 import monq from "monq";
 
 const dbUri = "mongodb://localhost/atlas-dev";
 
 export default {
-  env: 'development',
+  env: "development",
   MONGOOSE_DEBUG: true,
   monqClient: monq(dbUri),
-  jwtSecret: 'Wai6nZh6Mi3U08r7WPki6B2IPP2RgC25',
+  jwtSecret: "Wai6nZh6Mi3U08r7WPki6B2IPP2RgC25",
   db: dbUri,
   nodemailer,
-  uploadDir: '/tmp/uploads',
+  uploadDir: "/tmp/uploads",
   port: 3000
 };

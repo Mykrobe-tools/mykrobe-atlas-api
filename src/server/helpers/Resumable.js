@@ -1,19 +1,19 @@
-import path from 'path';
-import fs from 'fs';
-import mkdirp from 'mkdirp';
-import crypto from 'crypto';
-import Experiment from '../models/experiment.model';
+import path from "path";
+import fs from "fs";
+import mkdirp from "mkdirp";
+import crypto from "crypto";
+import Experiment from "../models/experiment.model";
 
-const spawn = require('child_process').spawnSync;
+const spawn = require("child_process").spawnSync;
 
 let uploadDirectory;
 const maxFileSize = null;
-const config = require('../../config/env');
+const config = require("../../config/env");
 
 // set local upload directory
 function setUploadDirectory(uploadDir, done) {
   uploadDirectory = uploadDir;
-  mkdirp(uploadDirectory, (err) => {
+  mkdirp(uploadDirectory, err => {
     if (err) {
       return done(err);
     }
@@ -42,16 +42,18 @@ function post(req) {
   };
 
   if (!files.size) {
-    status.message = 'Invalid resumable request';
+    status.message = "Invalid resumable request";
     return status;
   }
 
-  const validation = validateRequest(chunkNumber,
-                                     chunkSize,
-                                     totalSize,
-                                     identifier,
-                                     filename,
-                                     parseInt(files.size, 10));
+  const validation = validateRequest(
+    chunkNumber,
+    chunkSize,
+    totalSize,
+    identifier,
+    filename,
+    parseInt(files.size, 10)
+  );
   if (!validation.valid) {
     status.message = validation.message;
     return status;
@@ -59,12 +61,12 @@ function post(req) {
 
   const validChecksum = validateChecksum(files.path, checksum);
   if (!validChecksum) {
-    status.message = 'Uploaded file checksum doesn\'t match original checksum';
+    status.message = "Uploaded file checksum doesn't match original checksum";
     return status;
   }
 
   // save uploaded chunk to disk
-  spawn('mv', [files.path, chunkFilename]);
+  spawn("mv", [files.path, chunkFilename]);
 
   status.message = `Chunk ${chunkNumber} uploaded`;
   let currentTestChunk = 1;
@@ -87,7 +89,7 @@ function post(req) {
 }
 
 function cleanIdentifier(identifier) {
-  return identifier.replace(/^0-9A-Za-z_-/img, '');
+  return identifier.replace(/^0-9A-Za-z_-/gim, "");
 }
 
 function getChunkFilename(chunkNumber, identifier) {
@@ -95,7 +97,14 @@ function getChunkFilename(chunkNumber, identifier) {
   return path.join(uploadDirectory, `./resumable-${identifier}.${chunkNumber}`);
 }
 
-function validateRequest(chunkNumber, chunkSize, totalSize, identifier, filename, fileSize) {
+function validateRequest(
+  chunkNumber,
+  chunkSize,
+  totalSize,
+  identifier,
+  filename,
+  fileSize
+) {
   identifier = cleanIdentifier(identifier); // eslint-disable-line no-param-reassign
   const validation = {
     valid: true,
@@ -103,47 +112,51 @@ function validateRequest(chunkNumber, chunkSize, totalSize, identifier, filename
   };
 
   // Validation: Check if the request is sane
-  if (chunkNumber === 0 ||
-      chunkSize === 0 ||
-      totalSize === 0 ||
-      identifier.length === 0 ||
-      filename.length === 0) {
+  if (
+    chunkNumber === 0 ||
+    chunkSize === 0 ||
+    totalSize === 0 ||
+    identifier.length === 0 ||
+    filename.length === 0
+  ) {
     validation.valid = false;
-    validation.message = 'Non-resumable request';
+    validation.message = "Non-resumable request";
     return validation;
   }
   // Validation: Incorrect chunk number
   const numberOfChunks = Math.max(Math.floor(totalSize / (chunkSize * 1)), 1);
   if (chunkNumber > numberOfChunks) {
     validation.valid = false;
-    validation.message = 'Incorrect chunk number';
+    validation.message = "Incorrect chunk number";
     return validation;
   }
   // Validation: Is the file too big?
   if (maxFileSize && totalSize > maxFileSize) {
     validation.valid = false;
-    validation.message = 'File is larger than max file size';
+    validation.message = "File is larger than max file size";
     return validation;
   }
-  if (typeof fileSize !== 'undefined') {
+  if (typeof fileSize !== "undefined") {
     // Validation: The chunk in the POST request isn't the correct size
     if (chunkNumber < numberOfChunks && fileSize !== chunkSize) {
       validation.valid = false;
-      validation.message = 'Incorrect chunk size';
+      validation.message = "Incorrect chunk size";
       return validation;
     }
     // Validation: The chunks in the POST is the last one, and the fil is not the correct size
-    if (numberOfChunks > 1 &&
-        chunkNumber === numberOfChunks &&
-        fileSize !== ((totalSize % chunkSize) + chunkSize)) {
+    if (
+      numberOfChunks > 1 &&
+      chunkNumber === numberOfChunks &&
+      fileSize !== totalSize % chunkSize + chunkSize
+    ) {
       validation.valid = false;
-      validation.message = 'Incorrect final chunk size';
+      validation.message = "Incorrect final chunk size";
       return validation;
     }
     // Validation: The file is only a single chunk, and the data size does not fit
     if (numberOfChunks === 1 && fileSize !== totalSize) {
       validation.valid = false;
-      validation.message = 'Incorrect individual chunk size';
+      validation.message = "Incorrect individual chunk size";
       return validation;
     }
   }
@@ -152,23 +165,31 @@ function validateRequest(chunkNumber, chunkSize, totalSize, identifier, filename
 
 function validateChecksum(filename, checksum) {
   const fileData = fs.readFileSync(filename);
-  const generatedChecksum = crypto.createHash('md5').update(fileData).digest('hex');
+  const generatedChecksum = crypto
+    .createHash("md5")
+    .update(fileData)
+    .digest("hex");
   return generatedChecksum === checksum;
 }
 
 function reassembleChunks(id, name, cb) {
   fs.readdir(`${config.uploadDir}/experiments/${id}/file`, (err, files) => {
-    files.forEach((file) => {
-      const readableStream = fs.createReadStream(`${config.uploadDir}/experiments/${id}/file/${file}`);
-      readableStream.pipe(fs.createWriteStream(`${config.uploadDir}/experiments/${id}/file/${name}`, { flags: 'a' }));
+    files.forEach(file => {
+      const readableStream = fs.createReadStream(
+        `${config.uploadDir}/experiments/${id}/file/${file}`
+      );
+      readableStream.pipe(
+        fs.createWriteStream(
+          `${config.uploadDir}/experiments/${id}/file/${name}`,
+          { flags: "a" }
+        )
+      );
       fs.unlinkSync(`${config.uploadDir}/experiments/${id}/file/${file}`);
     });
-    Experiment.get(id)
-      .then((foundExperiment) => {
-        foundExperiment.file = name; // eslint-disable-line no-param-reassign
-        foundExperiment.save()
-          .then(cb);
-      });
+    Experiment.get(id).then(foundExperiment => {
+      foundExperiment.file = name; // eslint-disable-line no-param-reassign
+      foundExperiment.save().then(cb);
+    });
   });
 }
 
@@ -177,9 +198,9 @@ function get(req) {
   const chunkNumber = req.query.resumableChunkNumber || 0;
   const chunkSize = req.query.resumableChunkSize || 0;
   const totalSize = req.query.resumableTotalSize || 0;
-  const identifier = req.query.resumableIdentifier || '';
-  const filename = req.query.resumableFilename || '';
-  const checksum = req.query.checksum || '';
+  const identifier = req.query.resumableIdentifier || "";
+  const filename = req.query.resumableFilename || "";
+  const checksum = req.query.checksum || "";
 
   const chunkFilename = getChunkFilename(chunkNumber, identifier);
 
@@ -191,7 +212,13 @@ function get(req) {
     identifier
   };
 
-  const validation = validateRequest(chunkNumber, chunkSize, totalSize, identifier, filename);
+  const validation = validateRequest(
+    chunkNumber,
+    chunkSize,
+    totalSize,
+    identifier,
+    filename
+  );
   if (!validation.valid) {
     status.valid = validation.valid;
     status.message = validation.message;
@@ -207,7 +234,7 @@ function get(req) {
   const validChecksum = validateChecksum(chunkFilename, checksum);
   if (!validChecksum) {
     status.valid = false;
-    status.message = 'Uploaded file checksum doesn\'t match original checksum';
+    status.message = "Uploaded file checksum doesn't match original checksum";
     return status;
   }
 

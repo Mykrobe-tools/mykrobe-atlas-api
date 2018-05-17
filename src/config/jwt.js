@@ -1,14 +1,13 @@
-import errors from 'errors';
-import User from '../server/models/user.model';
+import errors from "errors";
+import User from "../server/models/user.model";
 
 function checkPermission(role) {
   return (req, res, next) => {
     User.get(req.user.id)
-      .then((user) => {
+      .then(user => {
         if (user.role === role) {
           next();
-        }
-        else {
+        } else {
           res.jerror(new errors.NotAllowed());
         }
       })

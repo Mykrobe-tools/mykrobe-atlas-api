@@ -1,17 +1,17 @@
-import passwordHash from 'password-hash';
-import errors from 'errors';
-import User from '../models/user.model';
-import ArrayJSONTransformer from '../transformers/ArrayJSONTransformer';
-import UserJSONTransformer from '../transformers/UserJSONTransformer';
+import passwordHash from "password-hash";
+import errors from "errors";
+import User from "../models/user.model";
+import ArrayJSONTransformer from "../transformers/ArrayJSONTransformer";
+import UserJSONTransformer from "../transformers/UserJSONTransformer";
 
-const config = require('../../config/env');
+const config = require("../../config/env");
 
 /**
  * Load user and append to req.
  */
 function load(req, res, next, id) {
   User.get(id)
-    .then((user) => {
+    .then(user => {
       req.dbUser = user; // eslint-disable-line no-param-reassign
       return next();
     })
@@ -50,10 +50,15 @@ function create(req, res) {
     user.password = passwordHash.generate(req.body.password);
   }
   const queue = config.monqClient.queue(config.notification);
-  user.save()
+  user
+    .save()
     .then(savedUser => savedUser.generateVerificationToken())
-    .then((userWithToken) => {
-      queue.enqueue('welcome', { token: userWithToken.verificationToken, to: userWithToken.email }, () => res.jsend(userWithToken));
+    .then(userWithToken => {
+      queue.enqueue(
+        "welcome",
+        { token: userWithToken.verificationToken, to: userWithToken.email },
+        () => res.jsend(userWithToken)
+      );
     })
     .catch(e => res.jerror(new errors.CreateUserError(e.message)));
 }
@@ -68,11 +73,16 @@ function update(req, res) {
   const user = req.dbUser;
   user.firstname = req.body.firstname || user.firstname;
   user.lastname = req.body.lastname || user.lastname;
-  user.phone = typeof req.body.phone === 'undefined' ? user.phone : req.body.phone;
-  user.email = typeof req.body.email === 'undefined' ? user.email : req.body.email;
+  user.phone =
+    typeof req.body.phone === "undefined" ? user.phone : req.body.phone;
+  user.email =
+    typeof req.body.email === "undefined" ? user.email : req.body.email;
 
-  user.save({ lean: true })
-    .then(savedUser => res.jsend(new UserJSONTransformer(savedUser).transform()))
+  user
+    .save({ lean: true })
+    .then(savedUser =>
+      res.jsend(new UserJSONTransformer(savedUser).transform())
+    )
     .catch(e => res.jerror(new errors.UpdateUserError(e.message)));
 }
 
@@ -85,8 +95,10 @@ function update(req, res) {
 function list(req, res) {
   const { limit = 50, skip = 0 } = req.query;
   User.list({ limit, skip })
-    .then((users) => {
-      const transformer = new ArrayJSONTransformer(users, { transformer: UserJSONTransformer });
+    .then(users => {
+      const transformer = new ArrayJSONTransformer(users, {
+        transformer: UserJSONTransformer
+      });
       res.jsend(transformer.transform());
     })
     .catch(e => res.jerror(e));
@@ -98,8 +110,9 @@ function list(req, res) {
  */
 function remove(req, res) {
   const user = req.dbUser;
-  user.remove()
-    .then(() => res.jsend('Account was successfully deleted.'))
+  user
+    .remove()
+    .then(() => res.jsend("Account was successfully deleted."))
     .catch(e => res.jerror(e));
 }
 
@@ -110,8 +123,11 @@ function remove(req, res) {
 function assignRole(req, res) {
   const user = req.dbUser;
   user.role = config.adminRole;
-  user.save()
-    .then(savedUser => res.jsend(new UserJSONTransformer(savedUser.toObject()).transform()))
+  user
+    .save()
+    .then(savedUser =>
+      res.jsend(new UserJSONTransformer(savedUser.toObject()).transform())
+    )
     .catch(e => res.jerror(e));
 }
 

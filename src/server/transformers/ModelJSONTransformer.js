@@ -1,5 +1,5 @@
-import JSONTransformer from './JSONTransformer';
-import IdTransformer from './IdTransformer';
+import JSONTransformer from "./JSONTransformer";
+import IdTransformer from "./IdTransformer";
 
 /**
  * A class to transform json responses

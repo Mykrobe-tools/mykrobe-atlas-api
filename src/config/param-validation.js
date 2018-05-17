@@ -1,5 +1,5 @@
-import Joi from 'joi';
-import config from './env';
+import Joi from "joi";
+import config from "./env";
 
 export default {
   // POST /users
@@ -7,23 +7,42 @@ export default {
     body: {
       firstname: Joi.string().required(),
       lastname: Joi.string().required(),
-      password: config.usePassword() ? Joi.string().required() : Joi.string().optional(),
-      phone: config.usePassword() ? Joi.string().optional() : Joi.string().required(),
-      email: config.usePassword() ? Joi.string().email().required() :
-          Joi.string().email().optional()
+      password: config.usePassword()
+        ? Joi.string().required()
+        : Joi.string().optional(),
+      phone: config.usePassword()
+        ? Joi.string().optional()
+        : Joi.string().required(),
+      email: config.usePassword()
+        ? Joi.string()
+            .email()
+            .required()
+        : Joi.string()
+            .email()
+            .optional()
     }
   },
 
   // UPDATE /users/:id
   updateUser: {
     params: {
-      id: Joi.string().hex().required()
+      id: Joi.string()
+        .hex()
+        .required()
     },
     body: {
       firstname: Joi.string(),
       lastname: Joi.string(),
-      email: config.usePassword() ? Joi.string() : Joi.string().allow('').allow(null),
-      phone: config.usePassword() ? Joi.string().allow('').allow(null) : Joi.string()
+      email: config.usePassword()
+        ? Joi.string()
+        : Joi.string()
+            .allow("")
+            .allow(null),
+      phone: config.usePassword()
+        ? Joi.string()
+            .allow("")
+            .allow(null)
+        : Joi.string()
     }
   },
 
@@ -38,7 +57,9 @@ export default {
   // POST /auth/forgot
   forgotPassword: {
     body: {
-      email: Joi.string().email().required()
+      email: Joi.string()
+        .email()
+        .required()
     }
   },
 
@@ -53,8 +74,12 @@ export default {
   // POST /auth/resend
   resendNotification: {
     body: {
-      email: config.usePassword() ? Joi.string().required() : Joi.string().optional(),
-      phone: config.usePassword() ? Joi.string().optional() : Joi.string().required()
+      email: config.usePassword()
+        ? Joi.string().required()
+        : Joi.string().optional(),
+      phone: config.usePassword()
+        ? Joi.string().optional()
+        : Joi.string().required()
     }
   },
 
@@ -62,7 +87,9 @@ export default {
   verifyAccount: {
     body: {
       verificationToken: Joi.string().required(),
-      phone: config.usePassword() ? Joi.string().optional() : Joi.string().required()
+      phone: config.usePassword()
+        ? Joi.string().optional()
+        : Joi.string().required()
     }
   },
 
@@ -78,21 +105,27 @@ export default {
   // PUT /experiments/:id/file
   uploadFile: {
     params: {
-      id: Joi.string().hex().required()
+      id: Joi.string()
+        .hex()
+        .required()
     },
     body: {
       name: Joi.string(),
       path: Joi.string(),
-      accessToken: Joi.string().when('provider', { is: 'googleDrive', then: Joi.required() }),
-      provider: Joi.string().valid('dropbox', 'box', 'googleDrive', 'oneDrive')
+      accessToken: Joi.string().when("provider", {
+        is: "googleDrive",
+        then: Joi.required()
+      }),
+      provider: Joi.string().valid("dropbox", "box", "googleDrive", "oneDrive")
     }
   },
 
   // GET /experiments/search
   searchExperiment: {
     query: {
-      page: Joi.number().integer().min(1)
+      page: Joi.number()
+        .integer()
+        .min(1)
     }
   }
-
 };

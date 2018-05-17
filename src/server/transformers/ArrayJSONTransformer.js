@@ -1,4 +1,4 @@
-import JSONTransformer from './JSONTransformer';
+import JSONTransformer from "./JSONTransformer";
 /**
  * A class to transform an array of json responses
  * @property response : the response Object from mongoose
@@ -21,11 +21,11 @@ class ArrayJSONTransformer extends JSONTransformer {
     const options = this.options;
 
     const Transformer = this.transformer;
-    const arr = this.o.map((result) => {
+    const arr = this.o.map(result => {
       let transformed = result;
 
       // if mongoose class - take the Object
-      if (typeof (transformed.toObject) === 'function') {
+      if (typeof transformed.toObject === "function") {
         transformed = transformed.toJSON();
       }
 

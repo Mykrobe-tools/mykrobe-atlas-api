@@ -1,4 +1,4 @@
-import JSONTransformer from './JSONTransformer';
+import JSONTransformer from "./JSONTransformer";
 
 /**
  * A class to transform json responses
@@ -15,13 +15,13 @@ class WhitelistTransformer extends JSONTransformer {
       this.whitelist = options.whitelist;
     }
   }
- /**
-  * The transformation engine
-  */
+  /**
+   * The transformation engine
+   */
   transform() {
     if (this.whitelist.length > 0) {
       const res = {};
-      this.whitelist.forEach((field) => {
+      this.whitelist.forEach(field => {
         res[field] = this.o[field];
       }, this);
       return res;

@@ -1,5 +1,5 @@
-import ESTransformer from './ESTransformer';
-import SummaryESTransformer from './SummaryESTransformer';
+import ESTransformer from "./ESTransformer";
+import SummaryESTransformer from "./SummaryESTransformer";
 
 /**
  * A class to transform es responses

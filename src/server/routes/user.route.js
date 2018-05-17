@@ -1,11 +1,12 @@
-import express from 'express';
-import expressJwt from 'express-jwt';
-import userController from '../controllers/user.controller';
-import config from '../../config/env';
+import express from "express";
+import expressJwt from "express-jwt";
+import userController from "../controllers/user.controller";
+import config from "../../config/env";
 
 const router = express.Router(); // eslint-disable-line new-cap
 
-router.route('/')
+router
+  .route("/")
   /**
    * @api {get} /user Get current user details
    *
@@ -32,9 +33,11 @@ router.route('/')
    *              }
    *     }
    */
-  .get(expressJwt({ secret: config.jwtSecret }),
-       userController.loadCurrentUser,
-       userController.get)
+  .get(
+    expressJwt({ secret: config.jwtSecret }),
+    userController.loadCurrentUser,
+    userController.get
+  )
   /**
    * @api {put} /user Update current user details
    *
@@ -62,9 +65,11 @@ router.route('/')
    *              }
    *     }
    */
-  .put(expressJwt({ secret: config.jwtSecret }),
-       userController.loadCurrentUser,
-       userController.update)
+  .put(
+    expressJwt({ secret: config.jwtSecret }),
+    userController.loadCurrentUser,
+    userController.update
+  )
   /**
    * @api {delete} /user Delete current user
    *
@@ -80,8 +85,10 @@ router.route('/')
    *       "data": "Account was successfully deleted."
    *     }
    */
-  .delete(expressJwt({ secret: config.jwtSecret }),
-       userController.loadCurrentUser,
-       userController.remove);
+  .delete(
+    expressJwt({ secret: config.jwtSecret }),
+    userController.loadCurrentUser,
+    userController.remove
+  );
 
 export default router;

@@ -1,4 +1,4 @@
-import ESTransformer from './ESTransformer';
+import ESTransformer from "./ESTransformer";
 
 /**
  * A class to transform es responses

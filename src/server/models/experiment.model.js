@@ -1,8 +1,8 @@
-import mongoose from 'mongoose';
-import errors from 'errors';
-import ExperimentJSONTransformer from '../transformers/ExperimentJSONTransformer';
-import DistanceJSONTransformer from '../transformers/DistanceJSONTransformer';
-import LocationJSONTransformer from '../transformers/LocationJSONTransformer';
+import mongoose from "mongoose";
+import errors from "errors";
+import ExperimentJSONTransformer from "../transformers/ExperimentJSONTransformer";
+import DistanceJSONTransformer from "../transformers/DistanceJSONTransformer";
+import LocationJSONTransformer from "../transformers/LocationJSONTransformer";
 
 /**
  * Distance Schema
@@ -34,15 +34,15 @@ const LocationSchema = new mongoose.Schema({
 const ExperimentSchema = new mongoose.Schema({
   organisation: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Organisation'
+    ref: "Organisation"
   },
   owner: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User'
+    ref: "User"
   },
   metadata: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Metadata'
+    ref: "Metadata"
   },
   location: LocationSchema,
   collected: Date,
@@ -65,13 +65,10 @@ DistanceSchema.add({ experiments: [ExperimentSchema] });
  * - plugins
  */
 
-
 /**
  * Methods
  */
-ExperimentSchema.method({
-
-});
+ExperimentSchema.method({});
 
 /**
  * Statics
@@ -84,13 +81,15 @@ ExperimentSchema.statics = {
    */
   get(id) {
     return this.findById(id)
-      .populate(['organisation', 'owner', 'metadata'])
+      .populate(["organisation", "owner", "metadata"])
       .exec()
-      .then((experiment) => {
+      .then(experiment => {
         if (experiment) {
           return experiment;
         }
-        return Promise.reject(new errors.ObjectNotFound(`Experiment not found with id ${id}`));
+        return Promise.reject(
+          new errors.ObjectNotFound(`Experiment not found with id ${id}`)
+        );
       })
       .catch(e => Promise.reject(new errors.ObjectNotFound(e.message)));
   },
@@ -100,7 +99,7 @@ ExperimentSchema.statics = {
    */
   list() {
     return this.find()
-      .populate(['organisation', 'owner', 'metadata'])
+      .populate(["organisation", "owner", "metadata"])
       .exec();
   }
 };
@@ -108,19 +107,19 @@ ExperimentSchema.statics = {
 /**
  * Json transformation with shared transformer
  */
-ExperimentSchema.set('toJSON', {
+ExperimentSchema.set("toJSON", {
   transform(doc, ret) {
     return new ExperimentJSONTransformer(ret).transform();
   }
 });
 
-DistanceSchema.set('toJSON', {
+DistanceSchema.set("toJSON", {
   transform(doc, ret) {
     return new DistanceJSONTransformer(ret).transform();
   }
 });
 
-LocationSchema.set('toJSON', {
+LocationSchema.set("toJSON", {
   transform(doc, ret) {
     return new LocationJSONTransformer(ret).transform();
   }
@@ -129,4 +128,4 @@ LocationSchema.set('toJSON', {
 /**
  * @typedef Experiment
  */
-export default mongoose.model('Experiment', ExperimentSchema);
+export default mongoose.model("Experiment", ExperimentSchema);

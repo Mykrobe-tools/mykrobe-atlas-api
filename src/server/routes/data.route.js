@@ -1,5 +1,5 @@
-import express from 'express';
-import dataController from '../controllers/data.controller';
+import express from "express";
+import dataController from "../controllers/data.controller";
 
 const router = express.Router(); // eslint-disable-line new-cap
 
@@ -16,8 +16,7 @@ const router = express.Router(); // eslint-disable-line new-cap
  *     }
  *
  */
-router.route('/clean')
-  .post(dataController.clean);
+router.route("/clean").post(dataController.clean);
 
 /**
  * @api {post} /data/create Create the data
@@ -34,7 +33,6 @@ router.route('/clean')
  *     }
  *
  */
-router.route('/create')
-  .post(dataController.create);
+router.route("/create").post(dataController.create);
 
 export default router;

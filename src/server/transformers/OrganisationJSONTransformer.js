@@ -1,7 +1,7 @@
-import ModelJSONTransformer from './ModelJSONTransformer';
-import BlacklistTransformer from './BlacklistTransformer';
+import ModelJSONTransformer from "./ModelJSONTransformer";
+import BlacklistTransformer from "./BlacklistTransformer";
 
-const BLACKLIST = ['__v'];
+const BLACKLIST = ["__v"];
 
 /**
  * A class to transform json responses

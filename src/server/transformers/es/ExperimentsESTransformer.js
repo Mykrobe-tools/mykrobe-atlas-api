@@ -1,4 +1,4 @@
-import HitsESTransformer from './HitsESTransformer';
+import HitsESTransformer from "./HitsESTransformer";
 
 /**
  * A class to transform es responses

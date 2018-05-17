@@ -1,10 +1,10 @@
-import express from 'express';
-import userRoutes from './user.route';
-import usersRoutes from './users.route';
-import authRoutes from './auth.route';
-import experimentRoutes from './experiment.route';
-import organisationRoutes from './organisation.route';
-import dataRoutes from './data.route';
+import express from "express";
+import userRoutes from "./user.route";
+import usersRoutes from "./users.route";
+import authRoutes from "./auth.route";
+import experimentRoutes from "./experiment.route";
+import organisationRoutes from "./organisation.route";
+import dataRoutes from "./data.route";
 
 const router = express.Router(); // eslint-disable-line new-cap
 /**
@@ -45,26 +45,24 @@ const router = express.Router(); // eslint-disable-line new-cap
  *     }
  *
  */
-router.get('/health-check', (req, res) =>
-  res.jsend('OK')
-);
+router.get("/health-check", (req, res) => res.jsend("OK"));
 
 // mount user routes at /users
-router.use('/users', usersRoutes);
+router.use("/users", usersRoutes);
 
 // mount auth routes at /auth
-router.use('/auth', authRoutes);
+router.use("/auth", authRoutes);
 
 // mount user routes at /user
-router.use('/user', userRoutes);
+router.use("/user", userRoutes);
 
 // mount experiments routes at /experiments
-router.use('/experiments', experimentRoutes);
+router.use("/experiments", experimentRoutes);
 
 // mount organisations routes at /organisations
-router.use('/organisations', organisationRoutes);
+router.use("/organisations", organisationRoutes);
 
 // mount data routes at /data
-router.use('/data', dataRoutes);
+router.use("/data", dataRoutes);
 
 export default router;

@@ -1,6 +1,6 @@
-import mongoose from 'mongoose';
-import errors from 'errors';
-import OrganisationJSONTransformer from '../transformers/OrganisationJSONTransformer';
+import mongoose from "mongoose";
+import errors from "errors";
+import OrganisationJSONTransformer from "../transformers/OrganisationJSONTransformer";
 
 /**
  * Organisation Schema
@@ -18,13 +18,10 @@ const OrganisationSchema = new mongoose.Schema({
  * - plugins
  */
 
-
 /**
  * Methods
  */
-OrganisationSchema.method({
-
-});
+OrganisationSchema.method({});
 
 /**
  * Statics
@@ -38,11 +35,13 @@ OrganisationSchema.statics = {
   get(id) {
     return this.findById(id)
       .exec()
-      .then((organisation) => {
+      .then(organisation => {
         if (organisation) {
           return organisation;
         }
-        return Promise.reject(new errors.ObjectNotFound(`Organisation not found with id ${id}`));
+        return Promise.reject(
+          new errors.ObjectNotFound(`Organisation not found with id ${id}`)
+        );
       })
       .catch(e => Promise.reject(new errors.ObjectNotFound(e.message)));
   },
@@ -71,7 +70,7 @@ OrganisationSchema.statics = {
   }
 };
 
-OrganisationSchema.set('toJSON', {
+OrganisationSchema.set("toJSON", {
   transform(doc, ret) {
     return new OrganisationJSONTransformer(ret).transform();
   }
@@ -80,4 +79,4 @@ OrganisationSchema.set('toJSON', {
 /**
  * @typedef Organisation
  */
-export default mongoose.model('Organisation', OrganisationSchema);
+export default mongoose.model("Organisation", OrganisationSchema);

@@ -1,2 +1,2 @@
-require('./sms-worker');
-require('./email-worker');
+require("./sms-worker");
+require("./email-worker");

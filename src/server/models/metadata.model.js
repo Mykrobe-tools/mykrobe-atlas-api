@@ -1,6 +1,6 @@
-import mongoose from 'mongoose';
-import errors from 'errors';
-import MetadataJSONTransformer from '../transformers/MetadataJSONTransformer';
+import mongoose from "mongoose";
+import errors from "errors";
+import MetadataJSONTransformer from "../transformers/MetadataJSONTransformer";
 
 /**
  * Metadata Schema
@@ -72,13 +72,10 @@ const MetadataSchema = new mongoose.Schema({
  * - plugins
  */
 
-
 /**
  * Methods
  */
-MetadataSchema.method({
-
-});
+MetadataSchema.method({});
 
 /**
  * Statics
@@ -92,17 +89,19 @@ MetadataSchema.statics = {
   get(id) {
     return this.findById(id)
       .exec()
-      .then((metadata) => {
+      .then(metadata => {
         if (metadata) {
           return metadata;
         }
-        return Promise.reject(new errors.ObjectNotFound(`Metadata not found with id ${id}`));
+        return Promise.reject(
+          new errors.ObjectNotFound(`Metadata not found with id ${id}`)
+        );
       })
       .catch(e => Promise.reject(new errors.ObjectNotFound(e.message)));
   }
 };
 
-MetadataSchema.set('toJSON', {
+MetadataSchema.set("toJSON", {
   transform(doc, ret) {
     return new MetadataJSONTransformer(ret).transform();
   }
@@ -111,4 +110,4 @@ MetadataSchema.set('toJSON', {
 /**
  * @typedef Metadata
  */
-export default mongoose.model('Metadata', MetadataSchema);
+export default mongoose.model("Metadata", MetadataSchema);

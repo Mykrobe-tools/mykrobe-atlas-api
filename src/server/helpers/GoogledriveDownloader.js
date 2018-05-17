@@ -1,5 +1,5 @@
-import url from 'url';
-import Downloader from './Downloader';
+import url from "url";
+import Downloader from "./Downloader";
 
 /**
  * A class to download from Googledrive
@@ -17,7 +17,7 @@ class GoogledriveDownloader {
       hostname,
       port: 443,
       path,
-      method: 'GET',
+      method: "GET",
       headers: {
         Authorization: `Bearer ${this.data.accessToken}`
       }

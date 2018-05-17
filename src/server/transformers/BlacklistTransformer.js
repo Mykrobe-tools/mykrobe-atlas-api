@@ -1,4 +1,4 @@
-import JSONTransformer from './JSONTransformer';
+import JSONTransformer from "./JSONTransformer";
 /**
  * A class to transform json responses
  * @property response : the response Object from mongoose
@@ -14,12 +14,12 @@ class BlacklistTransformer extends JSONTransformer {
       this.blacklist = options.blacklist;
     }
   }
- /**
-  * The transformation engine
-  */
+  /**
+   * The transformation engine
+   */
   transform() {
     const res = super.transform();
-    this.blacklist.forEach((field) => {
+    this.blacklist.forEach(field => {
       delete res[field];
     });
     return res;

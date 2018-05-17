@@ -1,5 +1,5 @@
-import errors from 'errors';
-import config from './env';
+import errors from "errors";
+import config from "./env";
 
 /**
  * A module to define the list of errors managed by the API
@@ -10,87 +10,87 @@ import config from './env';
  */
 export default {
   create: () => {
-    errors.stacks(config.env === 'development');
+    errors.stacks(config.env === "development");
     errors.create({
-      name: 'AtlasAPIError',
+      name: "AtlasAPIError",
       code: 10000,
-      defaultMessage: 'An error occurred in Atlas API',
+      defaultMessage: "An error occurred in Atlas API"
     });
     errors.create({
-      name: 'ObjectNotFound',
+      name: "ObjectNotFound",
       code: 10001,
-      defaultMessage: 'The object requested was not found.',
+      defaultMessage: "The object requested was not found.",
       parent: errors.AtlasAPIError
     });
     errors.create({
-      name: 'InvalidCredentials',
+      name: "InvalidCredentials",
       code: 10002,
-      defaultMessage: 'Invalid credentials supplied.',
+      defaultMessage: "Invalid credentials supplied.",
       parent: errors.AtlasAPIError
     });
     errors.create({
-      name: 'ValidationError',
+      name: "ValidationError",
       code: 10003,
       parent: errors.AtlasAPIError
     });
     errors.create({
-      name: 'RouteNotFoundError',
+      name: "RouteNotFoundError",
       code: 10004,
-      defaultMessage: 'Unknown API route.',
+      defaultMessage: "Unknown API route.",
       parent: errors.AtlasAPIError
     });
     errors.create({
-      name: 'CreateUserError',
+      name: "CreateUserError",
       code: 10005,
-      defaultMessage: 'Cannot create new user.',
+      defaultMessage: "Cannot create new user.",
       parent: errors.AtlasAPIError
     });
     errors.create({
-      name: 'UpdateUserError',
+      name: "UpdateUserError",
       code: 10006,
-      defaultMessage: 'Cannot update the user.',
+      defaultMessage: "Cannot update the user.",
       parent: errors.AtlasAPIError
     });
     errors.create({
-      name: 'NotAllowed',
+      name: "NotAllowed",
       code: 10007,
-      defaultMessage: 'You are not allowed to perform this action.',
+      defaultMessage: "You are not allowed to perform this action.",
       parent: errors.AtlasAPIError
     });
     errors.create({
-      name: 'CreateExperimentError',
+      name: "CreateExperimentError",
       code: 10008,
-      defaultMessage: 'Cannot create new experiment.',
+      defaultMessage: "Cannot create new experiment.",
       parent: errors.AtlasAPIError
     });
     errors.create({
-      name: 'UpdateExperimentError',
+      name: "UpdateExperimentError",
       code: 10009,
-      defaultMessage: 'Cannot update experiment.',
+      defaultMessage: "Cannot update experiment.",
       parent: errors.AtlasAPIError
     });
     errors.create({
-      name: 'CreateOrganisationError',
+      name: "CreateOrganisationError",
       code: 10010,
-      defaultMessage: 'Cannot create new organisation.',
+      defaultMessage: "Cannot create new organisation.",
       parent: errors.AtlasAPIError
     });
     errors.create({
-      name: 'UpdateOrganisationError',
+      name: "UpdateOrganisationError",
       code: 10011,
-      defaultMessage: 'Cannot update organisation.',
+      defaultMessage: "Cannot update organisation.",
       parent: errors.AtlasAPIError
     });
     errors.create({
-      name: 'UploadFileError',
+      name: "UploadFileError",
       code: 10012,
-      defaultMessage: 'Cannot upload sequence file.',
+      defaultMessage: "Cannot upload sequence file.",
       parent: errors.AtlasAPIError
     });
     errors.create({
-      name: 'SearchMetadataValuesError',
+      name: "SearchMetadataValuesError",
       code: 10013,
-      defaultMessage: 'Failed to search in ES.',
+      defaultMessage: "Failed to search in ES.",
       parent: errors.AtlasAPIError
     });
   }

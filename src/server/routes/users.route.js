@@ -1,14 +1,15 @@
-import express from 'express';
-import validate from 'express-validation';
-import expressJwt from 'express-jwt';
-import paramValidation from '../../config/param-validation';
-import userController from '../controllers/user.controller';
-import config from '../../config/env';
-import jwt from '../../config/jwt';
+import express from "express";
+import validate from "express-validation";
+import expressJwt from "express-jwt";
+import paramValidation from "../../config/param-validation";
+import userController from "../controllers/user.controller";
+import config from "../../config/env";
+import jwt from "../../config/jwt";
 
 const router = express.Router(); // eslint-disable-line new-cap
 
-router.route('/')
+router
+  .route("/")
   /**
    * @apiDefine UserResponse
    * @apiSuccessExample Success-Response:
@@ -80,7 +81,8 @@ router.route('/')
    */
   .post(validate(paramValidation.createUser), userController.create);
 
-router.route('/:id')
+router
+  .route("/:id")
   /**
    * @api {get} /users/:id Get user details
    *
@@ -111,9 +113,11 @@ router.route('/:id')
    * @apiParam {String} [email] The user email.
    *
    */
-  .put(expressJwt({ secret: config.jwtSecret }),
-       validate(paramValidation.updateUser),
-       userController.update)
+  .put(
+    expressJwt({ secret: config.jwtSecret }),
+    validate(paramValidation.updateUser),
+    userController.update
+  )
 
   /**
    * @api {delete} /users/:id Delete a user
@@ -134,7 +138,8 @@ router.route('/:id')
    */
   .delete(expressJwt({ secret: config.jwtSecret }), userController.remove);
 
-router.route('/:id/role')
+router
+  .route("/:id/role")
   /**
    * @api {post} /users/:id/role Assign role
    *
@@ -147,11 +152,13 @@ router.route('/:id/role')
    * @apiParam {String} id The user unique ID.
    *
    */
-  .post(expressJwt({ secret: config.jwtSecret }),
-        jwt.checkPermission(config.adminRole),
-        userController.assignRole);
+  .post(
+    expressJwt({ secret: config.jwtSecret }),
+    jwt.checkPermission(config.adminRole),
+    userController.assignRole
+  );
 
 /** Load user when API with id route parameter is hit */
-router.param('id', userController.load);
+router.param("id", userController.load);
 
 export default router;
