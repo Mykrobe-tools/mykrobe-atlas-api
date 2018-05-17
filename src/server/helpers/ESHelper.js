@@ -21,18 +21,15 @@ class ESHelper {
   }
 
   // Delete the index if it exists
-  static deleteIndexIfExists() {
-    return Promise.resolve()
-      .then(ESHelper.indexExists)
-      .then(exists => {
-        if (exists) {
-          return client.indices.delete({
-            index: config.esIndexName
-          });
-        }
-        return null;
+  static deleteIndexIfExists = async () => {
+    const exists = await ESHelper.indexExists();
+    if (exists) {
+      return client.indices.delete({
+        index: config.esIndexName
       });
-  }
+    }
+    return null;
+  };
 
   // Create the index
   static createIndex() {
@@ -107,14 +104,13 @@ class ESHelper {
   }
 
   // Index all experiments
-  static indexExperiments() {
-    return Experiment.list().then(experiments => {
-      const promises = experiments.map(experiment =>
-        ESHelper.indexExperiment(experiment)
-      );
-      return Promise.all(promises);
-    });
-  }
+  static indexExperiments = async () => {
+    const experiments = await Experiment.list();
+    const promises = experiments.map(experiment =>
+      ESHelper.indexExperiment(experiment)
+    );
+    return Promise.all(promises);
+  };
 
   // Search distinct metadata values
   static searchMetadataValues(attribute) {

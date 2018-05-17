@@ -11,12 +11,12 @@ import Metadata from "../models/metadata.model";
  * @param res
  * @returns {*}
  */
-function clean(req, res) {
-  User.remove({})
-    .then(() => Experiment.remove({}))
-    .then(() => Organisation.remove({}))
-    .then(() => Metadata.remove({}))
-    .then(() => res.jsend("data cleared successfully"));
+async function clean(req, res) {
+  await User.remove({});
+  await Experiment.remove({});
+  await Organisation.remove({});
+  await Metadata.remove({});
+  return res.jsend("data cleared successfully");
 }
 
 /**
@@ -25,53 +25,50 @@ function clean(req, res) {
  * @param res
  * @returns {*}
  */
-function create(req, res) {
+async function create(req, res) {
   const total = req.body.total || 50;
   const promises = [];
   for (let index = 0; index < total; index += 1) {
-    // eslint-disable-line space-infix-ops
     promises.push(saveExperiment());
   }
-  Promise.all(promises).then(results => res.jsend(results));
+  const results = await Promise.all(promises);
+  return res.jsend(results);
 }
 
-function saveExperiment() {
-  return saveOrganisation().then(savedOrganisation =>
-    saveOwner().then(savedOwner =>
-      saveMetadata().then(savedMetadata => {
-        const experiment = new Experiment({
-          organisation: savedOrganisation,
-          owner: savedOwner,
-          metadata: savedMetadata,
-          location: {
-            name: faker.address.city(),
-            lat: faker.address.latitude(),
-            lng: faker.address.longitude()
-          },
-          collected: faker.date.past(),
-          uploaded: faker.date.past(),
-          resistance: {},
-          jaccardIndex: {
-            analysed: faker.date.past(),
-            engine: faker.lorem.word(),
-            version: faker.fake("v{{random.number}}")
-          },
-          snpDistance: {
-            analysed: faker.date.past(),
-            engine: faker.lorem.word(),
-            version: faker.fake("v{{random.number}}")
-          },
-          geoDistance: {
-            analysed: faker.date.past(),
-            engine: faker.lorem.word(),
-            version: faker.fake("v{{random.number}}")
-          },
-          file: faker.system.fileName()
-        });
-        return experiment.save();
-      })
-    )
-  );
+async function saveExperiment() {
+  const savedOrganisation = await saveOrganisation();
+  const savedOwner = await saveOwner();
+  const savedMetadata = await saveMetadata();
+  const experiment = new Experiment({
+    organisation: savedOrganisation,
+    owner: savedOwner,
+    metadata: savedMetadata,
+    location: {
+      name: faker.address.city(),
+      lat: faker.address.latitude(),
+      lng: faker.address.longitude()
+    },
+    collected: faker.date.past(),
+    uploaded: faker.date.past(),
+    resistance: {},
+    jaccardIndex: {
+      analysed: faker.date.past(),
+      engine: faker.lorem.word(),
+      version: faker.fake("v{{random.number}}")
+    },
+    snpDistance: {
+      analysed: faker.date.past(),
+      engine: faker.lorem.word(),
+      version: faker.fake("v{{random.number}}")
+    },
+    geoDistance: {
+      analysed: faker.date.past(),
+      engine: faker.lorem.word(),
+      version: faker.fake("v{{random.number}}")
+    },
+    file: faker.system.fileName()
+  });
+  return experiment.save();
 }
 
 function saveOrganisation() {

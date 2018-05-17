@@ -94,19 +94,18 @@ UserSchema.statics = {
    * @param {ObjectId} id - The objectId of user.
    * @returns {Promise<User, APIError>}
    */
-  get(id) {
-    return this.findById(id)
-      .populate("organisation")
-      .exec()
-      .then(user => {
-        if (user) {
-          return user;
-        }
-        return Promise.reject(
-          new errors.ObjectNotFound(`User not found with id ${id}`)
-        );
-      })
-      .catch(e => Promise.reject(new errors.ObjectNotFound(e.message)));
+  async get(id) {
+    try {
+      const user = await this.findById(id)
+        .populate("organisation")
+        .exec();
+      if (user) {
+        return user;
+      }
+      throw new errors.ObjectNotFound(`User not found with id ${id}`);
+    } catch (e) {
+      throw new errors.ObjectNotFound(e.message);
+    }
   },
 
   /**
@@ -114,34 +113,28 @@ UserSchema.statics = {
    * @param {String} email - The email of user.
    * @returns {Promise<User, APIError>}
    */
-  getByEmail(email) {
-    return this.findOne({ email })
-      .exec()
-      .then(user => {
-        if (user) {
-          return user;
-        }
-        return Promise.reject(new errors.ObjectNotFound());
-      });
+  async getByEmail(email) {
+    const user = await this.findOne({ email }).exec();
+    if (user) {
+      return user;
+    }
+    throw new errors.ObjectNotFound();
   },
 
   /**
    * Finds and updates the user
    * @returns {Promise<User, APIError>}
    */
-  findUserAndUpdate(query, newData) {
-    return this.findOneAndUpdate(query, newData, { new: true })
-      .exec()
-      .then(user => {
-        if (user) {
-          return user;
-        }
-        return Promise.reject(
-          new errors.ObjectNotFound(
-            "No registered user with the given criteria"
-          )
-        );
-      });
+  async findUserAndUpdate(query, newData) {
+    const user = await this.findOneAndUpdate(query, newData, {
+      new: true
+    }).exec();
+    if (user) {
+      return user;
+    }
+    throw new errors.ObjectNotFound(
+      "No registered user with the given criteria"
+    );
   },
 
   /**
@@ -149,19 +142,14 @@ UserSchema.statics = {
    * @param {String} resetPasswordToken - The resetPasswordToken of user.
    * @returns {Promise<User, APIError>}
    */
-  getByResetPasswordToken(resetPasswordToken) {
-    return this.findOne({ resetPasswordToken })
-      .exec()
-      .then(user => {
-        if (user) {
-          return user;
-        }
-        return Promise.reject(
-          new errors.ObjectNotFound(
-            `No registered user with token ${resetPasswordToken}`
-          )
-        );
-      });
+  async getByResetPasswordToken(resetPasswordToken) {
+    const user = await this.findOne({ resetPasswordToken }).exec();
+    if (user) {
+      return user;
+    }
+    throw new errors.ObjectNotFound(
+      `No registered user with token ${resetPasswordToken}`
+    );
   },
 
   /**
@@ -169,19 +157,14 @@ UserSchema.statics = {
    * @param {String} verificationToken - The verificationToken of user.
    * @returns {Promise<User, APIError>}
    */
-  getByVerificationToken(verificationToken) {
-    return this.findOne({ verificationToken })
-      .exec()
-      .then(user => {
-        if (user) {
-          return user;
-        }
-        return Promise.reject(
-          new errors.ObjectNotFound(
-            `No registered user with token ${verificationToken}`
-          )
-        );
-      });
+  async getByVerificationToken(verificationToken) {
+    const user = await this.findOne({ verificationToken }).exec();
+    if (user) {
+      return user;
+    }
+    throw new errors.ObjectNotFound(
+      `No registered user with token ${verificationToken}`
+    );
   },
 
   /**

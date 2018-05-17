@@ -79,19 +79,18 @@ ExperimentSchema.statics = {
    * @param {ObjectId} id - The objectId of experiment.
    * @returns {Promise<Experiment, APIError>}
    */
-  get(id) {
-    return this.findById(id)
-      .populate(["organisation", "owner", "metadata"])
-      .exec()
-      .then(experiment => {
-        if (experiment) {
-          return experiment;
-        }
-        return Promise.reject(
-          new errors.ObjectNotFound(`Experiment not found with id ${id}`)
-        );
-      })
-      .catch(e => Promise.reject(new errors.ObjectNotFound(e.message)));
+  async get(id) {
+    try {
+      const experiment = await this.findById(id)
+        .populate(["organisation", "owner", "metadata"])
+        .exec();
+      if (experiment) {
+        return experiment;
+      }
+      throw new errors.ObjectNotFound(`Experiment not found with id ${id}`);
+    } catch (e) {
+      throw new errors.ObjectNotFound(e.message);
+    }
   },
   /**
    * List all experiments

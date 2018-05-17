@@ -86,18 +86,16 @@ MetadataSchema.statics = {
    * @param {ObjectId} id - The objectId of experiment.
    * @returns {Promise<Metadata, APIError>}
    */
-  get(id) {
-    return this.findById(id)
-      .exec()
-      .then(metadata => {
-        if (metadata) {
-          return metadata;
-        }
-        return Promise.reject(
-          new errors.ObjectNotFound(`Metadata not found with id ${id}`)
-        );
-      })
-      .catch(e => Promise.reject(new errors.ObjectNotFound(e.message)));
+  async get(id) {
+    try {
+      const metadata = await this.findById(id).exec();
+      if (metadata) {
+        return metadata;
+      }
+      throw new errors.ObjectNotFound(`Metadata not found with id ${id}`);
+    } catch (e) {
+      throw new errors.ObjectNotFound(e.message);
+    }
   }
 };
 

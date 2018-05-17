@@ -70,19 +70,20 @@ function getRandomNumber(req, res) {
  * @param res
  * @returns {*}
  */
-function forgot(req, res) {
+async function forgot(req, res) {
   const random = randomstring.generate();
-  User.findUserAndUpdate(
-    { email: req.body.email },
-    { resetPasswordToken: random }
-  )
-    .then(user => {
-      const queue = config.monqClient.queue(config.notification);
-      queue.enqueue("forgot", { to: user.email, token: random }, () =>
-        res.jsend(`Email sent successfully to ${user.email}`)
-      );
-    })
-    .catch(e => res.jerror(e));
+  try {
+    const user = await User.findUserAndUpdate(
+      { email: req.body.email },
+      { resetPasswordToken: random }
+    );
+    const queue = config.monqClient.queue(config.notification);
+    queue.enqueue("forgot", { to: user.email, token: random }, () =>
+      res.jsend(`Email sent successfully to ${user.email}`)
+    );
+  } catch (e) {
+    return res.jerror(e);
+  }
 }
 
 /**
@@ -91,19 +92,18 @@ function forgot(req, res) {
  * @param res
  * @returns {*}
  */
-function reset(req, res) {
-  User.getByResetPasswordToken(req.body.resetPasswordToken)
-    .then(user => {
-      const newPassword = passwordHash.generate(req.body.password);
-      user.password = newPassword; // eslint-disable-line no-param-reassign
-      user
-        .save()
-        .then(savedUser =>
-          res.jsend(`Password was reset successfully for ${savedUser.email}`)
-        )
-        .catch(e => res.jerror(new errors.UpdateUserError(e.message)));
-    })
-    .catch(e => res.jerror(e));
+async function reset(req, res) {
+  try {
+    const user = await User.getByResetPasswordToken(
+      req.body.resetPasswordToken
+    );
+    const newPassword = passwordHash.generate(req.body.password);
+    user.password = newPassword;
+    const savedUser = await user.save();
+    return res.jsend(`Password was reset successfully for ${savedUser.email}`);
+  } catch (e) {
+    return res.jerror(new errors.UpdateUserError(e.message));
+  }
 }
 
 /**
@@ -112,20 +112,20 @@ function reset(req, res) {
  * @param res
  * @returns {*}
  */
-function verify(req, res) {
+async function verify(req, res) {
   // move to ES6-based bluebird bind
-  User.getByVerificationToken(req.body.verificationToken)
-    .then(user => {
-      const candidateUser = user;
-      candidateUser.valid = true;
-      candidateUser.verificationToken = null;
-      return Organisation.findOne({}).then(organisation => {
-        candidateUser.organisation = organisation;
-        return candidateUser.save();
-      });
-    })
-    .then(verifiedUser => res.jsend(verifiedUser))
-    .catch(e => res.jerror(e));
+  try {
+    const user = await User.getByVerificationToken(req.body.verificationToken);
+    const candidateUser = user;
+    candidateUser.valid = true;
+    candidateUser.verificationToken = null;
+    const organisation = await Organisation.findOne({});
+    candidateUser.organisation = organisation;
+    const verifiedUser = await candidateUser.save();
+    return res.jsend(verifiedUser);
+  } catch (e) {
+    return res.jerror(e);
+  }
 }
 
 /**
@@ -134,19 +134,20 @@ function verify(req, res) {
  * @param res
  * @returns {*}
  */
-function resend(req, res) {
+async function resend(req, res) {
   const { email } = req.body;
-  User.getByEmail(email)
-    .then(user => user.generateVerificationToken())
-    .then(userWithToken => {
-      const queue = config.monqClient.queue(config.notification);
-      queue.enqueue(
-        "welcome",
-        { token: userWithToken.verificationToken, to: userWithToken.email },
-        () => res.jsend(`Notification was resent by ${config.notification}`)
-      );
-    })
-    .catch(e => res.jerror(e));
+  try {
+    const user = await User.getByEmail(email);
+    const userWithToken = await user.generateVerificationToken();
+    const queue = config.monqClient.queue(config.notification);
+    queue.enqueue(
+      "welcome",
+      { token: userWithToken.verificationToken, to: userWithToken.email },
+      () => res.jsend(`Notification was resent by ${config.notification}`)
+    );
+  } catch (e) {
+    return res.jerror(e);
+  }
 }
 
 export default { login, getRandomNumber, forgot, reset, verify, resend };

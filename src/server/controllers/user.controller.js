@@ -9,13 +9,14 @@ const config = require("../../config/env");
 /**
  * Load user and append to req.
  */
-function load(req, res, next, id) {
-  User.get(id)
-    .then(user => {
-      req.dbUser = user; // eslint-disable-line no-param-reassign
-      return next();
-    })
-    .catch(e => res.jerror(e));
+async function load(req, res, next, id) {
+  try {
+    const user = await User.get(id);
+    req.dbUser = user;
+    return next();
+  } catch (e) {
+    return res.jerror(e);
+  }
 }
 
 /**
@@ -39,7 +40,7 @@ function get(req, res) {
  * @property {string} req.body.profile - The profile of user.
  * @returns {User}
  */
-function create(req, res) {
+async function create(req, res) {
   const user = new User({
     firstname: req.body.firstname,
     lastname: req.body.lastname,
@@ -50,17 +51,17 @@ function create(req, res) {
     user.password = passwordHash.generate(req.body.password);
   }
   const queue = config.monqClient.queue(config.notification);
-  user
-    .save()
-    .then(savedUser => savedUser.generateVerificationToken())
-    .then(userWithToken => {
-      queue.enqueue(
-        "welcome",
-        { token: userWithToken.verificationToken, to: userWithToken.email },
-        () => res.jsend(userWithToken)
-      );
-    })
-    .catch(e => res.jerror(new errors.CreateUserError(e.message)));
+  try {
+    const savedUser = await user.save();
+    const userWithToken = await savedUser.generateVerificationToken();
+    queue.enqueue(
+      "welcome",
+      { token: userWithToken.verificationToken, to: userWithToken.email },
+      () => res.jsend(userWithToken)
+    );
+  } catch (e) {
+    return res.jerror(new errors.CreateUserError(e.message));
+  }
 }
 
 /**
@@ -69,7 +70,7 @@ function create(req, res) {
  * @property {string} req.body.lastname - The lastname of user.
  * @returns {User}
  */
-function update(req, res) {
+async function update(req, res) {
   const user = req.dbUser;
   user.firstname = req.body.firstname || user.firstname;
   user.lastname = req.body.lastname || user.lastname;
@@ -78,12 +79,12 @@ function update(req, res) {
   user.email =
     typeof req.body.email === "undefined" ? user.email : req.body.email;
 
-  user
-    .save({ lean: true })
-    .then(savedUser =>
-      res.jsend(new UserJSONTransformer(savedUser).transform())
-    )
-    .catch(e => res.jerror(new errors.UpdateUserError(e.message)));
+  try {
+    const savedUser = await user.save({ lean: true });
+    return res.jsend(new UserJSONTransformer(savedUser).transform());
+  } catch (e) {
+    return res.jerror(new errors.UpdateUserError(e.message));
+  }
 }
 
 /**
@@ -92,43 +93,46 @@ function update(req, res) {
  * @property {number} req.query.limit - Limit number of users to be returned.
  * @returns {User[]}
  */
-function list(req, res) {
+async function list(req, res) {
   const { limit = 50, skip = 0 } = req.query;
-  User.list({ limit, skip })
-    .then(users => {
-      const transformer = new ArrayJSONTransformer(users, {
-        transformer: UserJSONTransformer
-      });
-      res.jsend(transformer.transform());
-    })
-    .catch(e => res.jerror(e));
+  try {
+    const users = await User.list({ limit, skip });
+    const transformer = new ArrayJSONTransformer(users, {
+      transformer: UserJSONTransformer
+    });
+    return res.jsend(transformer.transform());
+  } catch (e) {
+    return res.jerror(e);
+  }
 }
 
 /**
  * Delete user.
  * @returns {User}
  */
-function remove(req, res) {
+async function remove(req, res) {
   const user = req.dbUser;
-  user
-    .remove()
-    .then(() => res.jsend("Account was successfully deleted."))
-    .catch(e => res.jerror(e));
+  try {
+    await user.remove();
+    return res.jsend("Account was successfully deleted.");
+  } catch (e) {
+    return res.jerror(e);
+  }
 }
 
 /**
  * Make user an admin.
  * @returns {User}
  */
-function assignRole(req, res) {
+async function assignRole(req, res) {
   const user = req.dbUser;
   user.role = config.adminRole;
-  user
-    .save()
-    .then(savedUser =>
-      res.jsend(new UserJSONTransformer(savedUser.toObject()).transform())
-    )
-    .catch(e => res.jerror(e));
+  try {
+    const savedUser = await user.save();
+    return res.jsend(new UserJSONTransformer(savedUser.toObject()).transform());
+  } catch (e) {
+    return res.jerror(e);
+  }
 }
 
 export default {

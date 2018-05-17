@@ -482,7 +482,7 @@ describe("## User APIs", () => {
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).to.equal("error");
-          expect(res.body.code).to.equal(10001);
+          expect(res.body.code).to.equal(10006);
           expect(res.body.message).to.equal(
             "No registered user with token invalidToken"
           );
