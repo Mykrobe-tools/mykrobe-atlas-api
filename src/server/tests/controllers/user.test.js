@@ -1,12 +1,12 @@
-import request from 'supertest-as-promised';
+import request from 'supertest';
 import httpStatus from 'http-status';
 import chai, { expect } from 'chai';
 import dirtyChai from 'dirty-chai';
-import app from '../../../index';
+import { createApp } from "../setup";
 import User from '../../models/user.model';
 import Organisation from '../../models/organisation.model';
 
-require('../teardown');
+const app = createApp();
 
 const users = require('../fixtures/users');
 
@@ -31,10 +31,10 @@ beforeEach((done) => {
               });
 });
 
-afterEach((done) => {
-  User.remove({})
-    .then(Organisation.remove({}))
-    .then(done);
+afterEach(async done => {
+  await User.remove({});
+  await Organisation.remove({});
+  done();
 });
 
 describe('## User APIs', () => {
@@ -162,14 +162,12 @@ describe('## User APIs', () => {
   });
 
   describe('# GET /users/:id', () => {
-    beforeEach((done) => {
+    beforeEach(async done => {
       const org = new Organisation({ name: 'Apex Entertainment', template: 'MODS' });
-      org.save()
-        .then((savedOrg) => {
-          savedUser.organisation = savedOrg;
-          savedUser.save()
-            .then(done);
-        });
+      const savedOrg = await org.save();
+      savedUser.organisation = savedOrg;
+      await savedUser.save();
+      done();
     });
     it('should get user details', (done) => {
       request(app)
@@ -447,10 +445,10 @@ describe('## User APIs', () => {
   });
 
   describe('# POST /auth/reset', () => {
-    beforeEach((done) => {
+    beforeEach(async done => {
       const userData = new User(users.userWithToken);
-      userData.save()
-              .then(done);
+      await userData.save();
+      done();
     });
 
     it('should return a success response', (done) => {

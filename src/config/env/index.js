@@ -6,7 +6,6 @@ const config = require(`./${env}`); // eslint-disable-line import/no-dynamic-req
 
 const defaults = {
   root: path.join(__dirname, '/..'),
-  monqClient: monq(config.db, { safe: true }),
   adminRole: 'Admin',
   notification: 'email',
   username: 'email',
@@ -17,7 +16,9 @@ const defaults = {
     accessKeyId: process.env.AWS_ACCESS_KEY,
     secretAccessKey: process.env.AWS_SECRET_KEY,
     region: process.env.AWS_REGION
-  }
+  },
+  rateLimitReset: 15 * 60 * 1000, // 15 min
+  rateLimitMax: 1000
 };
 
 const functions = {

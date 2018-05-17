@@ -2,7 +2,7 @@ import chai, { expect } from 'chai';
 import dirtyChai from 'dirty-chai';
 import User from '../../models/user.model';
 
-require('../../../index');
+require("../setup");
 const users = require('../fixtures/users');
 
 chai.config.includeStack = true;
@@ -35,10 +35,14 @@ describe('## User Functions', () => {
         done();
       });
   });
-  it('should not save duplicate phone numbers', (done) => {
-    const userData = new User(users.thomas);
-    userData.save()
-      .catch(done);
+  it("should not save duplicate emails", async done => {
+    const userData = new User(users.invalid.duplicateEmail);
+    try {
+      await userData.save();
+    } catch (e) {
+      expect(e.message).to.equal("thomas@nhs.co.uk has already been registered");
+      done();
+    }
   });
   it('should default valid to false', (done) => {
     const userData = new User(users.userToVerify);

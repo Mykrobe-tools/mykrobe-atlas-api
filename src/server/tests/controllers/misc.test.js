@@ -1,9 +1,23 @@
-import request from 'supertest-as-promised';
+import request from 'supertest';
 import httpStatus from 'http-status';
 import chai, { expect } from 'chai';
-import app from '../../../index';
+import User from "../../models/user.model";
+import { createApp } from "../setup";
+
+const app = createApp();
 
 chai.config.includeStack = true;
+
+const users = require("../fixtures/users");
+
+beforeEach(async () => {
+  const userData = new User(users.admin);
+  await userData.save();
+});
+
+afterEach(async () => {
+  await User.remove({});
+});
 
 describe('## Misc', () => {
   describe('# GET /health-check', () => {

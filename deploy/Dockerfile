@@ -1,9 +1,9 @@
 FROM ubuntu:14.04
-MAINTAINER Yassire Elhani <yassire@makeandship.com>
+LABEL MAINTAINER="Yassire Elhani <yassire@makeandship.com>"
 
 RUN rm /bin/sh && ln -s /bin/bash /bin/sh
 
-ENV NODE_VERSION 6.9.4
+ENV NODE_VERSION 8.11.2
 ENV NVM_DIR /usr/local/nvm
 
 RUN echo "deb mirror://mirrors.ubuntu.com/mirrors.txt trusty main restricted universe multiverse" > /etc/apt/sources.list; \

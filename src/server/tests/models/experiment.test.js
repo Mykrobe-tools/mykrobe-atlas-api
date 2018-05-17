@@ -3,7 +3,7 @@ import dirtyChai from 'dirty-chai';
 import Experiment from '../../models/experiment.model';
 import Organisation from '../../models/organisation.model';
 
-require('../../../index');
+require("../setup");
 const experiments = require('../fixtures/experiments');
 
 chai.config.includeStack = true;

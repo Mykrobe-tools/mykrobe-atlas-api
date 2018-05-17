@@ -2,7 +2,7 @@ import chai, { expect } from 'chai';
 import dirtyChai from 'dirty-chai';
 import Metadata from '../../models/metadata.model';
 
-require('../../../index');
+require("../setup");
 const metadata = require('../fixtures/metadata');
 
 chai.config.includeStack = true;

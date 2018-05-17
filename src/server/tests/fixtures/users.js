@@ -63,5 +63,26 @@ export default {
     verificationToken: 'i9KOcGrwsAKaizXTVqLhE96cnkln72QA',
     phone: '032435940944',
     email: 'sara@nhs.co.uk'
+  },
+  invalid: {
+    duplicateEmail: {
+      firstname: "Ali",
+      lastname: "Walter",
+      role: "Carer",
+      valid: true,
+      resetPasswordToken: "54VwcGr65AKaules/blueln7w1o",
+      password: passwordHash.generate("password"),
+      phone: "083231292248",
+      email: "thomas@nhs.co.uk"
+    },
+    duplicatePhone: {
+      firstname: "Sean",
+      lastname: "Moses",
+      role: "Carer",
+      resetPasswordToken: "54VwcGr65AKaules/blueln7w1o",
+      password: passwordHash.generate("password"),
+      phone: "07737929442",
+      email: "sean@nhs.co.uk"
+    }
   }
 };

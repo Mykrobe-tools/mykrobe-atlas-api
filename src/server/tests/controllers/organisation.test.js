@@ -1,12 +1,12 @@
-import request from 'supertest-as-promised';
+import request from 'supertest';
 import httpStatus from 'http-status';
 import chai, { expect } from 'chai';
 import dirtyChai from 'dirty-chai';
-import app from '../../../index';
+import { createApp } from "../setup";
 import User from '../../models/user.model';
 import Organisation from '../../models/organisation.model';
 
-require('../teardown');
+const app = createApp();
 
 const users = require('../fixtures/users');
 const experiments = require('../fixtures/experiments');

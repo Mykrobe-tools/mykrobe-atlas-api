@@ -1,17 +1,16 @@
-import request from 'supertest-as-promised';
+import request from 'supertest';
 import httpStatus from 'http-status';
 import chai, { expect } from 'chai';
 import dirtyChai from 'dirty-chai';
 import fs from 'fs';
-import app from '../../../index';
+import { config, createApp } from "../setup";
 import User from '../../models/user.model';
 import Experiment from '../../models/experiment.model';
 import Organisation from '../../models/organisation.model';
 import Metadata from '../../models/metadata.model';
-import config from '../../../config/env';
 import ESHelper from '../../helpers/ESHelper';
 
-require('../teardown');
+const app = createApp();
 
 const users = require('../fixtures/users');
 const experiments = require('../fixtures/experiments');
@@ -278,7 +277,6 @@ describe('## Experiment APIs', () => {
       request(app)
         .put(`/experiments/${id}/file`)
         .set('Authorization', `Bearer ${token}`)
-        .attach('file', 'src/server/tests/fixtures/files/333-08.json')
         .field('resumableChunkNumber', 1)
         .field('resumableChunkSize', 1048576)
         .field('resumableCurrentChunkSize', 251726)
@@ -289,6 +287,7 @@ describe('## Experiment APIs', () => {
         .field('resumableRelativePath', '333-08.json')
         .field('resumableTotalChunks', 1)
         .field('checksum', '4f36e4cbfc9dfc37559e13bd3a309d50')
+        .attach('file', 'src/server/tests/fixtures/files/333-08.json')
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).to.equal('success');
@@ -300,7 +299,6 @@ describe('## Experiment APIs', () => {
       request(app)
         .put(`/experiments/${id}/file`)
         .set('Authorization', `Bearer ${token}`)
-        .attach('file', 'src/server/tests/fixtures/files/333-08.json')
         .field('resumableChunkNumber', 1)
         .field('resumableChunkSize', 1048576)
         .field('resumableCurrentChunkSize', 251726)
@@ -311,6 +309,7 @@ describe('## Experiment APIs', () => {
         .field('resumableRelativePath', '333-08.json')
         .field('resumableTotalChunks', 1)
         .field('checksum', '4f36e4cbfc9dfc37559e13bd3a309d50')
+        .attach('file', 'src/server/tests/fixtures/files/333-08.json')
         .expect(httpStatus.OK)
         .end((err, res) => {
           const filePath = `${config.uploadDir}/experiments/${id}/file/333-08.json`;
@@ -324,7 +323,6 @@ describe('## Experiment APIs', () => {
       request(app)
         .put('/experiments/589dcdd38d71fee259dc4e00/file')
         .set('Authorization', `Bearer ${token}`)
-        .attach('file', 'src/server/tests/fixtures/files/333-08.json')
         .field('resumableChunkNumber', 1)
         .field('resumableChunkSize', 1048576)
         .field('resumableCurrentChunkSize', 251726)
@@ -335,6 +333,7 @@ describe('## Experiment APIs', () => {
         .field('resumableRelativePath', '333-08.json')
         .field('resumableTotalChunks', 1)
         .field('checksum', '4f36e4cbfc9dfc37559e13bd3a309d50')
+        .attach('file', 'src/server/tests/fixtures/files/333-08.json')
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).to.equal('error');
@@ -367,7 +366,6 @@ describe('## Experiment APIs', () => {
       request(app)
         .put(`/experiments/${id}/file`)
         .set('Authorization', `Bearer ${token}`)
-        .attach('file', 'src/server/tests/fixtures/files/333-08.json')
         .field('resumableChunkNumber', 1)
         .field('resumableChunkSize', 1048576)
         .field('resumableCurrentChunkSize', 251726)
@@ -378,6 +376,7 @@ describe('## Experiment APIs', () => {
         .field('resumableRelativePath', '333-08.json')
         .field('resumableTotalChunks', 1)
         .field('checksum', '4f36e4cbfc9dfc37559e13bd3a309d55')
+        .attach('file', 'src/server/tests/fixtures/files/333-08.json')
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).to.equal('error');
@@ -390,7 +389,6 @@ describe('## Experiment APIs', () => {
       request(app)
         .put(`/experiments/${id}/file`)
         .set('Authorization', `Bearer ${token}`)
-        .attach('file', 'src/server/tests/fixtures/files/333-08.json')
         .field('resumableChunkNumber', 1)
         .field('resumableChunkSize', 1048576)
         .field('resumableCurrentChunkSize', 251726)
@@ -401,6 +399,7 @@ describe('## Experiment APIs', () => {
         .field('resumableRelativePath', '333-08.json')
         .field('resumableTotalChunks', 1)
         .field('checksum', '4f36e4cbfc9dfc37559e13bd3a309d50')
+        .attach('file', 'src/server/tests/fixtures/files/333-08.json')
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).to.equal('error');
@@ -591,7 +590,6 @@ describe('## Experiment APIs', () => {
       request(app)
         .put(`/experiments/${id}/file`)
         .set('Authorization', `Bearer ${token}`)
-        .attach('file', 'src/server/tests/fixtures/files/333-08.json')
         .field('resumableChunkNumber', 1)
         .field('resumableChunkSize', 1048576)
         .field('resumableCurrentChunkSize', 251726)
@@ -602,6 +600,7 @@ describe('## Experiment APIs', () => {
         .field('resumableRelativePath', '333-08.json')
         .field('resumableTotalChunks', 1)
         .field('checksum', '4f36e4cbfc9dfc37559e13bd3a309d50')
+        .attach('file', 'src/server/tests/fixtures/files/333-08.json')
         .expect(httpStatus.OK)
         .end(() => {
           request(app)

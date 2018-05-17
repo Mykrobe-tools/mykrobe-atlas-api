@@ -1,16 +1,16 @@
-import request from 'supertest-as-promised';
+import request from 'supertest';
 import httpStatus from 'http-status';
 import chai, { expect } from 'chai';
 import dirtyChai from 'dirty-chai';
 import Promise from 'bluebird';
-import app from '../../../index';
+import { createApp } from "../setup";
 import User from '../../models/user.model';
 import Experiment from '../../models/experiment.model';
 import Organisation from '../../models/organisation.model';
 import Metadata from '../../models/metadata.model';
 import ESHelper from '../../helpers/ESHelper';
 
-require('../teardown');
+const app = createApp();
 
 const users = require('../fixtures/users');
 

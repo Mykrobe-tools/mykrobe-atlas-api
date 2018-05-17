@@ -1,11 +1,12 @@
 import mongoose from 'mongoose';
 import util from 'util';
 import config from './config/env';
-import app from './config/express';
+import createApp from "./config/express";
 import errors from './config/errors-definition';
 
 require('./express-jsend');
 require('./workers');
+const app = createApp();
 const debug = require('debug')('atlas:index');
 
 // make bluebird default Promise
@@ -15,7 +16,7 @@ Promise = require('bluebird'); // eslint-disable-line no-global-assign
 mongoose.Promise = Promise;
 
 // connect to mongo db
-mongoose.connect(config.db, { server: { socketOptions: { keepAlive: 1 } } });
+mongoose.connect(config.db);
 mongoose.connection.on('error', () => {
   throw new Error(`unable to connect to database: ${config.db}`);
 });
