@@ -64,7 +64,7 @@
     "http-status": "^1.1.0",
     "joi": "^13.3.0",
     "jsonwebtoken": "^8.2.1",
-    "lodash": "^4.17.4",
+    "lodash": "^4.17.10",
     "method-override": "^2.3.5",
     "mkdirp": "^0.5.1",
     "mkdirp-promise": "^5.0.1",
@@ -83,7 +83,7 @@
   "devDependencies": {
     "apidoc": "^0.17.5",
     "babel-cli": "^6.26.0",
-    "babel-core": "^6.26.0",
+    "babel-core": "^6.26.3",
     "babel-jest": "^22.4.1",
     "babel-loader": "^7.1.4",
     "babel-plugin-add-module-exports": "^0.2.1",
