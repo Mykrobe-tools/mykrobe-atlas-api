@@ -1,7 +1,5 @@
 import request from "supertest";
 import httpStatus from "http-status";
-import chai, { expect } from "chai";
-import dirtyChai from "dirty-chai";
 import { createApp } from "../setup";
 import User from "../../models/user.model";
 import Organisation from "../../models/organisation.model";
@@ -11,35 +9,30 @@ const app = createApp();
 const users = require("../fixtures/users");
 const experiments = require("../fixtures/experiments");
 
-chai.config.includeStack = true;
-chai.use(dirtyChai);
-
 let token = null;
 let id = null;
 
-beforeEach(done => {
+beforeEach(async done => {
   const userData = new User(users.admin);
   const organisationData = new Organisation(
     experiments.tuberculosis.organisation
   );
-  userData.save().then(() => {
-    request(app)
-      .post("/auth/login")
-      .send({ email: "admin@nhs.co.uk", password: "password" })
-      .end((err, res) => {
-        token = res.body.data.token;
-        organisationData.save().then(savedOrganisation => {
-          id = savedOrganisation.id;
-          done();
-        });
-      });
-  });
+  await userData.save();
+  request(app)
+    .post("/auth/login")
+    .send({ email: "admin@nhs.co.uk", password: "password" })
+    .end(async (err, res) => {
+      token = res.body.data.token;
+      const savedOrganisation = await organisationData.save();
+      id = savedOrganisation.id;
+      done();
+    });
 });
 
-afterEach(done => {
-  User.remove({}).then(() => {
-    Organisation.remove({}, done);
-  });
+afterEach(async done => {
+  await User.remove({});
+  await Organisation.remove({});
+  done();
 });
 
 describe("## Experiment APIs", () => {
@@ -51,8 +44,8 @@ describe("## Experiment APIs", () => {
         .send({ name: "Make and Ship" })
         .expect(httpStatus.OK)
         .end((err, res) => {
-          expect(res.body.status).to.equal("success");
-          expect(res.body.data.name).to.equal("Make and Ship");
+          expect(res.body.status).toEqual("success");
+          expect(res.body.data.name).toEqual("Make and Ship");
           done();
         });
     });
@@ -64,8 +57,8 @@ describe("## Experiment APIs", () => {
         .send({ name: "Make and Ship" })
         .expect(httpStatus.UNAUTHORIZED)
         .end((err, res) => {
-          expect(res.body.status).to.equal("error");
-          expect(res.body.message).to.equal("jwt malformed");
+          expect(res.body.status).toEqual("error");
+          expect(res.body.message).toEqual("jwt malformed");
           done();
         });
     });
@@ -78,8 +71,8 @@ describe("## Experiment APIs", () => {
         .set("Authorization", `Bearer ${token}`)
         .expect(httpStatus.OK)
         .end((err, res) => {
-          expect(res.body.status).to.equal("success");
-          expect(res.body.data.name).to.equal("Apex Entertainment");
+          expect(res.body.status).toEqual("success");
+          expect(res.body.data.name).toEqual("Apex Entertainment");
           done();
         });
     });
@@ -90,7 +83,7 @@ describe("## Experiment APIs", () => {
         .set("Authorization", `Bearer ${token}`)
         .expect(httpStatus.NOT_FOUND)
         .end((err, res) => {
-          expect(res.body.message).to.equal(
+          expect(res.body.message).toEqual(
             "Organisation not found with id 56c787ccc67fc16ccc1a5e92"
           );
           done();
@@ -103,8 +96,8 @@ describe("## Experiment APIs", () => {
         .set("Authorization", `Bearer ${token}`)
         .expect(httpStatus.OK)
         .end((err, res) => {
-          expect(res.body.data._id).to.be.an("undefined");
-          expect(res.body.data.__v).to.be.an("undefined");
+          expect(res.body.data._id).toBeUndefined();
+          expect(res.body.data.__v).toBeUndefined();
           done();
         });
     });
@@ -115,7 +108,7 @@ describe("## Experiment APIs", () => {
         .set("Authorization", `Bearer ${token}`)
         .expect(httpStatus.OK)
         .end((err, res) => {
-          expect(res.body.data.id).to.equal(id);
+          expect(res.body.data.id).toEqual(id);
           done();
         });
     });
@@ -132,7 +125,7 @@ describe("## Experiment APIs", () => {
         .send(data)
         .expect(httpStatus.OK)
         .end((err, res) => {
-          expect(res.body.data.name).to.equal("Make and Ship");
+          expect(res.body.data.name).toEqual("Make and Ship");
           done();
         });
     });
@@ -146,9 +139,9 @@ describe("## Experiment APIs", () => {
         .send(data)
         .expect(httpStatus.OK)
         .end((err, res) => {
-          expect(res.body.status).to.equal("success");
-          expect(res.body.data.name).to.equal("Apex Entertainment");
-          expect(res.body.data.template).to.equal("Microtitre plate");
+          expect(res.body.status).toEqual("success");
+          expect(res.body.data.name).toEqual("Apex Entertainment");
+          expect(res.body.data.template).toEqual("Microtitre plate");
           done();
         });
     });
@@ -161,8 +154,8 @@ describe("## Experiment APIs", () => {
         .set("Authorization", `Bearer ${token}`)
         .expect(httpStatus.OK)
         .end((err, res) => {
-          expect(res.body.data).to.be.an("array");
-          expect(res.body.data.length).to.equal(1);
+          expect(Array.isArray(res.body.data)).toBe(true);
+          expect(res.body.data.length).toEqual(1);
           done();
         });
     });
@@ -175,8 +168,8 @@ describe("## Experiment APIs", () => {
         .set("Authorization", `Bearer ${token}`)
         .expect(httpStatus.OK)
         .end((err, res) => {
-          expect(res.body.status).to.equal("success");
-          expect(res.body.data).to.equal(
+          expect(res.body.status).toEqual("success");
+          expect(res.body.data).toEqual(
             "Organisation was successfully deleted."
           );
           done();
@@ -189,8 +182,8 @@ describe("## Experiment APIs", () => {
         .set("Authorization", `Bearer ${token}`)
         .expect(httpStatus.OK)
         .end((err, res) => {
-          expect(res.body.status).to.equal("error");
-          expect(res.body.message).to.equal(
+          expect(res.body.status).toEqual("error");
+          expect(res.body.message).toEqual(
             "Organisation not found with id 589dcdd38d71fee259dc4e00"
           );
           done();

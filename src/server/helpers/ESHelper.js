@@ -9,7 +9,7 @@ const config = require("../../config/env");
 
 const client = new elasticsearch.Client({
   host: config.esCluster,
-  log: "info"
+  log: "error"
 });
 
 class ESHelper {

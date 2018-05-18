@@ -23,7 +23,6 @@ class Downloader {
         })
         .on("end", () => {
           file.end();
-          winston.info(`${downloaded} bytes successfully downloaded`);
         })
         .on("error", err => {
           winston.info(err.message);

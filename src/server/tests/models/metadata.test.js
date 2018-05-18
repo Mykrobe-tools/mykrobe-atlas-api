@@ -1,84 +1,80 @@
-import chai, { expect } from "chai";
-import dirtyChai from "dirty-chai";
 import Metadata from "../../models/metadata.model";
 
 require("../setup");
 const metadata = require("../fixtures/metadata");
 
-chai.config.includeStack = true;
-chai.use(dirtyChai);
 let id = null;
 
-beforeEach(done => {
+beforeEach(async done => {
   const metadataData = new Metadata(metadata.basic);
-  metadataData.save().then(savedMetadata => {
-    id = savedMetadata.id;
-    done();
-  });
+  const savedMetadata = await metadataData.save();
+  id = savedMetadata.id;
+  done();
 });
 
-afterEach(done => {
-  Metadata.remove({}, done);
+afterEach(async done => {
+  await Metadata.remove({});
+  done();
 });
 
 describe("## Metadata Functions", () => {
-  it("should save a new metadata", done => {
+  it("should save a new metadata", async done => {
     const metadataData = new Metadata(metadata.basic);
-    metadataData.save().then(savedMetadata => {
-      expect(savedMetadata.patientId).to.equal("12345");
-      expect(savedMetadata.siteId).to.equal("abc");
-      expect(savedMetadata.genderAtBirth).to.equal("Male");
-      expect(savedMetadata.countryOfBirth).to.equal("Hong Kong");
-      expect(savedMetadata.bmi).to.equal(12);
-      expect(savedMetadata.injectingDrugUse).to.equal("notice");
-      expect(savedMetadata.homeless).to.equal("Yes");
-      expect(savedMetadata.imprisoned).to.equal("Yes");
-      expect(savedMetadata.smoker).to.equal("No");
-      expect(savedMetadata.diabetic).to.equal("Yes");
-      expect(savedMetadata.hivStatus).to.equal("Negative");
-      done();
-    });
+    const savedMetadata = await metadataData.save();
+    expect(savedMetadata.patientId).toEqual("12345");
+    expect(savedMetadata.siteId).toEqual("abc");
+    expect(savedMetadata.genderAtBirth).toEqual("Male");
+    expect(savedMetadata.countryOfBirth).toEqual("Hong Kong");
+    expect(savedMetadata.bmi).toEqual(12);
+    expect(savedMetadata.injectingDrugUse).toEqual("notice");
+    expect(savedMetadata.homeless).toEqual("Yes");
+    expect(savedMetadata.imprisoned).toEqual("Yes");
+    expect(savedMetadata.smoker).toEqual("No");
+    expect(savedMetadata.diabetic).toEqual("Yes");
+    expect(savedMetadata.hivStatus).toEqual("Negative");
+    done();
   });
-  it("should fetch the metadata by id", done => {
-    Metadata.get(id).then(foundMetadata => {
-      expect(foundMetadata.patientId).to.equal("12345");
-      expect(foundMetadata.siteId).to.equal("abc");
-      expect(foundMetadata.genderAtBirth).to.equal("Male");
-      expect(foundMetadata.countryOfBirth).to.equal("Hong Kong");
-      expect(foundMetadata.bmi).to.equal(12);
-      expect(foundMetadata.injectingDrugUse).to.equal("notice");
-      expect(foundMetadata.homeless).to.equal("Yes");
-      expect(foundMetadata.imprisoned).to.equal("Yes");
-      expect(foundMetadata.smoker).to.equal("No");
-      expect(foundMetadata.diabetic).to.equal("Yes");
-      expect(foundMetadata.hivStatus).to.equal("Negative");
-      done();
-    });
+  it("should fetch the metadata by id", async done => {
+    const foundMetadata = await Metadata.get(id);
+    expect(foundMetadata.patientId).toEqual("12345");
+    expect(foundMetadata.siteId).toEqual("abc");
+    expect(foundMetadata.genderAtBirth).toEqual("Male");
+    expect(foundMetadata.countryOfBirth).toEqual("Hong Kong");
+    expect(foundMetadata.bmi).toEqual(12);
+    expect(foundMetadata.injectingDrugUse).toEqual("notice");
+    expect(foundMetadata.homeless).toEqual("Yes");
+    expect(foundMetadata.imprisoned).toEqual("Yes");
+    expect(foundMetadata.smoker).toEqual("No");
+    expect(foundMetadata.diabetic).toEqual("Yes");
+    expect(foundMetadata.hivStatus).toEqual("Negative");
+    done();
   });
-  it("should return an error if not found", done => {
-    Metadata.get("58d3f3795d34d121805fdc61").catch(e => {
-      expect(e.name).to.equal("ObjectNotFound");
-      expect(e.message).to.equal(
+  it("should return an error if not found", async done => {
+    try {
+      await Metadata.get("58d3f3795d34d121805fdc61");
+      fail();
+    } catch (e) {
+      expect(e.name).toEqual("ObjectNotFound");
+      expect(e.message).toEqual(
         "Metadata not found with id 58d3f3795d34d121805fdc61"
       );
       done();
-    });
+    }
   });
-  it("should transform experiment it to json", done => {
-    Metadata.get(id).then(foundMetadata => {
-      const json = foundMetadata.toJSON();
-      expect(json.patientId).to.equal("12345");
-      expect(json.siteId).to.equal("abc");
-      expect(json.genderAtBirth).to.equal("Male");
-      expect(json.countryOfBirth).to.equal("Hong Kong");
-      expect(json.bmi).to.equal(12);
-      expect(json.injectingDrugUse).to.equal("notice");
-      expect(json.homeless).to.equal("Yes");
-      expect(json.imprisoned).to.equal("Yes");
-      expect(json.smoker).to.equal("No");
-      expect(json.diabetic).to.equal("Yes");
-      expect(json.hivStatus).to.equal("Negative");
-      done();
-    });
+  it("should transform experiment it to json", async done => {
+    const foundMetadata = await Metadata.get(id);
+    const json = foundMetadata.toJSON();
+    expect(json.patientId).toEqual("12345");
+    expect(json.siteId).toEqual("abc");
+    expect(json.genderAtBirth).toEqual("Male");
+    expect(json.countryOfBirth).toEqual("Hong Kong");
+    expect(json.bmi).toEqual(12);
+    expect(json.injectingDrugUse).toEqual("notice");
+    expect(json.homeless).toEqual("Yes");
+    expect(json.imprisoned).toEqual("Yes");
+    expect(json.smoker).toEqual("No");
+    expect(json.diabetic).toEqual("Yes");
+    expect(json.hivStatus).toEqual("Negative");
+    done();
   });
 });

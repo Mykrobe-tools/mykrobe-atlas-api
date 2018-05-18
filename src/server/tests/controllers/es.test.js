@@ -1,8 +1,5 @@
 import request from "supertest";
 import httpStatus from "http-status";
-import chai, { expect } from "chai";
-import dirtyChai from "dirty-chai";
-import Promise from "bluebird";
 import { createApp } from "../setup";
 import User from "../../models/user.model";
 import Experiment from "../../models/experiment.model";
@@ -13,9 +10,6 @@ import ESHelper from "../../helpers/ESHelper";
 const app = createApp();
 
 const users = require("../fixtures/users");
-
-chai.config.includeStack = true;
-chai.use(dirtyChai);
 
 let token = null;
 
@@ -28,46 +22,38 @@ const organisationData = new Organisation(
 const metadataData = new Metadata(metadata.basic);
 const experimentData = new Experiment(experiments.tuberculosis);
 
-beforeEach(done => {
+beforeEach(async done => {
   const userData = new User(users.admin);
-  userData.save().then(() => {
-    request(app)
-      .post("/auth/login")
-      .send({ email: "admin@nhs.co.uk", password: "password" })
-      .end((err, res) => {
-        token = res.body.data.token;
-        done();
-      });
-  });
+  await userData.save();
+  request(app)
+    .post("/auth/login")
+    .send({ email: "admin@nhs.co.uk", password: "password" })
+    .end((err, res) => {
+      token = res.body.data.token;
+      done();
+    });
 });
 
-afterEach(done => {
-  User.remove({}, done);
+afterEach(async done => {
+  await User.remove({});
+  done();
 });
 
-beforeAll(done => {
-  Promise.resolve()
-    .then(ESHelper.deleteIndexIfExists)
-    .then(ESHelper.createIndex)
-    .then(() => {
-      request(app)
-        .post("/experiments/reindex")
-        .set("Authorization", `Bearer ${token}`)
-        .expect(httpStatus.OK)
-        .end(() => {
-          organisationData.save().then(savedOrganisation => {
-            metadataData.save().then(savedMetadata => {
-              experimentData.organisation = savedOrganisation;
-              experimentData.metadata = savedMetadata;
-              experimentData
-                .save()
-                .then(ESHelper.indexExperiment(experimentData))
-                .then(() => {
-                  setTimeout(done, 1000);
-                });
-            });
-          });
-        });
+beforeAll(async done => {
+  await ESHelper.deleteIndexIfExists();
+  await ESHelper.createIndex();
+  request(app)
+    .post("/experiments/reindex")
+    .set("Authorization", `Bearer ${token}`)
+    .expect(httpStatus.OK)
+    .end(async () => {
+      const savedOrganisation = await organisationData.save();
+      const savedMetadata = await metadataData.save();
+      experimentData.organisation = savedOrganisation;
+      experimentData.metadata = savedMetadata;
+      await experimentData.save();
+      await ESHelper.indexExperiment(experimentData);
+      setTimeout(done, 1000);
     });
 });
 
@@ -79,10 +65,10 @@ describe("## Experiment APIs", () => {
         .set("Authorization", `Bearer ${token}`)
         .expect(httpStatus.OK)
         .end((err, res) => {
-          expect(res.body.status).to.equal("success");
-          expect(res.body.data).to.be.an("array");
-          expect(res.body.data.length).to.equal(1);
-          expect(res.body.data[0]).to.equal("Hong Kong");
+          expect(res.body.status).toEqual("success");
+          expect(Array.isArray(res.body.data)).toBe(true);
+          expect(res.body.data.length).toEqual(1);
+          expect(res.body.data[0]).toEqual("Hong Kong");
           done();
         });
     });
@@ -92,10 +78,10 @@ describe("## Experiment APIs", () => {
         .set("Authorization", `Bearer ${token}`)
         .expect(httpStatus.OK)
         .end((err, res) => {
-          expect(res.body.status).to.equal("success");
-          expect(res.body.data).to.be.an("array");
-          expect(res.body.data.length).to.equal(1);
-          expect(res.body.data[0]).to.equal(12);
+          expect(res.body.status).toEqual("success");
+          expect(Array.isArray(res.body.data)).toBe(true);
+          expect(res.body.data.length).toEqual(1);
+          expect(res.body.data[0]).toEqual(12);
           done();
         });
     });
@@ -105,9 +91,9 @@ describe("## Experiment APIs", () => {
         .set("Authorization", `Bearer ${token}`)
         .expect(httpStatus.OK)
         .end((err, res) => {
-          expect(res.body.status).to.equal("success");
-          expect(res.body.data).to.be.an("array");
-          expect(res.body.data.length).to.equal(0);
+          expect(res.body.status).toEqual("success");
+          expect(Array.isArray(res.body.data)).toBe(true);
+          expect(res.body.data.length).toEqual(0);
           done();
         });
     });
@@ -117,8 +103,8 @@ describe("## Experiment APIs", () => {
         .set("Authorization", "Bearer INVALID_TOKEN")
         .expect(httpStatus.UNAUTHORIZED)
         .end((err, res) => {
-          expect(res.body.status).to.equal("error");
-          expect(res.body.message).to.equal("jwt malformed");
+          expect(res.body.status).toEqual("error");
+          expect(res.body.message).toEqual("jwt malformed");
           done();
         });
     });
@@ -130,8 +116,8 @@ describe("## Experiment APIs", () => {
         .set("Authorization", `Bearer ${token}`)
         .expect(httpStatus.OK)
         .end((err, res) => {
-          expect(res.body.status).to.equal("success");
-          expect(res.body.data.results.length).to.equal(1);
+          expect(res.body.status).toEqual("success");
+          expect(res.body.data.results.length).toEqual(1);
           done();
         });
     });
@@ -141,8 +127,8 @@ describe("## Experiment APIs", () => {
         .set("Authorization", `Bearer ${token}`)
         .expect(httpStatus.OK)
         .end((err, res) => {
-          expect(res.body.status).to.equal("success");
-          expect(res.body.data.results.length).to.equal(1);
+          expect(res.body.status).toEqual("success");
+          expect(res.body.data.results.length).toEqual(1);
           done();
         });
     });
@@ -152,9 +138,9 @@ describe("## Experiment APIs", () => {
         .set("Authorization", `Bearer ${token}`)
         .expect(httpStatus.OK)
         .end((err, res) => {
-          expect(res.body.status).to.equal("success");
-          expect(res.body.data.summary.hits).to.equal(1);
-          expect(res.body.data.results.length).to.equal(1);
+          expect(res.body.status).toEqual("success");
+          expect(res.body.data.summary.hits).toEqual(1);
+          expect(res.body.data.results.length).toEqual(1);
           done();
         });
     });
@@ -164,8 +150,8 @@ describe("## Experiment APIs", () => {
         .set("Authorization", "Bearer INVALID_TOKEN")
         .expect(httpStatus.UNAUTHORIZED)
         .end((err, res) => {
-          expect(res.body.status).to.equal("error");
-          expect(res.body.message).to.equal("jwt malformed");
+          expect(res.body.status).toEqual("error");
+          expect(res.body.message).toEqual("jwt malformed");
           done();
         });
     });
@@ -175,9 +161,9 @@ describe("## Experiment APIs", () => {
         .set("Authorization", `Bearer ${token}`)
         .expect(httpStatus.OK)
         .end((err, res) => {
-          expect(res.body.status).to.equal("success");
-          expect(res.body.data.summary.hits).to.equal(1);
-          expect(res.body.data.results.length).to.equal(1);
+          expect(res.body.status).toEqual("success");
+          expect(res.body.data.summary.hits).toEqual(1);
+          expect(res.body.data.results.length).toEqual(1);
           done();
         });
     });
@@ -187,8 +173,8 @@ describe("## Experiment APIs", () => {
         .set("Authorization", `Bearer ${token}`)
         .expect(httpStatus.OK)
         .end((err, res) => {
-          expect(res.body.status).to.equal("error");
-          expect(res.body.message).to.equal(
+          expect(res.body.status).toEqual("error");
+          expect(res.body.message).toEqual(
             '"page" must be larger than or equal to 1'
           );
           done();

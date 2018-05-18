@@ -1,7 +1,5 @@
 import request from "supertest";
 import httpStatus from "http-status";
-import chai, { expect } from "chai";
-import dirtyChai from "dirty-chai";
 import { createApp } from "../setup";
 import User from "../../models/user.model";
 import Organisation from "../../models/organisation.model";
@@ -10,24 +8,20 @@ const app = createApp();
 
 const users = require("../fixtures/users");
 
-chai.config.includeStack = true;
-chai.use(dirtyChai);
-
 let savedUser = null;
 let token = null;
 
-beforeEach(done => {
+beforeEach(async done => {
   const userData = new User(users.admin);
-  userData.save().then(user => {
-    savedUser = user;
-    request(app)
-      .post("/auth/login")
-      .send({ email: "admin@nhs.co.uk", password: "password" })
-      .end((err, res) => {
-        token = res.body.data.token;
-        done();
-      });
-  });
+  const user = await userData.save();
+  savedUser = user;
+  request(app)
+    .post("/auth/login")
+    .send({ email: "admin@nhs.co.uk", password: "password" })
+    .end((err, res) => {
+      token = res.body.data.token;
+      done();
+    });
 });
 
 afterEach(async done => {
@@ -52,11 +46,11 @@ describe("## User APIs", () => {
         .send(user)
         .expect(httpStatus.OK)
         .end((err, res) => {
-          expect(res.body.status).to.equal("success");
-          expect(res.body.data.firstname).to.equal(user.firstname);
-          expect(res.body.data.lastname).to.equal(user.lastname);
-          expect(res.body.data.phone).to.equal(user.phone);
-          expect(res.body.data.email).to.equal(user.email);
+          expect(res.body.status).toEqual("success");
+          expect(res.body.data.firstname).toEqual(user.firstname);
+          expect(res.body.data.lastname).toEqual(user.lastname);
+          expect(res.body.data.phone).toEqual(user.phone);
+          expect(res.body.data.email).toEqual(user.email);
           done();
         });
     });
@@ -72,9 +66,9 @@ describe("## User APIs", () => {
         .send(invalid)
         .expect(httpStatus.OK)
         .end((err, res) => {
-          expect(res.body.status).to.equal("error");
-          expect(res.body.code).to.equal(10003);
-          expect(res.body.message).to.equal('"email" is required');
+          expect(res.body.status).toEqual("error");
+          expect(res.body.code).toEqual(10003);
+          expect(res.body.message).toEqual('"email" is required');
           done();
         });
     });
@@ -90,9 +84,9 @@ describe("## User APIs", () => {
         .send(invalid)
         .expect(httpStatus.OK)
         .end((err, res) => {
-          expect(res.body.status).to.equal("error");
-          expect(res.body.code).to.equal(10003);
-          expect(res.body.message).to.equal('"password" is required');
+          expect(res.body.status).toEqual("error");
+          expect(res.body.code).toEqual(10003);
+          expect(res.body.message).toEqual('"password" is required');
           done();
         });
     });
@@ -110,9 +104,9 @@ describe("## User APIs", () => {
         .send(invalid)
         .expect(httpStatus.OK)
         .end((err, res) => {
-          expect(res.body.status).to.equal("error");
-          expect(res.body.code).to.equal(10005);
-          expect(res.body.message).to.equal(
+          expect(res.body.status).toEqual("error");
+          expect(res.body.code).toEqual(10005);
+          expect(res.body.message).toEqual(
             "admin@nhs.co.uk has already been registered"
           );
           done();
@@ -132,9 +126,9 @@ describe("## User APIs", () => {
         .send(invalid)
         .expect(httpStatus.OK)
         .end((err, res) => {
-          expect(res.body.status).to.equal("error");
-          expect(res.body.code).to.equal(10003);
-          expect(res.body.message).to.equal('"email" must be a valid email');
+          expect(res.body.status).toEqual("error");
+          expect(res.body.code).toEqual(10003);
+          expect(res.body.message).toEqual('"email" must be a valid email');
           done();
         });
     });
@@ -144,19 +138,18 @@ describe("## User APIs", () => {
         .post("/users")
         .send(user)
         .expect(httpStatus.OK)
-        .end((err, res) => {
-          expect(res.body.status).to.equal("success");
-          expect(res.body.data).to.exist();
+        .end(async (err, res) => {
+          expect(res.body.status).toEqual("success");
+          expect(res.body.data).toBeTruthy();
 
           const data = res.body.data;
-          expect(data).to.have.property("id");
+          expect(data).toHaveProperty("id");
           const id = data.id;
 
-          User.findById(id).then(loadedUser => {
-            expect(loadedUser).to.exist();
-            expect(loadedUser.verificationToken).to.exist();
-            done();
-          });
+          const loadedUser = await User.findById(id);
+          expect(loadedUser).toBeTruthy();
+          expect(loadedUser.verificationToken).toBeTruthy();
+          done();
         });
     });
   });
@@ -178,9 +171,9 @@ describe("## User APIs", () => {
         .set("Authorization", `Bearer ${token}`)
         .expect(httpStatus.OK)
         .end((err, res) => {
-          expect(res.body.status).to.equal("success");
-          expect(res.body.data.firstname).to.equal(savedUser.firstname);
-          expect(res.body.data.lastname).to.equal(savedUser.lastname);
+          expect(res.body.status).toEqual("success");
+          expect(res.body.data.firstname).toEqual(savedUser.firstname);
+          expect(res.body.data.lastname).toEqual(savedUser.lastname);
           done();
         });
     });
@@ -190,13 +183,11 @@ describe("## User APIs", () => {
         .set("Authorization", `Bearer ${token}`)
         .expect(httpStatus.OK)
         .end((err, res) => {
-          expect(res.body.status).to.equal("success");
-          expect(res.body.data.firstname).to.equal(savedUser.firstname);
-          expect(res.body.data.lastname).to.equal(savedUser.lastname);
-          expect(res.body.data.organisation.name).to.equal(
-            "Apex Entertainment"
-          );
-          expect(res.body.data.organisation.template).to.equal("MODS");
+          expect(res.body.status).toEqual("success");
+          expect(res.body.data.firstname).toEqual(savedUser.firstname);
+          expect(res.body.data.lastname).toEqual(savedUser.lastname);
+          expect(res.body.data.organisation.name).toEqual("Apex Entertainment");
+          expect(res.body.data.organisation.template).toEqual("MODS");
           done();
         });
     });
@@ -205,7 +196,7 @@ describe("## User APIs", () => {
         .get("/users/56c787ccc67fc16ccc1a5e92")
         .expect(httpStatus.NOT_FOUND)
         .end((err, res) => {
-          expect(res.body.message).to.equal(
+          expect(res.body.message).toEqual(
             "User not found with id 56c787ccc67fc16ccc1a5e92"
           );
           done();
@@ -218,9 +209,9 @@ describe("## User APIs", () => {
         .set("Authorization", `Bearer ${token}`)
         .expect(httpStatus.OK)
         .end((err, res) => {
-          expect(res.body.data._id).to.be.an("undefined");
-          expect(res.body.data.__v).to.be.an("undefined");
-          expect(res.body.data.password).to.be.an("undefined");
+          expect(res.body.data._id).toBeUndefined();
+          expect(res.body.data.__v).toBeUndefined();
+          expect(res.body.data.password).toBeUndefined();
           done();
         });
     });
@@ -231,7 +222,7 @@ describe("## User APIs", () => {
         .set("Authorization", `Bearer ${token}`)
         .expect(httpStatus.OK)
         .end((err, res) => {
-          expect(res.body.data.id).to.equal(savedUser.id);
+          expect(res.body.data.id).toEqual(savedUser.id);
           done();
         });
     });
@@ -244,9 +235,9 @@ describe("## User APIs", () => {
         .set("Authorization", `Bearer ${token}`)
         .expect(httpStatus.OK)
         .end((err, res) => {
-          expect(res.body.status).to.equal("success");
-          expect(res.body.data.firstname).to.equal("David");
-          expect(res.body.data.lastname).to.equal("Robin");
+          expect(res.body.status).toEqual("success");
+          expect(res.body.data.firstname).toEqual("David");
+          expect(res.body.data.lastname).toEqual("Robin");
           done();
         });
     });
@@ -256,8 +247,8 @@ describe("## User APIs", () => {
         .set("Authorization", "Bearer INVLID_TOKEN")
         .expect(httpStatus.UNAUTHORIZED)
         .end((err, res) => {
-          expect(res.body.status).to.equal("error");
-          expect(res.body.message).to.equal("jwt malformed");
+          expect(res.body.status).toEqual("error");
+          expect(res.body.message).toEqual("jwt malformed");
           done();
         });
     });
@@ -274,8 +265,8 @@ describe("## User APIs", () => {
         .send(user)
         .expect(httpStatus.OK)
         .end((err, res) => {
-          expect(res.body.data.firstname).to.equal("James");
-          expect(res.body.data.lastname).to.equal(user.lastname);
+          expect(res.body.data.firstname).toEqual("James");
+          expect(res.body.data.lastname).toEqual(user.lastname);
           done();
         });
     });
@@ -290,8 +281,8 @@ describe("## User APIs", () => {
         .send(user)
         .expect(httpStatus.OK)
         .end((err, res) => {
-          expect(res.body.data.firstname).to.equal("James");
-          expect(res.body.data.lastname).to.equal("Robin");
+          expect(res.body.data.firstname).toEqual("James");
+          expect(res.body.data.lastname).toEqual("Robin");
           done();
         });
     });
@@ -303,8 +294,8 @@ describe("## User APIs", () => {
         .send(user)
         .expect(httpStatus.UNAUTHORIZED)
         .end((err, res) => {
-          expect(res.body.status).to.equal("error");
-          expect(res.body.message).to.equal("jwt malformed");
+          expect(res.body.status).toEqual("error");
+          expect(res.body.message).toEqual("jwt malformed");
           done();
         });
     });
@@ -317,7 +308,7 @@ describe("## User APIs", () => {
         .set("Authorization", `Bearer ${token}`)
         .expect(httpStatus.OK)
         .end((err, res) => {
-          expect(res.body.data).to.be.an("array");
+          expect(Array.isArray(res.body.data)).toBe(true);
           done();
         });
     });
@@ -330,8 +321,8 @@ describe("## User APIs", () => {
         .set("Authorization", `Bearer ${token}`)
         .expect(httpStatus.OK)
         .end((err, res) => {
-          expect(res.body.status).to.equal("success");
-          expect(res.body.data).to.equal("Account was successfully deleted.");
+          expect(res.body.status).toEqual("success");
+          expect(res.body.data).toEqual("Account was successfully deleted.");
           done();
         });
     });
@@ -342,8 +333,8 @@ describe("## User APIs", () => {
         .set("Authorization", `Bearer ${token}`)
         .expect(httpStatus.OK)
         .end((err, res) => {
-          expect(res.body.status).to.equal("error");
-          expect(res.body.message).to.equal(
+          expect(res.body.status).toEqual("error");
+          expect(res.body.message).toEqual(
             "User not found with id 589dcdd38d71fee259dc4e00"
           );
           done();
@@ -358,8 +349,8 @@ describe("## User APIs", () => {
         .set("Authorization", `Bearer ${token}`)
         .expect(httpStatus.OK)
         .end((err, res) => {
-          expect(res.body.status).to.equal("success");
-          expect(res.body.data).to.equal("Account was successfully deleted.");
+          expect(res.body.status).toEqual("success");
+          expect(res.body.data).toEqual("Account was successfully deleted.");
           done();
         });
     });
@@ -369,8 +360,8 @@ describe("## User APIs", () => {
         .set("Authorization", "Bearer INVALID_TOKEN")
         .expect(httpStatus.UNAUTHORIZED)
         .end((err, res) => {
-          expect(res.body.status).to.equal("error");
-          expect(res.body.message).to.equal("jwt malformed");
+          expect(res.body.status).toEqual("error");
+          expect(res.body.message).toEqual("jwt malformed");
           done();
         });
     });
@@ -384,9 +375,9 @@ describe("## User APIs", () => {
         .send({ phone: "06686833972", email: "david@nhs.co.uk" })
         .expect(httpStatus.OK)
         .end((err, res) => {
-          expect(res.body.status).to.equal("success");
-          expect(res.body.data.phone).to.equal("06686833972");
-          expect(res.body.data.email).to.equal("david@nhs.co.uk");
+          expect(res.body.status).toEqual("success");
+          expect(res.body.data.phone).toEqual("06686833972");
+          expect(res.body.data.email).toEqual("david@nhs.co.uk");
           done();
         });
     });
@@ -400,9 +391,9 @@ describe("## User APIs", () => {
         .send({ email: "", phone: "0576237437993" })
         .expect(httpStatus.OK)
         .end((err, res) => {
-          expect(res.body.status).to.equal("error");
-          expect(res.body.code).to.equal(10003);
-          expect(res.body.message).to.equal(
+          expect(res.body.status).toEqual("error");
+          expect(res.body.code).toEqual(10003);
+          expect(res.body.message).toEqual(
             '"email" is not allowed to be empty'
           );
           done();
@@ -415,9 +406,9 @@ describe("## User APIs", () => {
         .send({ email: "david@nhs.co.uk" })
         .expect(httpStatus.OK)
         .end((err, res) => {
-          expect(res.body.status).to.equal("success");
-          expect(res.body.data.phone).to.equal("06734929442");
-          expect(res.body.data.email).to.equal("david@nhs.co.uk");
+          expect(res.body.status).toEqual("success");
+          expect(res.body.data.phone).toEqual("06734929442");
+          expect(res.body.data.email).toEqual("david@nhs.co.uk");
           done();
         });
     });
@@ -428,9 +419,9 @@ describe("## User APIs", () => {
         .send({ phone: "", email: "admin@gmail.com" })
         .expect(httpStatus.OK)
         .end((err, res) => {
-          expect(res.body.status).to.equal("success");
-          expect(res.body.data.phone).to.equal("");
-          expect(res.body.data.email).to.equal("admin@gmail.com");
+          expect(res.body.status).toEqual("success");
+          expect(res.body.data.phone).toEqual("");
+          expect(res.body.data.email).toEqual("admin@gmail.com");
           done();
         });
     });
@@ -441,9 +432,9 @@ describe("## User APIs", () => {
         .send({ phone: "06686833972" })
         .expect(httpStatus.OK)
         .end((err, res) => {
-          expect(res.body.status).to.equal("success");
-          expect(res.body.data.phone).to.equal("06686833972");
-          expect(res.body.data.email).to.equal("admin@nhs.co.uk");
+          expect(res.body.status).toEqual("success");
+          expect(res.body.data.phone).toEqual("06686833972");
+          expect(res.body.data.email).toEqual("admin@nhs.co.uk");
           done();
         });
     });
@@ -467,8 +458,8 @@ describe("## User APIs", () => {
         })
         .expect(httpStatus.OK)
         .end((err, res) => {
-          expect(res.body.status).to.equal("success");
-          expect(res.body.data).to.equal(
+          expect(res.body.status).toEqual("success");
+          expect(res.body.data).toEqual(
             "Password was reset successfully for adam@nhs.co.uk"
           );
           done();
@@ -481,9 +472,9 @@ describe("## User APIs", () => {
         .send({ resetPasswordToken: "invalidToken", password: "passw0rd" })
         .expect(httpStatus.OK)
         .end((err, res) => {
-          expect(res.body.status).to.equal("error");
-          expect(res.body.code).to.equal(10006);
-          expect(res.body.message).to.equal(
+          expect(res.body.status).toEqual("error");
+          expect(res.body.code).toEqual(10006);
+          expect(res.body.message).toEqual(
             "No registered user with token invalidToken"
           );
           done();
@@ -497,51 +488,47 @@ describe("## User APIs", () => {
         .post("/auth/verify")
         .send({ verificationToken: "107165" })
         .end((err, res) => {
-          expect(res.body.status).to.equal("success");
-          expect(res.body.data.email).to.equal("admin@nhs.co.uk");
+          expect(res.body.status).toEqual("success");
+          expect(res.body.data.email).toEqual("admin@nhs.co.uk");
           done();
         });
     });
-    it("should link the user to an empty organisation", done => {
-      Organisation.remove({}).then(() => {
-        request(app)
-          .post("/auth/verify")
-          .send({ verificationToken: "107165" })
-          .end((err, res) => {
-            expect(res.body.status).to.equal("success");
-            expect(res.body.data.email).to.equal("admin@nhs.co.uk");
-            expect(res.body.data.organisation).to.equal(null);
-            done();
-          });
-      });
+    it("should link the user to an empty organisation", async done => {
+      await Organisation.remove({});
+      request(app)
+        .post("/auth/verify")
+        .send({ verificationToken: "107165" })
+        .end((err, res) => {
+          expect(res.body.status).toEqual("success");
+          expect(res.body.data.email).toEqual("admin@nhs.co.uk");
+          expect(res.body.data.organisation).toEqual(null);
+          done();
+        });
     });
-    it("should link the user to an organisation", done => {
+    it("should link the user to an organisation", async done => {
       const org = new Organisation({
         name: "Apex Entertainment",
         template: "MODS"
       });
-      org.save().then(() => {
-        request(app)
-          .post("/auth/verify")
-          .send({ verificationToken: "107165" })
-          .end((err, res) => {
-            expect(res.body.status).to.equal("success");
-            expect(res.body.data.email).to.equal("admin@nhs.co.uk");
-            expect(res.body.data.organisation.name).to.equal(
-              "Apex Entertainment"
-            );
-            expect(res.body.data.organisation.template).to.equal("MODS");
-            done();
-          });
-      });
+      await org.save();
+      request(app)
+        .post("/auth/verify")
+        .send({ verificationToken: "107165" })
+        .end((err, res) => {
+          expect(res.body.status).toEqual("success");
+          expect(res.body.data.email).toEqual("admin@nhs.co.uk");
+          expect(res.body.data.organisation.name).toEqual("Apex Entertainment");
+          expect(res.body.data.organisation.template).toEqual("MODS");
+          done();
+        });
     });
     it("should return an error if token is invalid", done => {
       request(app)
         .post("/auth/verify")
         .send({ verificationToken: "100200" })
         .end((err, res) => {
-          expect(res.body.status).to.equal("error");
-          expect(res.body.message).to.equal(
+          expect(res.body.status).toEqual("error");
+          expect(res.body.message).toEqual(
             "No registered user with token 100200"
           );
           done();
@@ -551,12 +538,11 @@ describe("## User APIs", () => {
       request(app)
         .post("/auth/verify")
         .send({ verificationToken: "107165" })
-        .end(() => {
-          User.getByEmail("admin@nhs.co.uk").then(foundUser => {
-            expect(foundUser.valid).to.equal(true);
-            expect(foundUser.verificationToken).to.equal(null);
-            done();
-          });
+        .end(async () => {
+          const foundUser = await User.getByEmail("admin@nhs.co.uk");
+          expect(foundUser.valid).toEqual(true);
+          expect(foundUser.verificationToken).toEqual(null);
+          done();
         });
     });
   });
@@ -569,8 +555,8 @@ describe("## User APIs", () => {
         .send({ email: "admin@nhs.co.uk" })
         .expect(httpStatus.OK)
         .end((err, res) => {
-          expect(res.body.status).to.equal("success");
-          expect(res.body.data).to.equal("Notification was resent by email");
+          expect(res.body.status).toEqual("success");
+          expect(res.body.data).toEqual("Notification was resent by email");
           done();
         });
     });
@@ -580,8 +566,8 @@ describe("## User APIs", () => {
         .set("Authorization", `Bearer ${token}`)
         .expect(httpStatus.OK)
         .end((err, res) => {
-          expect(res.body.status).to.equal("error");
-          expect(res.body.message).to.equal('"email" is required');
+          expect(res.body.status).toEqual("error");
+          expect(res.body.message).toEqual('"email" is required');
           done();
         });
     });
@@ -591,8 +577,8 @@ describe("## User APIs", () => {
         .send({ email: "admin@nhs.co.uk" })
         .expect(httpStatus.OK)
         .end((err, res) => {
-          expect(res.body.status).to.equal("success");
-          expect(res.body.data).to.equal("Notification was resent by email");
+          expect(res.body.status).toEqual("success");
+          expect(res.body.data).toEqual("Notification was resent by email");
           done();
         });
     });
@@ -605,9 +591,9 @@ describe("## User APIs", () => {
         .set("Authorization", `Bearer ${token}`)
         .expect(httpStatus.OK)
         .end((err, res) => {
-          expect(res.body.status).to.equal("success");
-          expect(res.body.data.firstname).to.equal("David");
-          expect(res.body.data.role).to.equal("Admin");
+          expect(res.body.status).toEqual("success");
+          expect(res.body.data.firstname).toEqual("David");
+          expect(res.body.data.role).toEqual("Admin");
           done();
         });
     });
@@ -617,26 +603,25 @@ describe("## User APIs", () => {
         .set("Authorization", "Bearer INVALID_TOKEN")
         .expect(httpStatus.UNAUTHORIZED)
         .end((err, res) => {
-          expect(res.body.status).to.equal("error");
-          expect(res.body.message).to.equal("jwt malformed");
+          expect(res.body.status).toEqual("error");
+          expect(res.body.message).toEqual("jwt malformed");
           done();
         });
     });
-    it("should work only for admin users", done => {
+    it("should work only for admin users", async done => {
       savedUser.role = "";
-      savedUser.save().then(atlasUser => {
-        request(app)
-          .post(`/users/${atlasUser.id}/role`)
-          .set("Authorization", `Bearer ${token}`)
-          .expect(httpStatus.OK)
-          .end((err, res) => {
-            expect(res.body.status).to.equal("error");
-            expect(res.body.message).to.equal(
-              "You are not allowed to perform this action."
-            );
-            done();
-          });
-      });
+      const atlasUser = await savedUser.save();
+      request(app)
+        .post(`/users/${atlasUser.id}/role`)
+        .set("Authorization", `Bearer ${token}`)
+        .expect(httpStatus.OK)
+        .end((err, res) => {
+          expect(res.body.status).toEqual("error");
+          expect(res.body.message).toEqual(
+            "You are not allowed to perform this action."
+          );
+          done();
+        });
     });
     it("should return an error if the user not found", done => {
       request(app)
@@ -644,8 +629,8 @@ describe("## User APIs", () => {
         .set("Authorization", `Bearer ${token}`)
         .expect(httpStatus.OK)
         .end((err, res) => {
-          expect(res.body.status).to.equal("error");
-          expect(res.body.message).to.equal(
+          expect(res.body.status).toEqual("error");
+          expect(res.body.message).toEqual(
             "User not found with id 56c787ccc67fc16ccc1a5e92"
           );
           done();
