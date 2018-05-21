@@ -20,7 +20,7 @@
     "build": "gulp",
     "prettier": "prettier --find-config-path --write 'src/**/*.js'",
     "prettier-watch": "onchange 'src/**/*.js' -- prettier --write {{changed}}",
-    "test": "jest src/server/tests/**/*.test.js --coverage --verbose --colors --runInBand",
+    "test": "jest src/server/tests/**/*.test.js --coverage --verbose --colors",
     "test:watch": "jest --watch",
     "compile": "rm -rf dist && babel src --out-dir dist --source-maps",
     "apidoc": "apidoc -i src/server/"

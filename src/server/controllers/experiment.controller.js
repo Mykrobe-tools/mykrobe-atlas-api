@@ -53,7 +53,9 @@ async function create(req, res) {
       );
       experiment.organisation = organisation;
       const savedExperiment = await experiment.save();
-      await ESHelper.indexExperiment(experiment);
+      if (!req.query.skipES) {
+        await ESHelper.indexExperiment(experiment);
+      }
       return res.jsend(savedExperiment);
     } catch (e) {
       return res.jerror(new errors.CreateExperimentError(e.message));
@@ -61,7 +63,9 @@ async function create(req, res) {
   }
   try {
     const savedExperiment = await experiment.save();
-    await ESHelper.indexExperiment(experiment);
+    if (!req.query.skipES) {
+      await ESHelper.indexExperiment(experiment);
+    }
     return res.jsend(savedExperiment);
   } catch (e) {
     return res.jerror(new errors.CreateExperimentError(e.message));
@@ -76,7 +80,9 @@ async function update(req, res) {
   const experiment = Object.assign(req.experiment, req.body);
   try {
     const savedExperiment = await experiment.save();
-    await ESHelper.updateExperiment(experiment);
+    if (!req.query.skipES) {
+      await ESHelper.updateExperiment(experiment);
+    }
     return res.jsend(savedExperiment);
   } catch (e) {
     return res.jerror(new errors.CreateExperimentError(e.message));
@@ -107,7 +113,9 @@ async function remove(req, res) {
   const experiment = req.experiment;
   try {
     await experiment.remove();
-    await ESHelper.deleteExperiment(experiment.id);
+    if (!req.query.skipES) {
+      await ESHelper.deleteExperiment(experiment.id);
+    }
     return res.jsend("Experiment was successfully deleted.");
   } catch (e) {
     return res.jerror(e);
@@ -124,7 +132,9 @@ async function updateMetadata(req, res) {
   experiment.metadata = metadata;
   try {
     const savedExperiment = await experiment.save();
-    await ESHelper.updateExperiment(experiment);
+    if (!req.query.skipES) {
+      await ESHelper.updateExperiment(experiment);
+    }
     return res.jsend(savedExperiment);
   } catch (e) {
     return res.jerror(new errors.CreateExperimentError(e.message));

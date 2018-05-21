@@ -6,7 +6,6 @@ import User from "../../models/user.model";
 import Experiment from "../../models/experiment.model";
 import Organisation from "../../models/organisation.model";
 import Metadata from "../../models/metadata.model";
-import ESHelper from "../../helpers/ESHelper";
 
 const app = createApp();
 
@@ -37,7 +36,6 @@ beforeEach(async done => {
       experimentData.owner = savedUser;
       experimentData.metadata = savedMetadata;
       const savedExperiment = await experimentData.save();
-      await ESHelper.indexExperiment(experimentData);
       id = savedExperiment.id;
       done();
     });
@@ -54,7 +52,7 @@ describe("## Experiment APIs", () => {
   describe("# POST /experiments", () => {
     it("should create a new experiment", done => {
       request(app)
-        .post("/experiments")
+        .post("/experiments?skipES=true")
         .set("Authorization", `Bearer ${token}`)
         .send(experiments.pneumonia)
         .expect(httpStatus.OK)
@@ -70,7 +68,7 @@ describe("## Experiment APIs", () => {
 
     it("should set the owner to the current user", done => {
       request(app)
-        .post("/experiments")
+        .post("/experiments?skipES=true")
         .set("Authorization", `Bearer ${token}`)
         .send(experiments.pneumonia)
         .expect(httpStatus.OK)
@@ -172,7 +170,7 @@ describe("## Experiment APIs", () => {
         }
       };
       request(app)
-        .put(`/experiments/${id}`)
+        .put(`/experiments/${id}?skipES=true`)
         .set("Authorization", `Bearer ${token}`)
         .send(data)
         .expect(httpStatus.OK)
@@ -203,7 +201,7 @@ describe("## Experiment APIs", () => {
   describe("# DELETE /experiments/:id", () => {
     it("should delete experiment", done => {
       request(app)
-        .delete(`/experiments/${id}`)
+        .delete(`/experiments/${id}?skipES=true`)
         .set("Authorization", `Bearer ${token}`)
         .expect(httpStatus.OK)
         .end((err, res) => {
@@ -230,7 +228,7 @@ describe("## Experiment APIs", () => {
   describe("# PUT /experiments/:id/metadata", () => {
     it("should update experiment metadata", done => {
       request(app)
-        .put(`/experiments/${id}/metadata`)
+        .put(`/experiments/${id}/metadata?skipES=true`)
         .set("Authorization", `Bearer ${token}`)
         .send(metadata.basic)
         .expect(httpStatus.OK)
