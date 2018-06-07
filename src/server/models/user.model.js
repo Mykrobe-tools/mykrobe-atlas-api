@@ -1,10 +1,10 @@
-import Promise from 'bluebird';
-import mongoose from 'mongoose';
-import errors from 'errors';
-import randomstring from 'randomstring';
-import uniqueValidator from 'mongoose-unique-validator';
-import UserJSONTransformer from '../transformers/UserJSONTransformer';
-import config from '../../config/env';
+import Promise from "bluebird";
+import mongoose from "mongoose";
+import errors from "errors";
+import randomstring from "randomstring";
+import uniqueValidator from "mongoose-unique-validator";
+import UserJSONTransformer from "../transformers/UserJSONTransformer";
+import config from "../../config/env";
 
 /**
  * User Schema
@@ -27,13 +27,13 @@ const UserSchema = new mongoose.Schema({
   },
   phone: {
     type: String,
-    required: config.username === 'phone',
-    unique: config.username === 'phone'
+    required: config.username === "phone",
+    unique: config.username === "phone"
   },
   email: {
     type: String,
-    required: config.username === 'email',
-    unique: config.username === 'email'
+    required: config.username === "email",
+    unique: config.username === "email"
   },
   resetPasswordToken: String,
   verificationToken: String,
@@ -43,7 +43,7 @@ const UserSchema = new mongoose.Schema({
   },
   organisation: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Organisation'
+    ref: "Organisation"
   }
 });
 
@@ -55,14 +55,15 @@ const UserSchema = new mongoose.Schema({
  * - plugins
  */
 
-UserSchema.plugin(uniqueValidator, { message: '{VALUE} has already been registered' });
+UserSchema.plugin(uniqueValidator, {
+  message: "{VALUE} has already been registered"
+});
 
-UserSchema.post('save', (error, doc, next) => {
+UserSchema.post("save", (error, doc, next) => {
   if (error.errors) {
     const errorObject = error.errors.email || error.errors.phone;
     next(new Error(errorObject.message));
-  }
-  else {
+  } else {
     next(error);
   }
 });
@@ -93,17 +94,18 @@ UserSchema.statics = {
    * @param {ObjectId} id - The objectId of user.
    * @returns {Promise<User, APIError>}
    */
-  get(id) {
-    return this.findById(id)
-      .populate('organisation')
-      .exec()
-      .then((user) => {
-        if (user) {
-          return user;
-        }
-        return Promise.reject(new errors.ObjectNotFound(`User not found with id ${id}`));
-      })
-      .catch(e => Promise.reject(new errors.ObjectNotFound(e.message)));
+  async get(id) {
+    try {
+      const user = await this.findById(id)
+        .populate("organisation")
+        .exec();
+      if (user) {
+        return user;
+      }
+      throw new errors.ObjectNotFound(`User not found with id ${id}`);
+    } catch (e) {
+      throw new errors.ObjectNotFound(e.message);
+    }
   },
 
   /**
@@ -111,30 +113,28 @@ UserSchema.statics = {
    * @param {String} email - The email of user.
    * @returns {Promise<User, APIError>}
    */
-  getByEmail(email) {
-    return this.findOne({ email })
-      .exec()
-      .then((user) => {
-        if (user) {
-          return user;
-        }
-        return Promise.reject(new errors.ObjectNotFound());
-      });
+  async getByEmail(email) {
+    const user = await this.findOne({ email }).exec();
+    if (user) {
+      return user;
+    }
+    throw new errors.ObjectNotFound();
   },
 
   /**
    * Finds and updates the user
    * @returns {Promise<User, APIError>}
    */
-  findUserAndUpdate(query, newData) {
-    return this.findOneAndUpdate(query, newData, { new: true })
-      .exec()
-      .then((user) => {
-        if (user) {
-          return user;
-        }
-        return Promise.reject(new errors.ObjectNotFound('No registered user with the given criteria'));
-      });
+  async findUserAndUpdate(query, newData) {
+    const user = await this.findOneAndUpdate(query, newData, {
+      new: true
+    }).exec();
+    if (user) {
+      return user;
+    }
+    throw new errors.ObjectNotFound(
+      "No registered user with the given criteria"
+    );
   },
 
   /**
@@ -142,15 +142,14 @@ UserSchema.statics = {
    * @param {String} resetPasswordToken - The resetPasswordToken of user.
    * @returns {Promise<User, APIError>}
    */
-  getByResetPasswordToken(resetPasswordToken) {
-    return this.findOne({ resetPasswordToken })
-      .exec()
-      .then((user) => {
-        if (user) {
-          return user;
-        }
-        return Promise.reject(new errors.ObjectNotFound(`No registered user with token ${resetPasswordToken}`));
-      });
+  async getByResetPasswordToken(resetPasswordToken) {
+    const user = await this.findOne({ resetPasswordToken }).exec();
+    if (user) {
+      return user;
+    }
+    throw new errors.ObjectNotFound(
+      `No registered user with token ${resetPasswordToken}`
+    );
   },
 
   /**
@@ -158,15 +157,14 @@ UserSchema.statics = {
    * @param {String} verificationToken - The verificationToken of user.
    * @returns {Promise<User, APIError>}
    */
-  getByVerificationToken(verificationToken) {
-    return this.findOne({ verificationToken })
-      .exec()
-      .then((user) => {
-        if (user) {
-          return user;
-        }
-        return Promise.reject(new errors.ObjectNotFound(`No registered user with token ${verificationToken}`));
-      });
+  async getByVerificationToken(verificationToken) {
+    const user = await this.findOne({ verificationToken }).exec();
+    if (user) {
+      return user;
+    }
+    throw new errors.ObjectNotFound(
+      `No registered user with token ${verificationToken}`
+    );
   },
 
   /**
@@ -186,7 +184,7 @@ UserSchema.statics = {
 /**
  * Json transformation with shared transformer
  */
-UserSchema.set('toJSON', {
+UserSchema.set("toJSON", {
   transform(doc, ret) {
     return new UserJSONTransformer(ret).transform();
   }
@@ -195,4 +193,4 @@ UserSchema.set('toJSON', {
 /**
  * @typedef User
  */
-export default mongoose.model('User', UserSchema);
+export default mongoose.model("User", UserSchema);

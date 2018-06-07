@@ -1,18 +1,19 @@
-import errors from 'errors';
-import Organisation from '../models/organisation.model';
-import OrganisationJSONTransformer from '../transformers/OrganisationJSONTransformer';
-import ArrayJSONTransformer from '../transformers/ArrayJSONTransformer';
+import errors from "errors";
+import Organisation from "../models/organisation.model";
+import OrganisationJSONTransformer from "../transformers/OrganisationJSONTransformer";
+import ArrayJSONTransformer from "../transformers/ArrayJSONTransformer";
 
 /**
  * Load organisation and append to req.
  */
-function load(req, res, next, id) {
-  Organisation.get(id)
-    .then((organisation) => {
-      req.organisation = organisation; // eslint-disable-line no-param-reassign
-      return next();
-    })
-    .catch(e => res.jerror(e));
+async function load(req, res, next, id) {
+  try {
+    const organisation = await Organisation.get(id);
+    req.organisation = organisation;
+    return next();
+  } catch (e) {
+    return res.jerror(e);
+  }
 }
 
 /**
@@ -27,22 +28,28 @@ function get(req, res) {
  * Create new organisation
  * @returns {Organisation}
  */
-function create(req, res) {
+async function create(req, res) {
   const organisation = new Organisation(req.body);
-  organisation.save()
-    .then(savedOrganisation => res.jsend(savedOrganisation))
-    .catch(e => res.jerror(new errors.CreateOrganisationError(e.message)));
+  try {
+    const savedOrganisation = await organisation.save();
+    return res.jsend(savedOrganisation);
+  } catch (e) {
+    return res.jerror(new errors.CreateOrganisationError(e.message));
+  }
 }
 
 /**
  * Update existing organisation
  * @returns {Organisation}
  */
-function update(req, res) {
+async function update(req, res) {
   const organisation = Object.assign(req.organisation, req.body);
-  organisation.save()
-    .then(savedOrganisation => res.jsend(savedOrganisation))
-    .catch(e => res.jerror(new errors.UpdateOrganisationError(e.message)));
+  try {
+    const savedOrganisation = await organisation.save();
+    return res.jsend(savedOrganisation);
+  } catch (e) {
+    return res.jerror(new errors.UpdateOrganisationError(e.message));
+  }
 }
 
 /**
@@ -51,26 +58,31 @@ function update(req, res) {
  * @property {number} req.query.limit - Limit number of users to be returned.
  * @returns {Organisation[]}
  */
-function list(req, res) {
+async function list(req, res) {
   const { limit = 50, skip = 0 } = req.query;
-  Organisation.list({ limit, skip })
-    .then((organisations) => {
-      const transformer = new ArrayJSONTransformer(organisations,
-        { transformer: OrganisationJSONTransformer });
-      res.jsend(transformer.transform());
-    })
-    .catch(e => res.jerror(e));
+  try {
+    const organisations = await Organisation.list({ limit, skip });
+    const transformer = new ArrayJSONTransformer(organisations, {
+      transformer: OrganisationJSONTransformer
+    });
+    return res.jsend(transformer.transform());
+  } catch (e) {
+    return res.jerror(e);
+  }
 }
 
 /**
  * Delete organisation.
  * @returns {Organisation}
  */
-function remove(req, res) {
+async function remove(req, res) {
   const organisation = req.organisation;
-  organisation.remove()
-    .then(() => res.jsend('Organisation was successfully deleted.'))
-    .catch(e => res.jerror(e));
+  try {
+    await organisation.remove();
+    return res.jsend("Organisation was successfully deleted.");
+  } catch (e) {
+    return res.jerror(e);
+  }
 }
 
 export default {

@@ -1,9 +1,9 @@
-import ModelJSONTransformer from './ModelJSONTransformer';
-import BlacklistTransformer from './BlacklistTransformer';
-import UserJSONTransformer from './UserJSONTransformer';
-import OrganisationJSONTransformer from './OrganisationJSONTransformer';
+import ModelJSONTransformer from "./ModelJSONTransformer";
+import BlacklistTransformer from "./BlacklistTransformer";
+import UserJSONTransformer from "./UserJSONTransformer";
+import OrganisationJSONTransformer from "./OrganisationJSONTransformer";
 
-const BLACKLIST = ['__v'];
+const BLACKLIST = ["__v"];
 
 /**
  * A class to transform json responses
@@ -20,7 +20,9 @@ class ExperimentJSONTransformer extends ModelJSONTransformer {
       res.owner = new UserJSONTransformer(res.owner).transform();
     }
     if (res.organisation) {
-      res.organisation = new OrganisationJSONTransformer(res.organisation).transform();
+      res.organisation = new OrganisationJSONTransformer(
+        res.organisation
+      ).transform();
     }
     return res;
   }

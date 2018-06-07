@@ -1,25 +1,25 @@
-import express from 'express';
-import expressJwt from 'express-jwt';
-import organisationController from '../controllers/organisation.controller';
-import config from '../../config/env';
+import express from "express";
+import expressJwt from "express-jwt";
+import organisationController from "../controllers/organisation.controller";
+import config from "../../config/env";
 
 const router = express.Router(); // eslint-disable-line new-cap
 
-
-  /**
-   * @apiDefine OrganisationResponse
-   * @apiSuccessExample Success-Response:
-   *     HTTP/1.1 200 OK
-   *     {
-   *       "status": "success",
-   *       "data": {
-   *         "name": "Apex Entertainment",
-   *         "template": "Apex template",
-   *         "id": "58e4c7526555100f447d50eb"
-   *       }
-   *     }
-   */
-router.route('/')
+/**
+ * @apiDefine OrganisationResponse
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       "status": "success",
+ *       "data": {
+ *         "name": "Apex Entertainment",
+ *         "template": "Apex template",
+ *         "id": "58e4c7526555100f447d50eb"
+ *       }
+ *     }
+ */
+router
+  .route("/")
   /**
    * @api {get} /organisations Get organisations list
    *
@@ -36,8 +36,7 @@ router.route('/')
    *       }]
    *     }
    */
-  .get(expressJwt({ secret: config.jwtSecret }),
-       organisationController.list)
+  .get(expressJwt({ secret: config.jwtSecret }), organisationController.list)
   /**
    * @api {post} /organisations Create new organisation
    *
@@ -49,10 +48,13 @@ router.route('/')
    * @apiParam {String} name The name of organisation.
    *
    */
-  .post(expressJwt({ secret: config.jwtSecret }),
-       organisationController.create);
+  .post(
+    expressJwt({ secret: config.jwtSecret }),
+    organisationController.create
+  );
 
-router.route('/:id')
+router
+  .route("/:id")
   /**
    * @api {get} /organisations/:id Read an organisation
    *
@@ -64,8 +66,7 @@ router.route('/:id')
    * @apiParam {String} id The organisation ID.
    *
    */
-  .get(expressJwt({ secret: config.jwtSecret }),
-       organisationController.get)
+  .get(expressJwt({ secret: config.jwtSecret }), organisationController.get)
   /**
    * @api {put} /organisations/:id Update existing organisation
    *
@@ -78,8 +79,7 @@ router.route('/:id')
    * @apiParam {String} name The name of organisation.
    *
    */
-  .put(expressJwt({ secret: config.jwtSecret }),
-       organisationController.update)
+  .put(expressJwt({ secret: config.jwtSecret }), organisationController.update)
   /**
    * @api {delete} /organisations/:id Delete existing organisation
    *
@@ -97,10 +97,12 @@ router.route('/:id')
    *     }
    *
    */
-  .delete(expressJwt({ secret: config.jwtSecret }),
-       organisationController.remove);
+  .delete(
+    expressJwt({ secret: config.jwtSecret }),
+    organisationController.remove
+  );
 
 /** Load user when API with id route parameter is hit */
-router.param('id', organisationController.load);
+router.param("id", organisationController.load);
 
 export default router;

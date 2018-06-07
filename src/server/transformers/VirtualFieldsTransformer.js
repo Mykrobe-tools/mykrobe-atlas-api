@@ -1,4 +1,4 @@
-import JSONTransformer from './JSONTransformer';
+import JSONTransformer from "./JSONTransformer";
 /**
  * A class to transform json responses
  * @property response : the response Object from mongoose
@@ -14,9 +14,9 @@ class VirtualFieldsTransformer extends JSONTransformer {
       this.virtualFields = options.virtualFields;
     }
   }
- /**
-  * The transformation engine
-  */
+  /**
+   * The transformation engine
+   */
   transform() {
     const res = super.transform();
     return Object.assign(res, this.virtualFields);

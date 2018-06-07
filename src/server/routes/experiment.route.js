@@ -1,67 +1,67 @@
-import express from 'express';
-import expressJwt from 'express-jwt';
-import validate from 'express-validation';
-import multer from 'multer';
-import paramValidation from '../../config/param-validation';
-import experimentController from '../controllers/experiment.controller';
-import userController from '../controllers/user.controller';
-import config from '../../config/env';
+import express from "express";
+import expressJwt from "express-jwt";
+import validate from "express-validation";
+import multer from "multer";
+import paramValidation from "../../config/param-validation";
+import experimentController from "../controllers/experiment.controller";
+import userController from "../controllers/user.controller";
+import config from "../../config/env";
 
-const upload = multer({ dest: 'tmp/' });
+const upload = multer({ dest: "tmp/" });
 const router = express.Router(); // eslint-disable-line new-cap
 
-
-  /**
-   * @apiDefine ExperimentResponse
-   * @apiSuccessExample Success-Response:
-   *     HTTP/1.1 200 OK
-   *     {
-   *       "status": "success",
-   *       "data": {
-   *         "owner": {
-   *           "firstname": "Sean",
-   *           "lastname": "Leavy",
-   *           "phone": "+44 7968 716851",
-   *           "email": "sean@gmail.com",
-   *           "id": "58e2697c87f269174c48cedf"
-   *         },
-   *         "organisation": {
-   *           "name": "Apex Entertainment"
-   *         },
-   *         "location": {
-   *           "name": "London",
-   *           "lat": 3.4,
-   *           "lng": -2.3,
-   *           "id": "58e4c7526555100f447d50ef"
-   *         },
-   *         "collected": "2017-04-17T00:00:00.000Z",
-   *         "uploaded": "2017-04-20T00:00:00.000Z",
-   *         "jaccardIndex": {
-   *           "analysed": "2017-04-20T00:00:00.000Z",
-   *           "engine": "",
-   *           "version": "1.0",
-   *           "experiments": [],
-   *           "id": "58e4c7526555100f447d50ee"
-   *         },
-   *           "snpDistance": {
-   *             "analysed": "2017-04-21T00:00:00.000Z",
-   *             "engine": "",
-   *             "version": "1.0",
-   *             "experiments": [],
-   *             "id": "58e4c7526555100f447d50ed"
-   *         },
-   *           "geoDistance": {
-   *             "analysed": "2017-04-22T00:00:00.000Z",
-   *             "engine": "",
-   *             "version": "1.0",
-   *             "experiments": [],
-   *             "id": "58e4c7526555100f447d50ec"
-   *           },
-   *         "id": "58e4c7526555100f447d50eb"
-   *       }
-   *     }
-   */
-router.route('/')
+/**
+ * @apiDefine ExperimentResponse
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       "status": "success",
+ *       "data": {
+ *         "owner": {
+ *           "firstname": "Sean",
+ *           "lastname": "Leavy",
+ *           "phone": "+44 7968 716851",
+ *           "email": "sean@gmail.com",
+ *           "id": "58e2697c87f269174c48cedf"
+ *         },
+ *         "organisation": {
+ *           "name": "Apex Entertainment"
+ *         },
+ *         "location": {
+ *           "name": "London",
+ *           "lat": 3.4,
+ *           "lng": -2.3,
+ *           "id": "58e4c7526555100f447d50ef"
+ *         },
+ *         "collected": "2017-04-17T00:00:00.000Z",
+ *         "uploaded": "2017-04-20T00:00:00.000Z",
+ *         "jaccardIndex": {
+ *           "analysed": "2017-04-20T00:00:00.000Z",
+ *           "engine": "",
+ *           "version": "1.0",
+ *           "experiments": [],
+ *           "id": "58e4c7526555100f447d50ee"
+ *         },
+ *           "snpDistance": {
+ *             "analysed": "2017-04-21T00:00:00.000Z",
+ *             "engine": "",
+ *             "version": "1.0",
+ *             "experiments": [],
+ *             "id": "58e4c7526555100f447d50ed"
+ *         },
+ *           "geoDistance": {
+ *             "analysed": "2017-04-22T00:00:00.000Z",
+ *             "engine": "",
+ *             "version": "1.0",
+ *             "experiments": [],
+ *             "id": "58e4c7526555100f447d50ec"
+ *           },
+ *         "id": "58e4c7526555100f447d50eb"
+ *       }
+ *     }
+ */
+router
+  .route("/")
   /**
    * @api {get} /experiments Get experiments list
    *
@@ -151,11 +151,14 @@ router.route('/')
    * @apiParam {Array} geoDistance.experiments The experiments.
    *
    */
-  .post(expressJwt({ secret: config.jwtSecret }),
-        validate(paramValidation.createExperiment),
-        userController.loadCurrentUser,
-        experimentController.create);
-router.route('/search')
+  .post(
+    expressJwt({ secret: config.jwtSecret }),
+    validate(paramValidation.createExperiment),
+    userController.loadCurrentUser,
+    experimentController.create
+  );
+router
+  .route("/search")
   /**
    * @api {get} /experiments/search Get experiments from ES
    *
@@ -216,11 +219,14 @@ router.route('/search')
    *      }
    *     }
    */
-  .get(expressJwt({ secret: config.jwtSecret }),
-       validate(paramValidation.searchExperiment),
-       experimentController.search);
+  .get(
+    expressJwt({ secret: config.jwtSecret }),
+    validate(paramValidation.searchExperiment),
+    experimentController.search
+  );
 
-router.route('/:id')
+router
+  .route("/:id")
   /**
    * @api {get} /experiments/:id Read an experiment
    *
@@ -232,8 +238,7 @@ router.route('/:id')
    * @apiParam {String} id The experiment ID.
    *
    */
-  .get(expressJwt({ secret: config.jwtSecret }),
-       experimentController.get)
+  .get(expressJwt({ secret: config.jwtSecret }), experimentController.get)
   /**
    * @api {put} /experiments/:id Update existing experiment
    *
@@ -286,8 +291,12 @@ router.route('/:id')
    *     }
    *
    */
-  .delete(expressJwt({ secret: config.jwtSecret }), experimentController.remove);
-router.route('/:id/metadata')
+  .delete(
+    expressJwt({ secret: config.jwtSecret }),
+    experimentController.remove
+  );
+router
+  .route("/:id/metadata")
   /**
    * @api {put} /experiments/:id/metadata Upload metadata
    *
@@ -394,8 +403,12 @@ router.route('/:id/metadata')
    *   }
    *
    */
-  .put(expressJwt({ secret: config.jwtSecret }), experimentController.updateMetadata);
-router.route('/:id/file')
+  .put(
+    expressJwt({ secret: config.jwtSecret }),
+    experimentController.updateMetadata
+  );
+router
+  .route("/:id/file")
   /**
    * @api {put} /experiments/:id/file Upload local file
    *
@@ -436,10 +449,12 @@ router.route('/:id/file')
    *  }
    *
    */
-  .put(expressJwt({ secret: config.jwtSecret }),
-       validate(paramValidation.uploadFile),
-       upload.single('file'),
-       experimentController.uploadFile)
+  .put(
+    expressJwt({ secret: config.jwtSecret }),
+    validate(paramValidation.uploadFile),
+    upload.single("file"),
+    experimentController.uploadFile
+  )
   /**
    * @api {get} /experiments/:id/file View sequence file
    * @apiName View sequence file
@@ -453,9 +468,9 @@ router.route('/:id/file')
    * @apiError UNAUTHORIZED.
    *
    */
-  .get(expressJwt({ secret: config.jwtSecret }),
-       experimentController.readFile);
-router.route('/:id/upload-status')
+  .get(expressJwt({ secret: config.jwtSecret }), experimentController.readFile);
+router
+  .route("/:id/upload-status")
   /**
    * @api {put} /experiments/:id/upload-status Resumable upload status
    *
@@ -479,9 +494,12 @@ router.route('/:id/upload-status')
    *  }
    *
    */
-  .get(expressJwt({ secret: config.jwtSecret }),
-       experimentController.uploadStatus);
-router.route('/reindex')
+  .get(
+    expressJwt({ secret: config.jwtSecret }),
+    experimentController.uploadStatus
+  );
+router
+  .route("/reindex")
   /**
    * @api {post} /experiments/reindex Reindex all experiments
    *
@@ -498,9 +516,9 @@ router.route('/reindex')
    *  }
    *
    */
-  .post(expressJwt({ secret: config.jwtSecret }),
-       experimentController.reindex);
-router.route('/metadata/:attribute/values')
+  .post(expressJwt({ secret: config.jwtSecret }), experimentController.reindex);
+router
+  .route("/metadata/:attribute/values")
   /**
    * @api {get} /experiments/metadata/:attribute/values Get metadata values
    *
@@ -521,9 +539,11 @@ router.route('/metadata/:attribute/values')
    *     }
    *
    */
-  .get(expressJwt({ secret: config.jwtSecret }),
-       experimentController.metadataDistinctValues);
+  .get(
+    expressJwt({ secret: config.jwtSecret }),
+    experimentController.metadataDistinctValues
+  );
 /** Load user when API with id route parameter is hit */
-router.param('id', experimentController.load);
+router.param("id", experimentController.load);
 
 export default router;

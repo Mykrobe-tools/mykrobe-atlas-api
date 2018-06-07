@@ -1,4 +1,4 @@
-import AggregationsESTransformer from './AggregationsESTransformer';
+import AggregationsESTransformer from "./AggregationsESTransformer";
 
 /**
  * A class to transform es responses

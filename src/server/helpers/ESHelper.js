@@ -1,39 +1,35 @@
-import elasticsearch from 'elasticsearch';
-import Promise from 'bluebird';
-import Experiment from '../models/experiment.model';
+import elasticsearch from "elasticsearch";
+import Promise from "bluebird";
+import Experiment from "../models/experiment.model";
 
 /**
  * A Helper class for elasticsearch operations
  */
-const config = require('../../config/env');
+const config = require("../../config/env");
 
 const client = new elasticsearch.Client({
   host: config.esCluster,
-  log: 'info'
+  log: "error"
 });
 
 class ESHelper {
-
   // Check if the index exists
   static indexExists() {
     return client.indices.exists({
-      index: config.esIndexName,
+      index: config.esIndexName
     });
   }
 
   // Delete the index if it exists
-  static deleteIndexIfExists() {
-    return Promise.resolve()
-      .then(ESHelper.indexExists)
-      .then((exists) => {
-        if (exists) {
-          return client.indices.delete({
-            index: config.esIndexName,
-          });
-        }
-        return null;
+  static deleteIndexIfExists = async () => {
+    const exists = await ESHelper.indexExists();
+    if (exists) {
+      return client.indices.delete({
+        index: config.esIndexName
       });
-  }
+    }
+    return null;
+  };
 
   // Create the index
   static createIndex() {
@@ -45,25 +41,28 @@ class ESHelper {
             properties: {
               metadata: {
                 properties: {
-                  countryOfBirth: { type: 'keyword', index: true },
-                  countryIsolate: { type: 'keyword', index: true },
-                  cityIsolate: { type: 'keyword', index: true },
-                  anatomicalOrigin: { type: 'keyword', index: true },
-                  smear: { type: 'keyword', index: true },
-                  wgsPlatform: { type: 'keyword', index: true },
-                  genexpert: { type: 'keyword', index: true },
-                  hain: { type: 'keyword', index: true },
-                  hainRif: { type: 'keyword', index: true },
-                  hainInh: { type: 'keyword', index: true },
-                  hainFl: { type: 'keyword', index: true },
-                  hainEth: { type: 'keyword', index: true },
-                  hainAm: { type: 'keyword', index: true },
-                  recentMdrTb: { type: 'keyword', index: true },
-                  startProgrammaticContinuationTreatment: { type: 'keyword', index: true },
-                  nonStandardTreatment: { type: 'keyword', index: true },
-                  sputumSmearConversion: { type: 'keyword', index: true },
-                  sputumCultureConversion: { type: 'keyword', index: true },
-                  whoOutcomeCategory: { type: 'keyword', index: true }
+                  countryOfBirth: { type: "keyword", index: true },
+                  countryIsolate: { type: "keyword", index: true },
+                  cityIsolate: { type: "keyword", index: true },
+                  anatomicalOrigin: { type: "keyword", index: true },
+                  smear: { type: "keyword", index: true },
+                  wgsPlatform: { type: "keyword", index: true },
+                  genexpert: { type: "keyword", index: true },
+                  hain: { type: "keyword", index: true },
+                  hainRif: { type: "keyword", index: true },
+                  hainInh: { type: "keyword", index: true },
+                  hainFl: { type: "keyword", index: true },
+                  hainEth: { type: "keyword", index: true },
+                  hainAm: { type: "keyword", index: true },
+                  recentMdrTb: { type: "keyword", index: true },
+                  startProgrammaticContinuationTreatment: {
+                    type: "keyword",
+                    index: true
+                  },
+                  nonStandardTreatment: { type: "keyword", index: true },
+                  sputumSmearConversion: { type: "keyword", index: true },
+                  sputumCultureConversion: { type: "keyword", index: true },
+                  whoOutcomeCategory: { type: "keyword", index: true }
                 }
               }
             }
@@ -77,7 +76,7 @@ class ESHelper {
   static indexExperiment(experiment) {
     return client.index({
       index: config.esIndexName,
-      type: 'experiment',
+      type: "experiment",
       id: experiment.id,
       body: experiment.toJSON()
     });
@@ -87,7 +86,7 @@ class ESHelper {
   static deleteExperiment(id) {
     return client.delete({
       index: config.esIndexName,
-      type: 'experiment',
+      type: "experiment",
       id
     });
   }
@@ -96,7 +95,7 @@ class ESHelper {
   static updateExperiment(experiment) {
     return client.update({
       index: config.esIndexName,
-      type: 'experiment',
+      type: "experiment",
       id: experiment.id,
       body: {
         doc: experiment.toJSON()
@@ -105,19 +104,19 @@ class ESHelper {
   }
 
   // Index all experiments
-  static indexExperiments() {
-    return Experiment.list()
-      .then((experiments) => {
-        const promises = experiments.map(experiment => ESHelper.indexExperiment(experiment));
-        return Promise.all(promises);
-      });
-  }
+  static indexExperiments = async () => {
+    const experiments = await Experiment.list();
+    const promises = experiments.map(experiment =>
+      ESHelper.indexExperiment(experiment)
+    );
+    return Promise.all(promises);
+  };
 
   // Search distinct metadata values
   static searchMetadataValues(attribute) {
     return client.search({
       index: config.esIndexName,
-      type: 'experiment',
+      type: "experiment",
       body: {
         size: 0,
         aggs: {
@@ -139,8 +138,8 @@ class ESHelper {
     delete filters.per; // eslint-disable-line no-param-reassign
     delete filters.page; // eslint-disable-line no-param-reassign
 
-    Object.keys(filters).forEach((key) => {
-      const json = { };
+    Object.keys(filters).forEach(key => {
+      const json = {};
       json[`metadata.${key}`] = filters[key];
       filtersArray.push({
         match: json
@@ -149,7 +148,7 @@ class ESHelper {
 
     return client.search({
       index: config.esIndexName,
-      type: 'experiment',
+      type: "experiment",
       body: {
         from,
         size,
@@ -161,7 +160,6 @@ class ESHelper {
       }
     });
   }
-
 }
 
 export default ESHelper;

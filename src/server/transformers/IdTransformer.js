@@ -1,4 +1,4 @@
-import JSONTransformer from './JSONTransformer';
+import JSONTransformer from "./JSONTransformer";
 
 /**
  * A class to transform json responses

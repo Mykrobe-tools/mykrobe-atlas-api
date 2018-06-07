@@ -1,5 +1,5 @@
-import url from 'url';
-import Downloader from './Downloader';
+import url from "url";
+import Downloader from "./Downloader";
 
 /**
  * A class to download from Onedrive
@@ -17,7 +17,7 @@ class OnedriveDownloader {
       hostname,
       port: 443,
       path,
-      method: 'GET'
+      method: "GET"
     };
     const downloader = new Downloader(this.destination, options);
     downloader.download();

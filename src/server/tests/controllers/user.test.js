@@ -1,634 +1,638 @@
-import request from 'supertest-as-promised';
-import httpStatus from 'http-status';
-import chai, { expect } from 'chai';
-import dirtyChai from 'dirty-chai';
-import app from '../../../index';
-import User from '../../models/user.model';
-import Organisation from '../../models/organisation.model';
+import request from "supertest";
+import httpStatus from "http-status";
+import { createApp } from "../setup";
+import User from "../../models/user.model";
+import Organisation from "../../models/organisation.model";
 
-require('../teardown');
+const app = createApp();
 
-const users = require('../fixtures/users');
-
-chai.config.includeStack = true;
-chai.use(dirtyChai);
+const users = require("../fixtures/users");
 
 let savedUser = null;
 let token = null;
 
-beforeEach((done) => {
+beforeEach(async done => {
   const userData = new User(users.admin);
-  userData.save()
-              .then((user) => {
-                savedUser = user;
-                request(app)
-                  .post('/auth/login')
-                  .send({ email: 'admin@nhs.co.uk', password: 'password' })
-                  .end((err, res) => {
-                    token = res.body.data.token;
-                    done();
-                  });
-              });
+  const user = await userData.save();
+  savedUser = user;
+  request(app)
+    .post("/auth/login")
+    .send({ email: "admin@nhs.co.uk", password: "password" })
+    .end((err, res) => {
+      token = res.body.data.token;
+      done();
+    });
 });
 
-afterEach((done) => {
-  User.remove({})
-    .then(Organisation.remove({}))
-    .then(done);
+afterEach(async done => {
+  await User.remove({});
+  await Organisation.remove({});
+  done();
 });
 
-describe('## User APIs', () => {
+describe("## User APIs", () => {
   const user = {
-    firstname: 'David',
-    lastname: 'Robin',
-    password: 'password',
-    phone: '094324783253',
-    email: 'david@gmail.com'
+    firstname: "David",
+    lastname: "Robin",
+    password: "password",
+    phone: "094324783253",
+    email: "david@gmail.com"
   };
 
-  describe('# POST /users', () => {
-    it('should create a new user', (done) => {
+  describe("# POST /users", () => {
+    it("should create a new user", done => {
       request(app)
-        .post('/users')
+        .post("/users")
         .send(user)
         .expect(httpStatus.OK)
         .end((err, res) => {
-          expect(res.body.status).to.equal('success');
-          expect(res.body.data.firstname).to.equal(user.firstname);
-          expect(res.body.data.lastname).to.equal(user.lastname);
-          expect(res.body.data.phone).to.equal(user.phone);
-          expect(res.body.data.email).to.equal(user.email);
+          expect(res.body.status).toEqual("success");
+          expect(res.body.data.firstname).toEqual(user.firstname);
+          expect(res.body.data.lastname).toEqual(user.lastname);
+          expect(res.body.data.phone).toEqual(user.phone);
+          expect(res.body.data.email).toEqual(user.email);
           done();
         });
     });
 
-    it('should validate user before creation - email', (done) => {
+    it("should validate user before creation - email", done => {
       const invalid = {
-        firstname: 'David',
-        lastname: 'Robin',
-        password: 'password'
+        firstname: "David",
+        lastname: "Robin",
+        password: "password"
       };
       request(app)
-        .post('/users')
+        .post("/users")
         .send(invalid)
         .expect(httpStatus.OK)
         .end((err, res) => {
-          expect(res.body.status).to.equal('error');
-          expect(res.body.code).to.equal(10003);
-          expect(res.body.message).to.equal('"email" is required');
+          expect(res.body.status).toEqual("error");
+          expect(res.body.code).toEqual(10003);
+          expect(res.body.message).toEqual('"email" is required');
           done();
         });
     });
 
-    it('should validate user before creation - password', (done) => {
+    it("should validate user before creation - password", done => {
       const invalid = {
-        firstname: 'David',
-        lastname: 'Robin',
-        email: 'admin@gmail.com'
+        firstname: "David",
+        lastname: "Robin",
+        email: "admin@gmail.com"
       };
       request(app)
-        .post('/users')
+        .post("/users")
         .send(invalid)
         .expect(httpStatus.OK)
         .end((err, res) => {
-          expect(res.body.status).to.equal('error');
-          expect(res.body.code).to.equal(10003);
-          expect(res.body.message).to.equal('"password" is required');
+          expect(res.body.status).toEqual("error");
+          expect(res.body.code).toEqual(10003);
+          expect(res.body.message).toEqual('"password" is required');
           done();
         });
     });
 
-    it('should not save duplicate emails', (done) => {
+    it("should not save duplicate emails", done => {
       const invalid = {
-        firstname: 'David',
-        lastname: 'Robin',
-        password: 'password',
-        phone: '06734929442',
-        email: 'admin@nhs.co.uk'
+        firstname: "David",
+        lastname: "Robin",
+        password: "password",
+        phone: "06734929442",
+        email: "admin@nhs.co.uk"
       };
       request(app)
-        .post('/users')
+        .post("/users")
         .send(invalid)
         .expect(httpStatus.OK)
         .end((err, res) => {
-          expect(res.body.status).to.equal('error');
-          expect(res.body.code).to.equal(10005);
-          expect(res.body.message).to.equal('admin@nhs.co.uk has already been registered');
+          expect(res.body.status).toEqual("error");
+          expect(res.body.code).toEqual(10005);
+          expect(res.body.message).toEqual(
+            "admin@nhs.co.uk has already been registered"
+          );
           done();
         });
     });
 
-    it('should validate user before creation - email', (done) => {
+    it("should validate user before creation - email", done => {
       const invalid = {
-        firstname: 'David',
-        lastname: 'Robin',
-        phone: '094324783253',
-        email: 'david',
-        password: 'password'
+        firstname: "David",
+        lastname: "Robin",
+        phone: "094324783253",
+        email: "david",
+        password: "password"
       };
       request(app)
-        .post('/users')
+        .post("/users")
         .send(invalid)
         .expect(httpStatus.OK)
         .end((err, res) => {
-          expect(res.body.status).to.equal('error');
-          expect(res.body.code).to.equal(10003);
-          expect(res.body.message).to.equal('"email" must be a valid email');
+          expect(res.body.status).toEqual("error");
+          expect(res.body.code).toEqual(10003);
+          expect(res.body.message).toEqual('"email" must be a valid email');
           done();
         });
     });
 
-    it('should generate a verificationToken', (done) => {
+    it("should generate a verificationToken", done => {
       request(app)
-        .post('/users')
+        .post("/users")
         .send(user)
         .expect(httpStatus.OK)
-        .end((err, res) => {
-          expect(res.body.status).to.equal('success');
-          expect(res.body.data).to.exist();
+        .end(async (err, res) => {
+          expect(res.body.status).toEqual("success");
+          expect(res.body.data).toBeTruthy();
 
           const data = res.body.data;
-          expect(data).to.have.property('id');
+          expect(data).toHaveProperty("id");
           const id = data.id;
 
-          User.findById(id)
-            .then((loadedUser) => {
-              expect(loadedUser).to.exist();
-              expect(loadedUser.verificationToken).to.exist();
-              done();
-            });
+          const loadedUser = await User.findById(id);
+          expect(loadedUser).toBeTruthy();
+          expect(loadedUser.verificationToken).toBeTruthy();
+          done();
         });
     });
   });
 
-  describe('# GET /users/:id', () => {
-    beforeEach((done) => {
-      const org = new Organisation({ name: 'Apex Entertainment', template: 'MODS' });
-      org.save()
-        .then((savedOrg) => {
-          savedUser.organisation = savedOrg;
-          savedUser.save()
-            .then(done);
-        });
+  describe("# GET /users/:id", () => {
+    beforeEach(async done => {
+      const org = new Organisation({
+        name: "Apex Entertainment",
+        template: "MODS"
+      });
+      const savedOrg = await org.save();
+      savedUser.organisation = savedOrg;
+      await savedUser.save();
+      done();
     });
-    it('should get user details', (done) => {
+    it("should get user details", done => {
       request(app)
         .get(`/users/${savedUser.id}`)
-        .set('Authorization', `Bearer ${token}`)
+        .set("Authorization", `Bearer ${token}`)
         .expect(httpStatus.OK)
         .end((err, res) => {
-          expect(res.body.status).to.equal('success');
-          expect(res.body.data.firstname).to.equal(savedUser.firstname);
-          expect(res.body.data.lastname).to.equal(savedUser.lastname);
+          expect(res.body.status).toEqual("success");
+          expect(res.body.data.firstname).toEqual(savedUser.firstname);
+          expect(res.body.data.lastname).toEqual(savedUser.lastname);
           done();
         });
     });
-    it('should get user details with organisation', (done) => {
+    it("should get user details with organisation", done => {
       request(app)
         .get(`/users/${savedUser.id}`)
-        .set('Authorization', `Bearer ${token}`)
+        .set("Authorization", `Bearer ${token}`)
         .expect(httpStatus.OK)
         .end((err, res) => {
-          expect(res.body.status).to.equal('success');
-          expect(res.body.data.firstname).to.equal(savedUser.firstname);
-          expect(res.body.data.lastname).to.equal(savedUser.lastname);
-          expect(res.body.data.organisation.name).to.equal('Apex Entertainment');
-          expect(res.body.data.organisation.template).to.equal('MODS');
+          expect(res.body.status).toEqual("success");
+          expect(res.body.data.firstname).toEqual(savedUser.firstname);
+          expect(res.body.data.lastname).toEqual(savedUser.lastname);
+          expect(res.body.data.organisation.name).toEqual("Apex Entertainment");
+          expect(res.body.data.organisation.template).toEqual("MODS");
           done();
         });
     });
-    it('should report error with message - Not found, when user does not exists', (done) => {
+    it("should report error with message - Not found, when user does not exists", done => {
       request(app)
-        .get('/users/56c787ccc67fc16ccc1a5e92')
+        .get("/users/56c787ccc67fc16ccc1a5e92")
         .expect(httpStatus.NOT_FOUND)
         .end((err, res) => {
-          expect(res.body.message).to.equal('User not found with id 56c787ccc67fc16ccc1a5e92');
+          expect(res.body.message).toEqual(
+            "User not found with id 56c787ccc67fc16ccc1a5e92"
+          );
           done();
         });
     });
 
-    it('should remove unwanted fields', (done) => {
+    it("should remove unwanted fields", done => {
       request(app)
         .get(`/users/${savedUser.id}`)
-        .set('Authorization', `Bearer ${token}`)
+        .set("Authorization", `Bearer ${token}`)
         .expect(httpStatus.OK)
         .end((err, res) => {
-          expect(res.body.data._id).to.be.an('undefined');
-          expect(res.body.data.__v).to.be.an('undefined');
-          expect(res.body.data.password).to.be.an('undefined');
+          expect(res.body.data._id).toBeUndefined();
+          expect(res.body.data.__v).toBeUndefined();
+          expect(res.body.data.password).toBeUndefined();
           done();
         });
     });
 
-    it('should add virtual fields', (done) => {
+    it("should add virtual fields", done => {
       request(app)
         .get(`/users/${savedUser.id}`)
-        .set('Authorization', `Bearer ${token}`)
+        .set("Authorization", `Bearer ${token}`)
         .expect(httpStatus.OK)
         .end((err, res) => {
-          expect(res.body.data.id).to.equal(savedUser.id);
+          expect(res.body.data.id).toEqual(savedUser.id);
           done();
         });
     });
   });
 
-  describe('# GET /user', () => {
-    it('should return the current user details', (done) => {
+  describe("# GET /user", () => {
+    it("should return the current user details", done => {
       request(app)
-        .get('/user')
-        .set('Authorization', `Bearer ${token}`)
+        .get("/user")
+        .set("Authorization", `Bearer ${token}`)
         .expect(httpStatus.OK)
         .end((err, res) => {
-          expect(res.body.status).to.equal('success');
-          expect(res.body.data.firstname).to.equal('David');
-          expect(res.body.data.lastname).to.equal('Robin');
+          expect(res.body.status).toEqual("success");
+          expect(res.body.data.firstname).toEqual("David");
+          expect(res.body.data.lastname).toEqual("Robin");
           done();
         });
     });
-    it('should return an error if user not found', (done) => {
+    it("should return an error if user not found", done => {
       request(app)
-        .get('/user')
-        .set('Authorization', 'Bearer INVLID_TOKEN')
+        .get("/user")
+        .set("Authorization", "Bearer INVLID_TOKEN")
         .expect(httpStatus.UNAUTHORIZED)
         .end((err, res) => {
-          expect(res.body.status).to.equal('error');
-          expect(res.body.message).to.equal('jwt malformed');
+          expect(res.body.status).toEqual("error");
+          expect(res.body.message).toEqual("jwt malformed");
           done();
         });
     });
   });
 
-  describe('# POST /auth/login', () => {
+  describe("# POST /auth/login", () => {});
 
-  });
-
-  describe('# PUT /users/:id', () => {
-    it('should update user details', (done) => {
-      user.firstname = 'James';
+  describe("# PUT /users/:id", () => {
+    it("should update user details", done => {
+      user.firstname = "James";
       request(app)
         .put(`/users/${savedUser.id}`)
-        .set('Authorization', `Bearer ${token}`)
+        .set("Authorization", `Bearer ${token}`)
         .send(user)
         .expect(httpStatus.OK)
         .end((err, res) => {
-          expect(res.body.data.firstname).to.equal('James');
-          expect(res.body.data.lastname).to.equal(user.lastname);
+          expect(res.body.data.firstname).toEqual("James");
+          expect(res.body.data.lastname).toEqual(user.lastname);
           done();
         });
     });
   });
 
-  describe('# PUT /user', () => {
-    it('should update the current user details', (done) => {
-      user.firstname = 'James';
+  describe("# PUT /user", () => {
+    it("should update the current user details", done => {
+      user.firstname = "James";
       request(app)
-        .put('/user')
-        .set('Authorization', `Bearer ${token}`)
+        .put("/user")
+        .set("Authorization", `Bearer ${token}`)
         .send(user)
         .expect(httpStatus.OK)
         .end((err, res) => {
-          expect(res.body.data.firstname).to.equal('James');
-          expect(res.body.data.lastname).to.equal('Robin');
+          expect(res.body.data.firstname).toEqual("James");
+          expect(res.body.data.lastname).toEqual("Robin");
           done();
         });
     });
-    it('should return an error if the user doesnt exist', (done) => {
-      user.firstname = 'James';
+    it("should return an error if the user doesnt exist", done => {
+      user.firstname = "James";
       request(app)
-        .put('/user')
-        .set('Authorization', 'Bearer INVALID_TOKEN')
+        .put("/user")
+        .set("Authorization", "Bearer INVALID_TOKEN")
         .send(user)
         .expect(httpStatus.UNAUTHORIZED)
         .end((err, res) => {
-          expect(res.body.status).to.equal('error');
-          expect(res.body.message).to.equal('jwt malformed');
+          expect(res.body.status).toEqual("error");
+          expect(res.body.message).toEqual("jwt malformed");
           done();
         });
     });
   });
 
-  describe('# GET /users/', () => {
-    it('should get all users', (done) => {
+  describe("# GET /users/", () => {
+    it("should get all users", done => {
       request(app)
-        .get('/users')
-        .set('Authorization', `Bearer ${token}`)
+        .get("/users")
+        .set("Authorization", `Bearer ${token}`)
         .expect(httpStatus.OK)
         .end((err, res) => {
-          expect(res.body.data).to.be.an('array');
+          expect(Array.isArray(res.body.data)).toBe(true);
           done();
         });
     });
   });
 
-  describe('# DELETE /users/:id', () => {
-    it('should delete user', (done) => {
+  describe("# DELETE /users/:id", () => {
+    it("should delete user", done => {
       request(app)
         .delete(`/users/${savedUser.id}`)
-        .set('Authorization', `Bearer ${token}`)
+        .set("Authorization", `Bearer ${token}`)
         .expect(httpStatus.OK)
         .end((err, res) => {
-          expect(res.body.status).to.equal('success');
-          expect(res.body.data).to.equal('Account was successfully deleted.');
+          expect(res.body.status).toEqual("success");
+          expect(res.body.data).toEqual("Account was successfully deleted.");
           done();
         });
     });
 
-    it('should return an erro if user not found', (done) => {
+    it("should return an erro if user not found", done => {
       request(app)
-        .delete('/users/589dcdd38d71fee259dc4e00')
-        .set('Authorization', `Bearer ${token}`)
+        .delete("/users/589dcdd38d71fee259dc4e00")
+        .set("Authorization", `Bearer ${token}`)
         .expect(httpStatus.OK)
         .end((err, res) => {
-          expect(res.body.status).to.equal('error');
-          expect(res.body.message).to.equal('User not found with id 589dcdd38d71fee259dc4e00');
+          expect(res.body.status).toEqual("error");
+          expect(res.body.message).toEqual(
+            "User not found with id 589dcdd38d71fee259dc4e00"
+          );
           done();
         });
     });
   });
 
-  describe('# DELETE /user', () => {
-    it('should delete the current user', (done) => {
+  describe("# DELETE /user", () => {
+    it("should delete the current user", done => {
       request(app)
-        .delete('/user')
-        .set('Authorization', `Bearer ${token}`)
+        .delete("/user")
+        .set("Authorization", `Bearer ${token}`)
         .expect(httpStatus.OK)
         .end((err, res) => {
-          expect(res.body.status).to.equal('success');
-          expect(res.body.data).to.equal('Account was successfully deleted.');
+          expect(res.body.status).toEqual("success");
+          expect(res.body.data).toEqual("Account was successfully deleted.");
           done();
         });
     });
-    it('should return an error if user not authenticated', (done) => {
+    it("should return an error if user not authenticated", done => {
       request(app)
-        .delete('/user')
-        .set('Authorization', 'Bearer INVALID_TOKEN')
+        .delete("/user")
+        .set("Authorization", "Bearer INVALID_TOKEN")
         .expect(httpStatus.UNAUTHORIZED)
         .end((err, res) => {
-          expect(res.body.status).to.equal('error');
-          expect(res.body.message).to.equal('jwt malformed');
+          expect(res.body.status).toEqual("error");
+          expect(res.body.message).toEqual("jwt malformed");
           done();
         });
     });
   });
 
-
-  describe('# PUT /users/:id', () => {
-    it('should update the user data', (done) => {
+  describe("# PUT /users/:id", () => {
+    it("should update the user data", done => {
       request(app)
         .put(`/users/${savedUser.id}`)
-        .set('Authorization', `Bearer ${token}`)
-        .send({ phone: '06686833972', email: 'david@nhs.co.uk' })
+        .set("Authorization", `Bearer ${token}`)
+        .send({ phone: "06686833972", email: "david@nhs.co.uk" })
         .expect(httpStatus.OK)
         .end((err, res) => {
-          expect(res.body.status).to.equal('success');
-          expect(res.body.data.phone).to.equal('06686833972');
-          expect(res.body.data.email).to.equal('david@nhs.co.uk');
+          expect(res.body.status).toEqual("success");
+          expect(res.body.data.phone).toEqual("06686833972");
+          expect(res.body.data.email).toEqual("david@nhs.co.uk");
           done();
         });
     });
   });
 
-  describe('# PUT /users/:id', () => {
-    it('should not allow empty email', (done) => {
+  describe("# PUT /users/:id", () => {
+    it("should not allow empty email", done => {
       request(app)
         .put(`/users/${savedUser.id}`)
-        .set('Authorization', `Bearer ${token}`)
-        .send({ email: '', phone: '0576237437993' })
+        .set("Authorization", `Bearer ${token}`)
+        .send({ email: "", phone: "0576237437993" })
         .expect(httpStatus.OK)
         .end((err, res) => {
-          expect(res.body.status).to.equal('error');
-          expect(res.body.code).to.equal(10003);
-          expect(res.body.message).to.equal('"email" is not allowed to be empty');
+          expect(res.body.status).toEqual("error");
+          expect(res.body.code).toEqual(10003);
+          expect(res.body.message).toEqual(
+            '"email" is not allowed to be empty'
+          );
           done();
         });
     });
-    it('should keep phone value if not provided', (done) => {
+    it("should keep phone value if not provided", done => {
       request(app)
         .put(`/users/${savedUser.id}`)
-        .set('Authorization', `Bearer ${token}`)
-        .send({ email: 'david@nhs.co.uk' })
+        .set("Authorization", `Bearer ${token}`)
+        .send({ email: "david@nhs.co.uk" })
         .expect(httpStatus.OK)
         .end((err, res) => {
-          expect(res.body.status).to.equal('success');
-          expect(res.body.data.phone).to.equal('06734929442');
-          expect(res.body.data.email).to.equal('david@nhs.co.uk');
+          expect(res.body.status).toEqual("success");
+          expect(res.body.data.phone).toEqual("06734929442");
+          expect(res.body.data.email).toEqual("david@nhs.co.uk");
           done();
         });
     });
-    it('should clear phone if empty', (done) => {
+    it("should clear phone if empty", done => {
       request(app)
         .put(`/users/${savedUser.id}`)
-        .set('Authorization', `Bearer ${token}`)
-        .send({ phone: '', email: 'admin@gmail.com' })
+        .set("Authorization", `Bearer ${token}`)
+        .send({ phone: "", email: "admin@gmail.com" })
         .expect(httpStatus.OK)
         .end((err, res) => {
-          expect(res.body.status).to.equal('success');
-          expect(res.body.data.phone).to.equal('');
-          expect(res.body.data.email).to.equal('admin@gmail.com');
+          expect(res.body.status).toEqual("success");
+          expect(res.body.data.phone).toEqual("");
+          expect(res.body.data.email).toEqual("admin@gmail.com");
           done();
         });
     });
-    it('should keep email value if not provided', (done) => {
+    it("should keep email value if not provided", done => {
       request(app)
         .put(`/users/${savedUser.id}`)
-        .set('Authorization', `Bearer ${token}`)
-        .send({ phone: '06686833972' })
+        .set("Authorization", `Bearer ${token}`)
+        .send({ phone: "06686833972" })
         .expect(httpStatus.OK)
         .end((err, res) => {
-          expect(res.body.status).to.equal('success');
-          expect(res.body.data.phone).to.equal('06686833972');
-          expect(res.body.data.email).to.equal('admin@nhs.co.uk');
+          expect(res.body.status).toEqual("success");
+          expect(res.body.data.phone).toEqual("06686833972");
+          expect(res.body.data.email).toEqual("admin@nhs.co.uk");
           done();
         });
     });
   });
 
-  describe('# POST /auth/forgot', () => {
-  });
+  describe("# POST /auth/forgot", () => {});
 
-  describe('# POST /auth/reset', () => {
-    beforeEach((done) => {
+  describe("# POST /auth/reset", () => {
+    beforeEach(async done => {
       const userData = new User(users.userWithToken);
-      userData.save()
-              .then(done);
+      await userData.save();
+      done();
     });
 
-    it('should return a success response', (done) => {
+    it("should return a success response", done => {
       request(app)
-        .post('/auth/reset')
-        .send({ resetPasswordToken: '54VwcGr65AKaizXTVqLhEo6cnkln7w1o', password: 'passw0rd' })
+        .post("/auth/reset")
+        .send({
+          resetPasswordToken: "54VwcGr65AKaizXTVqLhEo6cnkln7w1o",
+          password: "passw0rd"
+        })
         .expect(httpStatus.OK)
         .end((err, res) => {
-          expect(res.body.status).to.equal('success');
-          expect(res.body.data).to.equal('Password was reset successfully for adam@nhs.co.uk');
+          expect(res.body.status).toEqual("success");
+          expect(res.body.data).toEqual(
+            "Password was reset successfully for adam@nhs.co.uk"
+          );
           done();
         });
     });
 
-    it('should return an error if user doesnt exist', (done) => {
+    it("should return an error if user doesnt exist", done => {
       request(app)
-        .post('/auth/reset')
-        .send({ resetPasswordToken: 'invalidToken', password: 'passw0rd' })
+        .post("/auth/reset")
+        .send({ resetPasswordToken: "invalidToken", password: "passw0rd" })
         .expect(httpStatus.OK)
         .end((err, res) => {
-          expect(res.body.status).to.equal('error');
-          expect(res.body.code).to.equal(10001);
-          expect(res.body.message).to.equal('No registered user with token invalidToken');
+          expect(res.body.status).toEqual("error");
+          expect(res.body.code).toEqual(10006);
+          expect(res.body.message).toEqual(
+            "No registered user with token invalidToken"
+          );
           done();
         });
     });
   });
 
-  describe('# POST /auth/verify', () => {
-    it('should return a success response', (done) => {
+  describe("# POST /auth/verify", () => {
+    it("should return a success response", done => {
       request(app)
-        .post('/auth/verify')
-        .send({ verificationToken: '107165' })
+        .post("/auth/verify")
+        .send({ verificationToken: "107165" })
         .end((err, res) => {
-          expect(res.body.status).to.equal('success');
-          expect(res.body.data.email).to.equal('admin@nhs.co.uk');
+          expect(res.body.status).toEqual("success");
+          expect(res.body.data.email).toEqual("admin@nhs.co.uk");
           done();
         });
     });
-    it('should link the user to an empty organisation', (done) => {
-      Organisation.remove({})
-        .then(() => {
-          request(app)
-            .post('/auth/verify')
-            .send({ verificationToken: '107165' })
-            .end((err, res) => {
-              expect(res.body.status).to.equal('success');
-              expect(res.body.data.email).to.equal('admin@nhs.co.uk');
-              expect(res.body.data.organisation).to.equal(null);
-              done();
-            });
-        });
-    });
-    it('should link the user to an organisation', (done) => {
-      const org = new Organisation({ name: 'Apex Entertainment', template: 'MODS' });
-      org.save()
-        .then(() => {
-          request(app)
-            .post('/auth/verify')
-            .send({ verificationToken: '107165' })
-            .end((err, res) => {
-              expect(res.body.status).to.equal('success');
-              expect(res.body.data.email).to.equal('admin@nhs.co.uk');
-              expect(res.body.data.organisation.name).to.equal('Apex Entertainment');
-              expect(res.body.data.organisation.template).to.equal('MODS');
-              done();
-            });
-        });
-    });
-    it('should return an error if token is invalid', (done) => {
+    it("should link the user to an empty organisation", async done => {
+      await Organisation.remove({});
       request(app)
-        .post('/auth/verify')
-        .send({ verificationToken: '100200' })
+        .post("/auth/verify")
+        .send({ verificationToken: "107165" })
         .end((err, res) => {
-          expect(res.body.status).to.equal('error');
-          expect(res.body.message).to.equal('No registered user with token 100200');
+          expect(res.body.status).toEqual("success");
+          expect(res.body.data.email).toEqual("admin@nhs.co.uk");
+          expect(res.body.data.organisation).toEqual(null);
           done();
         });
     });
-    it('should mark the account as valid', (done) => {
+    it("should link the user to an organisation", async done => {
+      const org = new Organisation({
+        name: "Apex Entertainment",
+        template: "MODS"
+      });
+      await org.save();
       request(app)
-        .post('/auth/verify')
-        .send({ verificationToken: '107165' })
-        .end(() => {
-          User.getByEmail('admin@nhs.co.uk')
-            .then((foundUser) => {
-              expect(foundUser.valid).to.equal(true);
-              expect(foundUser.verificationToken).to.equal(null);
-              done();
-            });
-        });
-    });
-  });
-
-  describe('# POST /auth/resend', () => {
-    it('should resend the notification', (done) => {
-      request(app)
-        .post('/auth/resend')
-        .set('Authorization', `Bearer ${token}`)
-        .send({ email: 'admin@nhs.co.uk' })
-        .expect(httpStatus.OK)
+        .post("/auth/verify")
+        .send({ verificationToken: "107165" })
         .end((err, res) => {
-          expect(res.body.status).to.equal('success');
-          expect(res.body.data).to.equal('Notification was resent by email');
+          expect(res.body.status).toEqual("success");
+          expect(res.body.data.email).toEqual("admin@nhs.co.uk");
+          expect(res.body.data.organisation.name).toEqual("Apex Entertainment");
+          expect(res.body.data.organisation.template).toEqual("MODS");
           done();
         });
     });
-    it('should require an email', (done) => {
+    it("should return an error if token is invalid", done => {
       request(app)
-        .post('/auth/resend')
-        .set('Authorization', `Bearer ${token}`)
-        .expect(httpStatus.OK)
+        .post("/auth/verify")
+        .send({ verificationToken: "100200" })
         .end((err, res) => {
-          expect(res.body.status).to.equal('error');
-          expect(res.body.message).to.equal('"email" is required');
+          expect(res.body.status).toEqual("error");
+          expect(res.body.message).toEqual(
+            "No registered user with token 100200"
+          );
           done();
         });
     });
-    it('should also work for unauthenticated users', (done) => {
+    it("should mark the account as valid", done => {
       request(app)
-        .post('/auth/resend')
-        .send({ email: 'admin@nhs.co.uk' })
-        .expect(httpStatus.OK)
-        .end((err, res) => {
-          expect(res.body.status).to.equal('success');
-          expect(res.body.data).to.equal('Notification was resent by email');
+        .post("/auth/verify")
+        .send({ verificationToken: "107165" })
+        .end(async () => {
+          const foundUser = await User.getByEmail("admin@nhs.co.uk");
+          expect(foundUser.valid).toEqual(true);
+          expect(foundUser.verificationToken).toEqual(null);
           done();
         });
     });
   });
 
-  describe('# POST /users/:id/role', () => {
-    it('should assign the admin role to the user', (done) => {
+  describe("# POST /auth/resend", () => {
+    it("should resend the notification", done => {
+      request(app)
+        .post("/auth/resend")
+        .set("Authorization", `Bearer ${token}`)
+        .send({ email: "admin@nhs.co.uk" })
+        .expect(httpStatus.OK)
+        .end((err, res) => {
+          expect(res.body.status).toEqual("success");
+          expect(res.body.data).toEqual("Notification was resent by email");
+          done();
+        });
+    });
+    it("should require an email", done => {
+      request(app)
+        .post("/auth/resend")
+        .set("Authorization", `Bearer ${token}`)
+        .expect(httpStatus.OK)
+        .end((err, res) => {
+          expect(res.body.status).toEqual("error");
+          expect(res.body.message).toEqual('"email" is required');
+          done();
+        });
+    });
+    it("should also work for unauthenticated users", done => {
+      request(app)
+        .post("/auth/resend")
+        .send({ email: "admin@nhs.co.uk" })
+        .expect(httpStatus.OK)
+        .end((err, res) => {
+          expect(res.body.status).toEqual("success");
+          expect(res.body.data).toEqual("Notification was resent by email");
+          done();
+        });
+    });
+  });
+
+  describe("# POST /users/:id/role", () => {
+    it("should assign the admin role to the user", done => {
       request(app)
         .post(`/users/${savedUser.id}/role`)
-        .set('Authorization', `Bearer ${token}`)
+        .set("Authorization", `Bearer ${token}`)
         .expect(httpStatus.OK)
         .end((err, res) => {
-          expect(res.body.status).to.equal('success');
-          expect(res.body.data.firstname).to.equal('David');
-          expect(res.body.data.role).to.equal('Admin');
+          expect(res.body.status).toEqual("success");
+          expect(res.body.data.firstname).toEqual("David");
+          expect(res.body.data.role).toEqual("Admin");
           done();
         });
     });
-    it('should work only for authenticated users', (done) => {
+    it("should work only for authenticated users", done => {
       request(app)
         .post(`/users/${savedUser.id}/role`)
-        .set('Authorization', 'Bearer INVALID_TOKEN')
+        .set("Authorization", "Bearer INVALID_TOKEN")
         .expect(httpStatus.UNAUTHORIZED)
         .end((err, res) => {
-          expect(res.body.status).to.equal('error');
-          expect(res.body.message).to.equal('jwt malformed');
+          expect(res.body.status).toEqual("error");
+          expect(res.body.message).toEqual("jwt malformed");
           done();
         });
     });
-    it('should work only for admin users', (done) => {
-      savedUser.role = '';
-      savedUser.save()
-        .then((atlasUser) => {
-          request(app)
-            .post(`/users/${atlasUser.id}/role`)
-            .set('Authorization', `Bearer ${token}`)
-            .expect(httpStatus.OK)
-            .end((err, res) => {
-              expect(res.body.status).to.equal('error');
-              expect(res.body.message).to.equal('You are not allowed to perform this action.');
-              done();
-            });
-        });
-    });
-    it('should return an error if the user not found', (done) => {
+    it("should work only for admin users", async done => {
+      savedUser.role = "";
+      const atlasUser = await savedUser.save();
       request(app)
-        .post('/users/56c787ccc67fc16ccc1a5e92/role')
-        .set('Authorization', `Bearer ${token}`)
+        .post(`/users/${atlasUser.id}/role`)
+        .set("Authorization", `Bearer ${token}`)
         .expect(httpStatus.OK)
         .end((err, res) => {
-          expect(res.body.status).to.equal('error');
-          expect(res.body.message).to.equal('User not found with id 56c787ccc67fc16ccc1a5e92');
+          expect(res.body.status).toEqual("error");
+          expect(res.body.message).toEqual(
+            "You are not allowed to perform this action."
+          );
+          done();
+        });
+    });
+    it("should return an error if the user not found", done => {
+      request(app)
+        .post("/users/56c787ccc67fc16ccc1a5e92/role")
+        .set("Authorization", `Bearer ${token}`)
+        .expect(httpStatus.OK)
+        .end((err, res) => {
+          expect(res.body.status).toEqual("error");
+          expect(res.body.message).toEqual(
+            "User not found with id 56c787ccc67fc16ccc1a5e92"
+          );
           done();
         });
     });

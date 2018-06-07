@@ -1,28 +1,29 @@
-import mongoose from 'mongoose';
-import util from 'util';
-import config from './config/env';
-import app from './config/express';
-import errors from './config/errors-definition';
+import mongoose from "mongoose";
+import util from "util";
+import config from "./config/env";
+import createApp from "./config/express";
+import errors from "./config/errors-definition";
 
-require('./express-jsend');
-require('./workers');
-const debug = require('debug')('atlas:index');
+require("./express-jsend");
+require("./workers");
+const app = createApp();
+const debug = require("debug")("atlas:index");
 
 // make bluebird default Promise
-Promise = require('bluebird'); // eslint-disable-line no-global-assign
+Promise = require("bluebird"); // eslint-disable-line no-global-assign
 
 // plugin bluebird promise in mongoose
 mongoose.Promise = Promise;
 
 // connect to mongo db
-mongoose.connect(config.db, { server: { socketOptions: { keepAlive: 1 } } });
-mongoose.connection.on('error', () => {
+mongoose.connect(config.db);
+mongoose.connection.on("error", () => {
   throw new Error(`unable to connect to database: ${config.db}`);
 });
 
 // print mongoose logs in dev env
 if (config.MONGOOSE_DEBUG) {
-  mongoose.set('debug', (collectionName, method, query, doc) => {
+  mongoose.set("debug", (collectionName, method, query, doc) => {
     debug(`${collectionName}.${method}`, util.inspect(query, false, 20), doc);
   });
 }
@@ -37,9 +38,9 @@ if (!module.parent) {
 }
 
 // enable reverse proxy support
-app.enable('trust proxy');
+app.enable("trust proxy");
 // enable strong etag
-app.set('etag', 'strong');
+app.set("etag", "strong");
 
 errors.create();
 

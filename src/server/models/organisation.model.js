@@ -1,6 +1,6 @@
-import mongoose from 'mongoose';
-import errors from 'errors';
-import OrganisationJSONTransformer from '../transformers/OrganisationJSONTransformer';
+import mongoose from "mongoose";
+import errors from "errors";
+import OrganisationJSONTransformer from "../transformers/OrganisationJSONTransformer";
 
 /**
  * Organisation Schema
@@ -18,13 +18,10 @@ const OrganisationSchema = new mongoose.Schema({
  * - plugins
  */
 
-
 /**
  * Methods
  */
-OrganisationSchema.method({
-
-});
+OrganisationSchema.method({});
 
 /**
  * Statics
@@ -35,26 +32,28 @@ OrganisationSchema.statics = {
    * @param {ObjectId} id - The objectId of experiment.
    * @returns {Promise<Organisation, APIError>}
    */
-  get(id) {
-    return this.findById(id)
-      .exec()
-      .then((organisation) => {
-        if (organisation) {
-          return organisation;
-        }
-        return Promise.reject(new errors.ObjectNotFound(`Organisation not found with id ${id}`));
-      })
-      .catch(e => Promise.reject(new errors.ObjectNotFound(e.message)));
+  async get(id) {
+    try {
+      const organisation = await this.findById(id).exec();
+      if (organisation) {
+        return organisation;
+      }
+      throw new errors.ObjectNotFound(`Organisation not found with id ${id}`);
+    } catch (e) {
+      throw new errors.ObjectNotFound(e.message);
+    }
   },
 
   /**
    * Finds and updates the organisation
    * @returns {Promise<Organisation, APIError>}
    */
-  findOrganisationAndUpdate(query, newData) {
-    return this.findOneAndUpdate(query, newData, { new: true, upsert: true })
-      .exec()
-      .then(organisation => organisation);
+  async findOrganisationAndUpdate(query, newData) {
+    const organisation = await this.findOneAndUpdate(query, newData, {
+      new: true,
+      upsert: true
+    }).exec();
+    return organisation;
   },
 
   /**
@@ -71,7 +70,7 @@ OrganisationSchema.statics = {
   }
 };
 
-OrganisationSchema.set('toJSON', {
+OrganisationSchema.set("toJSON", {
   transform(doc, ret) {
     return new OrganisationJSONTransformer(ret).transform();
   }
@@ -80,4 +79,4 @@ OrganisationSchema.set('toJSON', {
 /**
  * @typedef Organisation
  */
-export default mongoose.model('Organisation', OrganisationSchema);
+export default mongoose.model("Organisation", OrganisationSchema);

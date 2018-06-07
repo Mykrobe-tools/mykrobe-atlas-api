@@ -1,18 +1,18 @@
-import errors from 'errors';
-import User from '../server/models/user.model';
+import errors from "errors";
+import User from "../server/models/user.model";
 
 function checkPermission(role) {
-  return (req, res, next) => {
-    User.get(req.user.id)
-      .then((user) => {
-        if (user.role === role) {
-          next();
-        }
-        else {
-          res.jerror(new errors.NotAllowed());
-        }
-      })
-      .catch(e => res.jerror(new errors.NotAllowed(e.message)));
+  return async (req, res, next) => {
+    try {
+      const user = await User.get(req.user.id);
+      if (user.role === role) {
+        next();
+      } else {
+        return res.jerror(new errors.NotAllowed());
+      }
+    } catch (e) {
+      return res.jerror(new errors.NotAllowed(e.message));
+    }
   };
 }
 
