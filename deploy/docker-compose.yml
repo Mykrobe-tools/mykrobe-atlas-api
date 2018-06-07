@@ -11,7 +11,7 @@ atlas-api:
   container_name: atlas-api
   volumes:
     - /home/ubuntu/data/apidoc:/app/doc
-    - /home/ubuntu/data/uploads:/app/uploads
+    - /atlas/uploads:/app/uploads
   restart: always
   ports:
     - 3001:3000
