@@ -9,6 +9,7 @@ import Metadata from "../../models/metadata.model";
 
 const app = createApp();
 
+const mongo = require("mongojs");
 const users = require("../fixtures/users");
 const experiments = require("../fixtures/experiments");
 const metadata = require("../fixtures/metadata");
@@ -601,6 +602,62 @@ describe("## Experiment APIs", () => {
             expect(res.body.status).toEqual("success");
             expect(res.body.data).toEqual("Download started from oneDrive");
             expect(fs.existsSync(filePath)).toEqual(true);
+            done();
+          });
+      });
+    });
+    describe("when calling the analysis API", () => {
+      it("should capture a payload including the sample id and file location", done => {
+        request(app)
+          .put(`/experiments/${id}/file`)
+          .set("Authorization", `Bearer ${token}`)
+          .field("resumableChunkNumber", 1)
+          .field("resumableChunkSize", 1048576)
+          .field("resumableCurrentChunkSize", 251726)
+          .field("resumableTotalSize", 251726)
+          .field("resumableType", "application/json")
+          .field("resumableIdentifier", "251726-333-08json")
+          .field("resumableFilename", "333-08.json")
+          .field("resumableRelativePath", "333-08.json")
+          .field("resumableTotalChunks", 1)
+          .field("checksum", "4f36e4cbfc9dfc37559e13bd3a309d50")
+          .attach("file", "src/server/tests/fixtures/files/333-08.json")
+          .expect(httpStatus.OK)
+          .end((err, res) => {
+            const jobs = mongo(config.db, []).jobs;
+            expect(res.body.status).toEqual("success");
+            expect(res.body.data).toEqual("File uploaded and reassembled");
+            return jobs.findOne({ "params.sample_id": id }, (err, job) => {
+              if (err) {
+                fail();
+              }
+              expect(job.params.file).toEqual(
+                `${config.uploadDir}/experiments/${id}/file/333-08.json`
+              );
+              expect(job.params.sample_id).toEqual(id);
+              done();
+            });
+          });
+      });
+      it.only("should call the analysis api with payload", done => {
+        request(app)
+          .put(`/experiments/${id}/file`)
+          .set("Authorization", `Bearer ${token}`)
+          .field("resumableChunkNumber", 1)
+          .field("resumableChunkSize", 1048576)
+          .field("resumableCurrentChunkSize", 251726)
+          .field("resumableTotalSize", 251726)
+          .field("resumableType", "application/json")
+          .field("resumableIdentifier", "251726-333-08json")
+          .field("resumableFilename", "333-08.json")
+          .field("resumableRelativePath", "333-08.json")
+          .field("resumableTotalChunks", 1)
+          .field("checksum", "4f36e4cbfc9dfc37559e13bd3a309d50")
+          .attach("file", "src/server/tests/fixtures/files/333-08.json")
+          .expect(httpStatus.OK)
+          .end((err, res) => {
+            expect(res.body.status).toEqual("success");
+            expect(res.body.data).toEqual("File uploaded and reassembled");
             done();
           });
       });

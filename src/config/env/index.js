@@ -18,7 +18,8 @@ const defaults = {
     region: process.env.AWS_REGION
   },
   rateLimitReset: 15 * 60 * 1000, // 15 min
-  rateLimitMax: 1000
+  rateLimitMax: 1000,
+  analysisApiUrl: "https://cli.mykrobe.com"
 };
 
 const functions = {

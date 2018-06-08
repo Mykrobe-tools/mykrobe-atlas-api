@@ -30,7 +30,8 @@
       "dist/server",
       "src/config"
     ],
-    "collectCoverage": false
+    "collectCoverage": false,
+    "testEnvironment": "node"
   },
   "keywords": [
     "express",
@@ -45,6 +46,7 @@
     "jest"
   ],
   "dependencies": {
+    "axios": "^0.18.0",
     "bluebird": "^3.5.1",
     "body-parser": "^1.18.3",
     "compression": "^1.7.2",
@@ -106,6 +108,8 @@
     "husky": "^0.14.3",
     "jest": "^22.4.3",
     "mongodb-memory-server": "^1.7.4",
+    "mongojs": "^2.6.0",
+    "nock": "^9.3.2",
     "run-sequence": "^2.2.1",
     "supertest": "^3.1.0"
   }
