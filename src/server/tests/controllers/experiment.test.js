@@ -1,6 +1,7 @@
 import request from "supertest";
 import httpStatus from "http-status";
 import fs from "fs";
+import mockAxios from "jest-mock-axios";
 import { config, createApp } from "../setup";
 import User from "../../models/user.model";
 import Experiment from "../../models/experiment.model";
@@ -9,13 +10,16 @@ import Metadata from "../../models/metadata.model";
 
 const app = createApp();
 
-const mongo = require("mongojs");
+const mongo = require("promised-mongo").compatible();
 const users = require("../fixtures/users");
 const experiments = require("../fixtures/experiments");
 const metadata = require("../fixtures/metadata");
 
 let token = null;
 let id = null;
+
+const findJob = (jobs, id) =>
+  jobs.findOne({ "data.sample_id": id }, (err, data) => data);
 
 beforeEach(async done => {
   const userData = new User(users.admin);
@@ -43,6 +47,7 @@ beforeEach(async done => {
 });
 
 afterEach(async done => {
+  mockAxios.reset();
   await User.remove({});
   await Organisation.remove({});
   await Experiment.remove({});
@@ -623,23 +628,25 @@ describe("## Experiment APIs", () => {
           .field("checksum", "4f36e4cbfc9dfc37559e13bd3a309d50")
           .attach("file", "src/server/tests/fixtures/files/333-08.json")
           .expect(httpStatus.OK)
-          .end((err, res) => {
-            const jobs = mongo(config.db, []).jobs;
+          .end(async (err, res) => {
+            const jobs = mongo(config.db, []).agendaJobs;
             expect(res.body.status).toEqual("success");
             expect(res.body.data).toEqual("File uploaded and reassembled");
-            return jobs.findOne({ "params.sample_id": id }, (err, job) => {
-              if (err) {
-                fail();
-              }
-              expect(job.params.file).toEqual(
+            try {
+              const job = await findJob(jobs, id);
+              expect(job.data.file).toEqual(
                 `${config.uploadDir}/experiments/${id}/file/333-08.json`
               );
-              expect(job.params.sample_id).toEqual(id);
+              expect(job.data.sample_id).toEqual(id);
+              expect(job.data.attempt).toEqual(0);
               done();
-            });
+            } catch (e) {
+              fail();
+              done();
+            }
           });
       });
-      it.only("should call the analysis api with payload", done => {
+      it("should call the analysis api with payload", done => {
         request(app)
           .put(`/experiments/${id}/file`)
           .set("Authorization", `Bearer ${token}`)
@@ -655,9 +662,16 @@ describe("## Experiment APIs", () => {
           .field("checksum", "4f36e4cbfc9dfc37559e13bd3a309d50")
           .attach("file", "src/server/tests/fixtures/files/333-08.json")
           .expect(httpStatus.OK)
-          .end((err, res) => {
+          .end(async (err, res) => {
+            const jobs = mongo(config.db, []).agendaJobs;
             expect(res.body.status).toEqual("success");
             expect(res.body.data).toEqual("File uploaded and reassembled");
+            const job = await findJob(jobs, id);
+            expect(job.name).toEqual("call analysis api");
+            expect(job.data.file).toEqual(
+              `${config.uploadDir}/experiments/${id}/file/333-08.json`
+            );
+            expect(job.data.sample_id).toEqual(id);
             done();
           });
       });

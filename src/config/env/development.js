@@ -1,5 +1,6 @@
 import nodemailer from "nodemailer-mock";
 import monq from "monq";
+import Agenda from "agenda";
 
 const dbUri = "mongodb://localhost/atlas-dev";
 
@@ -11,5 +12,6 @@ export default {
   db: dbUri,
   nodemailer,
   uploadDir: "/tmp/uploads",
-  port: 3000
+  port: 3000,
+  agenda: new Agenda({ db: { address: dbUri } })
 };

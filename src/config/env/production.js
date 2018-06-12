@@ -1,5 +1,6 @@
 import nodemailer from "nodemailer";
 import monq from "monq";
+import Agenda from "agenda";
 
 const dbUri = `mongodb://${process.env.MONGO_USER}:${
   process.env.MONGO_PASSWORD
@@ -12,5 +13,6 @@ export default {
   db: dbUri,
   nodemailer,
   uploadDir: "/app/uploads",
-  port: 3000
+  port: 3000,
+  agenda: new Agenda({ db: { address: dbUri } })
 };

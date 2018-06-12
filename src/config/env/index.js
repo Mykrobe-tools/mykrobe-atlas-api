@@ -19,7 +19,9 @@ const defaults = {
   },
   rateLimitReset: 15 * 60 * 1000, // 15 min
   rateLimitMax: 1000,
-  analysisApiUrl: "https://cli.mykrobe.com"
+  analysisApiUrl: "https://cli.mykrobe.com",
+  analysisApiMaxRetries: 5,
+  analysisApiBackOffPeriod: "in 20 minutes"
 };
 
 const functions = {

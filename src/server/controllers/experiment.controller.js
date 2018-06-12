@@ -181,18 +181,16 @@ async function uploadFile(req, res) {
         return Resumable.reassembleChunks(
           experiment.id,
           req.body.resumableFilename,
-          () => {
-            const queue = config.monqClient.queue("analysis");
-            queue.enqueue(
-              "process",
-              {
-                file: `${config.uploadDir}/experiments/${experiment.id}/file/${
-                  req.body.resumableFilename
-                }`,
-                sample_id: experiment.id
-              },
-              () => res.jsend("File uploaded and reassembled")
-            );
+          async () => {
+            const agenda = config.agenda;
+            await agenda.now("call analysis api", {
+              file: `${config.uploadDir}/experiments/${experiment.id}/file/${
+                req.body.resumableFilename
+              }`,
+              sample_id: experiment.id,
+              attempt: 0
+            });
+            return res.jsend("File uploaded and reassembled");
           }
         );
       }
