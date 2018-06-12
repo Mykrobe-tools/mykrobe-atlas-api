@@ -107,8 +107,8 @@
     "gulp-util": "^3.0.7",
     "husky": "^0.14.3",
     "jest": "^22.4.3",
-    "jest-mock-axios": "^2.1.11",
     "mongodb-memory-server": "^1.7.4",
+    "nock": "^9.3.2",
     "promised-mongo": "^1.2.0",
     "run-sequence": "^2.2.1",
     "supertest": "^3.1.0"

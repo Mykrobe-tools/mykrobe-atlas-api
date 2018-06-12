@@ -1,12 +1,13 @@
 import request from "supertest";
 import httpStatus from "http-status";
 import fs from "fs";
-import mockAxios from "jest-mock-axios";
+import nock from "nock";
 import { config, createApp } from "../setup";
 import User from "../../models/user.model";
 import Experiment from "../../models/experiment.model";
 import Organisation from "../../models/organisation.model";
 import Metadata from "../../models/metadata.model";
+import Audit from "../../models/audit.model";
 
 const app = createApp();
 
@@ -47,7 +48,6 @@ beforeEach(async done => {
 });
 
 afterEach(async done => {
-  mockAxios.reset();
   await User.remove({});
   await Organisation.remove({});
   await Experiment.remove({});
@@ -672,6 +672,108 @@ describe("## Experiment APIs", () => {
               `${config.uploadDir}/experiments/${id}/file/333-08.json`
             );
             expect(job.data.sample_id).toEqual(id);
+            done();
+          });
+      });
+      it("should record data to the audit collection", done => {
+        request(app)
+          .put(`/experiments/${id}/file`)
+          .set("Authorization", `Bearer ${token}`)
+          .field("resumableChunkNumber", 1)
+          .field("resumableChunkSize", 1048576)
+          .field("resumableCurrentChunkSize", 251726)
+          .field("resumableTotalSize", 251726)
+          .field("resumableType", "application/json")
+          .field("resumableIdentifier", "251726-333-08json")
+          .field("resumableFilename", "333-08.json")
+          .field("resumableRelativePath", "333-08.json")
+          .field("resumableTotalChunks", 1)
+          .field("checksum", "4f36e4cbfc9dfc37559e13bd3a309d50")
+          .attach("file", "src/server/tests/fixtures/files/333-08.json")
+          .expect(httpStatus.OK)
+          .end(async (err, res) => {
+            let audits = await Audit.find({ sampleId: id });
+            while (audits.length === 0) {
+              audits = await Audit.find({ sampleId: id });
+            }
+            const audit = audits[0];
+            expect(res.body.status).toEqual("success");
+            expect(res.body.data).toEqual("File uploaded and reassembled");
+            expect(audit.sampleId).toEqual(id);
+            expect(audit.fileLocation).toEqual(
+              `${config.uploadDir}/experiments/${id}/file/333-08.json`
+            );
+            expect(audit.status).toEqual("Successful");
+            expect(audit.attempt).toEqual(1);
+            done();
+          });
+      });
+      it("should retry the analysis api call when failed", done => {
+        request(app)
+          .put(`/experiments/${id}/file`)
+          .set("Authorization", `Bearer ${token}`)
+          .field("resumableChunkNumber", 1)
+          .field("resumableChunkSize", 1048576)
+          .field("resumableCurrentChunkSize", 251726)
+          .field("resumableTotalSize", 251726)
+          .field("resumableType", "application/json")
+          .field("resumableIdentifier", "251726-333-09json")
+          .field("resumableFilename", "333-09.json")
+          .field("resumableRelativePath", "333-09.json")
+          .field("resumableTotalChunks", 1)
+          .field("checksum", "4f36e4cbfc9dfc37559e13bd3a309d50")
+          .attach("file", "src/server/tests/fixtures/files/333-09.json")
+          .expect(httpStatus.OK)
+          .end(async (err, res) => {
+            const jobs = mongo(config.db, []).agendaJobs;
+            expect(res.body.status).toEqual("success");
+            expect(res.body.data).toEqual("File uploaded and reassembled");
+            let audits = await Audit.find({ sampleId: id });
+            while (audits.length < 1) {
+              audits = await Audit.find({ sampleId: id });
+            }
+            const foundJobs = await jobs.find({ "data.sample_id": id });
+            expect(foundJobs.length).toEqual(2);
+            expect(foundJobs[0].data.file).toEqual(
+              `${config.uploadDir}/experiments/${id}/file/333-09.json`
+            );
+            expect(foundJobs[0].data.sample_id).toEqual(id);
+            done();
+          });
+      });
+      it("should record the audit when call failed", done => {
+        request(app)
+          .put(`/experiments/${id}/file`)
+          .set("Authorization", `Bearer ${token}`)
+          .field("resumableChunkNumber", 1)
+          .field("resumableChunkSize", 1048576)
+          .field("resumableCurrentChunkSize", 251726)
+          .field("resumableTotalSize", 251726)
+          .field("resumableType", "application/json")
+          .field("resumableIdentifier", "251726-333-09json")
+          .field("resumableFilename", "333-09.json")
+          .field("resumableRelativePath", "333-09.json")
+          .field("resumableTotalChunks", 1)
+          .field("checksum", "4f36e4cbfc9dfc37559e13bd3a309d50")
+          .attach("file", "src/server/tests/fixtures/files/333-09.json")
+          .expect(httpStatus.OK)
+          .end(async (err, res) => {
+            const jobs = mongo(config.db, []).agendaJobs;
+            expect(res.body.status).toEqual("success");
+            expect(res.body.data).toEqual("File uploaded and reassembled");
+            let audits = await Audit.find({ sampleId: id });
+            while (audits.length < 1) {
+              audits = await Audit.find({ sampleId: id });
+            }
+            const audit = audits[0];
+            expect(res.body.status).toEqual("success");
+            expect(res.body.data).toEqual("File uploaded and reassembled");
+            expect(audit.sampleId).toEqual(id);
+            expect(audit.fileLocation).toEqual(
+              `${config.uploadDir}/experiments/${id}/file/333-09.json`
+            );
+            expect(audit.status).toEqual("Failed");
+            expect(audit.attempt).toEqual(1);
             done();
           });
       });
