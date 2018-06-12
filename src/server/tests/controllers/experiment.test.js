@@ -635,7 +635,7 @@ describe("## Experiment APIs", () => {
             try {
               const job = await findJob(jobs, id);
               expect(job.data.file).toEqual(
-                `${config.uploadDir}/experiments/${id}/file/333-08.json`
+                `${config.uploadsLocation}/experiments/${id}/file/333-08.json`
               );
               expect(job.data.sample_id).toEqual(id);
               expect(job.data.attempt).toEqual(0);
@@ -669,7 +669,7 @@ describe("## Experiment APIs", () => {
             const job = await findJob(jobs, id);
             expect(job.name).toEqual("call analysis api");
             expect(job.data.file).toEqual(
-              `${config.uploadDir}/experiments/${id}/file/333-08.json`
+              `${config.uploadsLocation}/experiments/${id}/file/333-08.json`
             );
             expect(job.data.sample_id).toEqual(id);
             done();
@@ -701,7 +701,7 @@ describe("## Experiment APIs", () => {
             expect(res.body.data).toEqual("File uploaded and reassembled");
             expect(audit.sampleId).toEqual(id);
             expect(audit.fileLocation).toEqual(
-              `${config.uploadDir}/experiments/${id}/file/333-08.json`
+              `${config.uploadsLocation}/experiments/${id}/file/333-08.json`
             );
             expect(audit.status).toEqual("Successful");
             expect(audit.attempt).toEqual(1);
@@ -735,7 +735,7 @@ describe("## Experiment APIs", () => {
             const foundJobs = await jobs.find({ "data.sample_id": id });
             expect(foundJobs.length).toEqual(2);
             expect(foundJobs[0].data.file).toEqual(
-              `${config.uploadDir}/experiments/${id}/file/333-09.json`
+              `${config.uploadsLocation}/experiments/${id}/file/333-09.json`
             );
             expect(foundJobs[0].data.sample_id).toEqual(id);
             done();
@@ -770,7 +770,7 @@ describe("## Experiment APIs", () => {
             expect(res.body.data).toEqual("File uploaded and reassembled");
             expect(audit.sampleId).toEqual(id);
             expect(audit.fileLocation).toEqual(
-              `${config.uploadDir}/experiments/${id}/file/333-09.json`
+              `${config.uploadsLocation}/experiments/${id}/file/333-09.json`
             );
             expect(audit.status).toEqual("Failed");
             expect(audit.attempt).toEqual(1);

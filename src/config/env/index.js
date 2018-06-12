@@ -21,7 +21,8 @@ const defaults = {
   rateLimitMax: 1000,
   analysisApiUrl: "https://cli.mykrobe.com",
   analysisApiMaxRetries: 5,
-  analysisApiBackOffPeriod: "in 20 minutes"
+  analysisApiBackOffPeriod: "in 20 minutes",
+  uploadsLocation: process.env.UPLOADS_LOCATION || config.uploadDir
 };
 
 const functions = {
