@@ -11,145 +11,368 @@ const upload = multer({ dest: "tmp/" });
 const router = express.Router(); // eslint-disable-line new-cap
 
 /**
- * @apiDefine ExperimentResponse
- * @apiSuccessExample Success-Response:
- *     HTTP/1.1 200 OK
- *     {
- *       "status": "success",
- *       "data": {
- *         "owner": {
- *           "firstname": "Sean",
- *           "lastname": "Leavy",
- *           "phone": "+44 7968 716851",
- *           "email": "sean@gmail.com",
- *           "id": "58e2697c87f269174c48cedf"
- *         },
- *         "organisation": {
- *           "name": "Apex Entertainment"
- *         },
- *         "location": {
- *           "name": "London",
- *           "lat": 3.4,
- *           "lng": -2.3,
- *           "id": "58e4c7526555100f447d50ef"
- *         },
- *         "collected": "2017-04-17T00:00:00.000Z",
- *         "uploaded": "2017-04-20T00:00:00.000Z",
- *         "jaccardIndex": {
- *           "analysed": "2017-04-20T00:00:00.000Z",
- *           "engine": "",
- *           "version": "1.0",
- *           "experiments": [],
- *           "id": "58e4c7526555100f447d50ee"
- *         },
- *           "snpDistance": {
- *             "analysed": "2017-04-21T00:00:00.000Z",
- *             "engine": "",
- *             "version": "1.0",
- *             "experiments": [],
- *             "id": "58e4c7526555100f447d50ed"
- *         },
- *           "geoDistance": {
- *             "analysed": "2017-04-22T00:00:00.000Z",
- *             "engine": "",
- *             "version": "1.0",
- *             "experiments": [],
- *             "id": "58e4c7526555100f447d50ec"
- *           },
- *         "id": "58e4c7526555100f447d50eb"
- *       }
- *     }
+ * @swagger
+ * definitions:
+ *   ExperimentResponse:
+ *     properties:
+ *       status:
+ *         type: string
+ *       data:
+ *         type: object
+ *         properties:
+ *           owner:
+ *             type: object
+ *             properties:
+ *               firstname:
+ *                 type: string
+ *               lastname:
+ *                 type: string
+ *               phone:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *               id:
+ *                 type: string
+ *           organisation:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               template:
+ *                 type: string
+ *           location:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               lat:
+ *                 type: number
+ *               lng:
+ *                 type: number
+ *           collected:
+ *             type: string
+ *             format: date-time
+ *           uploaded:
+ *             type: string
+ *             format: date-time
+ *           jaccardIndex:
+ *             type: object
+ *             properties:
+ *               analysed:
+ *                 type: string
+ *                 format: date-time
+ *               engine:
+ *                 type: string
+ *               version:
+ *                 type: string
+ *           snpDistance:
+ *             type: object
+ *             properties:
+ *               analysed:
+ *                 type: string
+ *                 format: date-time
+ *               engine:
+ *                 type: string
+ *               version:
+ *                 type: string
+ *           geoDistance:
+ *             type: object
+ *             properties:
+ *               analysed:
+ *                 type: string
+ *                 format: date-time
+ *               engine:
+ *                 type: string
+ *               version:
+ *                 type: string
+ *           id:
+ *             type: string
+ *     example:
+ *       status: success
+ *       data:
+ *         owner:
+ *           firstname: Sean
+ *           lastname: Leavy
+ *           phone: +44 7968 716851
+ *           email: sean@gmail.com
+ *         organisation:
+ *           name: Apex Entertainment
+ *           template: Apex template
+ *         location:
+ *           name: London
+ *           lat: 3.4
+ *           lng: 3.4
+ *           id: 58e4c7526555100f447d50ef
+ *         collected: 2017-04-17T00:00:00.000Z
+ *         uploaded: 2017-04-20T00:00:00.000Z
+ *         jaccardIndex:
+ *           analysed: 2017-04-20T00:00:00.000Z
+ *           engine: [engine]
+ *           version: 1.0
+ *           id: 58e4c7526555100f447d50ee
+ *         snpDistance:
+ *           analysed: 2017-04-22T00:00:00.000Z
+ *           engine: [engine]
+ *           version: 1.0
+ *           id: 58e4c7526555100f447d50ee
+ *         geoDistance:
+ *           analysed: 2017-04-22T00:00:00.000Z
+ *           engine: [engine]
+ *           version: 1.0
+ *           id: 58e4c7526555100f447d50ee
+ *         id: 588624076182796462cb133e
+ */
+/**
+ * @swagger
+ * definitions:
+ *   ListExperimentsResponse:
+ *     properties:
+ *       status:
+ *         type: string
+ *       data:
+ *         type: array
+ *         items:
+ *           type: object
+ *           properties:
+ *             name:
+ *               type: string
+ *             owner:
+ *               type: object
+ *               properties:
+ *                 firstname:
+ *                   type: string
+ *                 lastname:
+ *                   type: string
+ *                 phone:
+ *                   type: string
+ *                 email:
+ *                   type: string
+ *                 id:
+ *                   type: string
+ *             organisation:
+ *               type: object
+ *               properties:
+ *                 name:
+ *                   type: string
+ *                 template:
+ *                   type: string
+ *             location:
+ *               type: object
+ *               properties:
+ *                 name:
+ *                   type: string
+ *                 lat:
+ *                   type: number
+ *                 lng:
+ *                   type: number
+ *             collected:
+ *               type: string
+ *               format: date-time
+ *             uploaded:
+ *               type: string
+ *               format: date-time
+ *             jaccardIndex:
+ *               type: object
+ *               properties:
+ *                 analysed:
+ *                   type: string
+ *                   format: date-time
+ *                 engine:
+ *                   type: string
+ *                 version:
+ *                   type: string
+ *             snpDistance:
+ *               type: object
+ *               properties:
+ *                 analysed:
+ *                   type: string
+ *                   format: date-time
+ *                 engine:
+ *                   type: string
+ *                 version:
+ *                   type: string
+ *             geoDistance:
+ *               type: object
+ *               properties:
+ *                 analysed:
+ *                   type: string
+ *                   format: date-time
+ *                 engine:
+ *                   type: string
+ *                 version:
+ *                   type: string
+ *             id:
+ *               type: string
+ *     example:
+ *       status: success
+ *       data:
+ *         - owner:
+ *             firstname: Sean
+ *             lastname: Leavy
+ *             phone: +44 7968 716851
+ *             email: sean@gmail.com
+ *           organisation:
+ *             name: Apex Entertainment
+ *             template: Apex template
+ *           location:
+ *             name: London
+ *             lat: 3.4
+ *             lng: 3.4
+ *             id: 58e4c7526555100f447d50ef
+ *           collected: 2017-04-17T00:00:00.000Z
+ *           uploaded: 2017-04-20T00:00:00.000Z
+ *           jaccardIndex:
+ *             analysed: 2017-04-20T00:00:00.000Z
+ *             engine: [engine]
+ *             version: 1.0
+ *             id: 58e4c7526555100f447d50ee
+ *           snpDistance:
+ *             analysed: 2017-04-22T00:00:00.000Z
+ *             engine: [engine]
+ *             version: 1.0
+ *             id: 58e4c7526555100f447d50ee
+ *           geoDistance:
+ *             analysed: 2017-04-22T00:00:00.000Z
+ *             engine: [engine]
+ *             version: 1.0
+ *             id: 58e4c7526555100f447d50ee
+ *           id: 588624076182796462cb133e
  */
 router
   .route("/")
   /**
-   * @api {get} /experiments Get experiments list
-   *
-   * @apiName List experiments
-   * @apiGroup Experiments
-   * @apiUse Header
-   *
-   * @apiSuccessExample Success-Response:
-   *     HTTP/1.1 200 OK
-   *     {
-   *       "status": "success",
-   *       "data": [{
-   *         "owner": {
-   *           "firstname": "Sean",
-   *           "lastname": "Leavy",
-   *           "phone": "+44 7968 716851",
-   *           "email": "sean@gmail.com",
-   *           "id": "58e2697c87f269174c48cedf"
-   *         },
-   *         "organisation": {
-   *           "name": "Apex Entertainment"
-   *         },
-   *         "location": {
-   *           "name": "London",
-   *           "lat": 3.4,
-   *           "lng": -2.3,
-   *           "id": "58e4c7526555100f447d50ef"
-   *         },
-   *         "collected": "2017-04-17T00:00:00.000Z",
-   *         "uploaded": "2017-04-20T00:00:00.000Z",
-   *         "jaccardIndex": {
-   *           "analysed": "2017-04-20T00:00:00.000Z",
-   *           "engine": "",
-   *           "version": "1.0",
-   *           "experiments": [],
-   *           "id": "58e4c7526555100f447d50ee"
-   *         },
-   *           "snpDistance": {
-   *             "analysed": "2017-04-21T00:00:00.000Z",
-   *             "engine": "",
-   *             "version": "1.0",
-   *             "experiments": [],
-   *             "id": "58e4c7526555100f447d50ed"
-   *         },
-   *           "geoDistance": {
-   *             "analysed": "2017-04-22T00:00:00.000Z",
-   *             "engine": "",
-   *             "version": "1.0",
-   *             "experiments": [],
-   *             "id": "58e4c7526555100f447d50ec"
-   *           },
-   *         "id": "58e4c7526555100f447d50eb"
-   *       }]
-   *     }
+   * @swagger
+   * /experiments:
+   *   get:
+   *     tags:
+   *       - Experiments
+   *     description: List all experiments
+   *     operationId: experimentsList
+   *     produces:
+   *       - application/json
+   *     security:
+   *       - Bearer: []
+   *     responses:
+   *       200:
+   *         description: Experiments list
+   *         schema:
+   *           $ref: '#/definitions/ListExperimentsResponse'
+   *       401:
+   *         description: Failed authentication
    */
   .get(expressJwt({ secret: config.jwtSecret }), experimentController.list)
   /**
-   * @api {post} /experiments Create new experiment
-   *
-   * @apiName Create new experiment
-   * @apiGroup Experiments
-   * @apiUse Header
-   * @apiUse ExperimentResponse
-   *
-   * @apiParam {Object} organisation The experiment organisation.
-   * @apiParam {String} organisation.name The name of organisation.
-   * @apiParam {Object} location The experiment location.
-   * @apiParam {String} location.name The location name.
-   * @apiParam {Number} location.lat The location lat.
-   * @apiParam {Number} location.lng The location lng.
-   * @apiParam {Date} collected The collection date.
-   * @apiParam {Date} uploaded The upload date.
-   * @apiParam {Object} jaccardIndex The experiment jaccardIndex.
-   * @apiParam {Date} jaccardIndex.analysed The analysis date.
-   * @apiParam {String} jaccardIndex.engine The engine.
-   * @apiParam {String} jaccardIndex.version The version.
-   * @apiParam {Array} jaccardIndex.experiments The experiments.
-   * @apiParam {Object} snpDistance The experiment snpDistance.
-   * @apiParam {Date} snpDistance.analysed The analysis date.
-   * @apiParam {String} snpDistance.engine The engine.
-   * @apiParam {String} snpDistance.version The version.
-   * @apiParam {Array} snpDistance.experiments The experiments.
-   * @apiParam {Object} geoDistance The experiment geoDistance.
-   * @apiParam {Date} geoDistance.analysed The analysis date.
-   * @apiParam {String} geoDistance.engine The engine.
-   * @apiParam {String} geoDistance.version The version.
-   * @apiParam {Array} geoDistance.experiments The experiments.
-   *
+   * @swagger
+   * /experiments:
+   *   post:
+   *     tags:
+   *       - Experiments
+   *     description: Create new experiment
+   *     operationId: experimentsCreate
+   *     produces:
+   *       - application/json
+   *     parameters:
+   *       - in: body
+   *         name: experiment
+   *         description: The experiment data
+   *         schema:
+   *           type: object
+   *           properties:
+   *             name:
+   *               type: string
+   *             owner:
+   *               type: object
+   *               properties:
+   *                 firstname:
+   *                   type: string
+   *                 lastname:
+   *                   type: string
+   *                 phone:
+   *                   type: string
+   *                 email:
+   *                   type: string
+   *             organisation:
+   *               type: object
+   *               properties:
+   *                 name:
+   *                   type: string
+   *                 location:
+   *                   type: object
+   *                   properties:
+   *                     name:
+   *                       type: string
+   *                     lat:
+   *                       type: number
+   *                     lng:
+   *                       type: number
+   *                 collected:
+   *                   type: string
+   *                   format: date-time
+   *                 uploaded:
+   *                   type: string
+   *                   format: date-time
+   *                 jaccardIndex:
+   *                   type: object
+   *                   properties:
+   *                     analysed:
+   *                       type: string
+   *                       format: date-time
+   *                     engine:
+   *                       type: string
+   *                     version:
+   *                       type: string
+   *                 snpDistance:
+   *                   type: object
+   *                   properties:
+   *                     analysed:
+   *                       type: string
+   *                       format: date-time
+   *                     engine:
+   *                       type: string
+   *                     version:
+   *                       type: string
+   *                 geoDistance:
+   *                   type: object
+   *                   properties:
+   *                     analysed:
+   *                       type: string
+   *                       format: date-time
+   *                     engine:
+   *                       type: string
+   *                     version:
+   *                       type: string
+   *           example:
+   *             owner:
+   *               firstname: Sean
+   *               lastname: Leavy
+   *               phone: +44 7968 716851
+   *               email: sean@gmail.com
+   *             organisation:
+   *               name: Apex Entertainment
+   *               template: Apex template
+   *             location:
+   *               name: London
+   *               lat: 3.4
+   *               lng: 3.4
+   *             collected: 2017-04-17T00:00:00.000Z
+   *             uploaded: 2017-04-20T00:00:00.000Z
+   *             jaccardIndex:
+   *               analysed: 2017-04-20T00:00:00.000Z
+   *               engine: [engine]
+   *               version: 1.0
+   *             snpDistance:
+   *               analysed: 2017-04-22T00:00:00.000Z
+   *               engine: [engine]
+   *               version: 1.0
+   *             geoDistance:
+   *               analysed: 2017-04-22T00:00:00.000Z
+   *               engine: [engine]
+   *               version: 1.0
+   *     responses:
+   *       200:
+   *         description: Experiment data
+   *         schema:
+   *           $ref: '#/definitions/ExperimentResponse'
    */
   .post(
     expressJwt({ secret: config.jwtSecret }),
@@ -228,68 +451,164 @@ router
 router
   .route("/:id")
   /**
-   * @api {get} /experiments/:id Read an experiment
-   *
-   * @apiName Read experiment
-   * @apiGroup Experiments
-   * @apiUse Header
-   * @apiUse ExperimentResponse
-   *
-   * @apiParam {String} id The experiment ID.
-   *
+   * @swagger
+   * /experiments/{id}:
+   *   get:
+   *     tags:
+   *       - Experiments
+   *     description: Get experiment details
+   *     operationId: experimentsGetById
+   *     produces:
+   *       - application/json
+   *     security:
+   *       - Bearer: []
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         type: string
+   *         description: The experiment id
+   *     responses:
+   *       200:
+   *         description: Experiment data
+   *         schema:
+   *           $ref: '#/definitions/ExperimentResponse'
    */
   .get(expressJwt({ secret: config.jwtSecret }), experimentController.get)
   /**
-   * @api {put} /experiments/:id Update existing experiment
-   *
-   * @apiName Update experiment
-   * @apiGroup Experiments
-   * @apiUse Header
-   * @apiUse ExperimentResponse
-   *
-   * @apiParam {String} id The experiment ID.
-   * @apiParam {Object} organisation The experiment organisation.
-   * @apiParam {String} organisation.name The name of organisation.
-   * @apiParam {Object} location The experiment location.
-   * @apiParam {String} location.name The location name.
-   * @apiParam {Number} location.lat The location lat.
-   * @apiParam {Number} location.lng The location lng.
-   * @apiParam {Date} collected The collection date.
-   * @apiParam {Date} uploaded The upload date.
-   * @apiParam {Object} jaccardIndex The experiment jaccardIndex.
-   * @apiParam {Date} jaccardIndex.analysed The analysis date.
-   * @apiParam {String} jaccardIndex.engine The engine.
-   * @apiParam {String} jaccardIndex.version The version.
-   * @apiParam {Array} jaccardIndex.experiments The experiments.
-   * @apiParam {Object} snpDistance The experiment snpDistance.
-   * @apiParam {Date} snpDistance.analysed The analysis date.
-   * @apiParam {String} snpDistance.engine The engine.
-   * @apiParam {String} snpDistance.version The version.
-   * @apiParam {Array} snpDistance.experiments The experiments.
-   * @apiParam {Object} geoDistance The experiment geoDistance.
-   * @apiParam {Date} geoDistance.analysed The analysis date.
-   * @apiParam {String} geoDistance.engine The engine.
-   * @apiParam {String} geoDistance.version The version.
-   * @apiParam {Array} geoDistance.experiments The experiments.
-   *
+   * @swagger
+   * /experiments/{id}:
+   *   put:
+   *     tags:
+   *       - Experiments
+   *     description: Update experiment details
+   *     operationId: experimentsUpdateById
+   *     produces:
+   *       - application/json
+   *     security:
+   *       - Bearer: []
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         type: string
+   *         description: The experiment id
+   *       - in: body
+   *         name: experiment
+   *         description: The experiment data
+   *         schema:
+   *           type: object
+   *           properties:
+   *             name:
+   *               type: string
+   *             owner:
+   *               type: object
+   *               properties:
+   *                 firstname:
+   *                   type: string
+   *                 lastname:
+   *                   type: string
+   *                 phone:
+   *                   type: string
+   *                 email:
+   *                   type: string
+   *             organisation:
+   *               type: object
+   *               properties:
+   *                 location:
+   *                   type: object
+   *                   properties:
+   *                     name:
+   *                       type: string
+   *                     lat:
+   *                       type: number
+   *                     lng:
+   *                       type: number
+   *                 collected:
+   *                   type: string
+   *                   format: date-time
+   *                 uploaded:
+   *                   type: string
+   *                   format: date-time
+   *                 jaccardIndex:
+   *                   type: object
+   *                   properties:
+   *                     analysed:
+   *                       type: string
+   *                       format: date-time
+   *                     engine:
+   *                       type: string
+   *                     version:
+   *                       type: string
+   *                 snpDistance:
+   *                   type: object
+   *                   properties:
+   *                     analysed:
+   *                       type: string
+   *                       format: date-time
+   *                     engine:
+   *                       type: string
+   *                     version:
+   *                       type: string
+   *                 geoDistance:
+   *                   type: object
+   *                   properties:
+   *                     analysed:
+   *                       type: string
+   *                       format: date-time
+   *                     engine:
+   *                       type: string
+   *                     version:
+   *                       type: string
+   *           example:
+   *             location:
+   *               name: London
+   *               lat: 3.4
+   *               lng: 3.4
+   *             collected: 2017-04-17T00:00:00.000Z
+   *             uploaded: 2017-04-20T00:00:00.000Z
+   *             jaccardIndex:
+   *               analysed: 2017-04-20T00:00:00.000Z
+   *               engine: [engine]
+   *               version: 1.0
+   *             snpDistance:
+   *               analysed: 2017-04-22T00:00:00.000Z
+   *               engine: [engine]
+   *               version: 1.0
+   *             geoDistance:
+   *               analysed: 2017-04-22T00:00:00.000Z
+   *               engine: [engine]
+   *               version: 1.0
+   *     responses:
+   *       200:
+   *         description: Experiment data
+   *         schema:
+   *           $ref: '#/definitions/ExperimentResponse'
    */
   .put(expressJwt({ secret: config.jwtSecret }), experimentController.update)
   /**
-   * @api {delete} /experiments/:id Delete existing experiment
-   *
-   * @apiName Delete experiment
-   * @apiGroup Experiments
-   * @apiUse Header
-   *
-   * @apiParam {String} id The experiment ID.
-   *
-   * @apiSuccessExample Success-Response:
-   *     HTTP/1.1 200 OK
-   *     {
-   *       "status": "success",
-   *       "data": "Experiment was successfully deleted."
-   *     }
-   *
+   * @swagger
+   * /experiments/{id}:
+   *   delete:
+   *     tags:
+   *       - Experiments
+   *     description: Delete an experiment
+   *     operationId: experimentsDeleteById
+   *     produces:
+   *       - application/json
+   *     security:
+   *       - Bearer: []
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         type: string
+   *         description: The experiment id
+   *     responses:
+   *       200:
+   *         description: A jsend response
+   *         schema:
+   *           $ref: '#/definitions/BasicResponse'
    */
   .delete(
     expressJwt({ secret: config.jwtSecret }),
