@@ -11,107 +11,196 @@ const router = express.Router(); // eslint-disable-line new-cap
 router
   .route("/")
   /**
-   * @apiDefine UserResponse
-   * @apiSuccessExample Success-Response:
-   *     HTTP/1.1 200 OK
-   *   {
-   *     "status":"success",
-   *     "data":{
-   *         "firstname":"John",
-   *         "lastname":"Kitting",
-   *         "phone":"+447686833972",
-   *         "email":"john@gmail.com",
-   *         "id":"58dcc9212c252a077e3973ec",
-   *         "organisation": {
-   *           "name": "Apex Entertainment",
-   *           "template": "MODS",
-   *           "id": "590c2f0ed71d08031b7ca81e"
-   *         }
-   *     }
-   *   }
+   * @swagger
+   * definitions:
+   *   ListUsersResponse:
+   *     properties:
+   *       status:
+   *         type: string
+   *       data:
+   *         type: array
+   *         items:
+   *           type: object
+   *           properties:
+   *             firstname:
+   *               type: string
+   *             lastname:
+   *               type: string
+   *             phone:
+   *               type: string
+   *             email:
+   *               type: string
+   *             avatar:
+   *               type: array
+   *               items:
+   *                 type: object
+   *                 properties:
+   *                   url:
+   *                     type: string
+   *                   width:
+   *                     type: string
+   *                   height:
+   *                     type: string
+   *                   id:
+   *                     type: string
+   *             id:
+   *               type: string
+   *     example:
+   *       status: success
+   *       data:
+   *         - firstname: John
+   *           lastname: Kitting
+   *           phone: 07686833972
+   *           email: john@nhs.co.uk
+   *           avatar:
+   *             - id: 59084b7505a2440a6ed57152
+   *               url: https://host/user/avatar/ryg0cpHyb-128.png
+   *               width: 128
+   *               height: 128
+   *             - id: 59084b7505a2440a6ed57151
+   *               url: https://host/user/avatar/ryg0cpHyb-256.png
+   *               width: 256
+   *               height: 256
+   *             - id: 59084b7505a2440a6ed57150
+   *               url: https://host/user/avatar/ryg0cpHyb-512.png
+   *               width: 512
+   *               height: 512
+   *           id: 588624076182796462cb133e
    */
 
   /**
-   * @api {get} /users Get list of users
-   *
-   * @apiName Users list
-   * @apiGroup Users
-   * @apiUse Header
-   *
-   * @apiSuccessExample Success-Response:
-   *     HTTP/1.1 200 OK
-   *     {
-   *       "status": "success",
-   *       "data": [
-   *              {
-   *                "firstname": "John",
-   *                "lastname": "Kitting",
-   *                "phone": "07686833972",
-   *                "email": "john@nhs.co.uk",
-   *                "id": "588624076182796462cb133e"
-   *              }
-   *            ]
-   *     }
+   * @swagger
+   * /users:
+   *   get:
+   *     tags:
+   *       - Users
+   *     description: List all users
+   *     operationId: usersList
+   *     produces:
+   *       - application/json
+   *     security:
+   *       - Bearer: []
+   *     responses:
+   *       200:
+   *         description: Users list
+   *         schema:
+   *           $ref: '#/definitions/ListUsersResponse'
+   *       401:
+   *         description: Failed authentication
    */
   .get(expressJwt({ secret: config.jwtSecret }), userController.list)
 
   /**
-   * @api {post} /users Register new user
-   *
-   * @apiName Register user
-   * @apiGroup Users
-   * @apiUse UserResponse
-   *
-   * @apiParam {String} firstname the user firstname.
-   * @apiParam {String} lastname the user lastname.
-   * @apiParam {String} phone the user phone.
-   * @apiParam {String} email the user email.
-   * @apiParam {String} password the user password.
-   *
-   *
-   * @apiError ValidationError Invalid params.
-   *
-   * @apiErrorExample {json} Error-Response:
-   *     HTTP/1.1 500 Error
-   *     {
-   *       "status": "error",
-   *       "code": "10006",
-   *       "message": "User validation failed"
-   *     }
+   * @swagger
+   * /users:
+   *   post:
+   *     tags:
+   *       - Users
+   *     description: Register new user
+   *     operationId: usersCreate
+   *     produces:
+   *       - application/json
+   *     parameters:
+   *       - in: body
+   *         name: user
+   *         description: The user data
+   *         schema:
+   *           type: object
+   *           properties:
+   *             firstname:
+   *               type: string
+   *             lastname:
+   *               type: string
+   *             phone:
+   *               type: string
+   *             email:
+   *               type: string
+   *             password:
+   *               type: string
+   *           example:
+   *             firstname: mark
+   *             lastname: thomsit
+   *             phone: 07686833972
+   *             email: mark@makeandship.com
+   *             password: password
+   *     responses:
+   *       200:
+   *         description: User data
+   *         schema:
+   *           $ref: '#/definitions/UserResponse'
    */
   .post(validate(paramValidation.createUser), userController.create);
 
 router
   .route("/:id")
   /**
-   * @api {get} /users/:id Get user details
-   *
-   * @apiName Read user
-   * @apiGroup Users
-   * @apiUse Header
-   * @apiUse NotFound
-   * @apiUse UserResponse
-   *
-   * @apiParam {String} id The user unique ID.
-   *
+   * @swagger
+   * /users/{id}:
+   *   get:
+   *     tags:
+   *       - Users
+   *     description: Get user details
+   *     operationId: usersGetById
+   *     produces:
+   *       - application/json
+   *     security:
+   *       - Bearer: []
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         type: string
+   *         description: The user id
+   *     responses:
+   *       200:
+   *         description: User data
+   *         schema:
+   *           $ref: '#/definitions/UserResponse'
    */
   .get(expressJwt({ secret: config.jwtSecret }), userController.get)
 
   /**
-   * @api {put} /users/:id Update user details
-   *
-   * @apiName Update user
-   * @apiGroup Users
-   * @apiUse Header
-   * @apiUse NotFound
-   * @apiUse UserResponse
-   *
-   * @apiParam {String} id The user unique ID.
-   * @apiParam {String} [firstname] The user firstname.
-   * @apiParam {String} [lastname] The user lastname.
-   * @apiParam {String} [phone] The user phone.
-   * @apiParam {String} [email] The user email.
-   *
+   * @swagger
+   * /users/{id}:
+   *   put:
+   *     tags:
+   *       - Users
+   *     description: Update user details
+   *     operationId: usersUpdateById
+   *     produces:
+   *       - application/json
+   *     security:
+   *       - Bearer: []
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         type: string
+   *         description: The user id
+   *       - in: body
+   *         name: user
+   *         description: The user data
+   *         schema:
+   *           type: object
+   *           properties:
+   *             firstname:
+   *               type: string
+   *             lastname:
+   *               type: string
+   *             phone:
+   *               type: string
+   *             email:
+   *               type: string
+   *           example:
+   *             firstname: mark
+   *             lastname: thomsit
+   *             phone: 07686833972
+   *             email: mark@makeandship.com
+   *     responses:
+   *       200:
+   *         description: User data
+   *         schema:
+   *           $ref: '#/definitions/UserResponse'
    */
   .put(
     expressJwt({ secret: config.jwtSecret }),
@@ -120,37 +209,56 @@ router
   )
 
   /**
-   * @api {delete} /users/:id Delete a user
-   *
-   * @apiName Delete user
-   * @apiGroup Users
-   * @apiUse Header
-   * @apiUse NotFound
-   *
-   * @apiParam {String} id The user unique ID.
-   *
-   * @apiSuccessExample Success-Response:
-   *     HTTP/1.1 200 OK
-   *     {
-   *       "status": "success",
-   *       "data": "Account was successfully deleted."
-   *     }
+   * @swagger
+   * /users/{id}:
+   *   delete:
+   *     tags:
+   *       - Users
+   *     description: Delete a user
+   *     operationId: usersDeleteById
+   *     produces:
+   *       - application/json
+   *     security:
+   *       - Bearer: []
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         type: string
+   *         description: The user id
+   *     responses:
+   *       200:
+   *         description: A jsend response
+   *         schema:
+   *           $ref: '#/definitions/BasicResponse'
    */
   .delete(expressJwt({ secret: config.jwtSecret }), userController.remove);
 
 router
   .route("/:id/role")
   /**
-   * @api {post} /users/:id/role Assign role
-   *
-   * @apiName Assign staff role
-   * @apiGroup Users
-   * @apiUse Header
-   * @apiUse NotFound
-   * @apiUse UserResponse
-   *
-   * @apiParam {String} id The user unique ID.
-   *
+   * @swagger
+   * /users/{id}/role:
+   *   post:
+   *     tags:
+   *       - Users
+   *     description: Assign staff role
+   *     operationId: assignRole
+   *     produces:
+   *       - application/json
+   *     security:
+   *       - Bearer: []
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         type: string
+   *         description: The user id
+   *     responses:
+   *       200:
+   *         description: User data
+   *         schema:
+   *           $ref: '#/definitions/UserResponse'
    */
   .post(
     expressJwt({ secret: config.jwtSecret }),

@@ -8,30 +8,24 @@ const router = express.Router(); // eslint-disable-line new-cap
 router
   .route("/")
   /**
-   * @api {get} /user Get current user details
-   *
-   * @apiName Read user
-   * @apiGroup Current User
-   * @apiUse Header
-   * @apiUse NotFound
-   *
-   * @apiSuccessExample Success-Response:
-   *     HTTP/1.1 200 OK
-   *     {
-   *       "status": "success",
-   *       "data": {
-   *                "firstname": "John",
-   *                "lastname": "Kitting",
-   *                "phone": "07686833972",
-   *                "email": "john@nhs.co.uk",
-   *                "id": "588624076182796462cb133e",
-   *                "organisation": {
-   *                  "name": "Apex Entertainment",
-   *                  "template": "MODS",
-   *                  "id": "590c2f0ed71d08031b7ca81e"
-   *                }
-   *              }
-   *     }
+   * @swagger
+   * /user:
+   *   get:
+   *     tags:
+   *       - Current User
+   *     description: Get current user details
+   *     operationId: currentUserGet
+   *     produces:
+   *       - application/json
+   *     security:
+   *       - Bearer: []
+   *     responses:
+   *       200:
+   *         description: User details
+   *         schema:
+   *           $ref: '#/definitions/UserResponse'
+   *       401:
+   *         description: Failed authentication
    */
   .get(
     expressJwt({ secret: config.jwtSecret }),
@@ -39,31 +33,44 @@ router
     userController.get
   )
   /**
-   * @api {put} /user Update current user details
-   *
-   * @apiName Update current user
-   * @apiGroup Current User
-   * @apiUse Header
-   * @apiUse NotFound
-   *
-   * @apiParam {String} [firstname] The user firstname.
-   * @apiParam {String} [lastname] The user lastname.
-   * @apiParam {String} [phone] The user phone.
-   * @apiParam {String} [email] The user email.
-   * @apiParam {Array} [buddies] The user buddies.
-   *
-   * @apiSuccessExample Success-Response:
-   *     HTTP/1.1 200 OK
-   *     {
-   *       "status": "success",
-   *       "data": {
-   *                "firstname": "John",
-   *                "lastname": "Kitting",
-   *                "phone": "07686833972",
-   *                "email": "john@nhs.co.uk",
-   *                "id": "588624076182796462cb133e"
-   *              }
-   *     }
+   * @swagger
+   * /user:
+   *   put:
+   *     tags:
+   *       - Current User
+   *     description: Update current user details
+   *     operationId: currentUserUpdate
+   *     produces:
+   *       - application/json
+   *     parameters:
+   *       - in: body
+   *         name: user
+   *         description: The user data
+   *         schema:
+   *           type: object
+   *           properties:
+   *             firstname:
+   *               type: string
+   *             lastname:
+   *               type: string
+   *             phone:
+   *               type: string
+   *             email:
+   *               type: string
+   *           example:
+   *             firstname: mark
+   *             lastname: thomsit
+   *             phone: 07686833972
+   *             email: mark@makeandship.com
+   *     security:
+   *       - Bearer: []
+   *     responses:
+   *       200:
+   *         description: User details
+   *         schema:
+   *           $ref: '#/definitions/UserResponse'
+   *       401:
+   *         description: Failed authentication
    */
   .put(
     expressJwt({ secret: config.jwtSecret }),
@@ -71,19 +78,22 @@ router
     userController.update
   )
   /**
-   * @api {delete} /user Delete current user
-   *
-   * @apiName Delete current user
-   * @apiGroup Current User
-   * @apiUse Header
-   * @apiUse NotFound
-   *
-   * @apiSuccessExample Success-Response:
-   *     HTTP/1.1 200 OK
-   *     {
-   *       "status": "success",
-   *       "data": "Account was successfully deleted."
-   *     }
+   * @swagger
+   * /user:
+   *   delete:
+   *     tags:
+   *       - Current User
+   *     description: Deletes the current user account
+   *     operationId: currentUserDelete
+   *     produces:
+   *       - application/json
+   *     security:
+   *       - Bearer: []
+   *     responses:
+   *       200:
+   *         description: A jsend response
+   *         schema:
+   *           $ref: '#/definitions/BasicResponse'
    */
   .delete(
     expressJwt({ secret: config.jwtSecret }),
