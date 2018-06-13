@@ -226,32 +226,6 @@ router
 router
   .route("/reset")
   .post(validate(paramValidation.resetPassword), authController.reset);
-/**
- * @api {post} /auth/verify Authenticate a user - Phone
- * @apiName Authenticate - Phone
- * @apiGroup Authentication
- *
- * @apiParam {String} phone Users unique phone.
- * @apiParam {String} verificationToken Users unique verificationToken.
- *
- * @apiSuccess {String} phone phone of the User.
- * @apiSuccess {String} token Users unique token.
- * @apiSuccess {String} id id of the User.
- *
- * @apiSuccessExample Success-Response:
- *     HTTP/1.1 200 OK
- *     {
- *       "status": "success",
- *       "data": {
- *            "phone": "+447968700000",
- *            "token": "GciOiJIUzI1NiIsInR5cCI6IkpXVCJ9",
- *            "id": "589dcbe140e9440ed36bb616"
- *         }
- *     }
- *
- * @apiError AuthenticationError Invalid credentials.
- *
- */
 
 /**
  * @swagger
