@@ -32,6 +32,16 @@ ENV PATH      $NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH
 ENV NODE_PATH $NVM_DIR/v$NODE_VERSION/lib/node_modules
 ENV PATH      $NVM_DIR/v$NODE_VERSION/bin:$PATH
 
+# Add the keys and set permissions
+RUN mkdir -p /root/.ssh && \
+    chmod 0700 /root/.ssh && \
+    echo "IdentityFile /root/.ssh/bitbucket-readonly" >> /root/.ssh/config
+
+ADD bitbucket-readonly /root/.ssh/
+
+RUN chmod 600 /root/.ssh/bitbucket-readonly && \
+    ssh-keyscan bitbucket.org > /root/.ssh/known_hosts
+
 # install global packages
 RUN npm install -g forever
 
@@ -55,6 +65,11 @@ RUN gulp
 
 # install apidoc
 RUN npm install -g apidoc
+
+# Remove SSH keys
+RUN rm /app/bitbucket-readonly
+RUN rm -rf /root/.ssh
+RUN rm -rf /tmp/makeandship-api-common
 
 # run local api on 3000
 EXPOSE 3000
