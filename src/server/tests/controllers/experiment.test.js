@@ -310,7 +310,7 @@ describe("## Experiment APIs", () => {
         .expect(httpStatus.OK)
         .end((err, res) => {
           const filePath = `${
-            config.uploadDir
+            config.express.uploadDir
           }/experiments/${id}/file/333-08.json`;
           expect(res.body.status).toEqual("success");
           expect(res.body.data).toEqual("File uploaded and reassembled");
@@ -476,7 +476,7 @@ describe("## Experiment APIs", () => {
           .expect(httpStatus.OK)
           .end((err, res) => {
             const filePath = `${
-              config.uploadDir
+              config.express.uploadDir
             }/experiments/${id}/file/fake.json`;
             expect(res.body.status).toEqual("success");
             expect(res.body.data).toEqual("Download started from dropbox");
@@ -512,7 +512,7 @@ describe("## Experiment APIs", () => {
           .expect(httpStatus.OK)
           .end((err, res) => {
             const filePath = `${
-              config.uploadDir
+              config.express.uploadDir
             }/experiments/${id}/file/fake.json`;
             expect(res.body.status).toEqual("success");
             expect(res.body.data).toEqual("Download started from box");
@@ -566,7 +566,7 @@ describe("## Experiment APIs", () => {
           .expect(httpStatus.OK)
           .end((err, res) => {
             const filePath = `${
-              config.uploadDir
+              config.express.uploadDir
             }/experiments/${id}/file/fake.json`;
             expect(res.body.status).toEqual("success");
             expect(res.body.data).toEqual("Download started from googleDrive");
@@ -602,7 +602,7 @@ describe("## Experiment APIs", () => {
           .expect(httpStatus.OK)
           .end((err, res) => {
             const filePath = `${
-              config.uploadDir
+              config.express.uploadDir
             }/experiments/${id}/file/fake.json`;
             expect(res.body.status).toEqual("success");
             expect(res.body.data).toEqual("Download started from oneDrive");
@@ -629,13 +629,15 @@ describe("## Experiment APIs", () => {
           .attach("file", "src/server/tests/fixtures/files/333-08.json")
           .expect(httpStatus.OK)
           .end(async (err, res) => {
-            const jobs = mongo(config.db, []).agendaJobs;
+            const jobs = mongo(config.db.uri, []).agendaJobs;
             expect(res.body.status).toEqual("success");
             expect(res.body.data).toEqual("File uploaded and reassembled");
             try {
               const job = await findJob(jobs, id);
               expect(job.data.file).toEqual(
-                `${config.uploadsLocation}/experiments/${id}/file/333-08.json`
+                `${
+                  config.express.uploadsLocation
+                }/experiments/${id}/file/333-08.json`
               );
               expect(job.data.sample_id).toEqual(id);
               expect(job.data.attempt).toEqual(0);
@@ -663,13 +665,15 @@ describe("## Experiment APIs", () => {
           .attach("file", "src/server/tests/fixtures/files/333-08.json")
           .expect(httpStatus.OK)
           .end(async (err, res) => {
-            const jobs = mongo(config.db, []).agendaJobs;
+            const jobs = mongo(config.db.uri, []).agendaJobs;
             expect(res.body.status).toEqual("success");
             expect(res.body.data).toEqual("File uploaded and reassembled");
             const job = await findJob(jobs, id);
             expect(job.name).toEqual("call analysis api");
             expect(job.data.file).toEqual(
-              `${config.uploadsLocation}/experiments/${id}/file/333-08.json`
+              `${
+                config.express.uploadsLocation
+              }/experiments/${id}/file/333-08.json`
             );
             expect(job.data.sample_id).toEqual(id);
             done();
@@ -701,7 +705,9 @@ describe("## Experiment APIs", () => {
             expect(res.body.data).toEqual("File uploaded and reassembled");
             expect(audit.sampleId).toEqual(id);
             expect(audit.fileLocation).toEqual(
-              `${config.uploadsLocation}/experiments/${id}/file/333-08.json`
+              `${
+                config.express.uploadsLocation
+              }/experiments/${id}/file/333-08.json`
             );
             expect(audit.status).toEqual("Successful");
             expect(audit.attempt).toEqual(1);
@@ -725,7 +731,7 @@ describe("## Experiment APIs", () => {
           .attach("file", "src/server/tests/fixtures/files/333-09.json")
           .expect(httpStatus.OK)
           .end(async (err, res) => {
-            const jobs = mongo(config.db, []).agendaJobs;
+            const jobs = mongo(config.db.uri, []).agendaJobs;
             expect(res.body.status).toEqual("success");
             expect(res.body.data).toEqual("File uploaded and reassembled");
             let audits = await Audit.find({ sampleId: id });
@@ -735,7 +741,9 @@ describe("## Experiment APIs", () => {
             const foundJobs = await jobs.find({ "data.sample_id": id });
             expect(foundJobs.length).toEqual(2);
             expect(foundJobs[0].data.file).toEqual(
-              `${config.uploadsLocation}/experiments/${id}/file/333-09.json`
+              `${
+                config.express.uploadsLocation
+              }/experiments/${id}/file/333-09.json`
             );
             expect(foundJobs[0].data.sample_id).toEqual(id);
             done();
@@ -758,7 +766,7 @@ describe("## Experiment APIs", () => {
           .attach("file", "src/server/tests/fixtures/files/333-09.json")
           .expect(httpStatus.OK)
           .end(async (err, res) => {
-            const jobs = mongo(config.db, []).agendaJobs;
+            const jobs = mongo(config.db.uri, []).agendaJobs;
             expect(res.body.status).toEqual("success");
             expect(res.body.data).toEqual("File uploaded and reassembled");
             let audits = await Audit.find({ sampleId: id });
@@ -770,7 +778,9 @@ describe("## Experiment APIs", () => {
             expect(res.body.data).toEqual("File uploaded and reassembled");
             expect(audit.sampleId).toEqual(id);
             expect(audit.fileLocation).toEqual(
-              `${config.uploadsLocation}/experiments/${id}/file/333-09.json`
+              `${
+                config.express.uploadsLocation
+              }/experiments/${id}/file/333-09.json`
             );
             expect(audit.status).toEqual("Failed");
             expect(audit.attempt).toEqual(1);

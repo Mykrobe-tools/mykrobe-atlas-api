@@ -8,7 +8,7 @@ import Experiment from "../models/experiment.model";
 const config = require("../../config/env");
 
 const client = new elasticsearch.Client({
-  host: config.esCluster,
+  host: config.elasticsearch.esCluster,
   log: "error"
 });
 
@@ -16,7 +16,7 @@ class ESHelper {
   // Check if the index exists
   static indexExists() {
     return client.indices.exists({
-      index: config.esIndexName
+      index: config.elasticsearch.index
     });
   }
 
@@ -25,7 +25,7 @@ class ESHelper {
     const exists = await ESHelper.indexExists();
     if (exists) {
       return client.indices.delete({
-        index: config.esIndexName
+        index: config.elasticsearch.index
       });
     }
     return null;
@@ -34,7 +34,7 @@ class ESHelper {
   // Create the index
   static createIndex() {
     return client.indices.create({
-      index: config.esIndexName,
+      index: config.elasticsearch.index,
       body: {
         mappings: {
           experiment: {
@@ -75,7 +75,7 @@ class ESHelper {
   // Index one experiment
   static indexExperiment(experiment) {
     return client.index({
-      index: config.esIndexName,
+      index: config.elasticsearch.index,
       type: "experiment",
       id: experiment.id,
       body: experiment.toJSON()
@@ -85,7 +85,7 @@ class ESHelper {
   // Delete one experiment
   static deleteExperiment(id) {
     return client.delete({
-      index: config.esIndexName,
+      index: config.elasticsearch.index,
       type: "experiment",
       id
     });
@@ -94,7 +94,7 @@ class ESHelper {
   // Update one experiment
   static updateExperiment(experiment) {
     return client.update({
-      index: config.esIndexName,
+      index: config.elasticsearch.index,
       type: "experiment",
       id: experiment.id,
       body: {
@@ -115,7 +115,7 @@ class ESHelper {
   // Search distinct metadata values
   static searchMetadataValues(attribute) {
     return client.search({
-      index: config.esIndexName,
+      index: config.elasticsearch.index,
       type: "experiment",
       body: {
         size: 0,
@@ -131,7 +131,7 @@ class ESHelper {
   // Search by metadata fields
   static searchByMetadataFields(filters) {
     const filtersArray = [];
-    const size = filters.per || config.resultsPerPage;
+    const size = filters.per || config.elasticsearch.resultsPerPage;
     const page = filters.page || 1;
     const from = size * (page - 1);
 
@@ -147,7 +147,7 @@ class ESHelper {
     });
 
     return client.search({
-      index: config.esIndexName,
+      index: config.elasticsearch.index,
       type: "experiment",
       body: {
         from,

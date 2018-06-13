@@ -4,7 +4,7 @@ export default {
   admin: {
     firstname: "David",
     lastname: "Robin",
-    role: "Admin",
+    role: "Administrator",
     password: passwordHash.generate("password"),
     valid: true,
     verificationToken: 107165,

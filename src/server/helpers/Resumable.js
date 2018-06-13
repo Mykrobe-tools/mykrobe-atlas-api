@@ -174,19 +174,21 @@ function validateChecksum(filename, checksum) {
 
 function reassembleChunks(id, name, cb) {
   fs.readdir(
-    `${config.uploadDir}/experiments/${id}/file`,
+    `${config.express.uploadDir}/experiments/${id}/file`,
     async (err, files) => {
       files.forEach(file => {
         const readableStream = fs.createReadStream(
-          `${config.uploadDir}/experiments/${id}/file/${file}`
+          `${config.express.uploadDir}/experiments/${id}/file/${file}`
         );
         readableStream.pipe(
           fs.createWriteStream(
-            `${config.uploadDir}/experiments/${id}/file/${name}`,
+            `${config.express.uploadDir}/experiments/${id}/file/${name}`,
             { flags: "a" }
           )
         );
-        fs.unlinkSync(`${config.uploadDir}/experiments/${id}/file/${file}`);
+        fs.unlinkSync(
+          `${config.express.uploadDir}/experiments/${id}/file/${file}`
+        );
       });
       const foundExperiment = await Experiment.get(id);
       foundExperiment.file = name;

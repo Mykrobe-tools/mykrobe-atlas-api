@@ -23,6 +23,7 @@
     "test": "jest src/server/tests/**/*.test.js --coverage --verbose --colors",
     "test:watch": "jest --watch",
     "compile": "rm -rf dist && babel src --out-dir dist --source-maps",
+    "postinstall": "cd node_modules/makeandship-api-common && yarn && yarn build",
     "apidoc": "apidoc -i src/server/"
   },
   "jest": {
@@ -54,6 +55,7 @@
     "cookie-parser": "1.4.3",
     "cors": "^2.8.4",
     "debug": "^3.1.0",
+    "deepmerge": "^2.1.1",
     "elasticsearch": "^15.0.0",
     "errors": "0.3.0",
     "express": "^4.16.3",
@@ -67,6 +69,7 @@
     "http-status": "^1.1.0",
     "joi": "^13.3.0",
     "jsonwebtoken": "^8.2.1",
+    "makeandship-api-common": "git+ssh://git@bitbucket.org:makeandship/makeandship-api-common.git",
     "method-override": "^2.3.5",
     "mkdirp": "^0.5.1",
     "mkdirp-promise": "^5.0.1",

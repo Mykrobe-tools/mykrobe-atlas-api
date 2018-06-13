@@ -1,17 +1,8 @@
-import nodemailer from "nodemailer-mock";
-import monq from "monq";
-import Agenda from "agenda";
-
-const dbUri = "mongodb://localhost/atlas-dev";
-
 export default {
-  env: "development",
-  MONGOOSE_DEBUG: true,
-  monqClient: monq(dbUri),
-  jwtSecret: "Wai6nZh6Mi3U08r7WPki6B2IPP2RgC25",
-  db: dbUri,
-  nodemailer,
-  uploadDir: "/tmp/uploads",
-  port: 3000,
-  agenda: new Agenda({ db: { address: dbUri } })
+  db: {
+    uri: "mongodb://localhost/atlas-dev"
+  },
+  express: {
+    uploadsLocation: "/tmp/uploads"
+  }
 };

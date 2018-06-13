@@ -1,12 +1,9 @@
 import request from "supertest";
 import httpStatus from "http-status";
-import chai, { expect } from "chai";
 import User from "../../models/user.model";
 import { createApp } from "../setup";
 
 const app = createApp();
-
-chai.config.includeStack = true;
 
 const users = require("../fixtures/users");
 
@@ -26,8 +23,8 @@ describe("## Misc", () => {
         .get("/health-check")
         .expect(httpStatus.OK)
         .end((err, res) => {
-          expect(res.body.status).to.equal("success");
-          expect(res.body.data).to.equal("OK");
+          expect(res.body.status).toEqual("success");
+          expect(res.body.data).toEqual("OK");
           done();
         });
     });
@@ -39,7 +36,7 @@ describe("## Misc", () => {
         .get("/404")
         .expect(httpStatus.NOT_FOUND)
         .end((err, res) => {
-          expect(res.body.message).to.equal("Unknown API route.");
+          expect(res.body.message).toEqual("Unknown API route.");
           done();
         });
     });
@@ -51,8 +48,8 @@ describe("## Misc", () => {
         .get("/users/56z787zzz67fc")
         .expect(httpStatus.INTERNAL_SERVER_ERROR)
         .end((err, res) => {
-          expect(res.body.code).to.equal(10001);
-          expect(res.body.message).to.equal(
+          expect(res.body.code).toEqual(10001);
+          expect(res.body.message).toEqual(
             'Cast to ObjectId failed for value "56z787zzz67fc" at path "_id" for model "User"'
           );
           done();
@@ -70,7 +67,7 @@ describe("## Misc", () => {
         })
         .expect(httpStatus.BAD_REQUEST)
         .end((err, res) => {
-          expect(res.body.message).to.equal('"email" is required');
+          expect(res.body.message).toEqual('"email" is required');
           done();
         });
     });

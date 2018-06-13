@@ -4,7 +4,6 @@ import errors from "errors";
 import randomstring from "randomstring";
 import uniqueValidator from "mongoose-unique-validator";
 import UserJSONTransformer from "../transformers/UserJSONTransformer";
-import config from "../../config/env";
 
 /**
  * User Schema
@@ -20,20 +19,15 @@ const UserSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    required: config.usePassword()
+    required: true
   },
   role: {
     type: String
   },
-  phone: {
-    type: String,
-    required: config.username === "phone",
-    unique: config.username === "phone"
-  },
+  phone: String,
   email: {
     type: String,
-    required: config.username === "email",
-    unique: config.username === "email"
+    unique: true
   },
   resetPasswordToken: String,
   verificationToken: String,

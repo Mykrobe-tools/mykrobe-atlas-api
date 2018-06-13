@@ -36,7 +36,10 @@ router
    *       }]
    *     }
    */
-  .get(expressJwt({ secret: config.jwtSecret }), organisationController.list)
+  .get(
+    expressJwt({ secret: config.accounts.jwtSecret }),
+    organisationController.list
+  )
   /**
    * @api {post} /organisations Create new organisation
    *
@@ -49,7 +52,7 @@ router
    *
    */
   .post(
-    expressJwt({ secret: config.jwtSecret }),
+    expressJwt({ secret: config.accounts.jwtSecret }),
     organisationController.create
   );
 
@@ -66,7 +69,10 @@ router
    * @apiParam {String} id The organisation ID.
    *
    */
-  .get(expressJwt({ secret: config.jwtSecret }), organisationController.get)
+  .get(
+    expressJwt({ secret: config.accounts.jwtSecret }),
+    organisationController.get
+  )
   /**
    * @api {put} /organisations/:id Update existing organisation
    *
@@ -79,7 +85,10 @@ router
    * @apiParam {String} name The name of organisation.
    *
    */
-  .put(expressJwt({ secret: config.jwtSecret }), organisationController.update)
+  .put(
+    expressJwt({ secret: config.accounts.jwtSecret }),
+    organisationController.update
+  )
   /**
    * @api {delete} /organisations/:id Delete existing organisation
    *
@@ -98,7 +107,7 @@ router
    *
    */
   .delete(
-    expressJwt({ secret: config.jwtSecret }),
+    expressJwt({ secret: config.accounts.jwtSecret }),
     organisationController.remove
   );
 

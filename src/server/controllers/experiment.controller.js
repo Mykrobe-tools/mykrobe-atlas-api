@@ -13,6 +13,8 @@ import DownloadersFactory from "../helpers/DownloadersFactory";
 import ESHelper from "../helpers/ESHelper";
 import DistinctValuesESTransformer from "../transformers/es/DistinctValuesESTransformer";
 import ExperimentsESTransformer from "../transformers/es/ExperimentsESTransformer";
+import AgendaHelper from "../helpers/AgendaHelper";
+import Agenda from "agenda";
 
 const config = require("../../config/env");
 
@@ -150,7 +152,9 @@ async function uploadFile(req, res) {
 
   // from 3rd party provider
   if (req.body.provider && req.body.path) {
-    const path = `${config.uploadDir}/experiments/${experiment.id}/file`;
+    const path = `${config.express.uploadDir}/experiments/${
+      experiment.id
+    }/file`;
     try {
       await mkdirp(path);
       const downloader = DownloadersFactory.create(
@@ -171,7 +175,7 @@ async function uploadFile(req, res) {
 
   // from local file
   return Resumable.setUploadDirectory(
-    `${config.uploadDir}/experiments/${experiment.id}/file`,
+    `${config.express.uploadDir}/experiments/${experiment.id}/file`,
     err => {
       if (err) {
         return res.jerror(new errors.UploadFileError(err.message));
@@ -182,11 +186,11 @@ async function uploadFile(req, res) {
           experiment.id,
           req.body.resumableFilename,
           async () => {
-            const agenda = config.agenda;
+            const agenda = AgendaHelper.getInstance(config);
             await agenda.now("call analysis api", {
-              file: `${config.uploadDir}/experiments/${experiment.id}/file/${
-                req.body.resumableFilename
-              }`,
+              file: `${config.express.uploadDir}/experiments/${
+                experiment.id
+              }/file/${req.body.resumableFilename}`,
               sample_id: experiment.id,
               attempt: 0
             });
@@ -205,7 +209,9 @@ async function uploadFile(req, res) {
 function readFile(req, res) {
   const experiment = req.experiment;
   if (experiment.file) {
-    const path = `${config.uploadDir}/experiments/${experiment.id}/file`;
+    const path = `${config.express.uploadDir}/experiments/${
+      experiment.id
+    }/file`;
     return res.sendFile(`${path}/${experiment.file}`);
   }
   return res.jerror("No file found for this Experiment");
@@ -214,7 +220,7 @@ function readFile(req, res) {
 function uploadStatus(req, res) {
   const experiment = req.experiment;
   return Resumable.setUploadDirectory(
-    `${config.uploadDir}/experiments/${experiment.id}/file`,
+    `${config.express.uploadDir}/experiments/${experiment.id}/file`,
     err => {
       if (err) {
         return res.jerror(new errors.UploadFileError(err.message));
@@ -242,7 +248,7 @@ async function reindex(req, res) {
     await ESHelper.indexExperiments();
     return res.jsend("All Experiments have been indexed.");
   } catch (e) {
-    return res.jerror(err.message);
+    return res.jerror(e.message);
   }
 }
 

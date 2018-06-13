@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import util from "util";
 import config from "./config/env";
-import createApp from "./config/express";
+import createApp from "./config/app";
 import errors from "./config/errors-definition";
 
 require("./express-jsend");
@@ -16,13 +16,13 @@ Promise = require("bluebird"); // eslint-disable-line no-global-assign
 mongoose.Promise = Promise;
 
 // connect to mongo db
-mongoose.connect(config.db);
+mongoose.connect(config.db.uri);
 mongoose.connection.on("error", () => {
-  throw new Error(`unable to connect to database: ${config.db}`);
+  throw new Error(`unable to connect to database: ${config.db.uri}`);
 });
 
 // print mongoose logs in dev env
-if (config.MONGOOSE_DEBUG) {
+if (config.db.MONGOOSE_DEBUG) {
   mongoose.set("debug", (collectionName, method, query, doc) => {
     debug(`${collectionName}.${method}`, util.inspect(query, false, 20), doc);
   });
@@ -32,8 +32,8 @@ if (config.MONGOOSE_DEBUG) {
 // src: https://github.com/mochajs/mocha/issues/1912
 if (!module.parent) {
   // listen on port config.port
-  app.listen(config.port, () => {
-    debug(`server started on port ${config.port} (${config.env})`);
+  app.listen(config.express.port, () => {
+    debug(`server started on port ${config.express.port} (${config.env})`);
   });
 }
 

@@ -1,11 +1,10 @@
 import mongoose from "mongoose";
 import MongodbMemoryServer from "mongodb-memory-server";
-import monq from "monq";
-import Agenda from "agenda";
 import nock from "nock";
 import config from "../../config/env";
-import createApp from "../../config/express";
+import createApp from "../../config/app";
 import errorsDefinition from "../../config/errors-definition";
+import Agenda from "agenda";
 
 require("../../express-jsend");
 
@@ -14,14 +13,14 @@ let mongoServer;
 
 errorsDefinition.create();
 
-nock(config.analysisApiUrl)
+nock(config.services.analysisApiUrl)
   .persist()
   .post("/analysis", function(body) {
     return body.file.endsWith("333-08.json");
   })
   .reply(200, "OK");
 
-nock(config.analysisApiUrl)
+nock(config.services.analysisApiUrl)
   .persist()
   .post("/analysis", function(body) {
     return body.file.endsWith("333-09.json");
@@ -42,9 +41,8 @@ beforeAll(async () => {
   await mongoose.connect(mongoUri, {}, err => {
     if (err) console.error(err);
   });
-  config.db = mongoUri;
-  config.monqClient = monq(mongoUri);
-  config.agenda = new Agenda({ db: { address: mongoUri } });
+  config.db.uri = mongoUri;
+  config.db.agenda = new Agenda({ db: { address: mongoUri } });
   require("../../workers");
 });
 
