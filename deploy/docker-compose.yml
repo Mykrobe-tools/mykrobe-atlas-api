@@ -10,7 +10,6 @@ atlas-api:
   dockerfile: ./deploy/Dockerfile
   container_name: atlas-api
   volumes:
-    - /home/ubuntu/data/apidoc:/app/doc
     - /atlas/uploads:/app/uploads
   restart: always
   ports:

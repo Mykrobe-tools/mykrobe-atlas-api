@@ -77,18 +77,10 @@ Install husky using yarn
 $ yarn add --dev husky --force
 ```
 
-### Generate API documentation
-
-Install apidoc via npm
+### API documentation
 
 ```
-$ npm install -g apidoc
-```
-
-Generate the doc
-
-```
-$ apidoc -i server/
+http://host/swagger.json
 ```
 
 ### AWS KEYS

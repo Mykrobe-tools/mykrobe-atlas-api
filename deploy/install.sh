@@ -19,10 +19,5 @@ echo 'Start volumes cleanup'
 docker volume ls -qf dangling=true | xargs -r docker volume rm
 echo 'End volumes cleanup'
 
-# generate the api doc
-echo 'Start doc update'
-docker exec -i atlas-api script /dev/null -c 'apidoc -i src/server/'
-echo 'End doc update'
-
 # all ok set PREVIOUS_VERSION
 echo $CURRENT_VERSION > /var/go/releases/server/PREVIOUS_VERSION

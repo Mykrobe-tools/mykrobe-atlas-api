@@ -6,5 +6,7 @@ export default {
   db: "mongodb://localhost/atlas-test",
   nodemailer,
   uploadDir: "/tmp/uploads",
-  port: 3000
+  port: 3000,
+  apiBaseUrl: "localhost:3000",
+  swaggerApis: "./**/*.route.js"
 };

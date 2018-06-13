@@ -11,5 +11,7 @@ export default {
   db: dbUri,
   nodemailer,
   uploadDir: "/tmp/uploads",
-  port: 3000
+  port: 3000,
+  apiBaseUrl: "localhost:3000",
+  swaggerApis: "./**/*.route.js"
 };

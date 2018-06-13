@@ -53,9 +53,6 @@ RUN cp -a /tmp/node_modules /app/
 RUN npm install -g gulp
 RUN gulp
 
-# install apidoc
-RUN npm install -g apidoc
-
 # run local api on 3000
 EXPOSE 3000
 
