@@ -6,47 +6,105 @@ import config from "../../config/env";
 const router = express.Router(); // eslint-disable-line new-cap
 
 /**
- * @apiDefine OrganisationResponse
- * @apiSuccessExample Success-Response:
- *     HTTP/1.1 200 OK
- *     {
- *       "status": "success",
- *       "data": {
- *         "name": "Apex Entertainment",
- *         "template": "Apex template",
- *         "id": "58e4c7526555100f447d50eb"
- *       }
- *     }
+ * @swagger
+ * definitions:
+ *   OrganisationResponse:
+ *     properties:
+ *       status:
+ *         type: string
+ *       data:
+ *         type: object
+ *         properties:
+ *           name:
+ *             type: string
+ *           template:
+ *             type: string
+ *           id:
+ *             type: string
+ *     example:
+ *       status: success
+ *       data:
+ *         name: Apex Entertainment
+ *         template: Apex template
+ *         id: 588624076182796462cb133e
+ */
+/**
+ * @swagger
+ * definitions:
+ *   ListOrganisationsResponse:
+ *     properties:
+ *       status:
+ *         type: string
+ *       data:
+ *         type: array
+ *         items:
+ *           type: object
+ *           properties:
+ *             name:
+ *               type: string
+ *             template:
+ *               type: string
+ *             id:
+ *               type: string
+ *     example:
+ *       status: success
+ *       data:
+ *         - name: Apex Entertainment
+ *           template: Apex template
+ *           id: 588624076182796462cb133e
  */
 router
   .route("/")
   /**
-   * @api {get} /organisations Get organisations list
-   *
-   * @apiName List organisations
-   * @apiGroup Organisations
-   * @apiUse Header
-   *
-   * @apiSuccessExample Success-Response:
-   *     HTTP/1.1 200 OK
-   *     {
-   *       "status": "success",
-   *       "data": [{
-   *         "name": "Apex Entertainment"
-   *       }]
-   *     }
+   * @swagger
+   * /organisations:
+   *   get:
+   *     tags:
+   *       - Organisations
+   *     description: List all organisations
+   *     operationId: organisationsList
+   *     produces:
+   *       - application/json
+   *     security:
+   *       - Bearer: []
+   *     responses:
+   *       200:
+   *         description: Organisations list
+   *         schema:
+   *           $ref: '#/definitions/ListOrganisationsResponse'
+   *       401:
+   *         description: Failed authentication
    */
   .get(expressJwt({ secret: config.jwtSecret }), organisationController.list)
   /**
-   * @api {post} /organisations Create new organisation
-   *
-   * @apiName Create new organisation
-   * @apiGroup Organisations
-   * @apiUse Header
-   * @apiUse OrganisationResponse
-   *
-   * @apiParam {String} name The name of organisation.
-   *
+   * @swagger
+   * /organisations:
+   *   post:
+   *     tags:
+   *       - Organisations
+   *     description: Create new organisation
+   *     operationId: organisationsCreate
+   *     produces:
+   *       - application/json
+   *     parameters:
+   *       - in: body
+   *         name: organisation
+   *         description: The organisation data
+   *         schema:
+   *           type: object
+   *           properties:
+   *             name:
+   *               type: string
+   *             template:
+   *               type: string
+   *           example:
+   *             firstname: Apex Entertainment
+   *             lastname: Apex template
+   *     responses:
+   *       200:
+   *         description: Organisation data
+   *         schema:
+   *           $ref: '#/definitions/OrganisationResponse'
    */
   .post(
     expressJwt({ secret: config.jwtSecret }),
@@ -56,46 +114,91 @@ router
 router
   .route("/:id")
   /**
-   * @api {get} /organisations/:id Read an organisation
-   *
-   * @apiName Read organisation
-   * @apiGroup Organisations
-   * @apiUse Header
-   * @apiUse OrganisationResponse
-   *
-   * @apiParam {String} id The organisation ID.
-   *
+   * @swagger
+   * /organisations/{id}:
+   *   get:
+   *     tags:
+   *       - Organisations
+   *     description: Get organisation details
+   *     operationId: organisationsGetById
+   *     produces:
+   *       - application/json
+   *     security:
+   *       - Bearer: []
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         type: string
+   *         description: The organisation id
+   *     responses:
+   *       200:
+   *         description: Organisation data
+   *         schema:
+   *           $ref: '#/definitions/OrganisationResponse'
    */
   .get(expressJwt({ secret: config.jwtSecret }), organisationController.get)
   /**
-   * @api {put} /organisations/:id Update existing organisation
-   *
-   * @apiName Update organisation
-   * @apiGroup Organisations
-   * @apiUse Header
-   * @apiUse OrganisationResponse
-   *
-   * @apiParam {String} id The organisation ID.
-   * @apiParam {String} name The name of organisation.
-   *
+   * @swagger
+   * /organisations/{id}:
+   *   put:
+   *     tags:
+   *       - Organisations
+   *     description: Update organisation details
+   *     operationId: organisationsUpdateById
+   *     produces:
+   *       - application/json
+   *     security:
+   *       - Bearer: []
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         type: string
+   *         description: The organisation id
+   *       - in: body
+   *         name: organisation
+   *         description: The organisation data
+   *         schema:
+   *           type: object
+   *           properties:
+   *             name:
+   *               type: string
+   *             template:
+   *               type: string
+   *           example:
+   *             name: Apex Entertainment
+   *             template: Apex template
+   *     responses:
+   *       200:
+   *         description: Organisation data
+   *         schema:
+   *           $ref: '#/definitions/OrganisationResponse'
    */
   .put(expressJwt({ secret: config.jwtSecret }), organisationController.update)
   /**
-   * @api {delete} /organisations/:id Delete existing organisation
-   *
-   * @apiName Delete organisation
-   * @apiGroup Organisations
-   * @apiUse Header
-   *
-   * @apiParam {String} id The organisation ID.
-   *
-   * @apiSuccessExample Success-Response:
-   *     HTTP/1.1 200 OK
-   *     {
-   *       "status": "success",
-   *       "data": "Organisation was successfully deleted."
-   *     }
-   *
+   * @swagger
+   * /organisations/{id}:
+   *   delete:
+   *     tags:
+   *       - Organisations
+   *     description: Delete an organisation
+   *     operationId: organisationsDeleteById
+   *     produces:
+   *       - application/json
+   *     security:
+   *       - Bearer: []
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         type: string
+   *         description: The organisation id
+   *     responses:
+   *       200:
+   *         description: A jsend response
+   *         schema:
+   *           $ref: '#/definitions/BasicResponse'
    */
   .delete(
     expressJwt({ secret: config.jwtSecret }),
