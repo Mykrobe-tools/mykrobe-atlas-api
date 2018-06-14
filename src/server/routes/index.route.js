@@ -1,51 +1,55 @@
 import express from "express";
+import swaggerParser from "swagger-parser";
 import userRoutes from "./user.route";
 import usersRoutes from "./users.route";
 import authRoutes from "./auth.route";
 import experimentRoutes from "./experiment.route";
 import organisationRoutes from "./organisation.route";
 import dataRoutes from "./data.route";
+import { swaggerSpec } from "../modules/swagger";
 
 const router = express.Router(); // eslint-disable-line new-cap
 /**
- * @apiDefine Header
- * @apiHeader {String} token Users unique token.
- *
- * @apiHeaderExample {json} Header-Example:
- *     {
- *       "Authorization": "Bearer {token}"
- *     }
- *
- * @apiError Unauthorized Invalid token.
+ * @swagger
+ * definitions:
+ *   BasicResponse:
+ *     properties:
+ *       status:
+ *         type: string
+ *       data:
+ *         type: string
+ *     example:
+ *       status: success
+ *       data: Successful response
  */
-
 /**
- * @apiDefine NotFound
- * @apiError ObjectNotFound The Object was not found.
- *
- * @apiErrorExample Error-Response:
- *     HTTP/1.1 404 Not Found
- *     {
- *       "status": "error",
- *       "code": 10001,
- *       "message": "The object requested was not found."
- *     }
- */
-
-/**
- * @api {get} /health-check Check service health
- * @apiName Health
- * @apiGroup Service
- *
- * @apiSuccessExample Success-Response:
- *     HTTP/1.1 200 OK
- *     {
- *       "status": "success",
- *       "data": "OK"
- *     }
- *
+ * @swagger
+ * /health-check:
+ *   get:
+ *     tags:
+ *       - Health Check
+ *     description: Checks the api status
+ *     operationId: healthCheck
+ *     produces:
+ *       - application/json
+ *     responses:
+ *       200:
+ *         description: A jsend response
+ *         schema:
+ *           $ref: '#/definitions/BasicResponse'
  */
 router.get("/health-check", (req, res) => res.jsend("OK"));
+
+// serve swagger
+router.get("/swagger.json", async (req, res) => {
+  try {
+    const spec = await swaggerParser.validate(swaggerSpec);
+    res.setHeader("Content-Type", "application/json");
+    res.status(200).send(spec);
+  } catch (e) {
+    res.jerror(e);
+  }
+});
 
 // mount user routes at /users
 router.use("/users", usersRoutes);

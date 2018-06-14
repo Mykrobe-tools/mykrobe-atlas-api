@@ -28,3 +28,11 @@ atlas-api:
     - JWT_SECRET={{JWT_SECRET}}
   links:
     - db
+swagger-ui:
+  image: swaggerapi/swagger-ui
+  container_name: swagger-ui
+  ports:
+    - 8080:8080
+  restart: always
+  environment:
+    - API_URL={{SWAGGER_API_URL}}

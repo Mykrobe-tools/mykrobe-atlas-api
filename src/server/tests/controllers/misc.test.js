@@ -1,5 +1,6 @@
 import request from "supertest";
 import httpStatus from "http-status";
+import swaggerParser from "swagger-parser";
 import User from "../../models/user.model";
 import { createApp } from "../setup";
 
@@ -68,6 +69,46 @@ describe("## Misc", () => {
         .expect(httpStatus.BAD_REQUEST)
         .end((err, res) => {
           expect(res.body.message).toEqual('"email" is required');
+          done();
+        });
+    });
+  });
+
+  describe("when serving swagger docs", () => {
+    it("should serve a valid json", async done => {
+      request(app)
+        .get("/swagger.json")
+        .expect(httpStatus.OK)
+        .end((err, res) => {
+          expect(res.body.info.title).toEqual("Atlas API");
+          expect(res.body.swagger).toEqual("2.0");
+          done();
+        });
+    });
+
+    it("should be valid against the swagger spec", async done => {
+      request(app)
+        .get("/swagger.json")
+        .expect(httpStatus.OK)
+        .end(async (err, res) => {
+          const body = res.body;
+
+          try {
+            const spec = await swaggerParser.validate(body);
+            done();
+          } catch (e) {
+            fail(e);
+            done();
+          }
+        });
+    });
+
+    it("should return a success response", async done => {
+      request(app)
+        .get("/swagger.json")
+        .expect(httpStatus.OK)
+        .end((err, res) => {
+          expect(res.status).toEqual(200);
           done();
         });
     });

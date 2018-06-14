@@ -7,9 +7,9 @@ ENV NODE_VERSION 8.11.2
 ENV NVM_DIR /usr/local/nvm
 
 RUN echo "deb mirror://mirrors.ubuntu.com/mirrors.txt trusty main restricted universe multiverse" > /etc/apt/sources.list; \
-	echo "deb mirror://mirrors.ubuntu.com/mirrors.txt trusty-updates main restricted universe multiverse" >> /etc/apt/sources.list; \
-	echo "deb mirror://mirrors.ubuntu.com/mirrors.txt trusty-backports main restricted universe multiverse" >> /etc/apt/sources.list; \
-	echo "deb mirror://mirrors.ubuntu.com/mirrors.txt trusty-security main restricted universe multiverse" >> /etc/apt/sources.list
+    echo "deb mirror://mirrors.ubuntu.com/mirrors.txt trusty-updates main restricted universe multiverse" >> /etc/apt/sources.list; \
+    echo "deb mirror://mirrors.ubuntu.com/mirrors.txt trusty-backports main restricted universe multiverse" >> /etc/apt/sources.list; \
+    echo "deb mirror://mirrors.ubuntu.com/mirrors.txt trusty-security main restricted universe multiverse" >> /etc/apt/sources.list
 
 # install required software before using nvm/node/npm/bower
 RUN apt-get update 
@@ -21,7 +21,7 @@ RUN apt-get install -y libssl-dev
 
 # download and install nvm
 RUN curl https://raw.githubusercontent.com/creationix/nvm/v0.32.1/install.sh | bash \
-	&& source $NVM_DIR/nvm.sh \
+    && source $NVM_DIR/nvm.sh \
     && nvm install $NODE_VERSION \
     && nvm alias default $NODE_VERSION \
     && nvm use default
@@ -62,9 +62,6 @@ RUN cp -a /tmp/node_modules /app/
 # build and compile the source
 RUN npm install -g gulp
 RUN gulp
-
-# install apidoc
-RUN npm install -g apidoc
 
 # Remove SSH keys
 RUN rm /app/bitbucket-readonly

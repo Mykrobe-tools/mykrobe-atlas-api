@@ -5,10 +5,6 @@
   "author": "Yassire Elhani <yassire@makeandship.com>",
   "main": "src/index.js",
   "private": true,
-  "apidoc": {
-    "title": "Atlas api documentation",
-    "url": "https://api.atlas-dev.makeandship.com"
-  },
   "engines": {
     "node": ">=4.6.0",
     "npm": ">=2.15.9",
@@ -25,8 +21,7 @@
     "test:watch": "jest --watch",
     "compile": "rm -rf dist && babel src --out-dir dist --source-maps",
     "postinstall":
-      "cd node_modules/makeandship-api-common && yarn && yarn build",
-    "apidoc": "apidoc -i src/server/"
+      "cd node_modules/makeandship-api-common && yarn && yarn build"
   },
   "jest": {
     "testPathIgnorePatterns": ["dist/server", "src/config"],
@@ -83,10 +78,11 @@
     "nodemailer-ses-transport": "^1.5.0",
     "password-hash": "1.2.2",
     "randomstring": "^1.1.5",
+    "swagger-jsdoc": "^1.9.7",
+    "swagger-parser": "^5.0.0",
     "winston": "^2.4.2"
   },
   "devDependencies": {
-    "apidoc": "^0.17.5",
     "babel-cli": "^6.26.0",
     "babel-core": "^6.26.3",
     "babel-jest": "^22.4.1",
