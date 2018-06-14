@@ -257,9 +257,11 @@ async function reindex(req, res) {
  */
 async function metadataDistinctValues(req, res) {
   try {
-    const resp = await ESHelper.searchMetadataValues(req.params.attribute);
+    const attribute = req.params.attribute;
+    const resp = await ESHelper.searchMetadataValues(attribute);
     const transformer = new DistinctValuesESTransformer(resp);
-    return res.jsend(transformer.transform());
+    const results = transformer.transform();
+    return res.jsend(results);
   } catch (e) {
     return res.jerror(new errors.SearchMetadataValuesError(e.message));
   }

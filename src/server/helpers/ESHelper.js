@@ -73,17 +73,19 @@ class ESHelper {
   }
 
   // Index one experiment
-  static indexExperiment(experiment) {
-    return client.index({
+  static async indexExperiment(experiment) {
+    const indexed = await client.index({
       index: config.elasticsearch.index,
       type: "experiment",
       id: experiment.id,
       body: experiment.toJSON()
     });
+
+    return indexed;
   }
 
   // Delete one experiment
-  static deleteExperiment(id) {
+  static async deleteExperiment(id) {
     return client.delete({
       index: config.elasticsearch.index,
       type: "experiment",
@@ -114,7 +116,7 @@ class ESHelper {
 
   // Search distinct metadata values
   static searchMetadataValues(attribute) {
-    return client.search({
+    const query = {
       index: config.elasticsearch.index,
       type: "experiment",
       body: {
@@ -125,7 +127,8 @@ class ESHelper {
           }
         }
       }
-    });
+    };
+    return client.search(query);
   }
 
   // Search by metadata fields
