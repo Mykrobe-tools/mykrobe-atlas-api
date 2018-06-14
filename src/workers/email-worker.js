@@ -1,10 +1,13 @@
 import winston from "winston";
 import sesTransport from "nodemailer-ses-transport";
 import config from "../config/env";
+import MonqHelper from "../server/helpers/MonqHelper";
 
-const client = config.monqClient;
-const nodemailer = config.nodemailer;
-const transporter = nodemailer.createTransport(sesTransport(config.ses));
+const client = MonqHelper.getClient(config);
+const nodemailer = config.communications.email.nodemailer;
+const transporter = nodemailer.createTransport(
+  sesTransport(config.communications.email.ses)
+);
 const worker = client.worker(["email"]);
 
 worker.register({

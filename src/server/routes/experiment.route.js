@@ -117,7 +117,10 @@ router
    *       }]
    *     }
    */
-  .get(expressJwt({ secret: config.jwtSecret }), experimentController.list)
+  .get(
+    expressJwt({ secret: config.accounts.jwtSecret }),
+    experimentController.list
+  )
   /**
    * @api {post} /experiments Create new experiment
    *
@@ -152,7 +155,7 @@ router
    *
    */
   .post(
-    expressJwt({ secret: config.jwtSecret }),
+    expressJwt({ secret: config.accounts.jwtSecret }),
     validate(paramValidation.createExperiment),
     userController.loadCurrentUser,
     experimentController.create
@@ -220,7 +223,7 @@ router
    *     }
    */
   .get(
-    expressJwt({ secret: config.jwtSecret }),
+    expressJwt({ secret: config.accounts.jwtSecret }),
     validate(paramValidation.searchExperiment),
     experimentController.search
   );
@@ -238,7 +241,10 @@ router
    * @apiParam {String} id The experiment ID.
    *
    */
-  .get(expressJwt({ secret: config.jwtSecret }), experimentController.get)
+  .get(
+    expressJwt({ secret: config.accounts.jwtSecret }),
+    experimentController.get
+  )
   /**
    * @api {put} /experiments/:id Update existing experiment
    *
@@ -273,7 +279,10 @@ router
    * @apiParam {Array} geoDistance.experiments The experiments.
    *
    */
-  .put(expressJwt({ secret: config.jwtSecret }), experimentController.update)
+  .put(
+    expressJwt({ secret: config.accounts.jwtSecret }),
+    experimentController.update
+  )
   /**
    * @api {delete} /experiments/:id Delete existing experiment
    *
@@ -292,7 +301,7 @@ router
    *
    */
   .delete(
-    expressJwt({ secret: config.jwtSecret }),
+    expressJwt({ secret: config.accounts.jwtSecret }),
     experimentController.remove
   );
 router
@@ -404,7 +413,7 @@ router
    *
    */
   .put(
-    expressJwt({ secret: config.jwtSecret }),
+    expressJwt({ secret: config.accounts.jwtSecret }),
     experimentController.updateMetadata
   );
 router
@@ -450,7 +459,7 @@ router
    *
    */
   .put(
-    expressJwt({ secret: config.jwtSecret }),
+    expressJwt({ secret: config.accounts.jwtSecret }),
     validate(paramValidation.uploadFile),
     upload.single("file"),
     experimentController.uploadFile
@@ -468,7 +477,10 @@ router
    * @apiError UNAUTHORIZED.
    *
    */
-  .get(expressJwt({ secret: config.jwtSecret }), experimentController.readFile);
+  .get(
+    expressJwt({ secret: config.accounts.jwtSecret }),
+    experimentController.readFile
+  );
 router
   .route("/:id/upload-status")
   /**
@@ -495,7 +507,7 @@ router
    *
    */
   .get(
-    expressJwt({ secret: config.jwtSecret }),
+    expressJwt({ secret: config.accounts.jwtSecret }),
     experimentController.uploadStatus
   );
 router
@@ -516,7 +528,10 @@ router
    *  }
    *
    */
-  .post(expressJwt({ secret: config.jwtSecret }), experimentController.reindex);
+  .post(
+    expressJwt({ secret: config.accounts.jwtSecret }),
+    experimentController.reindex
+  );
 router
   .route("/metadata/:attribute/values")
   /**
@@ -540,7 +555,7 @@ router
    *
    */
   .get(
-    expressJwt({ secret: config.jwtSecret }),
+    expressJwt({ secret: config.accounts.jwtSecret }),
     experimentController.metadataDistinctValues
   );
 /** Load user when API with id route parameter is hit */

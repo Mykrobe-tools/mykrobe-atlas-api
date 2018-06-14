@@ -3,8 +3,9 @@ import errors from "errors";
 import User from "../models/user.model";
 import ArrayJSONTransformer from "../transformers/ArrayJSONTransformer";
 import UserJSONTransformer from "../transformers/UserJSONTransformer";
-
-const config = require("../../config/env");
+import AccountsHelper from "../helpers/AccountsHelper";
+import MonqHelper from "../helpers/MonqHelper";
+import config from "../../config/env";
 
 /**
  * Load user and append to req.
@@ -47,10 +48,11 @@ async function create(req, res) {
     phone: req.body.phone,
     email: req.body.email
   });
-  if (config.usePassword()) {
+  if (AccountsHelper.usePassword(config)) {
     user.password = passwordHash.generate(req.body.password);
   }
-  const queue = config.monqClient.queue(config.notification);
+  const client = MonqHelper.getClient(config);
+  const queue = client.queue(config.communications.notification);
   try {
     const savedUser = await user.save();
     const userWithToken = await savedUser.generateVerificationToken();
@@ -126,7 +128,7 @@ async function remove(req, res) {
  */
 async function assignRole(req, res) {
   const user = req.dbUser;
-  user.role = config.adminRole;
+  user.role = config.accounts.adminRole;
   try {
     const savedUser = await user.save();
     return res.jsend(new UserJSONTransformer(savedUser.toObject()).transform());

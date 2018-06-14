@@ -11,7 +11,7 @@ atlas-api:
   container_name: atlas-api
   volumes:
     - /home/ubuntu/data/apidoc:/app/doc
-    - /atlas/uploads:/app/uploads
+    - {{UPLOADS_LOCATION}}:/app/uploads
   restart: always
   ports:
     - 3001:3000
@@ -25,5 +25,6 @@ atlas-api:
     - ATLAS_APP={{ATLAS_APP}}
     - ES_CLUSTER_URL={{ES_CLUSTER_URL}}
     - ES_INDEX_NAME={{ES_INDEX_NAME}}
+    - JWT_SECRET={{JWT_SECRET}}
   links:
     - db

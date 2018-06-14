@@ -53,7 +53,7 @@ router
    *            ]
    *     }
    */
-  .get(expressJwt({ secret: config.jwtSecret }), userController.list)
+  .get(expressJwt({ secret: config.accounts.jwtSecret }), userController.list)
 
   /**
    * @api {post} /users Register new user
@@ -95,7 +95,7 @@ router
    * @apiParam {String} id The user unique ID.
    *
    */
-  .get(expressJwt({ secret: config.jwtSecret }), userController.get)
+  .get(expressJwt({ secret: config.accounts.jwtSecret }), userController.get)
 
   /**
    * @api {put} /users/:id Update user details
@@ -114,7 +114,7 @@ router
    *
    */
   .put(
-    expressJwt({ secret: config.jwtSecret }),
+    expressJwt({ secret: config.accounts.jwtSecret }),
     validate(paramValidation.updateUser),
     userController.update
   )
@@ -136,7 +136,10 @@ router
    *       "data": "Account was successfully deleted."
    *     }
    */
-  .delete(expressJwt({ secret: config.jwtSecret }), userController.remove);
+  .delete(
+    expressJwt({ secret: config.accounts.jwtSecret }),
+    userController.remove
+  );
 
 router
   .route("/:id/role")
@@ -153,8 +156,8 @@ router
    *
    */
   .post(
-    expressJwt({ secret: config.jwtSecret }),
-    jwt.checkPermission(config.adminRole),
+    expressJwt({ secret: config.accounts.jwtSecret }),
+    jwt.checkPermission(config.accounts.adminRole),
     userController.assignRole
   );
 

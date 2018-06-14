@@ -70,7 +70,7 @@ router
 router
   .route("/random-number")
   .get(
-    expressJwt({ secret: config.jwtSecret }),
+    expressJwt({ secret: config.accounts.jwtSecret }),
     authController.getRandomNumber
   );
 /**

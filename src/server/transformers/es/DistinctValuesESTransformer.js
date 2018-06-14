@@ -10,7 +10,9 @@ class DistinctValuesESTransformer extends AggregationsESTransformer {
    */
   transform() {
     const res = super.transform();
-    return res.map(element => element.key);
+    const mapped = res.map(element => element.key);
+    console.log(mapped);
+    return mapped;
   }
 }
 
