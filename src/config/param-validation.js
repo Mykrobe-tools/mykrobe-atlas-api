@@ -1,4 +1,5 @@
 import Joi from "joi";
+import AccountsHelper from "../server/helpers/AccountsHelper";
 import config from "./env";
 
 export default {
@@ -7,13 +8,13 @@ export default {
     body: {
       firstname: Joi.string().required(),
       lastname: Joi.string().required(),
-      password: config.usePassword()
+      password: AccountsHelper.usePassword(config)
         ? Joi.string().required()
         : Joi.string().optional(),
-      phone: config.usePassword()
+      phone: AccountsHelper.usePassword(config)
         ? Joi.string().optional()
         : Joi.string().required(),
-      email: config.usePassword()
+      email: AccountsHelper.usePassword(config)
         ? Joi.string()
             .email()
             .required()
@@ -33,12 +34,12 @@ export default {
     body: {
       firstname: Joi.string(),
       lastname: Joi.string(),
-      email: config.usePassword()
+      email: AccountsHelper.usePassword(config)
         ? Joi.string()
         : Joi.string()
             .allow("")
             .allow(null),
-      phone: config.usePassword()
+      phone: AccountsHelper.usePassword(config)
         ? Joi.string()
             .allow("")
             .allow(null)
@@ -74,10 +75,10 @@ export default {
   // POST /auth/resend
   resendNotification: {
     body: {
-      email: config.usePassword()
+      email: AccountsHelper.usePassword(config)
         ? Joi.string().required()
         : Joi.string().optional(),
-      phone: config.usePassword()
+      phone: AccountsHelper.usePassword(config)
         ? Joi.string().optional()
         : Joi.string().required()
     }
@@ -87,7 +88,7 @@ export default {
   verifyAccount: {
     body: {
       verificationToken: Joi.string().required(),
-      phone: config.usePassword()
+      phone: AccountsHelper.usePassword(config)
         ? Joi.string().optional()
         : Joi.string().required()
     }

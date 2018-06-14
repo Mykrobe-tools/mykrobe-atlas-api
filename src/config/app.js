@@ -17,7 +17,7 @@ import routes from "../server/routes/index.route";
 import config from "./env";
 import APIError from "../server/helpers/APIError";
 
-const createApp = ({ rateLimitReset, rateLimitMax } = config) => {
+const createApp = ({ rateLimitReset, rateLimitMax } = config.express) => {
   const app = express();
 
   if (config.env === "development") {

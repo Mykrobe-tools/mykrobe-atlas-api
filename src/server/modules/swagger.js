@@ -8,7 +8,7 @@ const swaggerDefinition = {
     version: "1.0.0",
     description: "Atlas is an outbreak and resistance analysis platform"
   },
-  host: config.apiBaseUrl,
+  host: config.express.apiBaseUrl,
   basePath: "/",
   schemes: ["https"],
   securityDefinitions: {
@@ -24,7 +24,7 @@ const swaggerDefinition = {
 // options for the swagger docs
 const swaggerOptions = {
   swaggerDefinition,
-  apis: [config.swaggerApis]
+  apis: [config.express.swaggerApis]
 };
 
 // initialize swagger-jsdoc

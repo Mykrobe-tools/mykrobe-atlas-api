@@ -6,8 +6,8 @@ import randomstring from "randomstring";
 import User from "../models/user.model";
 import Organisation from "../models/organisation.model";
 import APIError from "../helpers/APIError";
-
-const config = require("../../config/env");
+import config from "../../config/env";
+import MonqHelper from "../helpers/MonqHelper";
 
 /**
  * Returns jwt token if valid email and password is provided
@@ -28,7 +28,7 @@ function login(req, res) {
             {
               id: user.id
             },
-            config.jwtSecret
+            config.accounts.jwtSecret
           );
           return res.jsend({
             token,
@@ -77,7 +77,8 @@ async function forgot(req, res) {
       { email: req.body.email },
       { resetPasswordToken: random }
     );
-    const queue = config.monqClient.queue(config.notification);
+    const client = MonqHelper.getClient(config);
+    const queue = client.queue(config.communications.notification);
     queue.enqueue("forgot", { to: user.email, token: random }, () =>
       res.jsend(`Email sent successfully to ${user.email}`)
     );
@@ -139,11 +140,15 @@ async function resend(req, res) {
   try {
     const user = await User.getByEmail(email);
     const userWithToken = await user.generateVerificationToken();
-    const queue = config.monqClient.queue(config.notification);
+    const client = MonqHelper.getClient(config);
+    const queue = client.queue(config.communications.notification);
     queue.enqueue(
       "welcome",
       { token: userWithToken.verificationToken, to: userWithToken.email },
-      () => res.jsend(`Notification was resent by ${config.notification}`)
+      () =>
+        res.jsend(
+          `Notification was resent by ${config.communications.notification}`
+        )
     );
   } catch (e) {
     return res.jerror(e);

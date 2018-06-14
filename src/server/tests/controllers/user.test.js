@@ -593,7 +593,7 @@ describe("## User APIs", () => {
         .end((err, res) => {
           expect(res.body.status).toEqual("success");
           expect(res.body.data.firstname).toEqual("David");
-          expect(res.body.data.role).toEqual("Admin");
+          expect(res.body.data.role).toEqual("Administrator");
           done();
         });
     });

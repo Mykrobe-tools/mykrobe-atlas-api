@@ -75,7 +75,10 @@ router
    *       401:
    *         description: Failed authentication
    */
-  .get(expressJwt({ secret: config.jwtSecret }), organisationController.list)
+  .get(
+    expressJwt({ secret: config.accounts.jwtSecret }),
+    organisationController.list
+  )
   /**
    * @swagger
    * /organisations:
@@ -107,7 +110,7 @@ router
    *           $ref: '#/definitions/OrganisationResponse'
    */
   .post(
-    expressJwt({ secret: config.jwtSecret }),
+    expressJwt({ secret: config.accounts.jwtSecret }),
     organisationController.create
   );
 
@@ -137,7 +140,10 @@ router
    *         schema:
    *           $ref: '#/definitions/OrganisationResponse'
    */
-  .get(expressJwt({ secret: config.jwtSecret }), organisationController.get)
+  .get(
+    expressJwt({ secret: config.accounts.jwtSecret }),
+    organisationController.get
+  )
   /**
    * @swagger
    * /organisations/{id}:
@@ -175,7 +181,10 @@ router
    *         schema:
    *           $ref: '#/definitions/OrganisationResponse'
    */
-  .put(expressJwt({ secret: config.jwtSecret }), organisationController.update)
+  .put(
+    expressJwt({ secret: config.accounts.jwtSecret }),
+    organisationController.update
+  )
   /**
    * @swagger
    * /organisations/{id}:
@@ -201,7 +210,7 @@ router
    *           $ref: '#/definitions/BasicResponse'
    */
   .delete(
-    expressJwt({ secret: config.jwtSecret }),
+    expressJwt({ secret: config.accounts.jwtSecret }),
     organisationController.remove
   );
 

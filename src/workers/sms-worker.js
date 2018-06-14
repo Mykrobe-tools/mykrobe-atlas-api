@@ -1,7 +1,8 @@
 import winston from "winston";
+import MonqHelper from "../server/helpers/MonqHelper";
 import config from "../config/env";
 
-const client = config.monqClient;
+const client = MonqHelper.getClient(config);
 const worker = client.worker(["sms"]);
 
 worker.register({

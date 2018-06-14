@@ -1,9 +1,11 @@
 import express from "express";
 import expressJwt from "express-jwt";
 import userController from "../controllers/user.controller";
-import config from "../../config/env";
+//import config from "../../config/env"
 
 const router = express.Router(); // eslint-disable-line new-cap
+
+const config = require("../../config/env");
 
 router
   .route("/")
@@ -28,7 +30,7 @@ router
    *         description: Failed authentication
    */
   .get(
-    expressJwt({ secret: config.jwtSecret }),
+    expressJwt({ secret: config.accounts.jwtSecret }),
     userController.loadCurrentUser,
     userController.get
   )
@@ -73,7 +75,7 @@ router
    *         description: Failed authentication
    */
   .put(
-    expressJwt({ secret: config.jwtSecret }),
+    expressJwt({ secret: config.accounts.jwtSecret }),
     userController.loadCurrentUser,
     userController.update
   )
@@ -96,7 +98,7 @@ router
    *           $ref: '#/definitions/BasicResponse'
    */
   .delete(
-    expressJwt({ secret: config.jwtSecret }),
+    expressJwt({ secret: config.accounts.jwtSecret }),
     userController.loadCurrentUser,
     userController.remove
   );

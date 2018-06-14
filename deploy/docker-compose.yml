@@ -10,7 +10,8 @@ atlas-api:
   dockerfile: ./deploy/Dockerfile
   container_name: atlas-api
   volumes:
-    - /atlas/uploads:/app/uploads
+    - /home/ubuntu/data/apidoc:/app/doc
+    - {{UPLOADS_LOCATION}}:/app/uploads
   restart: always
   ports:
     - 3001:3000
@@ -24,6 +25,7 @@ atlas-api:
     - ATLAS_APP={{ATLAS_APP}}
     - ES_CLUSTER_URL={{ES_CLUSTER_URL}}
     - ES_INDEX_NAME={{ES_INDEX_NAME}}
+    - JWT_SECRET={{JWT_SECRET}}
   links:
     - db
 swagger-ui:

@@ -503,7 +503,10 @@ router
    *       401:
    *         description: Failed authentication
    */
-  .get(expressJwt({ secret: config.jwtSecret }), experimentController.list)
+  .get(
+    expressJwt({ secret: config.accounts.jwtSecret }),
+    experimentController.list
+  )
   /**
    * @swagger
    * /experiments:
@@ -618,7 +621,7 @@ router
    *           $ref: '#/definitions/ExperimentResponse'
    */
   .post(
-    expressJwt({ secret: config.jwtSecret }),
+    expressJwt({ secret: config.accounts.jwtSecret }),
     validate(paramValidation.createExperiment),
     userController.loadCurrentUser,
     experimentController.create
@@ -646,7 +649,7 @@ router
    *         description: Failed authentication
    */
   .get(
-    expressJwt({ secret: config.jwtSecret }),
+    expressJwt({ secret: config.accounts.jwtSecret }),
     validate(paramValidation.searchExperiment),
     experimentController.search
   );
@@ -677,7 +680,10 @@ router
    *         schema:
    *           $ref: '#/definitions/ExperimentResponse'
    */
-  .get(expressJwt({ secret: config.jwtSecret }), experimentController.get)
+  .get(
+    expressJwt({ secret: config.accounts.jwtSecret }),
+    experimentController.get
+  )
   /**
    * @swagger
    * /experiments/{id}:
@@ -788,7 +794,10 @@ router
    *         schema:
    *           $ref: '#/definitions/ExperimentResponse'
    */
-  .put(expressJwt({ secret: config.jwtSecret }), experimentController.update)
+  .put(
+    expressJwt({ secret: config.accounts.jwtSecret }),
+    experimentController.update
+  )
   /**
    * @swagger
    * /experiments/{id}:
@@ -814,7 +823,7 @@ router
    *           $ref: '#/definitions/BasicResponse'
    */
   .delete(
-    expressJwt({ secret: config.jwtSecret }),
+    expressJwt({ secret: config.accounts.jwtSecret }),
     experimentController.remove
   );
 router
@@ -849,7 +858,7 @@ router
    *           $ref: '#/definitions/ExperimentResponse'
    */
   .put(
-    expressJwt({ secret: config.jwtSecret }),
+    expressJwt({ secret: config.accounts.jwtSecret }),
     experimentController.updateMetadata
   );
 router
@@ -928,7 +937,7 @@ router
    *           $ref: '#/definitions/BasicResponse'
    */
   .put(
-    expressJwt({ secret: config.jwtSecret }),
+    expressJwt({ secret: config.accounts.jwtSecret }),
     validate(paramValidation.uploadFile),
     upload.single("file"),
     experimentController.uploadFile
@@ -960,7 +969,10 @@ router
    *       401:
    *         description: Failed authentication
    */
-  .get(expressJwt({ secret: config.jwtSecret }), experimentController.readFile);
+  .get(
+    expressJwt({ secret: config.accounts.jwtSecret }),
+    experimentController.readFile
+  );
 router
   .route("/:id/upload-status")
   /**
@@ -988,7 +1000,7 @@ router
    *           $ref: '#/definitions/BasicResponse'
    */
   .get(
-    expressJwt({ secret: config.jwtSecret }),
+    expressJwt({ secret: config.accounts.jwtSecret }),
     experimentController.uploadStatus
   );
 router
@@ -1011,7 +1023,10 @@ router
    *         schema:
    *           $ref: '#/definitions/BasicResponse'
    */
-  .post(expressJwt({ secret: config.jwtSecret }), experimentController.reindex);
+  .post(
+    expressJwt({ secret: config.accounts.jwtSecret }),
+    experimentController.reindex
+  );
 router
   .route("/metadata/:attribute/values")
   /**
@@ -1055,7 +1070,7 @@ router
    *                 value3
    */
   .get(
-    expressJwt({ secret: config.jwtSecret }),
+    expressJwt({ secret: config.accounts.jwtSecret }),
     experimentController.metadataDistinctValues
   );
 /** Load user when API with id route parameter is hit */

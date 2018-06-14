@@ -1,28 +1,38 @@
-import path from "path";
-import monq from "monq";
+import commonApi from "makeandship-api-common";
+import deepmerge from "deepmerge";
 
-const env = process.env.NODE_ENV || "development";
-const config = require(`./${env}`); // eslint-disable-line import/no-dynamic-require
+import accounts from "../accounts";
+import communications from "../communications";
+import elasticsearch from "../elasticsearch";
+import express from "../express";
+import services from "../services";
 
-const defaults = {
-  root: path.join(__dirname, "/.."),
-  adminRole: "Admin",
-  notification: "email",
-  username: "email",
-  esCluster: process.env.ES_CLUSTER_URL,
-  esIndexName: process.env.ES_INDEX_NAME || "atlas",
-  resultsPerPage: 50,
-  ses: {
-    accessKeyId: process.env.AWS_ACCESS_KEY,
-    secretAccessKey: process.env.AWS_SECRET_KEY,
-    region: process.env.AWS_REGION
-  },
-  rateLimitReset: 15 * 60 * 1000, // 15 min
-  rateLimitMax: 1000
+import development from "./development";
+import test from "./test";
+import production from "./production";
+
+// common configuration across all projects
+const commonConfig = commonApi.config;
+
+// common configuration across all environmentts for this project
+const appConfig = {
+  accounts,
+  communications,
+  elasticsearch,
+  services,
+  express
 };
 
-const functions = {
-  usePassword: () => defaults.username === "email"
+// per environment config for this project
+const environments = {
+  development,
+  test,
+  production
 };
+const environment = process.env.NODE_ENV || "development";
+const environmentAppConfig = environments[environment];
+environmentAppConfig.env = environment;
 
-export default Object.assign(defaults, functions, config);
+const config = deepmerge.all([commonConfig, appConfig, environmentAppConfig]);
+
+export default config;

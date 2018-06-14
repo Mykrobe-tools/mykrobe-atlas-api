@@ -88,7 +88,7 @@ router
    *       401:
    *         description: Failed authentication
    */
-  .get(expressJwt({ secret: config.jwtSecret }), userController.list)
+  .get(expressJwt({ secret: config.accounts.jwtSecret }), userController.list)
 
   /**
    * @swagger
@@ -157,7 +157,7 @@ router
    *         schema:
    *           $ref: '#/definitions/UserResponse'
    */
-  .get(expressJwt({ secret: config.jwtSecret }), userController.get)
+  .get(expressJwt({ secret: config.accounts.jwtSecret }), userController.get)
 
   /**
    * @swagger
@@ -203,7 +203,7 @@ router
    *           $ref: '#/definitions/UserResponse'
    */
   .put(
-    expressJwt({ secret: config.jwtSecret }),
+    expressJwt({ secret: config.accounts.jwtSecret }),
     validate(paramValidation.updateUser),
     userController.update
   )
@@ -232,7 +232,10 @@ router
    *         schema:
    *           $ref: '#/definitions/BasicResponse'
    */
-  .delete(expressJwt({ secret: config.jwtSecret }), userController.remove);
+  .delete(
+    expressJwt({ secret: config.accounts.jwtSecret }),
+    userController.remove
+  );
 
 router
   .route("/:id/role")
@@ -261,8 +264,8 @@ router
    *           $ref: '#/definitions/UserResponse'
    */
   .post(
-    expressJwt({ secret: config.jwtSecret }),
-    jwt.checkPermission(config.adminRole),
+    expressJwt({ secret: config.accounts.jwtSecret }),
+    jwt.checkPermission(config.accounts.adminRole),
     userController.assignRole
   );
 
