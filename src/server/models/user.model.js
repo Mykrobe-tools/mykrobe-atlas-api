@@ -9,32 +9,15 @@ import UserJSONTransformer from "../transformers/UserJSONTransformer";
  * User Schema
  */
 const UserSchema = new mongoose.Schema({
-  firstname: {
-    type: String,
-    required: true
-  },
-  lastname: {
-    type: String,
-    required: true
-  },
-  password: {
-    type: String,
-    required: true
-  },
-  role: {
-    type: String
-  },
+  firstname: String,
+  lastname: String,
+  role: String,
   phone: String,
   email: {
     type: String,
     unique: true
   },
-  resetPasswordToken: String,
-  verificationToken: String,
-  valid: {
-    type: Boolean,
-    default: false
-  },
+  keycloakId: String,
   organisation: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Organisation"

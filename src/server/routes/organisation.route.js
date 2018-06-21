@@ -1,5 +1,5 @@
 import express from "express";
-import expressJwt from "express-jwt";
+import { connect as keycloakConnect } from "../modules/keycloak.js";
 import organisationController from "../controllers/organisation.controller";
 import config from "../../config/env";
 
@@ -75,10 +75,7 @@ router
    *       401:
    *         description: Failed authentication
    */
-  .get(
-    expressJwt({ secret: config.accounts.jwtSecret }),
-    organisationController.list
-  )
+  .get(keycloakConnect.protect(), organisationController.list)
   /**
    * @swagger
    * /organisations:
@@ -109,10 +106,7 @@ router
    *         schema:
    *           $ref: '#/definitions/OrganisationResponse'
    */
-  .post(
-    expressJwt({ secret: config.accounts.jwtSecret }),
-    organisationController.create
-  );
+  .post(keycloakConnect.protect(), organisationController.create);
 
 router
   .route("/:id")
@@ -140,10 +134,7 @@ router
    *         schema:
    *           $ref: '#/definitions/OrganisationResponse'
    */
-  .get(
-    expressJwt({ secret: config.accounts.jwtSecret }),
-    organisationController.get
-  )
+  .get(keycloakConnect.protect(), organisationController.get)
   /**
    * @swagger
    * /organisations/{id}:
@@ -181,10 +172,7 @@ router
    *         schema:
    *           $ref: '#/definitions/OrganisationResponse'
    */
-  .put(
-    expressJwt({ secret: config.accounts.jwtSecret }),
-    organisationController.update
-  )
+  .put(keycloakConnect.protect(), organisationController.update)
   /**
    * @swagger
    * /organisations/{id}:
@@ -209,10 +197,7 @@ router
    *         schema:
    *           $ref: '#/definitions/BasicResponse'
    */
-  .delete(
-    expressJwt({ secret: config.accounts.jwtSecret }),
-    organisationController.remove
-  );
+  .delete(keycloakConnect.protect(), organisationController.remove);
 
 /** Load user when API with id route parameter is hit */
 router.param("id", organisationController.load);

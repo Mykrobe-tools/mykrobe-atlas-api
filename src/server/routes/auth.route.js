@@ -1,6 +1,6 @@
 import express from "express";
 import validate from "express-validation";
-import expressJwt from "express-jwt";
+import { connect as keycloakConnect } from "../modules/keycloak.js";
 import paramValidation from "../../config/param-validation";
 import authController from "../controllers/auth.controller";
 import config from "../../config/env";
@@ -153,10 +153,7 @@ router
  */
 router
   .route("/random-number")
-  .get(
-    expressJwt({ secret: config.accounts.jwtSecret }),
-    authController.getRandomNumber
-  );
+  .get(keycloakConnect.protect(), authController.getRandomNumber);
 /**
  * @swagger
  * /auth/forgot:
@@ -192,76 +189,6 @@ router
 
 /**
  * @swagger
- * /auth/reset:
- *   post:
- *     tags:
- *       - Authentication
- *     description: Reset password
- *     operationId: authReset
- *     produces:
- *       - application/json
- *     parameters:
- *       - in: body
- *         name: credentials
- *         description: The user token
- *         schema:
- *           type: object
- *           required:
- *             - resetPasswordToken
- *             - password
- *           properties:
- *             resetPasswordToken:
- *               type: string
- *             password:
- *               type: string
- *           example:
- *             resetPasswordToken: GciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
- *             password: password
- *     responses:
- *       200:
- *         description: A jsend response
- *         schema:
- *           $ref: '#/definitions/BasicResponse'
- */
-router
-  .route("/reset")
-  .post(validate(paramValidation.resetPassword), authController.reset);
-
-/**
- * @swagger
- * /auth/verify:
- *   post:
- *     tags:
- *       - Authentication
- *     description: Verify account
- *     operationId: authVerify
- *     produces:
- *       - application/json
- *     parameters:
- *       - in: body
- *         name: credentials
- *         description: The user token
- *         schema:
- *           type: object
- *           required:
- *             - verificationToken
- *           properties:
- *             verificationToken:
- *               type: string
- *           example:
- *             verificationToken: GciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
- *     responses:
- *       200:
- *         description: A jsend response
- *         schema:
- *           $ref: '#/definitions/UserResponse'
- */
-router
-  .route("/verify")
-  .post(validate(paramValidation.verifyAccount), authController.verify);
-
-/**
- * @swagger
  * /auth/resend:
  *   post:
  *     tags:
@@ -292,5 +219,42 @@ router
 router
   .route("/resend")
   .post(validate(paramValidation.resendNotification), authController.resend);
+
+/**
+ * @swagger
+ * /auth/refresh:
+ *   post:
+ *     tags:
+ *       - Authentication
+ *     description: Refresh the access token
+ *     operationId: authAccess
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: body
+ *         name: credentials
+ *         description: The refresk token
+ *         schema:
+ *           type: object
+ *           required:
+ *             - refreshToken
+ *           properties:
+ *             refreshToken:
+ *               type: string
+ *           example:
+ *             refreshToken: "eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJTLUVoTEVSSzl4UXczNWM1QkY2UmFaOUR0Vk9wdTY4ZUVieXZZN1E2OXdvIn0.eyJqdGkiOiIyYThjMzAyNi04YjgzLTQzYjktYjc4ZS1lN2UxOWVmN2E5YzUiLCJleHAiOjE1Mjg4ODE0NjksIm5iZiI6MCwiaWF0IjoxNTI4ODc5NjY5LCJpc3MiOiJodHRwczovL2FjY291bnRzLm1ha2VhbmRzaGlwLmNvbS9hdXRoL3JlYWxtcy9jYXJlcmVwb3J0IiwiYXVkIjoiY2FyZXJlcG9ydC1hcHAiLCJzdWIiOiIzZTExMmM4Ny1mODBjLTQ3MDgtYjdhMi00YzNhZGVhNDYzYzYiLCJ0eXAiOiJSZWZyZXNoIiwiYXpwIjoiY2FyZXJlcG9ydC1hcHAiLCJhdXRoX3RpbWUiOjAsInNlc3Npb25fc3RhdGUiOiI4YzE3YjAyMy0yODlmLTQyYzQtYmZlOC0yNGQwZGVmNjk2YjAiLCJyZWFsbV9hY2Nlc3MiOnsicm9sZXMiOlsidW1hX2F1dGhvcml6YXRpb24iXX0sInJlc291cmNlX2FjY2VzcyI6eyJhY2NvdW50Ijp7InJvbGVzIjpbIm1hbmFnZS1hY2NvdW50IiwibWFuYWdlLWFjY291bnQtbGlua3MiLCJ2aWV3LXByb2ZpbGUiXX19fQ.VHAXysXYbmSnRCFyrrVtigeMLgefKMWRjBPFWE-rAsjfSw3ZDOf7DvEPmYATAR86JPrrU9HLuteci_x4ozw-uEVdAi6q4mm3A9OAAPb8ROQtZ7EmCMYhAihW3s9416lQW3tQUxNWeWhAla8MJxQdZOE0eUwhK6m9WcYqLS95ax003F31nks_M7zvmLM7Omv8eFCvLigx5zTix6KZtGSgNVEzzWrl0iIxEpLZSSUrYBA7m2sAYonaL8XDnKCHgf92SDaRFNe99xyJfV7NC5QKHVqpaNj1AF3l_VDcIoR3bYFAtOLz6aY7y01xfIxfPn3Wk_DGeJ5YzcjVkY_3W5paRQ"
+ *     responses:
+ *       200:
+ *         description: A jsend response
+ *         schema:
+ *           $ref: '#/definitions/TokenResponse'
+ *       401:
+ *         description: Refresh Failed
+ *         schema:
+ *           $ref: '#/definitions/RefreshErrorResponse'
+ */
+router
+  .route("/refresh")
+  .post(validate(paramValidation.refreshToken), authController.refresh);
 
 export default router;

@@ -1,7 +1,7 @@
 import express from "express";
-import expressJwt from "express-jwt";
 import validate from "express-validation";
 import multer from "multer";
+import { connect as keycloakConnect } from "../modules/keycloak.js";
 import paramValidation from "../../config/param-validation";
 import experimentController from "../controllers/experiment.controller";
 import userController from "../controllers/user.controller";
@@ -503,10 +503,7 @@ router
    *       401:
    *         description: Failed authentication
    */
-  .get(
-    expressJwt({ secret: config.accounts.jwtSecret }),
-    experimentController.list
-  )
+  .get(keycloakConnect.protect(), experimentController.list)
   /**
    * @swagger
    * /experiments:
@@ -621,7 +618,7 @@ router
    *           $ref: '#/definitions/ExperimentResponse'
    */
   .post(
-    expressJwt({ secret: config.accounts.jwtSecret }),
+    keycloakConnect.protect(),
     validate(paramValidation.createExperiment),
     userController.loadCurrentUser,
     experimentController.create
@@ -649,7 +646,7 @@ router
    *         description: Failed authentication
    */
   .get(
-    expressJwt({ secret: config.accounts.jwtSecret }),
+    keycloakConnect.protect(),
     validate(paramValidation.searchExperiment),
     experimentController.search
   );
@@ -680,10 +677,7 @@ router
    *         schema:
    *           $ref: '#/definitions/ExperimentResponse'
    */
-  .get(
-    expressJwt({ secret: config.accounts.jwtSecret }),
-    experimentController.get
-  )
+  .get(keycloakConnect.protect(), experimentController.get)
   /**
    * @swagger
    * /experiments/{id}:
@@ -794,10 +788,7 @@ router
    *         schema:
    *           $ref: '#/definitions/ExperimentResponse'
    */
-  .put(
-    expressJwt({ secret: config.accounts.jwtSecret }),
-    experimentController.update
-  )
+  .put(keycloakConnect.protect(), experimentController.update)
   /**
    * @swagger
    * /experiments/{id}:
@@ -822,10 +813,7 @@ router
    *         schema:
    *           $ref: '#/definitions/BasicResponse'
    */
-  .delete(
-    expressJwt({ secret: config.accounts.jwtSecret }),
-    experimentController.remove
-  );
+  .delete(keycloakConnect.protect(), experimentController.remove);
 router
   .route("/:id/metadata")
   /**
@@ -857,10 +845,7 @@ router
    *         schema:
    *           $ref: '#/definitions/ExperimentResponse'
    */
-  .put(
-    expressJwt({ secret: config.accounts.jwtSecret }),
-    experimentController.updateMetadata
-  );
+  .put(keycloakConnect.protect(), experimentController.updateMetadata);
 router
   .route("/:id/file")
   /**
@@ -937,7 +922,7 @@ router
    *           $ref: '#/definitions/BasicResponse'
    */
   .put(
-    expressJwt({ secret: config.accounts.jwtSecret }),
+    keycloakConnect.protect(),
     validate(paramValidation.uploadFile),
     upload.single("file"),
     experimentController.uploadFile
@@ -969,10 +954,7 @@ router
    *       401:
    *         description: Failed authentication
    */
-  .get(
-    expressJwt({ secret: config.accounts.jwtSecret }),
-    experimentController.readFile
-  );
+  .get(keycloakConnect.protect(), experimentController.readFile);
 router
   .route("/:id/upload-status")
   /**
@@ -999,10 +981,7 @@ router
    *         schema:
    *           $ref: '#/definitions/BasicResponse'
    */
-  .get(
-    expressJwt({ secret: config.accounts.jwtSecret }),
-    experimentController.uploadStatus
-  );
+  .get(keycloakConnect.protect(), experimentController.uploadStatus);
 router
   .route("/reindex")
   /**
@@ -1023,10 +1002,7 @@ router
    *         schema:
    *           $ref: '#/definitions/BasicResponse'
    */
-  .post(
-    expressJwt({ secret: config.accounts.jwtSecret }),
-    experimentController.reindex
-  );
+  .post(keycloakConnect.protect(), experimentController.reindex);
 router
   .route("/metadata/:attribute/values")
   /**
@@ -1069,10 +1045,7 @@ router
    *                 value2
    *                 value3
    */
-  .get(
-    expressJwt({ secret: config.accounts.jwtSecret }),
-    experimentController.metadataDistinctValues
-  );
+  .get(keycloakConnect.protect(), experimentController.metadataDistinctValues);
 /** Load user when API with id route parameter is hit */
 router.param("id", experimentController.load);
 

@@ -4,5 +4,10 @@ export default {
   },
   express: {
     uploadsLocation: "/tmp/uploads"
+  },
+  accounts: {
+    keycloak: {
+      redirectUri: "https://atlas-dev.makeandship.com/"
+    }
   }
 };
