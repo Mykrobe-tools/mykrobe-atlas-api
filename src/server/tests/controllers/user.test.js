@@ -4,6 +4,8 @@ import { createApp } from "../setup";
 import User from "../../models/user.model";
 import Organisation from "../../models/organisation.model";
 
+jest.mock("keycloak-admin-client");
+
 const app = createApp();
 
 const users = require("../fixtures/users");
@@ -19,7 +21,7 @@ beforeEach(async done => {
     .post("/auth/login")
     .send({ email: "admin@nhs.co.uk", password: "password" })
     .end((err, res) => {
-      token = res.body.data.token;
+      token = res.body.data.access_token;
       done();
     });
 });
@@ -105,7 +107,7 @@ describe("## User APIs", () => {
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
-          expect(res.body.code).toEqual(10005);
+          expect(res.body.code).toEqual("Error");
           expect(res.body.message).toEqual(
             "admin@nhs.co.uk has already been registered"
           );
@@ -129,26 +131,6 @@ describe("## User APIs", () => {
           expect(res.body.status).toEqual("error");
           expect(res.body.code).toEqual(10003);
           expect(res.body.message).toEqual('"email" must be a valid email');
-          done();
-        });
-    });
-
-    it("should generate a verificationToken", done => {
-      request(app)
-        .post("/users")
-        .send(user)
-        .expect(httpStatus.OK)
-        .end(async (err, res) => {
-          expect(res.body.status).toEqual("success");
-          expect(res.body.data).toBeTruthy();
-
-          const data = res.body.data;
-          expect(data).toHaveProperty("id");
-          const id = data.id;
-
-          const loadedUser = await User.findById(id);
-          expect(loadedUser).toBeTruthy();
-          expect(loadedUser.verificationToken).toBeTruthy();
           done();
         });
     });
@@ -248,7 +230,7 @@ describe("## User APIs", () => {
         .expect(httpStatus.UNAUTHORIZED)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
-          expect(res.body.message).toEqual("jwt malformed");
+          expect(res.body.message).toEqual("Not Authorised");
           done();
         });
     });
@@ -295,7 +277,7 @@ describe("## User APIs", () => {
         .expect(httpStatus.UNAUTHORIZED)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
-          expect(res.body.message).toEqual("jwt malformed");
+          expect(res.body.message).toEqual("Not Authorised");
           done();
         });
     });
@@ -361,7 +343,7 @@ describe("## User APIs", () => {
         .expect(httpStatus.UNAUTHORIZED)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
-          expect(res.body.message).toEqual("jwt malformed");
+          expect(res.body.message).toEqual("Not Authorised");
           done();
         });
     });
@@ -440,27 +422,18 @@ describe("## User APIs", () => {
     });
   });
 
-  describe("# POST /auth/forgot", () => {});
-
-  describe("# POST /auth/reset", () => {
-    beforeEach(async done => {
-      const userData = new User(users.userWithToken);
-      await userData.save();
-      done();
-    });
-
+  describe("# POST /auth/forgot", () => {
     it("should return a success response", done => {
       request(app)
-        .post("/auth/reset")
+        .post("/auth/forgot")
         .send({
-          resetPasswordToken: "54VwcGr65AKaizXTVqLhEo6cnkln7w1o",
-          password: "passw0rd"
+          email: "admin@nhs.co.uk"
         })
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("success");
           expect(res.body.data).toEqual(
-            "Password was reset successfully for adam@nhs.co.uk"
+            "Email sent successfully to admin@nhs.co.uk"
           );
           done();
         });
@@ -468,80 +441,15 @@ describe("## User APIs", () => {
 
     it("should return an error if user doesnt exist", done => {
       request(app)
-        .post("/auth/reset")
-        .send({ resetPasswordToken: "invalidToken", password: "passw0rd" })
+        .post("/auth/forgot")
+        .send({ email: "invalid@email.com" })
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
           expect(res.body.code).toEqual(10006);
           expect(res.body.message).toEqual(
-            "No registered user with token invalidToken"
+            "The object requested was not found."
           );
-          done();
-        });
-    });
-  });
-
-  describe("# POST /auth/verify", () => {
-    it("should return a success response", done => {
-      request(app)
-        .post("/auth/verify")
-        .send({ verificationToken: "107165" })
-        .end((err, res) => {
-          expect(res.body.status).toEqual("success");
-          expect(res.body.data.email).toEqual("admin@nhs.co.uk");
-          done();
-        });
-    });
-    it("should link the user to an empty organisation", async done => {
-      await Organisation.remove({});
-      request(app)
-        .post("/auth/verify")
-        .send({ verificationToken: "107165" })
-        .end((err, res) => {
-          expect(res.body.status).toEqual("success");
-          expect(res.body.data.email).toEqual("admin@nhs.co.uk");
-          expect(res.body.data.organisation).toEqual(null);
-          done();
-        });
-    });
-    it("should link the user to an organisation", async done => {
-      const org = new Organisation({
-        name: "Apex Entertainment",
-        template: "MODS"
-      });
-      await org.save();
-      request(app)
-        .post("/auth/verify")
-        .send({ verificationToken: "107165" })
-        .end((err, res) => {
-          expect(res.body.status).toEqual("success");
-          expect(res.body.data.email).toEqual("admin@nhs.co.uk");
-          expect(res.body.data.organisation.name).toEqual("Apex Entertainment");
-          expect(res.body.data.organisation.template).toEqual("MODS");
-          done();
-        });
-    });
-    it("should return an error if token is invalid", done => {
-      request(app)
-        .post("/auth/verify")
-        .send({ verificationToken: "100200" })
-        .end((err, res) => {
-          expect(res.body.status).toEqual("error");
-          expect(res.body.message).toEqual(
-            "No registered user with token 100200"
-          );
-          done();
-        });
-    });
-    it("should mark the account as valid", done => {
-      request(app)
-        .post("/auth/verify")
-        .send({ verificationToken: "107165" })
-        .end(async () => {
-          const foundUser = await User.getByEmail("admin@nhs.co.uk");
-          expect(foundUser.valid).toEqual(true);
-          expect(foundUser.verificationToken).toEqual(null);
           done();
         });
     });
@@ -556,7 +464,9 @@ describe("## User APIs", () => {
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("success");
-          expect(res.body.data).toEqual("Notification was resent by email");
+          expect(res.body.data).toEqual(
+            "Email sent successfully to admin@nhs.co.uk"
+          );
           done();
         });
     });
@@ -578,7 +488,9 @@ describe("## User APIs", () => {
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("success");
-          expect(res.body.data).toEqual("Notification was resent by email");
+          expect(res.body.data).toEqual(
+            "Email sent successfully to admin@nhs.co.uk"
+          );
           done();
         });
     });
@@ -604,7 +516,7 @@ describe("## User APIs", () => {
         .expect(httpStatus.UNAUTHORIZED)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
-          expect(res.body.message).toEqual("jwt malformed");
+          expect(res.body.message).toEqual("Not Authorised");
           done();
         });
     });

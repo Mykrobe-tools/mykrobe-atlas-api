@@ -48,19 +48,7 @@ UserSchema.post("save", (error, doc, next) => {
 /**
  * Methods
  */
-UserSchema.method({
-  /**
-   * Generate a verification token for the user
-   *
-   * @return {Promise} user saved with verification token
-   */
-  generateVerificationToken() {
-    const random = randomstring.generate();
-
-    this.verificationToken = random;
-    return this.save();
-  }
-});
+UserSchema.method({});
 
 /**
  * Statics
@@ -111,36 +99,6 @@ UserSchema.statics = {
     }
     throw new errors.ObjectNotFound(
       "No registered user with the given criteria"
-    );
-  },
-
-  /**
-   * Get user by resetPasswordToken
-   * @param {String} resetPasswordToken - The resetPasswordToken of user.
-   * @returns {Promise<User, APIError>}
-   */
-  async getByResetPasswordToken(resetPasswordToken) {
-    const user = await this.findOne({ resetPasswordToken }).exec();
-    if (user) {
-      return user;
-    }
-    throw new errors.ObjectNotFound(
-      `No registered user with token ${resetPasswordToken}`
-    );
-  },
-
-  /**
-   * Get user by verificationToken
-   * @param {String} verificationToken - The verificationToken of user.
-   * @returns {Promise<User, APIError>}
-   */
-  async getByVerificationToken(verificationToken) {
-    const user = await this.findOne({ verificationToken }).exec();
-    if (user) {
-      return user;
-    }
-    throw new errors.ObjectNotFound(
-      `No registered user with token ${verificationToken}`
     );
   },
 

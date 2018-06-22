@@ -4,6 +4,8 @@ import { createApp } from "../setup";
 import User from "../../models/user.model";
 import Organisation from "../../models/organisation.model";
 
+jest.mock("keycloak-admin-client");
+
 const app = createApp();
 
 const users = require("../fixtures/users");
@@ -22,7 +24,7 @@ beforeEach(async done => {
     .post("/auth/login")
     .send({ email: "admin@nhs.co.uk", password: "password" })
     .end(async (err, res) => {
-      token = res.body.data.token;
+      token = res.body.data.access_token;
       const savedOrganisation = await organisationData.save();
       id = savedOrganisation.id;
       done();
@@ -35,9 +37,9 @@ afterEach(async done => {
   done();
 });
 
-describe("## Experiment APIs", () => {
+describe("## Organisation APIs", () => {
   describe("# POST /organisations", () => {
-    it("should create a new experiment", done => {
+    it("should create a new organisation", done => {
       request(app)
         .post("/organisations")
         .set("Authorization", `Bearer ${token}`)
@@ -58,7 +60,7 @@ describe("## Experiment APIs", () => {
         .expect(httpStatus.UNAUTHORIZED)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
-          expect(res.body.message).toEqual("jwt malformed");
+          expect(res.body.message).toEqual("Not Authorised");
           done();
         });
     });

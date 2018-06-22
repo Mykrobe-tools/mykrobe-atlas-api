@@ -25,7 +25,6 @@ describe("## User Functions", () => {
     expect(user.lastname).toEqual("Robin");
     expect(user.phone).toEqual("06734929442");
     expect(user.email).toEqual("admin@nhs.co.uk");
-    expect(user.valid).toEqual(true);
     done();
   });
   it("should not save duplicate emails", async done => {
@@ -44,7 +43,6 @@ describe("## User Functions", () => {
     expect(user.lastname).toEqual("Crowe");
     expect(user.phone).toEqual("032435940944");
     expect(user.email).toEqual("sara@nhs.co.uk");
-    expect(user.valid).toEqual(false);
     done();
   });
   it("should fetch the user by id", async done => {
@@ -64,13 +62,6 @@ describe("## User Functions", () => {
       );
       done();
     }
-  });
-  it("should generate verificationToken", async done => {
-    const user = await User.get(id);
-    expect(user.verificationToken).toEqual("107166");
-    const userWithToken = await user.generateVerificationToken();
-    expect(userWithToken.verificationToken).not.toEqual("107166");
-    done();
   });
   it("should fetch the user by phone", async done => {
     const user = await User.getByEmail("thomas@nhs.co.uk");
@@ -107,40 +98,6 @@ describe("## User Functions", () => {
     } catch (e) {
       expect(e.name).toEqual("ObjectNotFound");
       expect(e.message).toEqual("No registered user with the given criteria");
-      done();
-    }
-  });
-  it("should find the user by resetPasswordToken", async done => {
-    const user = await User.getByResetPasswordToken(
-      "54VwcGr65AKaules/blueln7w1o"
-    );
-    expect(user.firstname).toEqual("Thomas");
-    expect(user.lastname).toEqual("Carlos");
-    done();
-  });
-  it("should return an error if resetPasswordToken doesnt exist", async done => {
-    try {
-      await User.getByResetPasswordToken("000000");
-      fail();
-    } catch (e) {
-      expect(e.name).toEqual("ObjectNotFound");
-      expect(e.message).toEqual("No registered user with token 000000");
-      done();
-    }
-  });
-  it("should find the user by verificationToken", async done => {
-    const user = await User.getByVerificationToken(107166);
-    expect(user.firstname).toEqual("Thomas");
-    expect(user.lastname).toEqual("Carlos");
-    done();
-  });
-  it("should return an error if combination doesnt match", async done => {
-    try {
-      await User.getByVerificationToken(107100);
-      fail();
-    } catch (e) {
-      expect(e.name).toEqual("ObjectNotFound");
-      expect(e.message).toEqual("No registered user with token 107100");
       done();
     }
   });

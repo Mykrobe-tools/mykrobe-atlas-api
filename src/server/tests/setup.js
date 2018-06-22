@@ -1,10 +1,11 @@
 import mongoose from "mongoose";
 import MongodbMemoryServer from "mongodb-memory-server";
 import nock from "nock";
+import Agenda from "agenda";
 import config from "../../config/env";
 import createApp from "../../config/app";
 import errorsDefinition from "../../config/errors-definition";
-import Agenda from "agenda";
+import { mockKeycloakCalls } from "./mocks";
 
 require("../../express-jsend");
 
@@ -50,5 +51,7 @@ afterAll(async () => {
   await mongoose.disconnect();
   await mongoServer.stop();
 });
+
+mockKeycloakCalls();
 
 export default { config, createApp };

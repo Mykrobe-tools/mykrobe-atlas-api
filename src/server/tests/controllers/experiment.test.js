@@ -9,6 +9,8 @@ import Organisation from "../../models/organisation.model";
 import Metadata from "../../models/metadata.model";
 import Audit from "../../models/audit.model";
 
+jest.mock("keycloak-admin-client");
+
 const app = createApp();
 
 const mongo = require("promised-mongo").compatible();
@@ -35,7 +37,7 @@ beforeEach(async done => {
     .post("/auth/login")
     .send({ email: "admin@nhs.co.uk", password: "password" })
     .end(async (err, res) => {
-      token = res.body.data.token;
+      token = res.body.data.access_token;
       const savedOrganisation = await organisationData.save();
       const savedMetadata = await metadataData.save();
       experimentData.organisation = savedOrganisation;
@@ -444,7 +446,7 @@ describe("## Experiment APIs", () => {
           .expect(httpStatus.OK)
           .end((err, res) => {
             expect(res.body.status).toEqual("error");
-            expect(res.body.message).toEqual("jwt malformed");
+            expect(res.body.message).toEqual("Not Authorised");
             done();
           });
       });
@@ -808,7 +810,7 @@ describe("## Experiment APIs", () => {
         .expect(httpStatus.UNAUTHORIZED)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
-          expect(res.body.message).toEqual("jwt malformed");
+          expect(res.body.message).toEqual("Not Authorised");
           done();
         });
     });
@@ -864,7 +866,7 @@ describe("## Experiment APIs", () => {
         .expect(httpStatus.UNAUTHORIZED)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
-          expect(res.body.message).toEqual("jwt malformed");
+          expect(res.body.message).toEqual("Not Authorised");
           done();
         });
     });
@@ -888,7 +890,7 @@ describe("## Experiment APIs", () => {
         .expect(httpStatus.UNAUTHORIZED)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
-          expect(res.body.message).toEqual("jwt malformed");
+          expect(res.body.message).toEqual("Not Authorised");
           done();
         });
     });

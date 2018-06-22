@@ -61,6 +61,56 @@ const router = express.Router(); // eslint-disable-line new-cap
  *             width: 512
  *             height: 512
  *         id: 588624076182796462cb133e
+ *   TokenResponse:
+ *     properties:
+ *       status:
+ *         type: string
+ *       data:
+ *         type: object
+ *         properties:
+ *           access_token:
+ *             type: string
+ *           expires_in:
+ *             type: number
+ *           refresh_expires_in:
+ *             type: number
+ *           token_type:
+ *             type: string
+ *           id_token:
+ *             type: string
+ *           not-before-policy:
+ *             type: number
+ *           session_state:
+ *             type: string
+ *           scope:
+ *             type: string
+ *         example:
+ *           access_token: eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJTLUVoTEVSSzl4UXczNWM1QkY2UmFaOUR0Vk9wdTY4ZUVieXZZN1E2OXdvIn0.eyJqdGkiOiI4MjM5Nz
+ *           expires_in: 300
+ *           refresh_expires_in: 1800
+ *           refresh_token: eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJTLUVoTEVSSzl4UXczNWM1QkY2UmFaOUR0Vk9wdTY4ZUVieXZZN1E2OXdvIn0.eyJqdGkiOiI0M
+ *           token_type: bearer
+ *           id_token: eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJTLUVoTEVSSzl4UXczNWM1QkY2UmFaOUR0Vk9wdTY4ZUVieXZZN1E2OXdvIn0.eyJqdGki
+ *           not-before-policy: 0
+ *           session_state: 0573dcdb-3e5d-471d-bdf5-aec830f974e5
+ *           scope: [scope]
+ *   RefreshErrorResponse:
+ *     properties:
+ *       status:
+ *         type: string
+ *       data:
+ *         type: object
+ *         properties:
+ *           status:
+ *             type: string
+ *           code:
+ *             type: string
+ *           message:
+ *             type: string
+ *         example:
+ *           status: error
+ *           code: Error
+ *           message: Request failed
  */
 
 /**
