@@ -2,6 +2,8 @@ import errors from "errors";
 import httpStatus from "http-status";
 import mkdirp from "mkdirp-promise";
 import Promise from "bluebird";
+import Agenda from "agenda";
+import { ElasticsearchHelper } from "makeandship-api-common/lib/modules/elasticsearch/";
 import Experiment from "../models/experiment.model";
 import Metadata from "../models/metadata.model";
 import Organisation from "../models/organisation.model";
@@ -10,11 +12,10 @@ import ArrayJSONTransformer from "../transformers/ArrayJSONTransformer";
 import Resumable from "../helpers/Resumable";
 import APIError from "../helpers/APIError";
 import DownloadersFactory from "../helpers/DownloadersFactory";
-import ESHelper from "../helpers/ESHelper";
 import DistinctValuesESTransformer from "../transformers/es/DistinctValuesESTransformer";
 import ExperimentsESTransformer from "../transformers/es/ExperimentsESTransformer";
 import AgendaHelper from "../helpers/AgendaHelper";
-import Agenda from "agenda";
+import experimentSchema from "../../schemas/experiment";
 
 const config = require("../../config/env");
 
@@ -55,9 +56,11 @@ async function create(req, res) {
       );
       experiment.organisation = organisation;
       const savedExperiment = await experiment.save();
-      if (!req.query.skipES) {
-        await ESHelper.indexExperiment(experiment);
-      }
+      await ElasticsearchHelper.indexDocument(
+        config,
+        savedExperiment,
+        "experiment"
+      );
       return res.jsend(savedExperiment);
     } catch (e) {
       return res.jerror(new errors.CreateExperimentError(e.message));
@@ -65,9 +68,11 @@ async function create(req, res) {
   }
   try {
     const savedExperiment = await experiment.save();
-    if (!req.query.skipES) {
-      await ESHelper.indexExperiment(experiment);
-    }
+    await ElasticsearchHelper.indexDocument(
+      config,
+      savedExperiment,
+      "experiment"
+    );
     return res.jsend(savedExperiment);
   } catch (e) {
     return res.jerror(new errors.CreateExperimentError(e.message));
@@ -82,9 +87,11 @@ async function update(req, res) {
   const experiment = Object.assign(req.experiment, req.body);
   try {
     const savedExperiment = await experiment.save();
-    if (!req.query.skipES) {
-      await ESHelper.updateExperiment(experiment);
-    }
+    await ElasticsearchHelper.updateDocument(
+      config,
+      savedExperiment,
+      "experiment"
+    );
     return res.jsend(savedExperiment);
   } catch (e) {
     return res.jerror(new errors.CreateExperimentError(e.message));
@@ -115,9 +122,11 @@ async function remove(req, res) {
   const experiment = req.experiment;
   try {
     await experiment.remove();
-    if (!req.query.skipES) {
-      await ESHelper.deleteExperiment(experiment.id);
-    }
+    await ElasticsearchHelper.deleteDocument(
+      config,
+      experiment.id,
+      "experiment"
+    );
     return res.jsend("Experiment was successfully deleted.");
   } catch (e) {
     return res.jerror(e);
@@ -134,9 +143,11 @@ async function updateMetadata(req, res) {
   experiment.metadata = metadata;
   try {
     const savedExperiment = await experiment.save();
-    if (!req.query.skipES) {
-      await ESHelper.updateExperiment(experiment);
-    }
+    await ElasticsearchHelper.updateDocument(
+      config,
+      savedExperiment,
+      "experiment"
+    );
     return res.jsend(savedExperiment);
   } catch (e) {
     return res.jerror(new errors.CreateExperimentError(e.message));
@@ -243,9 +254,14 @@ function uploadStatus(req, res) {
  */
 async function reindex(req, res) {
   try {
-    await ESHelper.deleteIndexIfExists();
-    await ESHelper.createIndex();
-    await ESHelper.indexExperiments();
+    await ElasticsearchHelper.deleteIndexIfExists(config);
+    await ElasticsearchHelper.createIndex(
+      config,
+      experimentSchema,
+      "experiment"
+    );
+    const experiments = await Experiment.list();
+    await ElasticsearchHelper.indexDocuments(config, experiments, "experiment");
     return res.jsend("All Experiments have been indexed.");
   } catch (e) {
     return res.jerror(e.message);
@@ -258,7 +274,12 @@ async function reindex(req, res) {
 async function metadataDistinctValues(req, res) {
   try {
     const attribute = req.params.attribute;
-    const resp = await ESHelper.searchMetadataValues(attribute);
+    const resp = await ElasticsearchHelper.aggregate(
+      config,
+      experimentSchema,
+      { ...req.query },
+      "experiment"
+    );
     const transformer = new DistinctValuesESTransformer(resp);
     const results = transformer.transform();
     return res.jsend(results);
@@ -273,7 +294,11 @@ async function metadataDistinctValues(req, res) {
  */
 async function search(req, res) {
   try {
-    const resp = await ESHelper.searchByMetadataFields(req.query);
+    const resp = await ElasticsearchHelper.search(
+      config,
+      { ...req.query },
+      "experiment"
+    );
     const transformer = new ExperimentsESTransformer(resp, {
       includeSummary: true
     });
