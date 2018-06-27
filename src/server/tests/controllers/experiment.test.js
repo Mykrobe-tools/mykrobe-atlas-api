@@ -61,7 +61,7 @@ describe("## Experiment APIs", () => {
   describe("# POST /experiments", () => {
     it("should create a new experiment", done => {
       request(app)
-        .post("/experiments?skipES=true")
+        .post("/experiments")
         .set("Authorization", `Bearer ${token}`)
         .send(experiments.pneumonia)
         .expect(httpStatus.OK)
@@ -77,7 +77,7 @@ describe("## Experiment APIs", () => {
 
     it("should set the owner to the current user", done => {
       request(app)
-        .post("/experiments?skipES=true")
+        .post("/experiments")
         .set("Authorization", `Bearer ${token}`)
         .send(experiments.pneumonia)
         .expect(httpStatus.OK)
@@ -179,7 +179,7 @@ describe("## Experiment APIs", () => {
         }
       };
       request(app)
-        .put(`/experiments/${id}?skipES=true`)
+        .put(`/experiments/${id}`)
         .set("Authorization", `Bearer ${token}`)
         .send(data)
         .expect(httpStatus.OK)
@@ -210,7 +210,7 @@ describe("## Experiment APIs", () => {
   describe("# DELETE /experiments/:id", () => {
     it("should delete experiment", done => {
       request(app)
-        .delete(`/experiments/${id}?skipES=true`)
+        .delete(`/experiments/${id}`)
         .set("Authorization", `Bearer ${token}`)
         .expect(httpStatus.OK)
         .end((err, res) => {
@@ -237,7 +237,7 @@ describe("## Experiment APIs", () => {
   describe("# PUT /experiments/:id/metadata", () => {
     it("should update experiment metadata", done => {
       request(app)
-        .put(`/experiments/${id}/metadata?skipES=true`)
+        .put(`/experiments/${id}/metadata`)
         .set("Authorization", `Bearer ${token}`)
         .send(metadata.basic)
         .expect(httpStatus.OK)
