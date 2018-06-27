@@ -1,11 +1,13 @@
 import request from "supertest";
 import httpStatus from "http-status";
+import { ElasticsearchHelper } from "makeandship-api-common/lib/modules/elasticsearch";
 import { createApp } from "../setup";
 import User from "../../models/user.model";
 import Experiment from "../../models/experiment.model";
 import Organisation from "../../models/organisation.model";
 import Metadata from "../../models/metadata.model";
-import ESHelper from "../../helpers/ESHelper";
+import config from "../../../config/env/";
+import experimentSchema from "../../../schemas/experiment";
 
 const app = createApp();
 
@@ -40,8 +42,8 @@ afterEach(async done => {
 });
 
 beforeAll(async done => {
-  await ESHelper.deleteIndexIfExists();
-  await ESHelper.createIndex();
+  await ElasticsearchHelper.deleteIndexIfExists(config);
+  await ElasticsearchHelper.createIndex(config, experimentSchema, "experiment");
 
   const savedOrganisation = await organisationData.save();
   const savedMetadata = await metadataData.save();
@@ -49,13 +51,18 @@ beforeAll(async done => {
   experimentData.metadata = savedMetadata;
   const experiment = await experimentData.save();
 
-  const indexed = await ESHelper.indexExperiment(experimentData);
+  await ElasticsearchHelper.indexDocument(config, experiment, "experiment");
+
+  let data = await ElasticsearchHelper.search(config, {}, "experiment");
+  while (data.hits.total === 0) {
+    data = await ElasticsearchHelper.search(config, {}, "experiment");
+  }
 
   done();
 });
 
-describe.skip("## Experiment APIs", () => {
-  describe("# GET /experiments/metadata/:attribute/values", () => {
+describe("## Experiment APIs", () => {
+  describe.skip("# GET /experiments/metadata/:attribute/values", () => {
     it("should return distinct countries from ES", done => {
       request(app)
         .get("/experiments/metadata/countryOfBirth/values")
@@ -120,7 +127,7 @@ describe.skip("## Experiment APIs", () => {
     });
     it("should filter by metadata fields", done => {
       request(app)
-        .get("/experiments/search?smoker=No&imprisoned=Yes")
+        .get("/experiments/search?metadata.smoker=No&metadata.imprisoned=Yes")
         .set("Authorization", `Bearer ${token}`)
         .expect(httpStatus.OK)
         .end((err, res) => {
@@ -131,7 +138,7 @@ describe.skip("## Experiment APIs", () => {
     });
     it("should include a summary", done => {
       request(app)
-        .get("/experiments/search?smoker=No&imprisoned=Yes")
+        .get("/experiments/search?metadata.smoker=No&metadata.imprisoned=Yes")
         .set("Authorization", `Bearer ${token}`)
         .expect(httpStatus.OK)
         .end((err, res) => {
@@ -143,7 +150,7 @@ describe.skip("## Experiment APIs", () => {
     });
     it("should be a protected route", done => {
       request(app)
-        .get("/experiments/search?smoker=No&imprisoned=Yes")
+        .get("/experiments/search?metadata.smoker=No&metadata.imprisoned=Yes")
         .set("Authorization", "Bearer INVALID_TOKEN")
         .expect(httpStatus.UNAUTHORIZED)
         .end((err, res) => {
@@ -154,7 +161,9 @@ describe.skip("## Experiment APIs", () => {
     });
     it("should allow pagination", done => {
       request(app)
-        .get("/experiments/search?smoker=No&imprisoned=Yes&per=10&page=1")
+        .get(
+          "/experiments/search?metadata.smoker=No&metadata.imprisoned=Yes&per=10&page=1"
+        )
         .set("Authorization", `Bearer ${token}`)
         .expect(httpStatus.OK)
         .end((err, res) => {
@@ -166,7 +175,9 @@ describe.skip("## Experiment APIs", () => {
     });
     it("should control the page value", done => {
       request(app)
-        .get("/experiments/search?smoker=No&imprisoned=Yes&per=10&page=0")
+        .get(
+          "/experiments/search?metadata.smoker=No&metadata.imprisoned=Yes&per=10&page=0"
+        )
         .set("Authorization", `Bearer ${token}`)
         .expect(httpStatus.OK)
         .end((err, res) => {

@@ -8,6 +8,9 @@ import Experiment from "../../models/experiment.model";
 import Organisation from "../../models/organisation.model";
 import Metadata from "../../models/metadata.model";
 import Audit from "../../models/audit.model";
+import { mockEsCalls } from "../mocks";
+
+mockEsCalls();
 
 const app = createApp();
 

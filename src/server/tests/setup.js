@@ -1,10 +1,10 @@
 import mongoose from "mongoose";
 import MongodbMemoryServer from "mongodb-memory-server";
-import nock from "nock";
+import Agenda from "agenda";
 import config from "../../config/env";
 import createApp from "../../config/app";
 import errorsDefinition from "../../config/errors-definition";
-import Agenda from "agenda";
+import { mockAnalysisApiCalls } from "./mocks";
 
 require("../../express-jsend");
 
@@ -12,20 +12,6 @@ jasmine.DEFAULT_TIMEOUT_INTERVAL = 60000;
 let mongoServer;
 
 errorsDefinition.create();
-
-nock(config.services.analysisApiUrl)
-  .persist()
-  .post("/analysis", function(body) {
-    return body.file.endsWith("333-08.json");
-  })
-  .reply(200, "OK");
-
-nock(config.services.analysisApiUrl)
-  .persist()
-  .post("/analysis", function(body) {
-    return body.file.endsWith("333-09.json");
-  })
-  .reply(500, "ERROR");
 
 beforeAll(async () => {
   mongoServer = new MongodbMemoryServer({
@@ -50,5 +36,7 @@ afterAll(async () => {
   await mongoose.disconnect();
   await mongoServer.stop();
 });
+
+mockAnalysisApiCalls();
 
 export default { config, createApp };

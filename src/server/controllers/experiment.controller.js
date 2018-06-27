@@ -142,6 +142,7 @@ async function updateMetadata(req, res) {
   const experiment = req.experiment;
   experiment.metadata = metadata;
   try {
+    await metadata.save();
     const savedExperiment = await experiment.save();
     await ElasticsearchHelper.updateDocument(
       config,
