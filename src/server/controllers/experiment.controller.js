@@ -176,7 +176,7 @@ async function uploadFile(req, res) {
       downloader.download();
       return res.jsend(`Download started from ${req.body.provider}`);
     } catch (e) {
-      return res.jerror(new errors.UploadFileError(err.message));
+      return res.jerror(new errors.UploadFileError(e.message));
     }
   }
 
@@ -304,7 +304,7 @@ async function search(req, res) {
     });
     return res.jsend(transformer.transform());
   } catch (e) {
-    return res.jerror(new errors.SearchMetadataValuesError(err.message));
+    return res.jerror(new errors.SearchMetadataValuesError(e.message));
   }
 }
 
