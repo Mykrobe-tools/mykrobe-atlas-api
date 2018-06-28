@@ -4,7 +4,7 @@ import Agenda from "agenda";
 import config from "../../config/env";
 import createApp from "../../config/app";
 import errorsDefinition from "../../config/errors-definition";
-import { mockAnalysisApiCalls } from "./mocks";
+import { mockAnalysisApiCalls, mockKeycloakCalls } from "./mocks";
 
 require("../../express-jsend");
 
@@ -38,5 +38,6 @@ afterAll(async () => {
 });
 
 mockAnalysisApiCalls();
+mockKeycloakCalls();
 
 export default { config, createApp };

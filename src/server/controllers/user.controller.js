@@ -6,6 +6,7 @@ import UserJSONTransformer from "../transformers/UserJSONTransformer";
 import AccountsHelper from "../helpers/AccountsHelper";
 import MonqHelper from "../helpers/MonqHelper";
 import config from "../../config/env";
+import keycloak from "../modules/keycloak";
 
 /**
  * Load user and append to req.
@@ -42,27 +43,17 @@ function get(req, res) {
  * @returns {User}
  */
 async function create(req, res) {
-  const user = new User({
-    firstname: req.body.firstname,
-    lastname: req.body.lastname,
-    phone: req.body.phone,
-    email: req.body.email
-  });
-  if (AccountsHelper.usePassword(config)) {
-    user.password = passwordHash.generate(req.body.password);
-  }
-  const client = MonqHelper.getClient(config);
-  const queue = client.queue(config.communications.notification);
   try {
-    const savedUser = await user.save();
-    const userWithToken = await savedUser.generateVerificationToken();
-    queue.enqueue(
-      "welcome",
-      { token: userWithToken.verificationToken, to: userWithToken.email },
-      () => res.jsend(userWithToken)
+    const { firstname, lastname, phone, email } = req.body;
+    const keycloakId = await keycloak.register(
+      { email, username: email, firstName: firstname, lastName: lastname },
+      req.body.password
     );
+    const user = new User({ firstname, lastname, phone, email, keycloakId });
+    const savedUser = await user.save();
+    res.jsend(savedUser);
   } catch (e) {
-    return res.jerror(new errors.CreateUserError(e.message));
+    return res.jerror(e);
   }
 }
 

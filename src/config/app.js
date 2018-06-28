@@ -12,6 +12,10 @@ import errors from "errors";
 import httpStatus from "http-status";
 import RateLimit from "express-rate-limit";
 import addRequestId from "express-request-id";
+import {
+  connect as keycloakConnect,
+  getUserMiddleware
+} from "../server/modules/keycloak.js";
 import winstonInstance from "./winston";
 import routes from "../server/routes/index.route";
 import config from "./env";
@@ -40,6 +44,10 @@ const createApp = ({ rateLimitReset, rateLimitMax } = config.express) => {
 
   // Support request ids
   app.use(addRequestId());
+
+  // Keycloak for account management
+  app.use(keycloakConnect.middleware());
+  app.use(getUserMiddleware);
 
   // enable detailed API logging in dev env
   if (config.env === "development") {

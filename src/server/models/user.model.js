@@ -9,32 +9,15 @@ import UserJSONTransformer from "../transformers/UserJSONTransformer";
  * User Schema
  */
 const UserSchema = new mongoose.Schema({
-  firstname: {
-    type: String,
-    required: true
-  },
-  lastname: {
-    type: String,
-    required: true
-  },
-  password: {
-    type: String,
-    required: true
-  },
-  role: {
-    type: String
-  },
+  firstname: String,
+  lastname: String,
+  role: String,
   phone: String,
   email: {
     type: String,
     unique: true
   },
-  resetPasswordToken: String,
-  verificationToken: String,
-  valid: {
-    type: Boolean,
-    default: false
-  },
+  keycloakId: String,
   organisation: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Organisation"
@@ -65,19 +48,7 @@ UserSchema.post("save", (error, doc, next) => {
 /**
  * Methods
  */
-UserSchema.method({
-  /**
-   * Generate a verification token for the user
-   *
-   * @return {Promise} user saved with verification token
-   */
-  generateVerificationToken() {
-    const random = randomstring.generate();
-
-    this.verificationToken = random;
-    return this.save();
-  }
-});
+UserSchema.method({});
 
 /**
  * Statics
@@ -128,36 +99,6 @@ UserSchema.statics = {
     }
     throw new errors.ObjectNotFound(
       "No registered user with the given criteria"
-    );
-  },
-
-  /**
-   * Get user by resetPasswordToken
-   * @param {String} resetPasswordToken - The resetPasswordToken of user.
-   * @returns {Promise<User, APIError>}
-   */
-  async getByResetPasswordToken(resetPasswordToken) {
-    const user = await this.findOne({ resetPasswordToken }).exec();
-    if (user) {
-      return user;
-    }
-    throw new errors.ObjectNotFound(
-      `No registered user with token ${resetPasswordToken}`
-    );
-  },
-
-  /**
-   * Get user by verificationToken
-   * @param {String} verificationToken - The verificationToken of user.
-   * @returns {Promise<User, APIError>}
-   */
-  async getByVerificationToken(verificationToken) {
-    const user = await this.findOne({ verificationToken }).exec();
-    if (user) {
-      return user;
-    }
-    throw new errors.ObjectNotFound(
-      `No registered user with token ${verificationToken}`
     );
   },
 

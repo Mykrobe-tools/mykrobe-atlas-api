@@ -9,6 +9,8 @@ import Metadata from "../../models/metadata.model";
 import config from "../../../config/env/";
 import experimentSchema from "../../../schemas/experiment";
 
+jest.mock("keycloak-admin-client");
+
 const app = createApp();
 
 const users = require("../fixtures/users");
@@ -33,7 +35,7 @@ beforeEach(async done => {
     .post("/auth/login")
     .send({ email: "admin@nhs.co.uk", password: "password" })
     .end((err, res) => {
-      token = res.body.data.token;
+      token = res.body.data.access_token;
       done();
     });
 });
@@ -131,7 +133,7 @@ describe("## Experiment APIs", () => {
         .expect(httpStatus.UNAUTHORIZED)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
-          expect(res.body.message).toEqual("jwt malformed");
+          expect(res.body.message).toEqual("Not Authorised");
           done();
         });
     });
@@ -178,7 +180,7 @@ describe("## Experiment APIs", () => {
         .expect(httpStatus.UNAUTHORIZED)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
-          expect(res.body.message).toEqual("jwt malformed");
+          expect(res.body.message).toEqual("Not Authorised");
           done();
         });
     });

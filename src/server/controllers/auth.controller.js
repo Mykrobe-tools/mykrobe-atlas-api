@@ -6,6 +6,8 @@ import randomstring from "randomstring";
 import User from "../models/user.model";
 import Organisation from "../models/organisation.model";
 import APIError from "../helpers/APIError";
+import keycloak from "../modules/keycloak";
+
 import config from "../../config/env";
 import MonqHelper from "../helpers/MonqHelper";
 
@@ -15,39 +17,14 @@ import MonqHelper from "../helpers/MonqHelper";
  * @param res
  * @returns {*}
  */
-function login(req, res) {
-  // Fetch the user from the db
-  User.findOne(
-    {
-      email: req.body.email
-    },
-    (err, user) => {
-      if (user && passwordHash.verify(req.body.password, user.password)) {
-        if (user.valid) {
-          const token = jwt.sign(
-            {
-              id: user.id
-            },
-            config.accounts.jwtSecret
-          );
-          return res.jsend({
-            token,
-            email: user.email,
-            id: user.id
-          });
-        }
-        return res.jerror(
-          new APIError(
-            "You must validate your account first",
-            httpStatus.UNAUTHORIZED
-          )
-        );
-      }
-      return res.jerror(
-        new APIError("Invalid credentials supplied", httpStatus.UNAUTHORIZED)
-      );
-    }
-  );
+async function login(req, res) {
+  try {
+    const { email, password } = req.body;
+    const data = await keycloak.authenticate(email, password);
+    return res.jsend(data);
+  } catch (e) {
+    return res.jerror(new APIError(e.message, httpStatus.UNAUTHORIZED));
+  }
 }
 
 /**
@@ -71,88 +48,70 @@ function getRandomNumber(req, res) {
  * @returns {*}
  */
 async function forgot(req, res) {
-  const random = randomstring.generate();
   try {
-    const user = await User.findUserAndUpdate(
-      { email: req.body.email },
-      { resetPasswordToken: random }
-    );
-    const client = MonqHelper.getClient(config);
-    const queue = client.queue(config.communications.notification);
-    queue.enqueue("forgot", { to: user.email, token: random }, () =>
-      res.jsend(`Email sent successfully to ${user.email}`)
-    );
-  } catch (e) {
-    return res.jerror(e);
-  }
-}
+    const email = req.body.email;
+    const user = await User.getByEmail(email);
 
-/**
- * This is a function to reset the users password.
- * @param req
- * @param res
- * @returns {*}
- */
-async function reset(req, res) {
-  try {
-    const user = await User.getByResetPasswordToken(
-      req.body.resetPasswordToken
-    );
-    const newPassword = passwordHash.generate(req.body.password);
-    user.password = newPassword;
-    const savedUser = await user.save();
-    return res.jsend(`Password was reset successfully for ${savedUser.email}`);
+    let keycloakId = null;
+
+    if (!user.hasOwnProperty("keycloakId")) {
+      // lookup
+      const keycloakUser = await keycloak.getUserByEmail(email);
+      if (keycloakUser) {
+        keycloakId = keycloakUser.id;
+        user.keycloakId = keycloakId;
+        const savedUser = await user.save();
+      } else {
+        return res.jerror(
+          new errors.UpdateUserError(`Unable to find user with email ${email}`)
+        );
+      }
+    } else {
+      keycloakId = user.keycloakId;
+    }
+    await keycloak.reset(keycloakId);
+    return res.jsend(`Email sent successfully to ${user.email}`);
   } catch (e) {
     return res.jerror(new errors.UpdateUserError(e.message));
   }
 }
 
-/**
- * This is a function to verify the users account.
- * @param req
- * @param res
- * @returns {*}
- */
-async function verify(req, res) {
-  // move to ES6-based bluebird bind
-  try {
-    const user = await User.getByVerificationToken(req.body.verificationToken);
-    const candidateUser = user;
-    candidateUser.valid = true;
-    candidateUser.verificationToken = null;
-    const organisation = await Organisation.findOne({});
-    candidateUser.organisation = organisation;
-    const verifiedUser = await candidateUser.save();
-    return res.jsend(verifiedUser);
-  } catch (e) {
-    return res.jerror(e);
-  }
-}
-
-/**
- * This is a function to resend the activation code.
- * @param req
- * @param res
- * @returns {*}
- */
 async function resend(req, res) {
-  const { email } = req.body;
   try {
+    const email = req.body.email;
     const user = await User.getByEmail(email);
-    const userWithToken = await user.generateVerificationToken();
-    const client = MonqHelper.getClient(config);
-    const queue = client.queue(config.communications.notification);
-    queue.enqueue(
-      "welcome",
-      { token: userWithToken.verificationToken, to: userWithToken.email },
-      () =>
-        res.jsend(
-          `Notification was resent by ${config.communications.notification}`
-        )
-    );
+
+    let keycloakId = null;
+
+    if (!user.hasOwnProperty("keycloakId")) {
+      // lookup
+      const keycloakUser = await keycloak.getUserByEmail(email);
+      if (keycloakUser) {
+        keycloakId = keycloakUser.id;
+        user.keycloakId = keycloakId;
+        const savedUser = await user.save();
+      } else {
+        return res.jerror(
+          new errors.UpdateUserError(`Unable to find user with email ${email}`)
+        );
+      }
+    } else {
+      keycloakId = user.keycloakId;
+    }
+    await keycloak.resend(keycloakId);
+    return res.jsend(`Email sent successfully to ${user.email}`);
   } catch (e) {
-    return res.jerror(e);
+    return res.jerror(new errors.UpdateUserError(e.message));
   }
 }
 
-export default { login, getRandomNumber, forgot, reset, verify, resend };
+async function refresh(req, res) {
+  try {
+    const data = await keycloak.refreshToken(req.body);
+    return res.jsend(data);
+  } catch (e) {
+    return res.jerror(new APIError(e.message, httpStatus.UNAUTHORIZED));
+  }
+}
+
+export default { login, getRandomNumber, forgot, refresh, resend };

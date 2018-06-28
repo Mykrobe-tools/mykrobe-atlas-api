@@ -128,5 +128,12 @@ export default {
         .integer()
         .min(1)
     }
+  },
+
+  // POST /auth/refresh
+  refreshToken: {
+    body: {
+      refreshToken: Joi.string().required()
+    }
   }
 };
