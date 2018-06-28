@@ -21,8 +21,10 @@ const metadata = require("../fixtures/metadata");
 const organisationData = new Organisation(
   experiments.tuberculosis.organisation
 );
-const metadataData = new Metadata(metadata.basic);
+const metadataData = new Metadata(metadata.sample1);
 const experimentData = new Experiment(experiments.tuberculosis);
+const metadataData2 = new Metadata(metadata.sample2);
+const experimentData2 = new Experiment(experiments.pneumonia);
 
 beforeEach(async done => {
   const userData = new User(users.admin);
@@ -45,65 +47,86 @@ beforeAll(async done => {
   await ElasticsearchHelper.deleteIndexIfExists(config);
   await ElasticsearchHelper.createIndex(config, experimentSchema, "experiment");
 
+  // save first experiment
   const savedOrganisation = await organisationData.save();
   const savedMetadata = await metadataData.save();
   experimentData.organisation = savedOrganisation;
   experimentData.metadata = savedMetadata;
-  const experiment = await experimentData.save();
+  await experimentData.save();
 
-  await ElasticsearchHelper.indexDocument(config, experiment, "experiment");
+  // save second experiment
+  const savedMetadata2 = await metadataData2.save();
+  experimentData2.organisation = savedOrganisation;
+  experimentData2.metadata = savedMetadata2;
+  await experimentData2.save();
+
+  // index to elasticsearch
+  const experiments = await Experiment.list();
+  await ElasticsearchHelper.indexDocuments(config, experiments, "experiment");
 
   let data = await ElasticsearchHelper.search(config, {}, "experiment");
-  while (data.hits.total === 0) {
+  while (data.hits.total < 2) {
     data = await ElasticsearchHelper.search(config, {}, "experiment");
   }
 
   done();
 });
 
+afterAll(async done => {
+  await ElasticsearchHelper.deleteIndexIfExists(config);
+  await ElasticsearchHelper.createIndex(config, experimentSchema, "experiment");
+  await Experiment.remove({});
+  done();
+});
+
 describe("## Experiment APIs", () => {
-  describe.skip("# GET /experiments/metadata/:attribute/values", () => {
-    it("should return distinct countries from ES", done => {
+  describe("# GET /experiments/metadata/choices", () => {
+    it("should return min and max dates", done => {
       request(app)
-        .get("/experiments/metadata/countryOfBirth/values")
+        .get("/experiments/metadata/choices")
         .set("Authorization", `Bearer ${token}`)
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("success");
-          expect(Array.isArray(res.body.data)).toBe(true);
-          expect(res.body.data.length).toEqual(1);
-          expect(res.body.data[0]).toEqual("Hong Kong");
+          const data = res.body.data;
+          expect(data["metadata.dateArrived"].min).toEqual(
+            "2017-04-21T00:00:00.000Z"
+          );
+          expect(data["metadata.dateArrived"].max).toEqual(
+            "2018-05-18T00:00:00.000Z"
+          );
           done();
         });
     });
-    it("should return distinct bmi values from ES", done => {
+    it("should return min and max bmi values", done => {
       request(app)
-        .get("/experiments/metadata/bmi/values")
+        .get("/experiments/metadata/choices")
         .set("Authorization", `Bearer ${token}`)
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("success");
-          expect(Array.isArray(res.body.data)).toBe(true);
-          expect(res.body.data.length).toEqual(1);
-          expect(res.body.data[0]).toEqual(12);
+          const data = res.body.data;
+          expect(data["metadata.bmi"].min).toEqual(3);
+          expect(data["metadata.bmi"].max).toEqual(12);
           done();
         });
     });
-    it("should return empty array if field unknown", done => {
+    it("should return min and max patient age", done => {
       request(app)
-        .get("/experiments/metadata/unknown/values")
+        .get("/experiments/metadata/choices")
         .set("Authorization", `Bearer ${token}`)
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("success");
-          expect(Array.isArray(res.body.data)).toBe(true);
-          expect(res.body.data.length).toEqual(0);
+          const data = res.body.data;
+          expect(data["metadata.patientAge"].min).toEqual(8);
+          expect(data["metadata.patientAge"].max).toEqual(34);
           done();
         });
     });
     it("should be a protected route", done => {
       request(app)
-        .get("/experiments/metadata/countryOfBirth/values")
+        .get("/experiments/metadata/choices")
         .set("Authorization", "Bearer INVALID_TOKEN")
         .expect(httpStatus.UNAUTHORIZED)
         .end((err, res) => {
@@ -121,7 +144,7 @@ describe("## Experiment APIs", () => {
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("success");
-          expect(res.body.data.results.length).toEqual(1);
+          expect(res.body.data.results.length).toEqual(2);
           done();
         });
     });
@@ -132,7 +155,7 @@ describe("## Experiment APIs", () => {
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("success");
-          expect(res.body.data.results.length).toEqual(1);
+          expect(res.body.data.results.length).toEqual(2);
           done();
         });
     });
@@ -143,8 +166,8 @@ describe("## Experiment APIs", () => {
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("success");
-          expect(res.body.data.summary.hits).toEqual(1);
-          expect(res.body.data.results.length).toEqual(1);
+          expect(res.body.data.summary.hits).toEqual(2);
+          expect(res.body.data.results.length).toEqual(2);
           done();
         });
     });
@@ -168,8 +191,8 @@ describe("## Experiment APIs", () => {
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("success");
-          expect(res.body.data.summary.hits).toEqual(1);
-          expect(res.body.data.results.length).toEqual(1);
+          expect(res.body.data.summary.hits).toEqual(2);
+          expect(res.body.data.results.length).toEqual(2);
           done();
         });
     });

@@ -12,7 +12,7 @@ import ArrayJSONTransformer from "../transformers/ArrayJSONTransformer";
 import Resumable from "../helpers/Resumable";
 import APIError from "../helpers/APIError";
 import DownloadersFactory from "../helpers/DownloadersFactory";
-import DistinctValuesESTransformer from "../transformers/es/DistinctValuesESTransformer";
+import ChoicesESTransformer from "../transformers/es/ChoicesESTransformer";
 import ExperimentsESTransformer from "../transformers/es/ExperimentsESTransformer";
 import AgendaHelper from "../helpers/AgendaHelper";
 import experimentSchema from "../../schemas/experiment";
@@ -272,7 +272,7 @@ async function reindex(req, res) {
 /**
  * Search distinct metadata values from ES
  */
-async function metadataDistinctValues(req, res) {
+async function choices(req, res) {
   try {
     const attribute = req.params.attribute;
     const resp = await ElasticsearchHelper.aggregate(
@@ -281,9 +281,8 @@ async function metadataDistinctValues(req, res) {
       { ...req.query },
       "experiment"
     );
-    const transformer = new DistinctValuesESTransformer(resp);
-    const results = transformer.transform();
-    return res.jsend(results);
+    const resultsTransformer = new ChoicesESTransformer(resp, {});
+    return res.jsend(resultsTransformer.transform());
   } catch (e) {
     return res.jerror(new errors.SearchMetadataValuesError(e.message));
   }
@@ -321,6 +320,6 @@ export default {
   readFile,
   uploadStatus,
   reindex,
-  metadataDistinctValues,
+  choices,
   search
 };

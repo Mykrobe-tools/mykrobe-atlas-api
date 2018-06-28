@@ -6,7 +6,7 @@ const metadata = require("../fixtures/metadata");
 let id = null;
 
 beforeEach(async done => {
-  const metadataData = new Metadata(metadata.basic);
+  const metadataData = new Metadata(metadata.sample1);
   const savedMetadata = await metadataData.save();
   id = savedMetadata.id;
   done();
@@ -19,7 +19,7 @@ afterEach(async done => {
 
 describe("## Metadata Functions", () => {
   it("should save a new metadata", async done => {
-    const metadataData = new Metadata(metadata.basic);
+    const metadataData = new Metadata(metadata.sample1);
     const savedMetadata = await metadataData.save();
     expect(savedMetadata.patientId).toEqual("12345");
     expect(savedMetadata.siteId).toEqual("abc");

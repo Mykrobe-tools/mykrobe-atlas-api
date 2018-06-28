@@ -30,7 +30,7 @@ beforeEach(async done => {
   const organisationData = new Organisation(
     experiments.tuberculosis.organisation
   );
-  const metadataData = new Metadata(metadata.basic);
+  const metadataData = new Metadata(metadata.sample1);
   const experimentData = new Experiment(experiments.tuberculosis);
 
   const savedUser = await userData.save();
@@ -239,7 +239,7 @@ describe("## Experiment APIs", () => {
       request(app)
         .put(`/experiments/${id}/metadata`)
         .set("Authorization", `Bearer ${token}`)
-        .send(metadata.basic)
+        .send(metadata.sample1)
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("success");
