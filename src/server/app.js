@@ -12,14 +12,13 @@ import errors from "errors";
 import httpStatus from "http-status";
 import RateLimit from "express-rate-limit";
 import addRequestId from "express-request-id";
-import {
-  connect as keycloakConnect,
-  getUserMiddleware
-} from "../server/modules/keycloak.js";
-import winstonInstance from "./winston";
-import routes from "../server/routes/index.route";
-import config from "./env";
-import APIError from "../server/helpers/APIError";
+import winstonInstance from "./modules/winston";
+import routes from "./routes/index.route";
+import config from "../config/env";
+import APIError from "./helpers/APIError";
+import AccountsHelper from "./helpers/AccountsHelper";
+
+const keycloak = AccountsHelper.keycloakInstance();
 
 const createApp = ({ rateLimitReset, rateLimitMax } = config.express) => {
   const app = express();
@@ -46,8 +45,8 @@ const createApp = ({ rateLimitReset, rateLimitMax } = config.express) => {
   app.use(addRequestId());
 
   // Keycloak for account management
-  app.use(keycloakConnect.middleware());
-  app.use(getUserMiddleware);
+  app.use(keycloak.connect.middleware());
+  app.use(keycloak.getUserMiddleware.bind(keycloak));
 
   // enable detailed API logging in dev env
   if (config.env === "development") {

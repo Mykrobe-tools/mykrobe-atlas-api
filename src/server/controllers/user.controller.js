@@ -6,7 +6,8 @@ import UserJSONTransformer from "../transformers/UserJSONTransformer";
 import AccountsHelper from "../helpers/AccountsHelper";
 import MonqHelper from "../helpers/MonqHelper";
 import config from "../../config/env";
-import keycloak from "../modules/keycloak";
+
+const keycloak = AccountsHelper.keycloakInstance();
 
 /**
  * Load user and append to req.

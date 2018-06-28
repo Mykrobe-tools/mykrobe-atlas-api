@@ -1,12 +1,13 @@
 import express from "express";
 import validate from "express-validation";
-import { connect as keycloakConnect } from "../modules/keycloak.js";
+import AccountsHelper from "../helpers/AccountsHelper";
 import paramValidation from "../../config/param-validation";
 import userController from "../controllers/user.controller";
 import config from "../../config/env";
 import jwt from "../../config/jwt";
 
 const router = express.Router(); // eslint-disable-line new-cap
+const keycloak = AccountsHelper.keycloakInstance();
 
 router
   .route("/")
@@ -88,7 +89,7 @@ router
    *       401:
    *         description: Failed authentication
    */
-  .get(keycloakConnect.protect(), userController.list)
+  .get(keycloak.connect.protect(), userController.list)
 
   /**
    * @swagger
@@ -157,7 +158,7 @@ router
    *         schema:
    *           $ref: '#/definitions/UserResponse'
    */
-  .get(keycloakConnect.protect(), userController.get)
+  .get(keycloak.connect.protect(), userController.get)
 
   /**
    * @swagger
@@ -203,7 +204,7 @@ router
    *           $ref: '#/definitions/UserResponse'
    */
   .put(
-    keycloakConnect.protect(),
+    keycloak.connect.protect(),
     validate(paramValidation.updateUser),
     userController.update
   )
@@ -232,7 +233,7 @@ router
    *         schema:
    *           $ref: '#/definitions/BasicResponse'
    */
-  .delete(keycloakConnect.protect(), userController.remove);
+  .delete(keycloak.connect.protect(), userController.remove);
 
 router
   .route("/:id/role")
@@ -261,7 +262,7 @@ router
    *           $ref: '#/definitions/UserResponse'
    */
   .post(
-    keycloakConnect.protect(),
+    keycloak.connect.protect(),
     jwt.checkPermission(config.accounts.adminRole),
     userController.assignRole
   );

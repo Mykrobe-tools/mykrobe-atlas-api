@@ -6,10 +6,12 @@ import randomstring from "randomstring";
 import User from "../models/user.model";
 import Organisation from "../models/organisation.model";
 import APIError from "../helpers/APIError";
-import keycloak from "../modules/keycloak";
+import AccountsHelper from "../helpers/AccountsHelper";
 
 import config from "../../config/env";
 import MonqHelper from "../helpers/MonqHelper";
+
+const keycloak = AccountsHelper.keycloakInstance();
 
 /**
  * Returns jwt token if valid email and password is provided

@@ -1,7 +1,7 @@
 import express from "express";
 import validate from "express-validation";
 import multer from "multer";
-import { connect as keycloakConnect } from "../modules/keycloak.js";
+import AccountsHelper from "../helpers/AccountsHelper";
 import paramValidation from "../../config/param-validation";
 import experimentController from "../controllers/experiment.controller";
 import userController from "../controllers/user.controller";
@@ -9,6 +9,7 @@ import config from "../../config/env";
 
 const upload = multer({ dest: "tmp/" });
 const router = express.Router(); // eslint-disable-line new-cap
+const keycloak = AccountsHelper.keycloakInstance();
 
 /**
  * @swagger
@@ -585,7 +586,7 @@ router
    *       401:
    *         description: Failed authentication
    */
-  .get(keycloakConnect.protect(), experimentController.list)
+  .get(keycloak.connect.protect(), experimentController.list)
   /**
    * @swagger
    * /experiments:
@@ -700,7 +701,7 @@ router
    *           $ref: '#/definitions/ExperimentResponse'
    */
   .post(
-    keycloakConnect.protect(),
+    keycloak.connect.protect(),
     validate(paramValidation.createExperiment),
     userController.loadCurrentUser,
     experimentController.create
@@ -728,7 +729,7 @@ router
    *         description: Failed authentication
    */
   .get(
-    keycloakConnect.protect(),
+    keycloak.connect.protect(),
     validate(paramValidation.searchExperiment),
     experimentController.search
   );
@@ -759,7 +760,7 @@ router
    *         schema:
    *           $ref: '#/definitions/ExperimentResponse'
    */
-  .get(keycloakConnect.protect(), experimentController.get)
+  .get(keycloak.connect.protect(), experimentController.get)
   /**
    * @swagger
    * /experiments/{id}:
@@ -870,7 +871,7 @@ router
    *         schema:
    *           $ref: '#/definitions/ExperimentResponse'
    */
-  .put(keycloakConnect.protect(), experimentController.update)
+  .put(keycloak.connect.protect(), experimentController.update)
   /**
    * @swagger
    * /experiments/{id}:
@@ -895,7 +896,7 @@ router
    *         schema:
    *           $ref: '#/definitions/BasicResponse'
    */
-  .delete(keycloakConnect.protect(), experimentController.remove);
+  .delete(keycloak.connect.protect(), experimentController.remove);
 router
   .route("/:id/metadata")
   /**
@@ -927,7 +928,7 @@ router
    *         schema:
    *           $ref: '#/definitions/ExperimentResponse'
    */
-  .put(keycloakConnect.protect(), experimentController.updateMetadata);
+  .put(keycloak.connect.protect(), experimentController.updateMetadata);
 router
   .route("/:id/file")
   /**
@@ -1004,7 +1005,7 @@ router
    *           $ref: '#/definitions/BasicResponse'
    */
   .put(
-    keycloakConnect.protect(),
+    keycloak.connect.protect(),
     validate(paramValidation.uploadFile),
     upload.single("file"),
     experimentController.uploadFile
@@ -1036,7 +1037,7 @@ router
    *       401:
    *         description: Failed authentication
    */
-  .get(keycloakConnect.protect(), experimentController.readFile);
+  .get(keycloak.connect.protect(), experimentController.readFile);
 router
   .route("/:id/upload-status")
   /**
@@ -1063,7 +1064,7 @@ router
    *         schema:
    *           $ref: '#/definitions/BasicResponse'
    */
-  .get(keycloakConnect.protect(), experimentController.uploadStatus);
+  .get(keycloak.connect.protect(), experimentController.uploadStatus);
 router
   .route("/reindex")
   /**
@@ -1084,7 +1085,7 @@ router
    *         schema:
    *           $ref: '#/definitions/BasicResponse'
    */
-  .post(keycloakConnect.protect(), experimentController.reindex);
+  .post(keycloak.connect.protect(), experimentController.reindex);
 router
   .route("/metadata/choices")
   /**
@@ -1107,7 +1108,7 @@ router
    *       401:
    *         description: Failed authentication
    */
-  .get(keycloakConnect.protect(), experimentController.choices);
+  .get(keycloak.connect.protect(), experimentController.choices);
 /** Load user when API with id route parameter is hit */
 router.param("id", experimentController.load);
 

@@ -1,11 +1,10 @@
 import express from "express";
-import { connect as keycloakConnect } from "../modules/keycloak.js";
+import AccountsHelper from "../helpers/AccountsHelper";
 import userController from "../controllers/user.controller";
-//import config from "../../config/env"
+import config from "../../config/env";
 
 const router = express.Router(); // eslint-disable-line new-cap
-
-const config = require("../../config/env");
+const keycloak = AccountsHelper.keycloakInstance();
 
 router
   .route("/")
@@ -30,7 +29,7 @@ router
    *         description: Failed authentication
    */
   .get(
-    keycloakConnect.protect(),
+    keycloak.connect.protect(),
     userController.loadCurrentUser,
     userController.get
   )
@@ -75,7 +74,7 @@ router
    *         description: Failed authentication
    */
   .put(
-    keycloakConnect.protect(),
+    keycloak.connect.protect(),
     userController.loadCurrentUser,
     userController.update
   )
@@ -98,7 +97,7 @@ router
    *           $ref: '#/definitions/BasicResponse'
    */
   .delete(
-    keycloakConnect.protect(),
+    keycloak.connect.protect(),
     userController.loadCurrentUser,
     userController.remove
   );

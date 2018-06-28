@@ -2,11 +2,11 @@ import mongoose from "mongoose";
 import MongodbMemoryServer from "mongodb-memory-server";
 import Agenda from "agenda";
 import config from "../../config/env";
-import createApp from "../../config/app";
 import errorsDefinition from "../../config/errors-definition";
 import { mockAnalysisApiCalls, mockKeycloakCalls } from "./mocks";
 
 require("../../express-jsend");
+const createApp = require("../../server/app");
 
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 60000;
 let mongoServer;

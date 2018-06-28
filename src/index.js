@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import util from "util";
 import config from "./config/env";
-import createApp from "./config/app";
+import createApp from "./server/app";
 import errors from "./config/errors-definition";
 
 require("./express-jsend");
