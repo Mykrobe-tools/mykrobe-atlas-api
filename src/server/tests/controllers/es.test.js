@@ -1,11 +1,13 @@
 import request from "supertest";
 import httpStatus from "http-status";
+import { ElasticsearchHelper } from "makeandship-api-common/lib/modules/elasticsearch";
 import { createApp } from "../setup";
 import User from "../../models/user.model";
 import Experiment from "../../models/experiment.model";
 import Organisation from "../../models/organisation.model";
 import Metadata from "../../models/metadata.model";
-import ESHelper from "../../helpers/ESHelper";
+import config from "../../../config/env/";
+import experimentSchema from "../../../schemas/experiment";
 
 jest.mock("keycloak-admin-client");
 
@@ -21,8 +23,10 @@ const metadata = require("../fixtures/metadata");
 const organisationData = new Organisation(
   experiments.tuberculosis.organisation
 );
-const metadataData = new Metadata(metadata.basic);
+const metadataData = new Metadata(metadata.sample1);
 const experimentData = new Experiment(experiments.tuberculosis);
+const metadataData2 = new Metadata(metadata.sample2);
+const experimentData2 = new Experiment(experiments.pneumonia);
 
 beforeEach(async done => {
   const userData = new User(users.admin);
@@ -42,63 +46,89 @@ afterEach(async done => {
 });
 
 beforeAll(async done => {
-  await ESHelper.deleteIndexIfExists();
-  await ESHelper.createIndex();
+  await ElasticsearchHelper.deleteIndexIfExists(config);
+  await ElasticsearchHelper.createIndex(config, experimentSchema, "experiment");
 
+  // save first experiment
   const savedOrganisation = await organisationData.save();
   const savedMetadata = await metadataData.save();
   experimentData.organisation = savedOrganisation;
   experimentData.metadata = savedMetadata;
-  const experiment = await experimentData.save();
+  await experimentData.save();
 
-  const indexed = await ESHelper.indexExperiment(experimentData);
+  // save second experiment
+  const savedMetadata2 = await metadataData2.save();
+  experimentData2.organisation = savedOrganisation;
+  experimentData2.metadata = savedMetadata2;
+  await experimentData2.save();
+
+  // index to elasticsearch
+  const experiments = await Experiment.list();
+  await ElasticsearchHelper.indexDocuments(config, experiments, "experiment");
+
+  let data = await ElasticsearchHelper.search(config, {}, "experiment");
+  while (data.hits.total < 2) {
+    data = await ElasticsearchHelper.search(config, {}, "experiment");
+  }
 
   done();
 });
 
-describe.skip("## Experiment APIs", () => {
-  describe("# GET /experiments/metadata/:attribute/values", () => {
-    it("should return distinct countries from ES", done => {
+afterAll(async done => {
+  await ElasticsearchHelper.deleteIndexIfExists(config);
+  await ElasticsearchHelper.createIndex(config, experimentSchema, "experiment");
+  await Experiment.remove({});
+  done();
+});
+
+describe("## Experiment APIs", () => {
+  describe("# GET /experiments/metadata/choices", () => {
+    it("should return min and max dates", done => {
       request(app)
-        .get("/experiments/metadata/countryOfBirth/values")
+        .get("/experiments/metadata/choices")
         .set("Authorization", `Bearer ${token}`)
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("success");
-          expect(Array.isArray(res.body.data)).toBe(true);
-          expect(res.body.data.length).toEqual(1);
-          expect(res.body.data[0]).toEqual("Hong Kong");
+          const data = res.body.data;
+          expect(data["metadata.dateArrived"].min).toEqual(
+            "2017-04-21T00:00:00.000Z"
+          );
+          expect(data["metadata.dateArrived"].max).toEqual(
+            "2018-05-18T00:00:00.000Z"
+          );
           done();
         });
     });
-    it("should return distinct bmi values from ES", done => {
+    it("should return min and max bmi values", done => {
       request(app)
-        .get("/experiments/metadata/bmi/values")
+        .get("/experiments/metadata/choices")
         .set("Authorization", `Bearer ${token}`)
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("success");
-          expect(Array.isArray(res.body.data)).toBe(true);
-          expect(res.body.data.length).toEqual(1);
-          expect(res.body.data[0]).toEqual(12);
+          const data = res.body.data;
+          expect(data["metadata.bmi"].min).toEqual(3);
+          expect(data["metadata.bmi"].max).toEqual(12);
           done();
         });
     });
-    it("should return empty array if field unknown", done => {
+    it("should return min and max patient age", done => {
       request(app)
-        .get("/experiments/metadata/unknown/values")
+        .get("/experiments/metadata/choices")
         .set("Authorization", `Bearer ${token}`)
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("success");
-          expect(Array.isArray(res.body.data)).toBe(true);
-          expect(res.body.data.length).toEqual(0);
+          const data = res.body.data;
+          expect(data["metadata.patientAge"].min).toEqual(8);
+          expect(data["metadata.patientAge"].max).toEqual(34);
           done();
         });
     });
     it("should be a protected route", done => {
       request(app)
-        .get("/experiments/metadata/countryOfBirth/values")
+        .get("/experiments/metadata/choices")
         .set("Authorization", "Bearer INVALID_TOKEN")
         .expect(httpStatus.UNAUTHORIZED)
         .end((err, res) => {
@@ -116,36 +146,36 @@ describe.skip("## Experiment APIs", () => {
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("success");
-          expect(res.body.data.results.length).toEqual(1);
+          expect(res.body.data.results.length).toEqual(2);
           done();
         });
     });
     it("should filter by metadata fields", done => {
       request(app)
-        .get("/experiments/search?smoker=No&imprisoned=Yes")
+        .get("/experiments/search?metadata.smoker=No&metadata.imprisoned=Yes")
         .set("Authorization", `Bearer ${token}`)
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("success");
-          expect(res.body.data.results.length).toEqual(1);
+          expect(res.body.data.results.length).toEqual(2);
           done();
         });
     });
     it("should include a summary", done => {
       request(app)
-        .get("/experiments/search?smoker=No&imprisoned=Yes")
+        .get("/experiments/search?metadata.smoker=No&metadata.imprisoned=Yes")
         .set("Authorization", `Bearer ${token}`)
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("success");
-          expect(res.body.data.summary.hits).toEqual(1);
-          expect(res.body.data.results.length).toEqual(1);
+          expect(res.body.data.summary.hits).toEqual(2);
+          expect(res.body.data.results.length).toEqual(2);
           done();
         });
     });
     it("should be a protected route", done => {
       request(app)
-        .get("/experiments/search?smoker=No&imprisoned=Yes")
+        .get("/experiments/search?metadata.smoker=No&metadata.imprisoned=Yes")
         .set("Authorization", "Bearer INVALID_TOKEN")
         .expect(httpStatus.UNAUTHORIZED)
         .end((err, res) => {
@@ -156,19 +186,23 @@ describe.skip("## Experiment APIs", () => {
     });
     it("should allow pagination", done => {
       request(app)
-        .get("/experiments/search?smoker=No&imprisoned=Yes&per=10&page=1")
+        .get(
+          "/experiments/search?metadata.smoker=No&metadata.imprisoned=Yes&per=10&page=1"
+        )
         .set("Authorization", `Bearer ${token}`)
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("success");
-          expect(res.body.data.summary.hits).toEqual(1);
-          expect(res.body.data.results.length).toEqual(1);
+          expect(res.body.data.summary.hits).toEqual(2);
+          expect(res.body.data.results.length).toEqual(2);
           done();
         });
     });
     it("should control the page value", done => {
       request(app)
-        .get("/experiments/search?smoker=No&imprisoned=Yes&per=10&page=0")
+        .get(
+          "/experiments/search?metadata.smoker=No&metadata.imprisoned=Yes&per=10&page=0"
+        )
         .set("Authorization", `Bearer ${token}`)
         .expect(httpStatus.OK)
         .end((err, res) => {

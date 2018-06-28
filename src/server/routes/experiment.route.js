@@ -481,6 +481,88 @@ const router = express.Router(); // eslint-disable-line new-cap
  *               id: 58e4c7526555100f447d50ee
  *             id: 588624076182796462cb133e
  */
+/**
+ * @swagger
+ * definitions:
+ *   MetadataChoicesResponse:
+ *     properties:
+ *       status:
+ *         type: string
+ *       data:
+ *         type: object
+ *         properties:
+ *           field1:
+ *             type: array
+ *             items:
+ *               type: object
+ *               properties:
+ *                 key:
+ *                   type: string
+ *                 count:
+ *                   type: integer
+ *           field2:
+ *             type: array
+ *             items:
+ *               type: object
+ *               properties:
+ *                 key:
+ *                   type: string
+ *                 count:
+ *                   type: integer
+ *           field3:
+ *             type: array
+ *             items:
+ *               type: object
+ *               properties:
+ *                 key:
+ *                   type: string
+ *                 count:
+ *                   type: integer
+ *           field4:
+ *             type: array
+ *             items:
+ *               type: object
+ *               properties:
+ *                 key:
+ *                   type: string
+ *                 count:
+ *                   type: integer
+ *           field5:
+ *             type: array
+ *             items:
+ *               type: object
+ *               properties:
+ *                 key:
+ *                   type: string
+ *                 count:
+ *                   type: integer
+ *           range1:
+ *             type: object
+ *             properties:
+ *               min:
+ *                 type: integer
+ *               max:
+ *                 type: integer
+ *           range2:
+ *             type: object
+ *             properties:
+ *               min:
+ *                 type: string
+ *               max:
+ *                 type: string
+ *     example:
+ *       status: success
+ *       data:
+ *         metadata.priorTreatmentDate:
+ *           min: 2018-04-03T14:03:00.036Z
+ *           max: 2018-05-03T12:09:57.322Z
+ *         metadata.patientAge:
+ *           min: 4
+ *           max: 63
+ *         metadata.collectionDate:
+ *           min: 2018-04-03T14:03:00.036Z
+ *           max: 2018-05-03T12:09:57.322Z
+ */
 router
   .route("/")
   /**
@@ -1004,48 +1086,28 @@ router
    */
   .post(keycloakConnect.protect(), experimentController.reindex);
 router
-  .route("/metadata/:attribute/values")
+  .route("/metadata/choices")
   /**
    * @swagger
-   * /experiments/{attribute}/values:
+   * /experiments/metadata/choices:
    *   get:
    *     tags:
    *       - Experiments
-   *     description: Get metadata values
-   *     operationId: metadataValues
+   *     description: Metadata choices
+   *     operationId: experimentsMetadataChoices
    *     produces:
    *       - application/json
    *     security:
    *       - Bearer: []
-   *     parameters:
-   *       - in: path
-   *         name: attribute
-   *         required: true
-   *         type: string
-   *         description: The metadata attribute
    *     responses:
    *       200:
-   *         description: A jsend response
+   *         description: Experiments metadata choices
    *         schema:
-   *           type: object
-   *           properties:
-   *             status:
-   *               type: string
-   *             data:
-   *               type: array
-   *               items:
-   *                 type: object
-   *                 properties:
-   *                   value:
-   *                     type: string
-   *           example:
-   *             status: success
-   *             data:
-   *               - value1
-   *                 value2
-   *                 value3
+   *           $ref: '#/definitions/MetadataChoicesResponse'
+   *       401:
+   *         description: Failed authentication
    */
-  .get(keycloakConnect.protect(), experimentController.metadataDistinctValues);
+  .get(keycloakConnect.protect(), experimentController.choices);
 /** Load user when API with id route parameter is hit */
 router.param("id", experimentController.load);
 

@@ -7,7 +7,7 @@ import ESTransformer from "./ESTransformer";
 class AggregationsESTransformer extends ESTransformer {
   transform() {
     const res = super.transform();
-    return res.aggregations.values.buckets;
+    return res.aggregations;
   }
 }
 
