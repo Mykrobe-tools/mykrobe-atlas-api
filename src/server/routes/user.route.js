@@ -1,5 +1,5 @@
 import express from "express";
-import expressJwt from "express-jwt";
+import { connect as keycloakConnect } from "../modules/keycloak.js";
 import userController from "../controllers/user.controller";
 //import config from "../../config/env"
 
@@ -30,7 +30,7 @@ router
    *         description: Failed authentication
    */
   .get(
-    expressJwt({ secret: config.accounts.jwtSecret }),
+    keycloakConnect.protect(),
     userController.loadCurrentUser,
     userController.get
   )
@@ -75,7 +75,7 @@ router
    *         description: Failed authentication
    */
   .put(
-    expressJwt({ secret: config.accounts.jwtSecret }),
+    keycloakConnect.protect(),
     userController.loadCurrentUser,
     userController.update
   )
@@ -98,7 +98,7 @@ router
    *           $ref: '#/definitions/BasicResponse'
    */
   .delete(
-    expressJwt({ secret: config.accounts.jwtSecret }),
+    keycloakConnect.protect(),
     userController.loadCurrentUser,
     userController.remove
   );

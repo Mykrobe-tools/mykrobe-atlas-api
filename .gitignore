@@ -57,3 +57,4 @@ jest
 doc
 
 tmp/*
+package-lock.json

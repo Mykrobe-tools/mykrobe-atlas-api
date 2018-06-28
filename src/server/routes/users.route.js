@@ -1,6 +1,6 @@
 import express from "express";
 import validate from "express-validation";
-import expressJwt from "express-jwt";
+import { connect as keycloakConnect } from "../modules/keycloak.js";
 import paramValidation from "../../config/param-validation";
 import userController from "../controllers/user.controller";
 import config from "../../config/env";
@@ -88,7 +88,7 @@ router
    *       401:
    *         description: Failed authentication
    */
-  .get(expressJwt({ secret: config.accounts.jwtSecret }), userController.list)
+  .get(keycloakConnect.protect(), userController.list)
 
   /**
    * @swagger
@@ -157,7 +157,7 @@ router
    *         schema:
    *           $ref: '#/definitions/UserResponse'
    */
-  .get(expressJwt({ secret: config.accounts.jwtSecret }), userController.get)
+  .get(keycloakConnect.protect(), userController.get)
 
   /**
    * @swagger
@@ -203,7 +203,7 @@ router
    *           $ref: '#/definitions/UserResponse'
    */
   .put(
-    expressJwt({ secret: config.accounts.jwtSecret }),
+    keycloakConnect.protect(),
     validate(paramValidation.updateUser),
     userController.update
   )
@@ -232,10 +232,7 @@ router
    *         schema:
    *           $ref: '#/definitions/BasicResponse'
    */
-  .delete(
-    expressJwt({ secret: config.accounts.jwtSecret }),
-    userController.remove
-  );
+  .delete(keycloakConnect.protect(), userController.remove);
 
 router
   .route("/:id/role")
@@ -264,7 +261,7 @@ router
    *           $ref: '#/definitions/UserResponse'
    */
   .post(
-    expressJwt({ secret: config.accounts.jwtSecret }),
+    keycloakConnect.protect(),
     jwt.checkPermission(config.accounts.adminRole),
     userController.assignRole
   );
