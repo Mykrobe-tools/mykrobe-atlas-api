@@ -1939,10 +1939,6 @@ diff@^3.2.0:
   version "3.5.0"
   resolved "https://registry.yarnpkg.com/diff/-/diff-3.5.0.tgz#800c0dd1e0a8bfbc95835c202ad220fe317e5a12"
 
-dirty-chai@^2.0.1:
-  version "2.0.1"
-  resolved "https://registry.yarnpkg.com/dirty-chai/-/dirty-chai-2.0.1.tgz#6b2162ef17f7943589da840abc96e75bda01aff3"
-
 dns-prefetch-control@0.1.0:
   version "0.1.0"
   resolved "https://registry.yarnpkg.com/dns-prefetch-control/-/dns-prefetch-control-0.1.0.tgz#60ddb457774e178f1f9415f0cabb0e85b0b300b2"
@@ -2049,7 +2045,7 @@ error-ex@^1.2.0:
   dependencies:
     is-arrayish "^0.2.1"
 
-errors@0.3.0:
+errors@0.3.0, errors@^0.3.0:
   version "0.3.0"
   resolved "https://registry.yarnpkg.com/errors/-/errors-0.3.0.tgz#572ed0fad82ab26ba04e797828f7103dd820732f"
 
@@ -2655,10 +2651,6 @@ get-func-name@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/get-func-name/-/get-func-name-2.0.0.tgz#ead774abee72e20409433a066366023dd6887a41"
 
-get-keycloak-public-key@^1.0.3:
-  version "1.0.3"
-  resolved "https://registry.yarnpkg.com/get-keycloak-public-key/-/get-keycloak-public-key-1.0.3.tgz#e92618331836d6e07bef1f5f2b8db17e28f76c5d"
-
 get-port@^3.2.0:
   version "3.2.0"
   resolved "https://registry.yarnpkg.com/get-port/-/get-port-3.2.0.tgz#dd7ce7de187c06c8bf353796ac71e099f0980ebc"
@@ -3161,7 +3153,7 @@ http-signature@~1.2.0:
     jsprim "^1.2.2"
     sshpk "^1.7.0"
 
-http-status@^1.1.0:
+http-status@^1.1.0, http-status@^1.2.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/http-status/-/http-status-1.2.0.tgz#05f2a54c94f94d32d877b3a31ae08479772ba9f1"
 
@@ -4405,15 +4397,20 @@ make-iterator@^1.0.0:
 
 "makeandship-api-common@git+ssh://git@bitbucket.org:makeandship/makeandship-api-common.git":
   version "1.0.0"
-  resolved "git+ssh://git@bitbucket.org:makeandship/makeandship-api-common.git#fe28a338a7bb955ec67a93b233317d8733476c2f"
+  resolved "git+ssh://git@bitbucket.org:makeandship/makeandship-api-common.git#50e58c6acfbe09e3ec4f88721d7bfdc015e7d4b6"
   dependencies:
     ajv "^6.5.0"
+    axios "^0.18.0"
     bluebird "^3.5.1"
     bodybuilder "^2.2.10"
     deepmerge "^2.1.1"
     elasticsearch "^15.0.0"
+    errors "^0.3.0"
+    http-status "^1.2.0"
     json-schema-parser "^0.1.0"
     jsonpointer "^4.0.1"
+    keycloak-admin-client "^0.12.0"
+    keycloak-connect "^4.0.0"
     lodash "^4.17.10"
     nhs-number-validator "^1.1.1"
     nodemailer "^4.6.5"
@@ -4884,7 +4881,7 @@ node-pre-gyp@^0.10.0:
     semver "^5.3.0"
     tar "^4"
 
-nodemailer-mock@^1.2.1, nodemailer-mock@^1.3.13:
+nodemailer-mock@^1.3.13:
   version "1.3.13"
   resolved "https://registry.yarnpkg.com/nodemailer-mock/-/nodemailer-mock-1.3.13.tgz#0fdff89b7e428b4e0c03b4fc7cc74460012e64fb"
   dependencies:
@@ -4901,7 +4898,7 @@ nodemailer@4.4.2:
   version "4.4.2"
   resolved "https://registry.yarnpkg.com/nodemailer/-/nodemailer-4.4.2.tgz#f215fb88e8a1052f9f93083909e116d2b79fc8de"
 
-nodemailer@^4.6.4, nodemailer@^4.6.5:
+nodemailer@^4.6.5:
   version "4.6.7"
   resolved "https://registry.yarnpkg.com/nodemailer/-/nodemailer-4.6.7.tgz#b68de7f36d65618bdeeeb76234e3547d51266373"
 

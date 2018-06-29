@@ -1,11 +1,12 @@
 import express from "express";
 import validate from "express-validation";
-import { connect as keycloakConnect } from "../modules/keycloak.js";
+import AccountsHelper from "../helpers/AccountsHelper";
 import paramValidation from "../../config/param-validation";
 import authController from "../controllers/auth.controller";
 import config from "../../config/env";
 
 const router = express.Router(); // eslint-disable-line new-cap
+const keycloak = AccountsHelper.keycloakInstance();
 
 /**
  * @swagger
@@ -203,7 +204,7 @@ router
  */
 router
   .route("/random-number")
-  .get(keycloakConnect.protect(), authController.getRandomNumber);
+  .get(keycloak.connect.protect(), authController.getRandomNumber);
 /**
  * @swagger
  * /auth/forgot:

@@ -1,9 +1,10 @@
 import express from "express";
-import { connect as keycloakConnect } from "../modules/keycloak.js";
+import AccountsHelper from "../helpers/AccountsHelper";
 import organisationController from "../controllers/organisation.controller";
 import config from "../../config/env";
 
 const router = express.Router(); // eslint-disable-line new-cap
+const keycloak = AccountsHelper.keycloakInstance();
 
 /**
  * @swagger
@@ -75,7 +76,7 @@ router
    *       401:
    *         description: Failed authentication
    */
-  .get(keycloakConnect.protect(), organisationController.list)
+  .get(keycloak.connect.protect(), organisationController.list)
   /**
    * @swagger
    * /organisations:
@@ -106,7 +107,7 @@ router
    *         schema:
    *           $ref: '#/definitions/OrganisationResponse'
    */
-  .post(keycloakConnect.protect(), organisationController.create);
+  .post(keycloak.connect.protect(), organisationController.create);
 
 router
   .route("/:id")
@@ -134,7 +135,7 @@ router
    *         schema:
    *           $ref: '#/definitions/OrganisationResponse'
    */
-  .get(keycloakConnect.protect(), organisationController.get)
+  .get(keycloak.connect.protect(), organisationController.get)
   /**
    * @swagger
    * /organisations/{id}:
@@ -172,7 +173,7 @@ router
    *         schema:
    *           $ref: '#/definitions/OrganisationResponse'
    */
-  .put(keycloakConnect.protect(), organisationController.update)
+  .put(keycloak.connect.protect(), organisationController.update)
   /**
    * @swagger
    * /organisations/{id}:
@@ -197,7 +198,7 @@ router
    *         schema:
    *           $ref: '#/definitions/BasicResponse'
    */
-  .delete(keycloakConnect.protect(), organisationController.remove);
+  .delete(keycloak.connect.protect(), organisationController.remove);
 
 /** Load user when API with id route parameter is hit */
 router.param("id", organisationController.load);

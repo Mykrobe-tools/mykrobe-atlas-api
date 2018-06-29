@@ -13,20 +13,28 @@ res.jsend = function(data) {
   this.send({ status: "success", data: data });
 };
 
-res.jerror = function(code, message) {
-  // check if error is a AtlasAPIError
-  if (code instanceof errors.AtlasAPIError) {
-    this.send({ status: "error", code: code.code, message: code.message });
-    return;
-  }
-  if (code instanceof Error) {
-    // allow us to pass in Error objects to simplify code elsewhere
-    this.status(code.status || httpStatus.INTERNAL_SERVER_ERROR).send({
+res.jerror = function(error) {
+  // check if error is a CarereportAPIError
+  if (error instanceof errors.AtlasAPIError || error.data) {
+    const errorBody = {
       status: "error",
-      code: code.name,
-      message: code.message
+      code: error.code,
+      message: error.message
+    };
+
+    if (error.data) {
+      errorBody.data = error.data;
+    }
+
+    return this.send(errorBody);
+  } else if (error instanceof Error) {
+    // allow us to pass in Error objects to simplify code elsewhere
+    return this.status(error.status || httpStatus.INTERNAL_SERVER_ERROR).send({
+      status: "error",
+      code: error.name,
+      message: error.message
     });
-    return;
+  } else {
+    return this.send({ status: "error", data: error });
   }
-  this.send({ status: "error", data: code });
 };
