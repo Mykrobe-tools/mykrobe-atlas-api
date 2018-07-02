@@ -453,6 +453,32 @@ describe("## User APIs", () => {
         });
     });
 
+    it("should requires an email address", done => {
+      request(app)
+        .post("/auth/forgot")
+        .send({})
+        .expect(httpStatus.OK)
+        .end((err, res) => {
+          expect(res.body.status).toEqual("error");
+          expect(res.body.message).toEqual('"email" is required');
+          done();
+        });
+    });
+
+    it("should requires a valid email address", done => {
+      request(app)
+        .post("/auth/forgot")
+        .send({
+          email: "admin"
+        })
+        .expect(httpStatus.OK)
+        .end((err, res) => {
+          expect(res.body.status).toEqual("error");
+          expect(res.body.message).toEqual('"email" must be a valid email');
+          done();
+        });
+    });
+
     it("should return an error if user doesnt exist", done => {
       request(app)
         .post("/auth/forgot")
