@@ -134,6 +134,22 @@ describe("## User APIs", () => {
           done();
         });
     });
+
+    it("should save a valid keycloak id", done => {
+      request(app)
+        .post("/users")
+        .send(user)
+        .expect(httpStatus.OK)
+        .end((err, res) => {
+          expect(res.body.status).toEqual("success");
+          expect(res.body.data.firstname).toEqual(user.firstname);
+          expect(res.body.data.lastname).toEqual(user.lastname);
+          expect(res.body.data.phone).toEqual(user.phone);
+          expect(res.body.data.email).toEqual(user.email);
+          expect(res.body.data.keycloakId).toBeTruthy();
+          done();
+        });
+    });
   });
 
   describe("# GET /users/:id", () => {
