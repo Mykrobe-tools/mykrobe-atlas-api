@@ -4,8 +4,6 @@ import { createApp } from "../setup";
 import User from "../../models/user.model";
 import Organisation from "../../models/organisation.model";
 
-jest.mock("keycloak-admin-client");
-
 const app = createApp();
 
 const users = require("../fixtures/users");
@@ -506,6 +504,20 @@ describe("## User APIs", () => {
           expect(res.body.status).toEqual("success");
           expect(res.body.data).toEqual(
             "Email sent successfully to admin@nhs.co.uk"
+          );
+          done();
+        });
+    });
+    it("should return an error if the user doesnt exist", done => {
+      request(app)
+        .post("/auth/resend")
+        .set("Authorization", `Bearer ${token}`)
+        .send({ email: "invalid@nhs.co.uk" })
+        .expect(httpStatus.OK)
+        .end((err, res) => {
+          expect(res.body.status).toEqual("error");
+          expect(res.body.message).toEqual(
+            "The object requested was not found."
           );
           done();
         });
