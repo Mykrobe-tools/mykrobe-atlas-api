@@ -521,6 +521,17 @@ describe("## User APIs", () => {
           done();
         });
     });
+    it("should require a valid email", done => {
+      request(app)
+        .post("/auth/resend")
+        .send({ email: "admin" })
+        .expect(httpStatus.OK)
+        .end((err, res) => {
+          expect(res.body.status).toEqual("error");
+          expect(res.body.message).toEqual('"email" must be a valid email');
+          done();
+        });
+    });
     it("should also work for unauthenticated users", done => {
       request(app)
         .post("/auth/resend")
