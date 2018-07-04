@@ -17,11 +17,11 @@ class ChoicesESTransformer extends AggregationsESTransformer {
     const o = {};
     const res = super.transform();
     Object.keys(res).forEach(key => {
-      if (res[`${key}`]) {
-        const choice = new BlacklistTransformer(res[`${key}`], {
+      if (res[key]) {
+        const choice = new BlacklistTransformer(res[key], {
           blacklist: BLACKLIST
         }).transform();
-        o[`${key}`] = new BucketsESTransformer(choice.buckets, {}).transform();
+        o[key] = new BucketsESTransformer(choice.buckets, {}).transform();
         if (key.startsWith("max_") || key.startsWith("min_")) {
           new RangesESTransformer(choice, { o, key }).transform();
         }

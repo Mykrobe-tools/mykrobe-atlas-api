@@ -11,9 +11,9 @@ class RangesESTransformer extends ESTransformer {
     let { o, key } = this.options;
     const range = key.startsWith("min_") ? "min" : "max";
     key = key.substring(4);
-    o[`${key}`] = o[`${key}`] || {};
+    o[key] = o[key] || {};
     if (value) {
-      o[`${key}`][`${range}`] = value;
+      o[key][range] = value;
     }
   }
 }
