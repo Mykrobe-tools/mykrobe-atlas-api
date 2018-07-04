@@ -26,6 +26,7 @@ atlas-api:
     - ES_CLUSTER_URL={{ES_CLUSTER_URL}}
     - ES_INDEX_NAME={{ES_INDEX_NAME}}
     - JWT_SECRET={{JWT_SECRET}}
+    - ANALYSIS_API={{ANALYSIS_API}}
   links:
     - db
 swagger-ui:
