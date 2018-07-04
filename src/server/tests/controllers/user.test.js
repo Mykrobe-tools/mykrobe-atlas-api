@@ -4,8 +4,6 @@ import { createApp } from "../setup";
 import User from "../../models/user.model";
 import Organisation from "../../models/organisation.model";
 
-jest.mock("keycloak-admin-client");
-
 const app = createApp();
 
 const users = require("../fixtures/users");
@@ -131,6 +129,22 @@ describe("## User APIs", () => {
           expect(res.body.status).toEqual("error");
           expect(res.body.code).toEqual(10003);
           expect(res.body.message).toEqual('"email" must be a valid email');
+          done();
+        });
+    });
+
+    it("should save a valid keycloak id", done => {
+      request(app)
+        .post("/users")
+        .send(user)
+        .expect(httpStatus.OK)
+        .end((err, res) => {
+          expect(res.body.status).toEqual("success");
+          expect(res.body.data.firstname).toEqual(user.firstname);
+          expect(res.body.data.lastname).toEqual(user.lastname);
+          expect(res.body.data.phone).toEqual(user.phone);
+          expect(res.body.data.email).toEqual(user.email);
+          expect(res.body.data.keycloakId).toBeTruthy();
           done();
         });
     });
@@ -439,6 +453,32 @@ describe("## User APIs", () => {
         });
     });
 
+    it("should requires an email address", done => {
+      request(app)
+        .post("/auth/forgot")
+        .send({})
+        .expect(httpStatus.OK)
+        .end((err, res) => {
+          expect(res.body.status).toEqual("error");
+          expect(res.body.message).toEqual('"email" is required');
+          done();
+        });
+    });
+
+    it("should requires a valid email address", done => {
+      request(app)
+        .post("/auth/forgot")
+        .send({
+          email: "admin"
+        })
+        .expect(httpStatus.OK)
+        .end((err, res) => {
+          expect(res.body.status).toEqual("error");
+          expect(res.body.message).toEqual('"email" must be a valid email');
+          done();
+        });
+    });
+
     it("should return an error if user doesnt exist", done => {
       request(app)
         .post("/auth/forgot")
@@ -481,6 +521,17 @@ describe("## User APIs", () => {
           done();
         });
     });
+    it("should require a valid email", done => {
+      request(app)
+        .post("/auth/resend")
+        .send({ email: "admin" })
+        .expect(httpStatus.OK)
+        .end((err, res) => {
+          expect(res.body.status).toEqual("error");
+          expect(res.body.message).toEqual('"email" must be a valid email');
+          done();
+        });
+    });
     it("should also work for unauthenticated users", done => {
       request(app)
         .post("/auth/resend")
@@ -490,6 +541,20 @@ describe("## User APIs", () => {
           expect(res.body.status).toEqual("success");
           expect(res.body.data).toEqual(
             "Email sent successfully to admin@nhs.co.uk"
+          );
+          done();
+        });
+    });
+    it("should return an error if the user doesnt exist", done => {
+      request(app)
+        .post("/auth/resend")
+        .set("Authorization", `Bearer ${token}`)
+        .send({ email: "invalid@nhs.co.uk" })
+        .expect(httpStatus.OK)
+        .end((err, res) => {
+          expect(res.body.status).toEqual("error");
+          expect(res.body.message).toEqual(
+            "The object requested was not found."
           );
           done();
         });

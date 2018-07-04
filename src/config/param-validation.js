@@ -76,8 +76,12 @@ export default {
   resendNotification: {
     body: {
       email: AccountsHelper.usePassword(config)
-        ? Joi.string().required()
-        : Joi.string().optional(),
+        ? Joi.string()
+            .email()
+            .required()
+        : Joi.string()
+            .email()
+            .optional(),
       phone: AccountsHelper.usePassword(config)
         ? Joi.string().optional()
         : Joi.string().required()
