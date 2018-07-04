@@ -126,6 +126,41 @@ describe("## Experiment APIs", () => {
           done();
         });
     });
+    it("should filter the choices", done => {
+      request(app)
+        .get("/experiments/metadata/choices?metadata.patientId=12345")
+        .set("Authorization", `Bearer ${token}`)
+        .expect(httpStatus.OK)
+        .end((err, res) => {
+          expect(res.body.status).toEqual("success");
+          const data = res.body.data;
+          expect(data["metadata.patientAge"].min).toEqual(34);
+          expect(data["metadata.patientAge"].max).toEqual(34);
+          expect(data["metadata.bmi"].min).toEqual(12);
+          expect(data["metadata.bmi"].max).toEqual(12);
+          expect(data["metadata.dateArrived"].min).toEqual(
+            "2017-04-21T00:00:00.000Z"
+          );
+          expect(data["metadata.dateArrived"].max).toEqual(
+            "2017-04-21T00:00:00.000Z"
+          );
+          done();
+        });
+    });
+    it("should not return null values", done => {
+      request(app)
+        .get("/experiments/metadata/choices?organisation.name=NHS")
+        .set("Authorization", `Bearer ${token}`)
+        .expect(httpStatus.OK)
+        .end((err, res) => {
+          expect(res.body.status).toEqual("success");
+          const data = res.body.data;
+          expect(data["metadata.patientAge"]).toEqual({});
+          expect(data["metadata.bmi"]).toEqual({});
+          expect(data["metadata.dateArrived"]).toEqual({});
+          done();
+        });
+    });
     it("should be a protected route", done => {
       request(app)
         .get("/experiments/metadata/choices")

@@ -7,11 +7,14 @@ import ESTransformer from "./ESTransformer";
 class RangesESTransformer extends ESTransformer {
   transform() {
     const res = super.transform();
+    const value = res.value_as_string || res.value;
     let { o, key } = this.options;
     const range = key.startsWith("min_") ? "min" : "max";
     key = key.substring(4);
-    o[`${key}`] = o[`${key}`] || {};
-    o[`${key}`][`${range}`] = res.value_as_string || res.value;
+    o[key] = o[key] || {};
+    if (value) {
+      o[key][range] = value;
+    }
   }
 }
 
