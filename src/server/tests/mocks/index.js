@@ -6,14 +6,14 @@ import config from "../../../config/env";
 const mockAnalysisApiCalls = () => {
   nock(config.services.analysisApiUrl)
     .persist()
-    .post("/analysis", function(body) {
+    .post("/analyses", function(body) {
       return body.file.endsWith("333-08.json");
     })
     .reply(200, "OK");
 
   nock(config.services.analysisApiUrl)
     .persist()
-    .post("/analysis", function(body) {
+    .post("/analyses", function(body) {
       return body.file.endsWith("333-09.json");
     })
     .reply(500, "ERROR");
