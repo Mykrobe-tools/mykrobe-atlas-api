@@ -14,7 +14,7 @@ agenda.define("call analysis api", async (job, done) => {
   try {
     if (data.attempt < config.services.analysisApiMaxRetries) {
       const response = await axios.post(
-        `${config.services.analysisApiUrl}/analysis`,
+        `${config.services.analysisApiUrl}/analyses`,
         {
           file: data.file,
           sample_id: data.sample_id
