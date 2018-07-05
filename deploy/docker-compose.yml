@@ -27,6 +27,7 @@ atlas-api:
     - ES_INDEX_NAME={{ES_INDEX_NAME}}
     - KEYCLOAK_REDIRECT_URI={{KEYCLOAK_REDIRECT_URI}}
     - ANALYSIS_API={{ANALYSIS_API}}
+    - API_HOST={{API_HOST}}
   links:
     - db
 swagger-ui:
