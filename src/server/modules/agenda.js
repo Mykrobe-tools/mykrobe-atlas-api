@@ -8,7 +8,10 @@ import config from "../../config/env";
 // agenda config
 const agendaInstance = new Agenda({ db: { address: config.db.uri } });
 
-agendaInstance.define("call analysis api", AgendaHelper.callAnalysisApi);
+agendaInstance.define(
+  "call analysis api",
+  AgendaHelper.callAnalysisApi.bind(agendaInstance)
+);
 
 agendaInstance.on("ready", () => {
   winston.info("agenda is ready and started.");
@@ -19,9 +22,8 @@ agendaInstance.on("error", () => {
   agendaInstance.stop();
 });
 
-const schedule = (when, job, params) => {
+const schedule = (when, job, params) =>
   agendaInstance.schedule(when, job, params);
-};
 
 const agenda = Object.freeze({
   schedule

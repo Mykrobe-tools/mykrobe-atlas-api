@@ -1,5 +1,4 @@
 import axios from "axios";
-import { schedule } from "../modules/agenda";
 import Audit from "../models/audit.model";
 import config from "../../config/env";
 
@@ -33,7 +32,7 @@ class AgendaHelper {
         attempt: data.attempt
       });
       await audit.save();
-      await schedule(
+      await this.schedule(
         config.services.analysisApiBackOffPeriod,
         "call analysis api",
         data

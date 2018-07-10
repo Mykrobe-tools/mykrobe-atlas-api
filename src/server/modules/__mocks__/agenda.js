@@ -8,7 +8,10 @@ const getInstance = dbUri => new Agenda({ db: { address: dbUri } });
 const schedule = (when, job, params) => {
   const agendaInstance = getInstance(config.db.uri);
 
-  agendaInstance.define("call analysis api", AgendaHelper.callAnalysisApi);
+  agendaInstance.define(
+    "call analysis api",
+    AgendaHelper.callAnalysisApi.bind(agendaInstance)
+  );
 
   agendaInstance.on("ready", () => {
     winston.info("agenda is ready and started.");
