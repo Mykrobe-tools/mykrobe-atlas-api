@@ -638,7 +638,10 @@ describe("## Experiment APIs", () => {
             expect(res.body.status).toEqual("success");
             expect(res.body.data).toEqual("File uploaded and reassembled");
             try {
-              const job = await findJob(jobs, id);
+              let job = await findJob(jobs, id);
+              while (!job) {
+                job = await findJob(jobs, id);
+              }
               expect(job.data.file).toEqual(
                 `${
                   config.express.uploadsLocation
@@ -648,7 +651,7 @@ describe("## Experiment APIs", () => {
               expect(job.data.attempt).toEqual(0);
               done();
             } catch (e) {
-              fail();
+              fail(e.message);
               done();
             }
           });
@@ -673,7 +676,10 @@ describe("## Experiment APIs", () => {
             const jobs = mongo(config.db.uri, []).agendaJobs;
             expect(res.body.status).toEqual("success");
             expect(res.body.data).toEqual("File uploaded and reassembled");
-            const job = await findJob(jobs, id);
+            let job = await findJob(jobs, id);
+            while (!job) {
+              job = await findJob(jobs, id);
+            }
             expect(job.name).toEqual("call analysis api");
             expect(job.data.file).toEqual(
               `${
@@ -743,7 +749,10 @@ describe("## Experiment APIs", () => {
             while (audits.length < 1) {
               audits = await Audit.find({ sampleId: id });
             }
-            const foundJobs = await jobs.find({ "data.sample_id": id });
+            let foundJobs = await jobs.find({ "data.sample_id": id });
+            while (foundJobs.length < 2) {
+              foundJobs = await jobs.find({ "data.sample_id": id });
+            }
             expect(foundJobs.length).toEqual(2);
             expect(foundJobs[0].data.file).toEqual(
               `${

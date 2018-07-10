@@ -1,11 +1,11 @@
 import mongoose from "mongoose";
 import MongodbMemoryServer from "mongodb-memory-server";
-import Agenda from "agenda";
 import config from "../../config/env";
 import errorsDefinition from "../../config/errors-definition";
 import { mockAnalysisApiCalls, mockKeycloakCalls } from "./mocks";
 
 require("../../express-jsend");
+jest.mock("../modules/agenda");
 const createApp = require("../../server/app");
 
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 60000;
@@ -28,7 +28,6 @@ beforeAll(async () => {
     if (err) console.error(err);
   });
   config.db.uri = mongoUri;
-  config.db.agenda = new Agenda({ db: { address: mongoUri } });
   require("../../workers");
 });
 
