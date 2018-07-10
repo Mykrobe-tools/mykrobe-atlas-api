@@ -2,7 +2,6 @@ import errors from "errors";
 import httpStatus from "http-status";
 import mkdirp from "mkdirp-promise";
 import Promise from "bluebird";
-import Agenda from "agenda";
 import { ElasticsearchHelper } from "makeandship-api-common/lib/modules/elasticsearch/";
 import Experiment from "../models/experiment.model";
 import Metadata from "../models/metadata.model";
@@ -14,7 +13,7 @@ import APIError from "../helpers/APIError";
 import DownloadersFactory from "../helpers/DownloadersFactory";
 import ChoicesESTransformer from "../transformers/es/ChoicesESTransformer";
 import ExperimentsESTransformer from "../transformers/es/ExperimentsESTransformer";
-import AgendaHelper from "../helpers/AgendaHelper";
+import { schedule } from "../modules/agenda";
 import experimentSchema from "../../schemas/experiment";
 
 const config = require("../../config/env");
@@ -198,8 +197,7 @@ async function uploadFile(req, res) {
           experiment.id,
           req.body.resumableFilename,
           async () => {
-            const agenda = AgendaHelper.getInstance(config);
-            await agenda.now("call analysis api", {
+            await schedule("now", "call analysis api", {
               file: `${config.express.uploadDir}/experiments/${
                 experiment.id
               }/file/${req.body.resumableFilename}`,
