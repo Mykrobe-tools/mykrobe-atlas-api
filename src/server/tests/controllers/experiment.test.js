@@ -314,9 +314,9 @@ describe("## Experiment APIs", () => {
         .attach("file", "src/server/tests/fixtures/files/333-08.json")
         .expect(httpStatus.OK)
         .end((err, res) => {
-          const filePath = `${
-            config.express.uploadDir
-          }/experiments/${id}/file/333-08.json`;
+          const filePath = `${config.express.uploadDir}/experiments/${
+            id
+          }/file/333-08.json`;
           expect(res.body.status).toEqual("success");
           expect(res.body.data).toEqual("File uploaded and reassembled");
           expect(fs.existsSync(filePath)).toEqual(true);
@@ -421,7 +421,7 @@ describe("## Experiment APIs", () => {
     describe("when provider and path are present", () => {
       it("should only allow valid providers", done => {
         request(app)
-          .put(`/experiments/${id}/file`)
+          .put(`/experiments/${id}/provider`)
           .set("Authorization", `Bearer ${token}`)
           .send({
             provider: "ftp",
@@ -439,7 +439,7 @@ describe("## Experiment APIs", () => {
       });
       it("should be a protected route", done => {
         request(app)
-          .put(`/experiments/${id}/file`)
+          .put(`/experiments/${id}/provider`)
           .set("Authorization", "Bearer INVALID_TOKEN")
           .send({
             provider: "dropbox",
@@ -455,7 +455,7 @@ describe("## Experiment APIs", () => {
       });
       it("should download files from dropbox", done => {
         request(app)
-          .put(`/experiments/${id}/file`)
+          .put(`/experiments/${id}/provider`)
           .set("Authorization", `Bearer ${token}`)
           .send({
             provider: "dropbox",
@@ -471,7 +471,7 @@ describe("## Experiment APIs", () => {
       });
       it("should save the dropbox file to the filesystem", done => {
         request(app)
-          .put(`/experiments/${id}/file`)
+          .put(`/experiments/${id}/provider`)
           .set("Authorization", `Bearer ${token}`)
           .send({
             provider: "dropbox",
@@ -480,9 +480,9 @@ describe("## Experiment APIs", () => {
           })
           .expect(httpStatus.OK)
           .end((err, res) => {
-            const filePath = `${
-              config.express.uploadDir
-            }/experiments/${id}/file/fake.json`;
+            const filePath = `${config.express.uploadDir}/experiments/${
+              id
+            }/file/fake.json`;
             expect(res.body.status).toEqual("success");
             expect(res.body.data).toEqual("Download started from dropbox");
             expect(fs.existsSync(filePath)).toEqual(true);
@@ -491,7 +491,7 @@ describe("## Experiment APIs", () => {
       });
       it("should download files from box", done => {
         request(app)
-          .put(`/experiments/${id}/file`)
+          .put(`/experiments/${id}/provider`)
           .set("Authorization", `Bearer ${token}`)
           .send({
             provider: "box",
@@ -507,7 +507,7 @@ describe("## Experiment APIs", () => {
       });
       it("should save the box file to the filesystem", done => {
         request(app)
-          .put(`/experiments/${id}/file`)
+          .put(`/experiments/${id}/provider`)
           .set("Authorization", `Bearer ${token}`)
           .send({
             provider: "box",
@@ -516,9 +516,9 @@ describe("## Experiment APIs", () => {
           })
           .expect(httpStatus.OK)
           .end((err, res) => {
-            const filePath = `${
-              config.express.uploadDir
-            }/experiments/${id}/file/fake.json`;
+            const filePath = `${config.express.uploadDir}/experiments/${
+              id
+            }/file/fake.json`;
             expect(res.body.status).toEqual("success");
             expect(res.body.data).toEqual("Download started from box");
             expect(fs.existsSync(filePath)).toEqual(true);
@@ -527,7 +527,7 @@ describe("## Experiment APIs", () => {
       });
       it("should download files from google drive", done => {
         request(app)
-          .put(`/experiments/${id}/file`)
+          .put(`/experiments/${id}/provider`)
           .set("Authorization", `Bearer ${token}`)
           .send({
             provider: "googleDrive",
@@ -544,7 +544,7 @@ describe("## Experiment APIs", () => {
       });
       it("should make accessToken mandatory for googleDrive", done => {
         request(app)
-          .put(`/experiments/${id}/file`)
+          .put(`/experiments/${id}/provider`)
           .set("Authorization", `Bearer ${token}`)
           .send({
             provider: "googleDrive",
@@ -560,7 +560,7 @@ describe("## Experiment APIs", () => {
       });
       it("should save the google drive file to the filesystem", done => {
         request(app)
-          .put(`/experiments/${id}/file`)
+          .put(`/experiments/${id}/provider`)
           .set("Authorization", `Bearer ${token}`)
           .send({
             provider: "googleDrive",
@@ -570,9 +570,9 @@ describe("## Experiment APIs", () => {
           })
           .expect(httpStatus.OK)
           .end((err, res) => {
-            const filePath = `${
-              config.express.uploadDir
-            }/experiments/${id}/file/fake.json`;
+            const filePath = `${config.express.uploadDir}/experiments/${
+              id
+            }/file/fake.json`;
             expect(res.body.status).toEqual("success");
             expect(res.body.data).toEqual("Download started from googleDrive");
             expect(fs.existsSync(filePath)).toEqual(true);
@@ -581,7 +581,7 @@ describe("## Experiment APIs", () => {
       });
       it("should download files from one drive", done => {
         request(app)
-          .put(`/experiments/${id}/file`)
+          .put(`/experiments/${id}/provider`)
           .set("Authorization", `Bearer ${token}`)
           .send({
             provider: "oneDrive",
@@ -597,7 +597,7 @@ describe("## Experiment APIs", () => {
       });
       it("should save the one drive file to the filesystem", done => {
         request(app)
-          .put(`/experiments/${id}/file`)
+          .put(`/experiments/${id}/provider`)
           .set("Authorization", `Bearer ${token}`)
           .send({
             provider: "oneDrive",
@@ -606,9 +606,9 @@ describe("## Experiment APIs", () => {
           })
           .expect(httpStatus.OK)
           .end((err, res) => {
-            const filePath = `${
-              config.express.uploadDir
-            }/experiments/${id}/file/fake.json`;
+            const filePath = `${config.express.uploadDir}/experiments/${
+              id
+            }/file/fake.json`;
             expect(res.body.status).toEqual("success");
             expect(res.body.data).toEqual("Download started from oneDrive");
             expect(fs.existsSync(filePath)).toEqual(true);
@@ -643,9 +643,9 @@ describe("## Experiment APIs", () => {
                 job = await findJob(jobs, id);
               }
               expect(job.data.file).toEqual(
-                `${
-                  config.express.uploadsLocation
-                }/experiments/${id}/file/333-08.json`
+                `${config.express.uploadsLocation}/experiments/${
+                  id
+                }/file/333-08.json`
               );
               expect(job.data.sample_id).toEqual(id);
               expect(job.data.attempt).toEqual(0);
@@ -682,9 +682,9 @@ describe("## Experiment APIs", () => {
             }
             expect(job.name).toEqual("call analysis api");
             expect(job.data.file).toEqual(
-              `${
-                config.express.uploadsLocation
-              }/experiments/${id}/file/333-08.json`
+              `${config.express.uploadsLocation}/experiments/${
+                id
+              }/file/333-08.json`
             );
             expect(job.data.sample_id).toEqual(id);
             done();
@@ -716,9 +716,9 @@ describe("## Experiment APIs", () => {
             expect(res.body.data).toEqual("File uploaded and reassembled");
             expect(audit.sampleId).toEqual(id);
             expect(audit.fileLocation).toEqual(
-              `${
-                config.express.uploadsLocation
-              }/experiments/${id}/file/333-08.json`
+              `${config.express.uploadsLocation}/experiments/${
+                id
+              }/file/333-08.json`
             );
             expect(audit.status).toEqual("Successful");
             expect(audit.attempt).toEqual(1);
@@ -755,9 +755,9 @@ describe("## Experiment APIs", () => {
             }
             expect(foundJobs.length).toEqual(2);
             expect(foundJobs[0].data.file).toEqual(
-              `${
-                config.express.uploadsLocation
-              }/experiments/${id}/file/333-09.json`
+              `${config.express.uploadsLocation}/experiments/${
+                id
+              }/file/333-09.json`
             );
             expect(foundJobs[0].data.sample_id).toEqual(id);
             done();
@@ -792,9 +792,9 @@ describe("## Experiment APIs", () => {
             expect(res.body.data).toEqual("File uploaded and reassembled");
             expect(audit.sampleId).toEqual(id);
             expect(audit.fileLocation).toEqual(
-              `${
-                config.express.uploadsLocation
-              }/experiments/${id}/file/333-09.json`
+              `${config.express.uploadsLocation}/experiments/${
+                id
+              }/file/333-09.json`
             );
             expect(audit.status).toEqual("Failed");
             expect(audit.attempt).toEqual(1);
@@ -831,7 +831,9 @@ describe("## Experiment APIs", () => {
     it("should return the resumable upload status", done => {
       request(app)
         .get(
-          `/experiments/${id}/upload-status?resumableChunkNumber=1&resumableChunkSize=1048576&resumableTotalSize=251726&resumableIdentifier=251726-333-08json&resumableFilename=333-08.json&checksum=4f36e4cbfc9dfc37559e13bd3a309d50`
+          `/experiments/${
+            id
+          }/upload-status?resumableChunkNumber=1&resumableChunkSize=1048576&resumableTotalSize=251726&resumableIdentifier=251726-333-08json&resumableFilename=333-08.json&checksum=4f36e4cbfc9dfc37559e13bd3a309d50`
         )
         .set("Authorization", `Bearer ${token}`)
         .expect(httpStatus.NO_CONTENT)
@@ -859,7 +861,9 @@ describe("## Experiment APIs", () => {
         .end(() => {
           request(app)
             .get(
-              `/experiments/${id}/upload-status?resumableChunkNumber=1&resumableChunkSize=1048576&resumableTotalSize=251726&resumableIdentifier=251726-333-08json&resumableFilename=333-08.json&checksum=4f36e4cbfc9dfc37559e13bd3a309d50`
+              `/experiments/${
+                id
+              }/upload-status?resumableChunkNumber=1&resumableChunkSize=1048576&resumableTotalSize=251726&resumableIdentifier=251726-333-08json&resumableFilename=333-08.json&checksum=4f36e4cbfc9dfc37559e13bd3a309d50`
             )
             .set("Authorization", `Bearer ${token}`)
             .expect(httpStatus.NO_CONTENT)
@@ -872,7 +876,9 @@ describe("## Experiment APIs", () => {
     it("should be a protected route", done => {
       request(app)
         .get(
-          `/experiments/${id}/upload-status?resumableChunkNumber=1&resumableChunkSize=1048576&resumableTotalSize=251726&resumableIdentifier=251726-333-08json&resumableFilename=333-08.json&checksum=4f36e4cbfc9dfc37559e13bd3a309d50`
+          `/experiments/${
+            id
+          }/upload-status?resumableChunkNumber=1&resumableChunkSize=1048576&resumableTotalSize=251726&resumableIdentifier=251726-333-08json&resumableFilename=333-08.json&checksum=4f36e4cbfc9dfc37559e13bd3a309d50`
         )
         .set("Authorization", "Bearer INVALID_TOKEN")
         .expect(httpStatus.UNAUTHORIZED)
