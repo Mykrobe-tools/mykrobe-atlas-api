@@ -963,47 +963,6 @@ router
    *         schema:
    *           $ref: '#/definitions/BasicResponse'
    */
-
-  /**
-   * @swagger
-   * /experiments/{id}/file:
-   *   put:
-   *     tags:
-   *       - Experiments
-   *     description: Download file from 3rd party or upload local file
-   *     operationId: experimentDownloadFile
-   *     consumes:
-   *       - multipart/form-data
-   *     produces:
-   *       - application/json
-   *     security:
-   *       - Bearer: []
-   *     parameters:
-   *       - in: path
-   *         name: id
-   *         required: true
-   *         type: string
-   *         description: The experiment id
-   *       - in: body
-   *         name: file
-   *         description: The file to download
-   *         schema:
-   *           type: object
-   *           properties:
-   *             name:
-   *               type: string
-   *             path:
-   *               type: string
-   *             provider:
-   *               type: string
-   *             accessToken:
-   *               type: string
-   *     responses:
-   *       200:
-   *         description: Successful response
-   *         schema:
-   *           $ref: '#/definitions/BasicResponse'
-   */
   .put(
     keycloak.connect.protect(),
     validate(paramValidation.uploadFile),
@@ -1038,6 +997,53 @@ router
    *         description: Failed authentication
    */
   .get(keycloak.connect.protect(), experimentController.readFile);
+router
+  .route("/:id/provider")
+  /**
+   * @swagger
+   * /experiments/{id}/provider:
+   *   put:
+   *     tags:
+   *       - Experiments
+   *     description: Upload a file via a 3rd party provider
+   *     operationId: experimentProviderUpload
+   *     produces:
+   *       - application/json
+   *     security:
+   *       - Bearer: []
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         type: string
+   *         description: The experiment id
+   *       - in: body
+   *         name: file
+   *         description: The file to download
+   *         schema:
+   *           type: object
+   *           properties:
+   *             name:
+   *               type: string
+   *             path:
+   *               type: string
+   *             provider:
+   *               type: string
+   *             accessToken:
+   *               type: string
+   *               description: Use when provider is Google
+   *     responses:
+   *       200:
+   *         description: Successful response
+   *         schema:
+   *           $ref: '#/definitions/BasicResponse'
+   */
+  .put(
+    keycloak.connect.protect(),
+    validate(paramValidation.uploadFile),
+    upload.single("file"),
+    experimentController.uploadFile
+  );
 router
   .route("/:id/upload-status")
   /**
