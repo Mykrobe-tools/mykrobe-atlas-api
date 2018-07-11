@@ -1019,7 +1019,7 @@ router
    *         description: The experiment id
    *       - in: body
    *         name: file
-   *         description: The file to download
+   *         description: Description of the file to retrieve from a 3rd party provider
    *         schema:
    *           type: object
    *           properties:
