@@ -19,6 +19,10 @@ RUN apt-get install -y python
 RUN apt-get install -y build-essential 
 RUN apt-get install -y libssl-dev
 
+# add package manager for yarn
+RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
+RUN echo "deb https://dl.yarnpkg.com/debian/ stable main" >> /etc/apt/sources.list
+
 # download and install nvm
 RUN curl https://raw.githubusercontent.com/creationix/nvm/v0.32.1/install.sh | bash \
     && source $NVM_DIR/nvm.sh \
@@ -42,26 +46,33 @@ ADD bitbucket-readonly /root/.ssh/
 RUN chmod 600 /root/.ssh/bitbucket-readonly && \
     ssh-keyscan bitbucket.org > /root/.ssh/known_hosts
 
+# install yarn
+RUN apt-get install apt-transport-https
+RUN apt-get update && apt-get install yarn
+
 # install global packages
-RUN npm install -g forever
+RUN yarn global add forever
 
 # server installation directory
 RUN mkdir /app
-
-# install dependencies as a cachable step
-ADD package.json /tmp/package.json
-RUN cd /tmp && npm install
 
 # push this app to the deployment directory
 WORKDIR /app
 ADD . /app
 
-# move cached installs into the app
-RUN cp -a /tmp/node_modules /app/
+# install dependencies as a cachable step
+RUN cd /app && yarn install
 
 # build and compile the source
-RUN npm install -g gulp
+RUN yarn global add gulp
 RUN gulp
+
+
+# trim to production dependencies post build
+RUN cp -rf /app/node_modules/makeandship-api-common /tmp
+RUN rm -rf /app/node_modules
+RUN cd /app && yarn install --ignore-scripts --production
+RUN cp -rf /tmp/makeandship-api-common /app/node_modules
 
 # Remove SSH keys
 RUN rm /app/bitbucket-readonly

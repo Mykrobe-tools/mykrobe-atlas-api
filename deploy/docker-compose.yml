@@ -25,15 +25,16 @@ atlas-api:
     - ATLAS_APP={{ATLAS_APP}}
     - ES_CLUSTER_URL={{ES_CLUSTER_URL}}
     - ES_INDEX_NAME={{ES_INDEX_NAME}}
-    - JWT_SECRET={{JWT_SECRET}}
+    - KEYCLOAK_REDIRECT_URI={{KEYCLOAK_REDIRECT_URI}}
     - ANALYSIS_API={{ANALYSIS_API}}
+    - API_HOST={{API_HOST}}
   links:
     - db
 swagger-ui:
   image: swaggerapi/swagger-ui
   container_name: swagger-ui
   ports:
-    - 8080:8080
+    - 9090:8080
   restart: always
   environment:
     - API_URL={{SWAGGER_API_URL}}
