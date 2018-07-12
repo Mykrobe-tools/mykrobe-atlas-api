@@ -10,7 +10,7 @@ PREVIOUS_VERSION=$(cat /var/go/releases/server/PREVIOUS_VERSION)
 cd /var/go/releases/server/$PREVIOUS_VERSION/deploy
 
 # remove current images
-docker ps -a -q | xargs --no-run-if-empty docker rm -f 
+docker rm -f atlas-api db swagger-ui || true
 docker images -q --filter "dangling=true" | xargs --no-run-if-empty docker rmi
 
 # build the target container

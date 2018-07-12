@@ -6,5 +6,10 @@ export default {
   },
   express: {
     uploadsLocation: process.env.UPLOADS_LOCATION
+  },
+  accounts: {
+    keycloak: {
+      redirectUri: process.env.KEYCLOAK_REDIRECT_URI
+    }
   }
 };
