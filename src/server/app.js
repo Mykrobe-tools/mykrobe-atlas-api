@@ -20,7 +20,9 @@ import AccountsHelper from "./helpers/AccountsHelper";
 
 const keycloak = AccountsHelper.keycloakInstance();
 
-const createApp = ({ rateLimitReset, rateLimitMax } = config.express) => {
+const createApp = (
+  { rateLimitReset, rateLimitMax, limit } = config.express
+) => {
   const app = express();
 
   if (config.env === "development") {
@@ -28,8 +30,8 @@ const createApp = ({ rateLimitReset, rateLimitMax } = config.express) => {
   }
 
   // parse body params and attache them to req.body
-  app.use(bodyParser.json());
-  app.use(bodyParser.urlencoded({ extended: true }));
+  app.use(bodyParser.json({ limit }));
+  app.use(bodyParser.urlencoded({ limit, extended: true }));
 
   app.use(cookieParser());
   app.use(compress());
@@ -85,6 +87,11 @@ const createApp = ({ rateLimitReset, rateLimitMax } = config.express) => {
 
   // return the rich jsend response.
   app.use((err, req, res, next) => {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header(
+      "Access-Control-Allow-Headers",
+      "Origin, X-Requested-With, Content-Type, Accept"
+    );
     // eslint-disable-line no-unused-vars
     if (err instanceof expressValidation.ValidationError) {
       // validation error contains errors which is an array of error each containing message[]

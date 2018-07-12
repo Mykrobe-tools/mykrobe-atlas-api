@@ -7,6 +7,7 @@ const AuditSchema = new mongoose.Schema({
   sampleId: String,
   fileLocation: String,
   status: String,
+  taskId: String,
   attempt: Number
 });
 
