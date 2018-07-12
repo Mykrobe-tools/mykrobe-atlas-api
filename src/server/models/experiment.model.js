@@ -47,7 +47,7 @@ const PhylogeneticsSchema = new mongoose.Schema({
   percentCoverage: Number,
   medianDepth: Number
 });
-const ResultsSchema = new mongoose.Schema({
+const ResultSchema = new mongoose.Schema({
   type: String,
   received: Date,
   susceptibility: [SusceptibilitySchema],
@@ -84,7 +84,8 @@ const ExperimentSchema = new mongoose.Schema({
   jaccardIndex: DistanceSchema,
   snpDistance: DistanceSchema,
   geoDistance: DistanceSchema,
-  file: String
+  file: String,
+  results: [ResultSchema]
 });
 
 // Add reference to experiements

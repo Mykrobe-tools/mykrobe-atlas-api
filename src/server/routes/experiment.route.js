@@ -930,6 +930,38 @@ router
    */
   .put(keycloak.connect.protect(), experimentController.updateMetadata);
 router
+  .route("/:id/results")
+  /**
+   * @swagger
+   * /experiments/{id}/results:
+   *   put:
+   *     tags:
+   *       - Experiments
+   *     description: Save the results of analysis
+   *     operationId: experimentResults
+   *     produces:
+   *       - application/json
+   *     security:
+   *       - Bearer: []
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         type: string
+   *         description: The experiment id
+   *       - in: body
+   *         name: results
+   *         description: The experiment results
+   *         schema:
+   *           type: object
+   *     responses:
+   *       200:
+   *         description: Experiment data
+   *         schema:
+   *           $ref: '#/definitions/ExperimentResponse'
+   */
+  .put(keycloak.connect.protect(), experimentController.results);
+router
   .route("/:id/file")
   /**
    * @swagger

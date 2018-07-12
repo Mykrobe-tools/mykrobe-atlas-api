@@ -15,7 +15,10 @@ const MEDIAN_DEPTH = "median_depth";
 
 class ResultsHelper {
   static parse(predictorNamedResult) {
-    const result = {};
+    const result = {
+      type: "predictor",
+      received: new Date()
+    };
     if (predictorNamedResult) {
       const predictorResult = this.getPredictorResult(predictorNamedResult);
 
