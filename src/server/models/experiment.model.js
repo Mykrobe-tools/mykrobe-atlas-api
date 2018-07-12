@@ -4,6 +4,8 @@ import ExperimentJSONTransformer from "../transformers/ExperimentJSONTransformer
 import DistanceJSONTransformer from "../transformers/DistanceJSONTransformer";
 import LocationJSONTransformer from "../transformers/LocationJSONTransformer";
 
+const Mixed = mongoose.Schema.Types.Mixed;
+
 /**
  * Distance Schema
  */
@@ -26,6 +28,37 @@ const LocationSchema = new mongoose.Schema({
     type: Number,
     required: true
   }
+});
+
+/**
+ * Results
+ */
+const SusceptibilitySchema = new mongoose.Schema({
+  name: String,
+  prediction: {
+    type: String,
+    enum: ["R", "S"]
+  },
+  calledBy: Mixed
+});
+const PhylogeneticsSchema = new mongoose.Schema({
+  type: String,
+  result: String,
+  percentCoverage: Number,
+  medianDepth: Number
+});
+const ResultsSchema = new mongoose.Schema({
+  type: String,
+  received: Date,
+  susceptibility: [SusceptibilitySchema],
+  phylogenetics: [PhylogeneticsSchema],
+  variantCalls: Mixed,
+  sequenceCalls: Mixed,
+  kmer: Number,
+  probeSets: [String],
+  files: [String],
+  version: Mixed,
+  genotypeModel: String
 });
 
 /**

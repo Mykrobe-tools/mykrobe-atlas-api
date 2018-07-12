@@ -155,6 +155,13 @@ async function updateMetadata(req, res) {
 }
 
 /**
+ * Store results of analysis
+ * @param {object} req
+ * @param {object} res
+ */
+async function results(req, res) {}
+
+/**
  * Upload sequence file
  * @returns {Experiment}
  */
@@ -315,6 +322,7 @@ export default {
   remove,
   updateMetadata,
   uploadFile,
+  results,
   readFile,
   uploadStatus,
   reindex,
