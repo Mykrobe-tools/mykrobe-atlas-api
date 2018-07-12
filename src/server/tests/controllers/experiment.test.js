@@ -8,6 +8,7 @@ import Experiment from "../../models/experiment.model";
 import Organisation from "../../models/organisation.model";
 import Metadata from "../../models/metadata.model";
 import Audit from "../../models/audit.model";
+import MDR from "../../tests/fixtures/files/MDR_Results.json";
 import { mockEsCalls } from "../mocks";
 
 mockEsCalls();
@@ -879,6 +880,34 @@ describe("## Experiment APIs", () => {
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
           expect(res.body.message).toEqual("Not Authorised");
+          done();
+        });
+    });
+  });
+  describe("# POST /experiments/:id/result", () => {
+    it("should be successful", done => {
+      request(app)
+        .post(`/experiments/${id}/result`)
+        .set("Authorization", `Bearer ${token}`)
+        .send(MDR)
+        .expect(httpStatus.OK)
+        .end((err, res) => {
+          expect(res.body.status).toEqual("success");
+          expect(res.body.data).toHaveProperty("results");
+          expect(res.body.data.results.length).toEqual(1);
+          done();
+        });
+    });
+    it("should save results against the experiment", done => {
+      request(app)
+        .post(`/experiments/${id}/result`)
+        .set("Authorization", `Bearer ${token}`)
+        .send(MDR)
+        .expect(httpStatus.OK)
+        .end(async (err, res) => {
+          const experimentWithResults = await Experiment.get(id);
+          expect(experimentWithResults).toHaveProperty("results");
+          expect(experimentWithResults.results.length).toEqual(1);
           done();
         });
     });
