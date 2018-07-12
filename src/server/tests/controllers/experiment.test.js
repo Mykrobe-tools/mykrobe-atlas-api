@@ -8,6 +8,7 @@ import Experiment from "../../models/experiment.model";
 import Organisation from "../../models/organisation.model";
 import Metadata from "../../models/metadata.model";
 import Audit from "../../models/audit.model";
+import MDR from "../../tests/fixtures/files/MDR_Results.json";
 import { mockEsCalls } from "../mocks";
 
 mockEsCalls();
@@ -314,9 +315,9 @@ describe("## Experiment APIs", () => {
         .attach("file", "src/server/tests/fixtures/files/333-08.json")
         .expect(httpStatus.OK)
         .end((err, res) => {
-          const filePath = `${config.express.uploadDir}/experiments/${
-            id
-          }/file/333-08.json`;
+          const filePath = `${
+            config.express.uploadDir
+          }/experiments/${id}/file/333-08.json`;
           expect(res.body.status).toEqual("success");
           expect(res.body.data).toEqual("File uploaded and reassembled");
           expect(fs.existsSync(filePath)).toEqual(true);
@@ -480,9 +481,9 @@ describe("## Experiment APIs", () => {
           })
           .expect(httpStatus.OK)
           .end((err, res) => {
-            const filePath = `${config.express.uploadDir}/experiments/${
-              id
-            }/file/fake.json`;
+            const filePath = `${
+              config.express.uploadDir
+            }/experiments/${id}/file/fake.json`;
             expect(res.body.status).toEqual("success");
             expect(res.body.data).toEqual("Download started from dropbox");
             expect(fs.existsSync(filePath)).toEqual(true);
@@ -516,9 +517,9 @@ describe("## Experiment APIs", () => {
           })
           .expect(httpStatus.OK)
           .end((err, res) => {
-            const filePath = `${config.express.uploadDir}/experiments/${
-              id
-            }/file/fake.json`;
+            const filePath = `${
+              config.express.uploadDir
+            }/experiments/${id}/file/fake.json`;
             expect(res.body.status).toEqual("success");
             expect(res.body.data).toEqual("Download started from box");
             expect(fs.existsSync(filePath)).toEqual(true);
@@ -570,9 +571,9 @@ describe("## Experiment APIs", () => {
           })
           .expect(httpStatus.OK)
           .end((err, res) => {
-            const filePath = `${config.express.uploadDir}/experiments/${
-              id
-            }/file/fake.json`;
+            const filePath = `${
+              config.express.uploadDir
+            }/experiments/${id}/file/fake.json`;
             expect(res.body.status).toEqual("success");
             expect(res.body.data).toEqual("Download started from googleDrive");
             expect(fs.existsSync(filePath)).toEqual(true);
@@ -606,9 +607,9 @@ describe("## Experiment APIs", () => {
           })
           .expect(httpStatus.OK)
           .end((err, res) => {
-            const filePath = `${config.express.uploadDir}/experiments/${
-              id
-            }/file/fake.json`;
+            const filePath = `${
+              config.express.uploadDir
+            }/experiments/${id}/file/fake.json`;
             expect(res.body.status).toEqual("success");
             expect(res.body.data).toEqual("Download started from oneDrive");
             expect(fs.existsSync(filePath)).toEqual(true);
@@ -643,9 +644,9 @@ describe("## Experiment APIs", () => {
                 job = await findJob(jobs, id);
               }
               expect(job.data.file).toEqual(
-                `${config.express.uploadsLocation}/experiments/${
-                  id
-                }/file/333-08.json`
+                `${
+                  config.express.uploadsLocation
+                }/experiments/${id}/file/333-08.json`
               );
               expect(job.data.sample_id).toEqual(id);
               expect(job.data.attempt).toEqual(0);
@@ -682,15 +683,15 @@ describe("## Experiment APIs", () => {
             }
             expect(job.name).toEqual("call analysis api");
             expect(job.data.file).toEqual(
-              `${config.express.uploadsLocation}/experiments/${
-                id
-              }/file/333-08.json`
+              `${
+                config.express.uploadsLocation
+              }/experiments/${id}/file/333-08.json`
             );
             expect(job.data.sample_id).toEqual(id);
             done();
           });
       });
-      it("should record data to the audit collection", done => {
+      it("should record taskId to the audit collection", done => {
         request(app)
           .put(`/experiments/${id}/file`)
           .set("Authorization", `Bearer ${token}`)
@@ -716,12 +717,15 @@ describe("## Experiment APIs", () => {
             expect(res.body.data).toEqual("File uploaded and reassembled");
             expect(audit.sampleId).toEqual(id);
             expect(audit.fileLocation).toEqual(
-              `${config.express.uploadsLocation}/experiments/${
-                id
-              }/file/333-08.json`
+              `${
+                config.express.uploadsLocation
+              }/experiments/${id}/file/333-08.json`
             );
             expect(audit.status).toEqual("Successful");
             expect(audit.attempt).toEqual(1);
+            expect(audit.taskId).toEqual(
+              "1447d80f-ca79-40ac-bc5d-8a02933323c3"
+            );
             done();
           });
       });
@@ -755,9 +759,9 @@ describe("## Experiment APIs", () => {
             }
             expect(foundJobs.length).toEqual(2);
             expect(foundJobs[0].data.file).toEqual(
-              `${config.express.uploadsLocation}/experiments/${
-                id
-              }/file/333-09.json`
+              `${
+                config.express.uploadsLocation
+              }/experiments/${id}/file/333-09.json`
             );
             expect(foundJobs[0].data.sample_id).toEqual(id);
             done();
@@ -792,12 +796,50 @@ describe("## Experiment APIs", () => {
             expect(res.body.data).toEqual("File uploaded and reassembled");
             expect(audit.sampleId).toEqual(id);
             expect(audit.fileLocation).toEqual(
-              `${config.express.uploadsLocation}/experiments/${
-                id
-              }/file/333-09.json`
+              `${
+                config.express.uploadsLocation
+              }/experiments/${id}/file/333-09.json`
             );
             expect(audit.status).toEqual("Failed");
             expect(audit.attempt).toEqual(1);
+            done();
+          });
+      });
+      it("should save the taskId in the audit collection", done => {
+        request(app)
+          .put(`/experiments/${id}/file`)
+          .set("Authorization", `Bearer ${token}`)
+          .field("resumableChunkNumber", 1)
+          .field("resumableChunkSize", 1048576)
+          .field("resumableCurrentChunkSize", 251726)
+          .field("resumableTotalSize", 251726)
+          .field("resumableType", "application/json")
+          .field("resumableIdentifier", "251726-333-08json")
+          .field("resumableFilename", "333-08.json")
+          .field("resumableRelativePath", "333-08.json")
+          .field("resumableTotalChunks", 1)
+          .field("checksum", "4f36e4cbfc9dfc37559e13bd3a309d50")
+          .attach("file", "src/server/tests/fixtures/files/333-08.json")
+          .expect(httpStatus.OK)
+          .end(async (err, res) => {
+            let audits = await Audit.find({ sampleId: id });
+            while (audits.length === 0) {
+              audits = await Audit.find({ sampleId: id });
+            }
+            const audit = audits[0];
+            expect(res.body.status).toEqual("success");
+            expect(res.body.data).toEqual("File uploaded and reassembled");
+            expect(audit.sampleId).toEqual(id);
+            expect(audit.fileLocation).toEqual(
+              `${
+                config.express.uploadsLocation
+              }/experiments/${id}/file/333-08.json`
+            );
+            expect(audit.status).toEqual("Successful");
+            expect(audit.attempt).toEqual(1);
+            expect(audit.taskId).toEqual(
+              "1447d80f-ca79-40ac-bc5d-8a02933323c3"
+            );
             done();
           });
       });
@@ -831,9 +873,7 @@ describe("## Experiment APIs", () => {
     it("should return the resumable upload status", done => {
       request(app)
         .get(
-          `/experiments/${
-            id
-          }/upload-status?resumableChunkNumber=1&resumableChunkSize=1048576&resumableTotalSize=251726&resumableIdentifier=251726-333-08json&resumableFilename=333-08.json&checksum=4f36e4cbfc9dfc37559e13bd3a309d50`
+          `/experiments/${id}/upload-status?resumableChunkNumber=1&resumableChunkSize=1048576&resumableTotalSize=251726&resumableIdentifier=251726-333-08json&resumableFilename=333-08.json&checksum=4f36e4cbfc9dfc37559e13bd3a309d50`
         )
         .set("Authorization", `Bearer ${token}`)
         .expect(httpStatus.NO_CONTENT)
@@ -861,9 +901,7 @@ describe("## Experiment APIs", () => {
         .end(() => {
           request(app)
             .get(
-              `/experiments/${
-                id
-              }/upload-status?resumableChunkNumber=1&resumableChunkSize=1048576&resumableTotalSize=251726&resumableIdentifier=251726-333-08json&resumableFilename=333-08.json&checksum=4f36e4cbfc9dfc37559e13bd3a309d50`
+              `/experiments/${id}/upload-status?resumableChunkNumber=1&resumableChunkSize=1048576&resumableTotalSize=251726&resumableIdentifier=251726-333-08json&resumableFilename=333-08.json&checksum=4f36e4cbfc9dfc37559e13bd3a309d50`
             )
             .set("Authorization", `Bearer ${token}`)
             .expect(httpStatus.NO_CONTENT)
@@ -876,15 +914,39 @@ describe("## Experiment APIs", () => {
     it("should be a protected route", done => {
       request(app)
         .get(
-          `/experiments/${
-            id
-          }/upload-status?resumableChunkNumber=1&resumableChunkSize=1048576&resumableTotalSize=251726&resumableIdentifier=251726-333-08json&resumableFilename=333-08.json&checksum=4f36e4cbfc9dfc37559e13bd3a309d50`
+          `/experiments/${id}/upload-status?resumableChunkNumber=1&resumableChunkSize=1048576&resumableTotalSize=251726&resumableIdentifier=251726-333-08json&resumableFilename=333-08.json&checksum=4f36e4cbfc9dfc37559e13bd3a309d50`
         )
         .set("Authorization", "Bearer INVALID_TOKEN")
         .expect(httpStatus.UNAUTHORIZED)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
           expect(res.body.message).toEqual("Not Authorised");
+          done();
+        });
+    });
+  });
+  describe("# POST /experiments/:id/result", () => {
+    it("should be successful", done => {
+      request(app)
+        .post(`/experiments/${id}/result`)
+        .send(MDR)
+        .expect(httpStatus.OK)
+        .end((err, res) => {
+          expect(res.body.status).toEqual("success");
+          expect(res.body.data).toHaveProperty("results");
+          expect(res.body.data.results.length).toEqual(1);
+          done();
+        });
+    });
+    it("should save results against the experiment", done => {
+      request(app)
+        .post(`/experiments/${id}/result`)
+        .send(MDR)
+        .expect(httpStatus.OK)
+        .end(async (err, res) => {
+          const experimentWithResults = await Experiment.get(id);
+          expect(experimentWithResults).toHaveProperty("results");
+          expect(experimentWithResults.results.length).toEqual(1);
           done();
         });
     });

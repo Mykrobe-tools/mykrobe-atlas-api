@@ -18,6 +18,7 @@ class AgendaHelper {
           sampleId: data.sample_id,
           fileLocation: data.file,
           status: "Successful",
+          taskId: response.data && response.data.task_id,
           attempt: data.attempt + 1
         });
         await audit.save();

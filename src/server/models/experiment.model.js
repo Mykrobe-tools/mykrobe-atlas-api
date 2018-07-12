@@ -4,6 +4,8 @@ import ExperimentJSONTransformer from "../transformers/ExperimentJSONTransformer
 import DistanceJSONTransformer from "../transformers/DistanceJSONTransformer";
 import LocationJSONTransformer from "../transformers/LocationJSONTransformer";
 
+const Mixed = mongoose.Schema.Types.Mixed;
+
 /**
  * Distance Schema
  */
@@ -29,6 +31,37 @@ const LocationSchema = new mongoose.Schema({
 });
 
 /**
+ * Results
+ */
+const SusceptibilitySchema = new mongoose.Schema({
+  name: String,
+  prediction: {
+    type: String,
+    enum: ["R", "S"]
+  },
+  calledBy: Mixed
+});
+const PhylogeneticsSchema = new mongoose.Schema({
+  type: String,
+  result: String,
+  percentCoverage: Number,
+  medianDepth: Number
+});
+const ResultSchema = new mongoose.Schema({
+  type: String,
+  received: Date,
+  susceptibility: [SusceptibilitySchema],
+  phylogenetics: [PhylogeneticsSchema],
+  variantCalls: Mixed,
+  sequenceCalls: Mixed,
+  kmer: Number,
+  probeSets: [String],
+  files: [String],
+  version: Mixed,
+  genotypeModel: String
+});
+
+/**
  * Experiment Schema
  */
 const ExperimentSchema = new mongoose.Schema({
@@ -51,7 +84,8 @@ const ExperimentSchema = new mongoose.Schema({
   jaccardIndex: DistanceSchema,
   snpDistance: DistanceSchema,
   geoDistance: DistanceSchema,
-  file: String
+  file: String,
+  results: [ResultSchema]
 });
 
 // Add reference to experiements
@@ -82,7 +116,13 @@ ExperimentSchema.statics = {
   async get(id) {
     try {
       const experiment = await this.findById(id)
-        .populate(["organisation", "owner", "metadata"])
+        .populate([
+          "organisation",
+          "owner",
+          "metadata",
+          "-results.variantCalls",
+          "-results.sequenceCalls"
+        ])
         .exec();
       if (experiment) {
         return experiment;

@@ -9,14 +9,17 @@ const mockAnalysisApiCalls = () => {
     .post("/analyses", function(body) {
       return body.file.endsWith("333-08.json");
     })
-    .reply(200, "OK");
+    .reply(200, {
+      result: "success",
+      task_id: "1447d80f-ca79-40ac-bc5d-8a02933323c3"
+    });
 
   nock(config.services.analysisApiUrl)
     .persist()
     .post("/analyses", function(body) {
       return body.file.endsWith("333-09.json");
     })
-    .reply(500, "ERROR");
+    .reply(500, { result: "error" });
 };
 
 // mock elasticsearch calls
