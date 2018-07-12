@@ -888,7 +888,6 @@ describe("## Experiment APIs", () => {
     it("should be successful", done => {
       request(app)
         .post(`/experiments/${id}/result`)
-        .set("Authorization", `Bearer ${token}`)
         .send(MDR)
         .expect(httpStatus.OK)
         .end((err, res) => {
@@ -901,7 +900,6 @@ describe("## Experiment APIs", () => {
     it("should save results against the experiment", done => {
       request(app)
         .post(`/experiments/${id}/result`)
-        .set("Authorization", `Bearer ${token}`)
         .send(MDR)
         .expect(httpStatus.OK)
         .end(async (err, res) => {

@@ -941,8 +941,6 @@ router
    *     operationId: experimentResults
    *     produces:
    *       - application/json
-   *     security:
-   *       - Bearer: []
    *     parameters:
    *       - in: path
    *         name: id
@@ -960,7 +958,7 @@ router
    *         schema:
    *           $ref: '#/definitions/ExperimentResponse'
    */
-  .post(keycloak.connect.protect(), experimentController.result);
+  .post(experimentController.result);
 router
   .route("/:id/file")
   /**
