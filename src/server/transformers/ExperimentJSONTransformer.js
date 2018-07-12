@@ -2,6 +2,8 @@ import ModelJSONTransformer from "./ModelJSONTransformer";
 import BlacklistTransformer from "./BlacklistTransformer";
 import UserJSONTransformer from "./UserJSONTransformer";
 import OrganisationJSONTransformer from "./OrganisationJSONTransformer";
+import ArrayJSONTransformer from "./ArrayJSONTransformer";
+import ResultsJSONTransformer from "./ResultsJSONTransformer";
 
 const BLACKLIST = ["__v"];
 
@@ -23,6 +25,11 @@ class ExperimentJSONTransformer extends ModelJSONTransformer {
       res.organisation = new OrganisationJSONTransformer(
         res.organisation
       ).transform();
+    }
+    if (res.results) {
+      res.results = new ArrayJSONTransformer(res.results, {
+        transformer: ResultsJSONTransformer
+      }).transform();
     }
     return res;
   }

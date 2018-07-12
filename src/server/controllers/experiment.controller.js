@@ -15,6 +15,7 @@ import ChoicesESTransformer from "../transformers/es/ChoicesESTransformer";
 import ExperimentsESTransformer from "../transformers/es/ExperimentsESTransformer";
 import { schedule } from "../modules/agenda";
 import experimentSchema from "../../schemas/experiment";
+import ResultsHelper from "../helpers/ResultsHelper";
 
 const config = require("../../config/env");
 
@@ -93,7 +94,7 @@ async function update(req, res) {
     );
     return res.jsend(savedExperiment);
   } catch (e) {
-    return res.jerror(new errors.CreateExperimentError(e.message));
+    return res.jerror(new errors.UpdateExperimentError(e.message));
   }
 }
 
@@ -151,6 +152,29 @@ async function updateMetadata(req, res) {
     return res.jsend(savedExperiment);
   } catch (e) {
     return res.jerror(new errors.CreateExperimentError(e.message));
+  }
+}
+
+/**
+ * Store result of analysis
+ * @param {object} req
+ * @param {object} res
+ */
+async function result(req, res) {
+  const experiment = req.experiment;
+  const predictorResult = ResultsHelper.parse(req.body);
+  experiment.results.push(predictorResult);
+
+  try {
+    const savedExperiment = await experiment.save();
+    await ElasticsearchHelper.updateDocument(
+      config,
+      savedExperiment,
+      "experiment"
+    );
+    return res.jsend(savedExperiment);
+  } catch (e) {
+    return res.jerror(new errors.UpdateExperimentError(e.message));
   }
 }
 
@@ -315,6 +339,7 @@ export default {
   remove,
   updateMetadata,
   uploadFile,
+  result,
   readFile,
   uploadStatus,
   reindex,
