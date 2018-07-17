@@ -34,11 +34,11 @@ const Result = {
       type: "array",
       items: {
         type: {
-          title: "Name",
+          title: "Type",
           type: "string"
         },
         result: {
-          title: "Name",
+          title: "Result",
           type: "string"
         },
         percentCoverage: {
@@ -85,7 +85,7 @@ const Result = {
     },
     genotypeModel: {
       title: "Genotype model",
-      type: " string"
+      type: "string"
     }
   }
 };
