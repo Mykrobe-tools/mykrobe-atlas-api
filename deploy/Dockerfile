@@ -61,12 +61,12 @@ WORKDIR /app
 ADD . /app
 
 # install dependencies as a cachable step
-RUN cd /app && yarn install
+ADD package.json /tmp/package.json
+RUN cd /tmp && yarn install
 
 # build and compile the source
 RUN yarn global add gulp
 RUN gulp
-
 
 # trim to production dependencies post build
 RUN cp -rf /app/node_modules/makeandship-api-common /tmp

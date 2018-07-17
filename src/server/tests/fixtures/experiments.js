@@ -60,6 +60,7 @@ export default {
       engine: "",
       version: "1.2",
       experiments: []
-    }
+    },
+    results: []
   }
 };
