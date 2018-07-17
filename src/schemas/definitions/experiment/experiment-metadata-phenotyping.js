@@ -25,7 +25,8 @@ const Phenotyping = {
     },
     phenotypeInformationOtherDrugs: {
       title: "Phenotype Information Other Drugs",
-      type: "boolean"
+      type: "string",
+      enum: ["Yes", "No"]
     },
     rifabutin: {
       title: "Rifabutin",

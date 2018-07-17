@@ -280,19 +280,23 @@ const Patient = {
     },
     injectingDrugUse: {
       title: "Injecting Drug Use",
-      type: "string"
+      type: "string",
+      enum: ["Yes", "No"]
     },
     homeless: {
       title: "Homeless",
-      type: "string"
+      type: "string",
+      enum: ["Yes", "No"]
     },
     imprisoned: {
       title: "Imprisoned",
-      type: "string"
+      type: "string",
+      enum: ["Yes", "No"]
     },
     smoker: {
       title: "Smoker",
-      type: "string"
+      type: "string",
+      enum: ["Yes", "No"]
     },
     diabetic: {
       title: "Diabetic",

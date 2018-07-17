@@ -13,7 +13,7 @@ const Sample = {
     collectionDate: {
       title: "Collection Date",
       type: "string",
-      format: "date-time"
+      format: "date"
     },
     prospectiveIsolate: {
       title: "Prospective Isolate",
@@ -282,7 +282,7 @@ const Sample = {
     dateArrived: {
       title: "Date Arrived",
       type: "string",
-      format: "date-time"
+      format: "date"
     },
     anatomicalOrigin: {
       title: "Anatomical Origin",

@@ -26,6 +26,7 @@ async function load(req, res, next, id) {
   try {
     const experiment = await Experiment.get(id);
     req.experiment = experiment;
+
     return next();
   } catch (e) {
     return res.jerror(e);
@@ -48,24 +49,6 @@ async function create(req, res) {
   const experiment = new Experiment(req.body);
   experiment.owner = req.dbUser;
 
-  if (req.body.organisation) {
-    try {
-      const organisation = await Organisation.findOrganisationAndUpdate(
-        req.body.organisation,
-        req.body.organisation
-      );
-      experiment.organisation = organisation;
-      const savedExperiment = await experiment.save();
-      await ElasticsearchHelper.indexDocument(
-        config,
-        savedExperiment,
-        "experiment"
-      );
-      return res.jsend(savedExperiment);
-    } catch (e) {
-      return res.jerror(new errors.CreateExperimentError(e.message));
-    }
-  }
   try {
     const savedExperiment = await experiment.save();
     await ElasticsearchHelper.indexDocument(
@@ -84,7 +67,12 @@ async function create(req, res) {
  * @returns {Experiment}
  */
 async function update(req, res) {
-  const experiment = Object.assign(req.experiment, req.body);
+  // use set - https://github.com/Automattic/mongoose/issues/5378
+  const experiment = req.experiment;
+  Object.keys(req.body).forEach(key => {
+    experiment.set(key, req.body[key]);
+  });
+
   try {
     const savedExperiment = await experiment.save();
     await ElasticsearchHelper.updateDocument(
@@ -134,15 +122,15 @@ async function remove(req, res) {
 }
 
 /**
- * Update experiment metadata
+ * Update existing metadata
  * @returns {Experiment}
  */
-async function updateMetadata(req, res) {
-  const metadata = new Metadata(req.body);
+async function metadata(req, res) {
+  // use set - https://github.com/Automattic/mongoose/issues/5378
   const experiment = req.experiment;
-  experiment.metadata = metadata;
+  experiment.set("metadata", req.body);
+  console.log(req.body);
   try {
-    await metadata.save();
     const savedExperiment = await experiment.save();
     await ElasticsearchHelper.updateDocument(
       config,
@@ -151,7 +139,7 @@ async function updateMetadata(req, res) {
     );
     return res.jsend(savedExperiment);
   } catch (e) {
-    return res.jerror(new errors.CreateExperimentError(e.message));
+    return res.jerror(new errors.UpdateExperimentError(e.message));
   }
 }
 
@@ -163,8 +151,14 @@ async function updateMetadata(req, res) {
 async function result(req, res) {
   const experiment = req.experiment;
   const predictorResult = ResultsHelper.parse(req.body);
-  experiment.results.push(predictorResult);
+  const results = experiment.get("results");
 
+  const updatedResults = [];
+  if (results) {
+    updatedResults.push(...results);
+  }
+  updatedResults.push(predictorResult);
+  experiment.set("results", updatedResults);
   try {
     const savedExperiment = await experiment.save();
     await ElasticsearchHelper.updateDocument(
@@ -337,8 +331,8 @@ export default {
   update,
   list,
   remove,
-  updateMetadata,
   uploadFile,
+  metadata,
   result,
   readFile,
   uploadStatus,

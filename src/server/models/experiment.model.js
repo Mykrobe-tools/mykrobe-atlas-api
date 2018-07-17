@@ -30,9 +30,6 @@ const ExperimentSchema = new mongoose.Schema(
   }
 );
 
-// Add reference to experiements
-// DistanceSchema.add({ experiments: [ExperimentSchema] });
-
 /**
  * Add your
  * - pre-save hooks
@@ -65,7 +62,6 @@ ExperimentSchema.statics = {
         .populate([
           "organisation",
           "owner",
-          "metadata",
           "-results.variantCalls",
           "-results.sequenceCalls"
         ])

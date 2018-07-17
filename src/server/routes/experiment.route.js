@@ -928,7 +928,7 @@ router
    *         schema:
    *           $ref: '#/definitions/ExperimentResponse'
    */
-  .put(keycloak.connect.protect(), experimentController.updateMetadata);
+  .put(keycloak.connect.protect(), experimentController.metadata);
 router
   .route("/:id/result")
   /**
