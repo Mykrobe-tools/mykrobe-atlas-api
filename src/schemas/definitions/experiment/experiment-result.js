@@ -33,21 +33,24 @@ const Result = {
       title: "Phylogenetics",
       type: "array",
       items: {
-        type: {
-          title: "Name",
-          type: "string"
-        },
-        result: {
-          title: "Name",
-          type: "string"
-        },
-        percentCoverage: {
-          title: "Percent coverage",
-          type: "number"
-        },
-        medianDepth: {
-          title: "Median depth",
-          type: "number"
+        type: "object",
+        properties: {
+          type: {
+            title: "Name",
+            type: "string"
+          },
+          result: {
+            title: "Name",
+            type: "string"
+          },
+          percentCoverage: {
+            title: "Percent coverage",
+            type: "number"
+          },
+          medianDepth: {
+            title: "Median depth",
+            type: "number"
+          }
         }
       }
     },
@@ -85,7 +88,7 @@ const Result = {
     },
     genotypeModel: {
       title: "Genotype model",
-      type: " string"
+      type: "string"
     }
   }
 };
