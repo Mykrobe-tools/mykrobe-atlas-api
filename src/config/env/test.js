@@ -1,6 +1,6 @@
 export default {
   db: {},
   express: {
-    uploadsLocation: "/tmp/uploads"
+    uploadsLocation: "/atlas/uploads"
   }
 };

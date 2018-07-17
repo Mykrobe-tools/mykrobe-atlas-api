@@ -222,7 +222,7 @@ async function uploadFile(req, res) {
           req.body.resumableFilename,
           async () => {
             await schedule("now", "call analysis api", {
-              file: `${config.express.uploadDir}/experiments/${
+              file: `${config.express.uploadsLocation}/experiments/${
                 experiment.id
               }/file/${req.body.resumableFilename}`,
               sample_id: experiment.id,
