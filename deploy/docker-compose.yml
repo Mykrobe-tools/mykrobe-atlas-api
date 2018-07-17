@@ -28,6 +28,7 @@ atlas-api:
     - KEYCLOAK_REDIRECT_URI={{KEYCLOAK_REDIRECT_URI}}
     - ANALYSIS_API={{ANALYSIS_API}}
     - API_HOST={{API_HOST}}
+    - UPLOADS_LOCATION={{UPLOADS_LOCATION}}
   links:
     - db
 swagger-ui:
