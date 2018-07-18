@@ -160,7 +160,7 @@ async function updateMetadata(req, res) {
  * @param {object} req
  * @param {object} res
  */
-async function result(req, res) {
+async function results(req, res) {
   const experiment = req.experiment;
   const predictorResult = ResultsHelper.parse(req.body);
   experiment.results.push(predictorResult);
@@ -339,7 +339,7 @@ export default {
   remove,
   updateMetadata,
   uploadFile,
-  result,
+  results,
   readFile,
   uploadStatus,
   reindex,
