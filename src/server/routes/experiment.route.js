@@ -1145,6 +1145,34 @@ router
    *         description: Failed authentication
    */
   .get(keycloak.connect.protect(), experimentController.choices);
+
+router
+  .route("/:id/events")
+  /**
+   * @swagger
+   * /experiments/{id}/events:
+   *   get:
+   *     tags:
+   *       - Experiments
+   *     description: Experiments events
+   *     operationId: experimentEvents
+   *     produces:
+   *       - application/json
+   *     security:
+   *       - Bearer: []
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         type: string
+   *         description: The experiment id
+   *     responses:
+   *       200:
+   *         description: A jsend response
+   *         schema:
+   *           $ref: '#/definitions/BasicResponse'
+   */
+  .get(keycloak.connect.protect(), experimentController.events);
 /** Load user when API with id route parameter is hit */
 router.param("id", experimentController.load);
 

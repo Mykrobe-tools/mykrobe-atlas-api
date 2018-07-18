@@ -16,6 +16,8 @@ import ExperimentsESTransformer from "../transformers/es/ExperimentsESTransforme
 import { schedule } from "../modules/agenda";
 import experimentSchema from "../../schemas/experiment";
 import ResultsHelper from "../helpers/ResultsHelper";
+import { experimentChannel } from "../modules/channels";
+import { experimentEvent } from "../modules/events";
 
 const config = require("../../config/env");
 
@@ -172,6 +174,7 @@ async function result(req, res) {
       savedExperiment,
       "experiment"
     );
+    experimentEvent.emit("result-status", savedExperiment);
     return res.jsend(savedExperiment);
   } catch (e) {
     return res.jerror(new errors.UpdateExperimentError(e.message));
@@ -216,6 +219,7 @@ async function uploadFile(req, res) {
         return res.jerror(new errors.UploadFileError(err.message));
       }
       const postUpload = Resumable.post(req);
+      experimentEvent.emit("upload-progress", postUpload);
       if (postUpload.complete) {
         return Resumable.reassembleChunks(
           experiment.id,
@@ -330,6 +334,14 @@ async function search(req, res) {
   }
 }
 
+/**
+ * Get experiment events
+ * @returns {Experiment}
+ */
+function events(req, res) {
+  experimentChannel.addClient(req, res);
+}
+
 export default {
   load,
   get,
@@ -344,5 +356,6 @@ export default {
   uploadStatus,
   reindex,
   choices,
-  search
+  search,
+  events
 };
