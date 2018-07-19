@@ -3,7 +3,7 @@ const Treatment = {
   type: "object",
   properties: {
     previousTbInformation: {
-      title: "Previous Tbinformation",
+      title: "Previous TB Information",
       type: "string",
       enum: ["Yes", "No"]
     },

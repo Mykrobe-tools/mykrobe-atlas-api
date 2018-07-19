@@ -412,21 +412,26 @@ const keycloak = AccountsHelper.keycloakInstance();
  *                 type: object
  *                 properties:
  *                   previousTbinformation:
- *                     type: boolean
+ *                     type: string
+ *                     enum: ["Yes", "No"]
  *                   recentMdrTb:
  *                     type: string
+ *                     enum: ["Yes", "No", "Not known"]
  *                   priorTreatmentDate:
  *                     type: string
  *                     format: date-time
  *                   tbProphylaxis:
  *                     type: string
+ *                     enum: ["Yes", "No", "Not known"]
  *                   tbProphylaxisDate:
  *                     type: string
  *                     format: date-time
  *                   currentTbinformation:
- *                     type: boolean
+ *                     type: string
+ *                     enum: ["Yes", "No"]
  *                   startProgrammaticTreatment:
- *                     type: boolean
+ *                     type: string
+ *                     enum: ["Yes", "No"]
  *                   intensiveStartDate:
  *                     type: string
  *                     format: date-time
@@ -435,6 +440,7 @@ const keycloak = AccountsHelper.keycloakInstance();
  *                     format: date-time
  *                   startProgrammaticContinuationTreatment:
  *                     type: string
+ *                     enum: ["Yes", "No", "Not known"]
  *                   continuationStartDate:
  *                     type: string
  *                     format: date-time
@@ -443,10 +449,218 @@ const keycloak = AccountsHelper.keycloakInstance();
  *                     format: date-time
  *                   nonStandardTreatment:
  *                     type: string
+ *                     enum: ["Yes", "No", "Not known"]
  *                   sputumSmearConversion:
  *                     type: string
  *                   sputumCultureConversion:
  *                     type: string
+ *                   outsideStandardPhaseRifampicinRifabutin:
+ *                     type: "object"
+ *                     properties:
+ *                       start:
+ *                         type: "string"
+ *                         format: "date"
+ *                       stop:
+ *                         type: "string"
+ *                         format: "date"
+ *                   outsideStandardPhaseEthambutol:
+ *                     type: "object"
+ *                     properties:
+ *                       start:
+ *                         type: "string"
+ *                         format: "date"
+ *                       stop:
+ *                         type: "string"
+ *                         format: "date"
+ *                   outsideStandardPhasePyrazinamide:
+ *                     type: "object"
+ *                     properties:
+ *                       start:
+ *                         type: "string"
+ *                         format: "date"
+ *                       stop:
+ *                         type: "string"
+ *                         format: "date"
+ *                   outsideStandardPhaseIsoniazid:
+ *                     type: "object"
+ *                     properties:
+ *                       start:
+ *                         type: "string"
+ *                         format: "date"
+ *                       stop:
+ *                         type: "string"
+ *                         format: "date"
+ *                   outsideStandardPhaseOfloxacin:
+ *                     type: "object"
+ *                     properties:
+ *                       start:
+ *                         type: "string"
+ *                         format: "date"
+ *                       stop:
+ *                         type: "string"
+ *                         format: "date"
+ *                   outsideStandardPhaseMoxifloxacin:
+ *                     type: "object"
+ *                     properties:
+ *                       start:
+ *                         type: "string"
+ *                         format: "date"
+ *                       stop:
+ *                         type: "string"
+ *                         format: "date"
+ *                   outsideStandardPhaseLevofloxacin:
+ *                     type: "object"
+ *                     properties:
+ *                       start:
+ *                         type: "string"
+ *                         format: "date"
+ *                       stop:
+ *                         type: "string"
+ *                         format: "date"
+ *                   outsideStandardPhaseGatifloxacin:
+ *                     type: "object"
+ *                     properties:
+ *                       start:
+ *                         type: "string"
+ *                         format: "date"
+ *                       stop:
+ *                         type: "string"
+ *                         format: "date"
+ *                   outsideStandardPhaseAmikacin:
+ *                     type: "object"
+ *                     properties:
+ *                       start:
+ *                         type: "string"
+ *                         format: "date"
+ *                       stop:
+ *                         type: "string"
+ *                         format: "date"
+ *                   outsideStandardPhaseGentamicin:
+ *                     type: "object"
+ *                     properties:
+ *                       start:
+ *                         type: "string"
+ *                         format: "date"
+ *                       stop:
+ *                         type: "string"
+ *                         format: "date"
+ *                   outsideStandardPhaseStreptomycin:
+ *                     type: "object"
+ *                     properties:
+ *                       start:
+ *                         type: "string"
+ *                         format: "date"
+ *                       stop:
+ *                         type: "string"
+ *                         format: "date"
+ *                   outsideStandardPhaseCapreomycin:
+ *                     type: "object"
+ *                     properties:
+ *                       start:
+ *                         type: "string"
+ *                         format: "date"
+ *                       stop:
+ *                         type: "string"
+ *                         format: "date"
+ *                   outsideStandardPhaseClofazimine:
+ *                     type: "object"
+ *                     properties:
+ *                       start:
+ *                         type: "string"
+ *                         format: "date"
+ *                       stop:
+ *                         type: "string"
+ *                         format: "date"
+ *                   outsideStandardPhasePas:
+ *                     type: "object"
+ *                     properties:
+ *                       start:
+ *                         type: "string"
+ *                         format: "date"
+ *                       stop:
+ *                         type: "string"
+ *                         format: "date"
+ *                   outsideStandardPhaseLinezolid:
+ *                     type: "object"
+ *                     properties:
+ *                       start:
+ *                         type: "string"
+ *                         format: "date"
+ *                       stop:
+ *                         type: "string"
+ *                         format: "date"
+ *                   outsideStandardPhaseEthionamideProthionamide:
+ *                     type: "object"
+ *                     properties:
+ *                       start:
+ *                         type: "string"
+ *                         format: "date"
+ *                       stop:
+ *                         type: "string"
+ *                         format: "date"
+ *                   outsideStandardPhaseTerizidone:
+ *                     type: "object"
+ *                     properties:
+ *                       start:
+ *                         type: "string"
+ *                         format: "date"
+ *                       stop:
+ *                         type: "string"
+ *                         format: "date"
+ *                   outsideStandardPhaseAmoxicilinClavulanate:
+ *                     type: "object"
+ *                     properties:
+ *                       start:
+ *                         type: "string"
+ *                         format: "date"
+ *                       stop:
+ *                         type: "string"
+ *                         format: "date"
+ *                   outsideStandardPhaseThioacetazone:
+ *                     type: "object"
+ *                     properties:
+ *                       start:
+ *                         type: "string"
+ *                         format: "date"
+ *                       stop:
+ *                         type: "string"
+ *                         format: "date"
+ *                   outsideStandardPhaseImipenemImipenemcilastatin:
+ *                     type: "object"
+ *                     properties:
+ *                       start:
+ *                         type: "string"
+ *                         format: "date"
+ *                       stop:
+ *                         type: "string"
+ *                         format: "date"
+ *                   outsideStandardPhaseMeropenem:
+ *                     type: "object"
+ *                     properties:
+ *                       start:
+ *                         type: "string"
+ *                         format: "date"
+ *                       stop:
+ *                         type: "string"
+ *                         format: "date"
+ *                   outsideStandardPhaseClarythromycin:
+ *                     type: "object"
+ *                     properties:
+ *                       start:
+ *                         type: "string"
+ *                         format: "date"
+ *                       stop:
+ *                         type: "string"
+ *                         format: "date"
+ *                   outsideStandardPhaseHighDoseIsoniazid:
+ *                     type: "object"
+ *                     properties:
+ *                       start:
+ *                         type: "string"
+ *                         format: "date"
+ *                       stop:
+ *                         type: "string"
+ *                         format: "date"
  *               outcome:
  *                 type: object
  *                 properties:
