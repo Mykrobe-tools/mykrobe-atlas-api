@@ -53,9 +53,20 @@ const mockKeycloakCalls = () => {
   nock(adminSettings.baseUrl)
     .persist()
     .post(`/realms/${realm}/${tokenUrl}`, function(body) {
-      return body.username && body.password;
+      return body.username === "admin@nhs.co.uk" && body.password;
     })
-    .replyWithFile(200, __dirname + "/replies/auth.json", {
+    .replyWithFile(200, __dirname + "/replies/admin-auth.json", {
+      "Content-Type": "application/json"
+    });
+
+  nock(adminSettings.baseUrl)
+    .persist()
+    .post(`/realms/${realm}/${tokenUrl}`, function(body) {
+      return (
+        body.username && body.username !== "admin@nhs.co.uk" && body.password
+      );
+    })
+    .replyWithFile(200, __dirname + "/replies/other-auth.json", {
       "Content-Type": "application/json"
     });
 };
