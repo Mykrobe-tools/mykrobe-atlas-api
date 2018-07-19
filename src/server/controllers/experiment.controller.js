@@ -8,7 +8,7 @@ import Metadata from "../models/metadata.model";
 import Organisation from "../models/organisation.model";
 import ExperimentJSONTransformer from "../transformers/ExperimentJSONTransformer";
 import ArrayJSONTransformer from "../transformers/ArrayJSONTransformer";
-import Resumable from "../helpers/Resumable";
+import resumable from "../modules/resumable";
 import APIError from "../helpers/APIError";
 import DownloadersFactory from "../helpers/DownloadersFactory";
 import ChoicesESTransformer from "../transformers/es/ChoicesESTransformer";
@@ -207,15 +207,15 @@ const uploadFile = async (req, res) => {
   }
 
   // from local file
-  return Resumable.setUploadDirectory(
+  return await resumable.setUploadDirectory(
     `${config.express.uploadDir}/experiments/${experiment.id}/file`,
     err => {
       if (err) {
         return res.jerror(new errors.UploadFileError(err.message));
       }
-      const postUpload = Resumable.post(req);
+      const postUpload = resumable.post(req);
       if (postUpload.complete) {
-        return Resumable.reassembleChunks(
+        return resumable.reassembleChunks(
           experiment.id,
           req.body.resumableFilename,
           async () => {
@@ -249,15 +249,15 @@ const readFile = (req, res) => {
   return res.jerror("No file found for this Experiment");
 };
 
-const uploadStatus = (req, res) => {
+const uploadStatus = async (req, res) => {
   const experiment = req.experiment;
-  return Resumable.setUploadDirectory(
+  return await resumable.setUploadDirectory(
     `${config.express.uploadDir}/experiments/${experiment.id}/file`,
     err => {
       if (err) {
         return res.jerror(new errors.UploadFileError(err.message));
       }
-      const validateGetRequest = Resumable.get(req);
+      const validateGetRequest = resumable.get(req);
       if (validateGetRequest.valid) {
         return res.jsend(validateGetRequest);
       }
