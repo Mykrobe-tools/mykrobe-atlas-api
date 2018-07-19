@@ -678,57 +678,57 @@ const keycloak = AccountsHelper.keycloakInstance();
  *           lastname: Leavy
  *           phone: +44 7968 716851
  *           email: sean@gmail.com
- *         created: "2018-07-19T13:23:18.776Z",
- *         modified: "2018-07-19T13:23:18.776Z",
+ *         created: 2018-07-19T13:23:18.776Z
+ *         modified: 2018-07-19T13:23:18.776Z
  *         metadata:
  *           patient:
- *             patientId: "eff2fa6a-9d79-41ab-a307-b620cedf7293",
- *             siteId: "a2a910e3-25ef-475c-bdf9-f6fe215d949f",
- *             genderAtBirth: "Male",
- *             countryOfBirth: "India",
- *             age: 43,
- *             bmi: 25.3,
- *             injectingDrugUse: "No",
- *             homeless: "No",
- *             imprisoned: "No",
- *             smoker: "Yes",
- *             diabetic: "Insulin",
- *             hivStatus: "Not tested"
+ *             patientId: eff2fa6a-9d79-41ab-a307-b620cedf7293
+ *             siteId: a2a910e3-25ef-475c-bdf9-f6fe215d949f
+ *             genderAtBirth: Male
+ *             countryOfBirth: India
+ *             age: 43
+ *             bmi: 25.3
+ *             injectingDrugUse: No
+ *             homeless: No
+ *             imprisoned: No
+ *             smoker: Yes
+ *             diabetic: Insulin
+ *             hivStatus: Not tested
  *           sample:
- *             labId: "d19637ed-e5b4-4ca7-8418-8713646a3359",
- *             isolateId: "9c0c00f2-8cb1-4254-bf53-3271f35ce696",
- *             collectionDate: "2018-10-19",
- *             prospectiveIsolate: "Yes",
- *             countryIsolate: "India",
- *             cityIsolate: "Mumbai",
- *             dateArrived: "2018-09-01",
- *             anatomicalOrigin: "Respiratory",
- *             smear: "Not known"
+ *             labId: d19637ed-e5b4-4ca7-8418-8713646a3359
+ *             isolateId: 9c0c00f2-8cb1-4254-bf53-3271f35ce696
+ *             collectionDate: 2018-10-19
+ *             prospectiveIsolate: Yes
+ *             countryIsolate: India
+ *             cityIsolate: Mumbai
+ *             dateArrived: 2018-09-01
+ *             anatomicalOrigin: Respiratory
+ *             smear: Not known
  *           genotyping:
- *             wgsPlatform: "MiSeq",
- *             otherGenotypeInformation: "Yes",
- *             genexpert: "Not tested",
- *             hain: "INH/RIF test",
- *             hainRif: "RIF resistant",
- *             hainInh: "INH sensitive",
- *             hainFl: "Not tested",
- *             hainAm: "Not tested",
- *             hainEth: "Not tested"
+ *             wgsPlatform: MiSeq
+ *             otherGenotypeInformation: Yes
+ *             genexpert: Not tested
+ *             hain: INH/RIF test
+ *             hainRif: RIF resistant
+ *             hainInh: INH sensitive
+ *             hainFl: Not tested
+ *             hainAm: Not tested
+ *             hainEth: Not tested
  *           phenotyping:
- *             phenotypeInformationFirstLineDrugs: "Yes",
+ *             phenotypeInformationFirstLineDrugs: Yes
  *             rifampicin:
- *               susceptibility: "Resistant",
- *               method: "Not known"
+ *               susceptibility: Resistant
+ *               method: Not known
  *             ethambutol:
- *               susceptibility: "Sensitive",
- *               method: "Not known"
+ *               susceptibility: Sensitive
+ *               method: Not known
  *             pyrazinamide:
- *               susceptibility: "Sensitive",
- *               method: "Not known"
+ *               susceptibility: Sensitive
+ *               method: Not known
  *             isoniazid:
- *               "susceptibility: "Sensitive",
- *               "method: "Not known"
- *             phenotypeInformationOtherDrugs: "No"
+ *               susceptibility: Sensitive
+ *               method: Not known
+ *             phenotypeInformationOtherDrugs: No
  */
 /**
  * @swagger
@@ -1399,55 +1399,55 @@ const keycloak = AccountsHelper.keycloakInstance();
  *             lastname: Leavy
  *             phone: +44 7968 716851
  *             email: sean@gmail.com
- *           created: "2018-07-19T13:23:18.776Z",
- *           modified: "2018-07-19T13:23:18.776Z",
+ *           created: "2018-07-19T13:23:18.776Z"
+ *           modified: "2018-07-19T13:23:18.776Z"
  *           metadata:
  *             patient:
- *               patientId: "eff2fa6a-9d79-41ab-a307-b620cedf7293",
- *               siteId: "a2a910e3-25ef-475c-bdf9-f6fe215d949f",
- *               genderAtBirth: "Male",
- *               countryOfBirth: "India",
- *               age: 43,
- *               bmi: 25.3,
- *               injectingDrugUse: "No",
- *               homeless: "No",
- *               imprisoned: "No",
- *               smoker: "Yes",
- *               diabetic: "Insulin",
+ *               patientId: "eff2fa6a-9d79-41ab-a307-b620cedf7293"
+ *               siteId: "a2a910e3-25ef-475c-bdf9-f6fe215d949f"
+ *               genderAtBirth: "Male"
+ *               countryOfBirth: "India"
+ *               age: 43
+ *               bmi: 25.3
+ *               injectingDrugUse: "No"
+ *               homeless: "No"
+ *               imprisoned: "No"
+ *               smoker: "Yes"
+ *               diabetic: "Insulin"
  *               hivStatus: "Not tested"
  *             sample:
- *               labId: "d19637ed-e5b4-4ca7-8418-8713646a3359",
- *               isolateId: "9c0c00f2-8cb1-4254-bf53-3271f35ce696",
- *               collectionDate: "2018-10-19",
- *               prospectiveIsolate: "Yes",
- *               countryIsolate: "India",
- *               cityIsolate: "Mumbai",
- *               dateArrived: "2018-09-01",
- *               anatomicalOrigin: "Respiratory",
+ *               labId: "d19637ed-e5b4-4ca7-8418-8713646a3359"
+ *               isolateId: "9c0c00f2-8cb1-4254-bf53-3271f35ce696"
+ *               collectionDate: "2018-10-19"
+ *               prospectiveIsolate: "Yes"
+ *               countryIsolate: "India"
+ *               cityIsolate: "Mumbai"
+ *               dateArrived: "2018-09-01"
+ *               anatomicalOrigin: "Respiratory"
  *               smear: "Not known"
  *             genotyping:
- *               wgsPlatform: "MiSeq",
- *               otherGenotypeInformation: "Yes",
- *               genexpert: "Not tested",
- *               hain: "INH/RIF test",
- *               hainRif: "RIF resistant",
- *               hainInh: "INH sensitive",
- *               hainFl: "Not tested",
- *               hainAm: "Not tested",
+ *               wgsPlatform: "MiSeq"
+ *               otherGenotypeInformation: "Yes"
+ *               genexpert: "Not tested"
+ *               hain: "INH/RIF test"
+ *               hainRif: "RIF resistant"
+ *               hainInh: "INH sensitive"
+ *               hainFl: "Not tested"
+ *               hainAm: "Not tested"
  *               hainEth: "Not tested"
  *             phenotyping:
- *               phenotypeInformationFirstLineDrugs: "Yes",
+ *               phenotypeInformationFirstLineDrugs: "Yes"
  *               rifampicin:
- *                 susceptibility: "Resistant",
+ *                 susceptibility: "Resistant"
  *                 method: "Not known"
  *               ethambutol:
- *                 susceptibility: "Sensitive",
+ *                 susceptibility: "Sensitive"
  *                 method: "Not known"
  *               pyrazinamide:
- *                 susceptibility: "Sensitive",
+ *                 susceptibility: "Sensitive"
  *                 method: "Not known"
  *               isoniazid:
- *                 "susceptibility: "Sensitive",
+ *                 "susceptibility: "Sensitive"
  *                 "method: "Not known"
  *               phenotypeInformationOtherDrugs: "No"
  */
@@ -2173,57 +2173,57 @@ const keycloak = AccountsHelper.keycloakInstance();
  *               lastname: Leavy
  *               phone: +44 7968 716851
  *               email: sean@gmail.com
- *             created: "2018-07-19T13:23:18.776Z",
- *             modified: "2018-07-19T13:23:18.776Z",
+ *             created: 2018-07-19T13:23:18.776Z
+ *             modified: 2018-07-19T13:23:18.776Z
  *             metadata:
  *               patient:
- *                 patientId: "eff2fa6a-9d79-41ab-a307-b620cedf7293",
- *                 siteId: "a2a910e3-25ef-475c-bdf9-f6fe215d949f",
- *                 genderAtBirth: "Male",
- *                 countryOfBirth: "India",
- *                 age: 43,
- *                 bmi: 25.3,
- *                 injectingDrugUse: "No",
- *                 homeless: "No",
- *                 imprisoned: "No",
- *                 smoker: "Yes",
- *                 diabetic: "Insulin",
- *                 hivStatus: "Not tested"
+ *                 patientId: eff2fa6a-9d79-41ab-a307-b620cedf7293
+ *                 siteId: a2a910e3-25ef-475c-bdf9-f6fe215d949f
+ *                 genderAtBirth: Male
+ *                 countryOfBirth: India
+ *                 age: 43
+ *                 bmi: 25.3
+ *                 injectingDrugUse: No
+ *                 homeless: No
+ *                 imprisoned: No
+ *                 smoker: Yes
+ *                 diabetic: Insulin
+ *                 hivStatus: Not tested
  *               sample:
- *                 labId: "d19637ed-e5b4-4ca7-8418-8713646a3359",
- *                 isolateId: "9c0c00f2-8cb1-4254-bf53-3271f35ce696",
- *                 collectionDate: "2018-10-19",
- *                 prospectiveIsolate: "Yes",
- *                 countryIsolate: "India",
- *                 cityIsolate: "Mumbai",
- *                 dateArrived: "2018-09-01",
- *                 anatomicalOrigin: "Respiratory",
- *                 smear: "Not known"
+ *                 labId: d19637ed-e5b4-4ca7-8418-8713646a3359
+ *                 isolateId: 9c0c00f2-8cb1-4254-bf53-3271f35ce696
+ *                 collectionDate: 2018-10-19
+ *                 prospectiveIsolate: Yes
+ *                 countryIsolate: India
+ *                 cityIsolate: Mumbai
+ *                 dateArrived: 2018-09-01
+ *                 anatomicalOrigin: Respiratory
+ *                 smear: Not known
  *               genotyping:
- *                 wgsPlatform: "MiSeq",
- *                 otherGenotypeInformation: "Yes",
- *                 genexpert: "Not tested",
- *                 hain: "INH/RIF test",
- *                 hainRif: "RIF resistant",
- *                 hainInh: "INH sensitive",
- *                 hainFl: "Not tested",
- *                 hainAm: "Not tested",
- *                 hainEth: "Not tested"
+ *                 wgsPlatform: MiSeq
+ *                 otherGenotypeInformation: Yes
+ *                 genexpert: Not tested
+ *                 hain: INH/RIF test
+ *                 hainRif: RIF resistant
+ *                 hainInh: INH sensitive
+ *                 hainFl:  Not tested
+ *                 hainAm:  Not tested
+ *                 hainEth: Not tested
  *               phenotyping:
- *                 phenotypeInformationFirstLineDrugs: "Yes",
+ *                 phenotypeInformationFirstLineDrugs: Yes
  *                 rifampicin:
- *                   susceptibility: "Resistant",
- *                   method: "Not known"
+ *                   susceptibility: Resistant
+ *                   method: Not known
  *                 ethambutol:
- *                   susceptibility: "Sensitive",
- *                   method: "Not known"
+ *                   susceptibility: Sensitive
+ *                   method: Not known
  *                 pyrazinamide:
- *                   susceptibility: "Sensitive",
- *                   method: "Not known"
+ *                   susceptibility: Sensitive
+ *                   method: Not known
  *                 isoniazid:
- *                   "susceptibility: "Sensitive",
- *                   "method: "Not known"
- *                 phenotypeInformationOtherDrugs: "No"
+ *                   susceptibility: Sensitive
+ *                   method: Not known
+ *                 phenotypeInformationOtherDrugs: No
  */
 /**
  * @swagger
