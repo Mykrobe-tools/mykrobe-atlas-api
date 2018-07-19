@@ -1,14 +1,12 @@
 import Organisation from "../../models/organisation.model";
 
 require("../setup");
-const experiments = require("../fixtures/experiments");
+const organisations = require("../fixtures/organisations");
 
 let id = null;
 
 beforeEach(async done => {
-  const organisationData = new Organisation(
-    experiments.tuberculosis.organisation
-  );
+  const organisationData = new Organisation(organisations.apex);
   const savedOrganisation = await organisationData.save();
   id = savedOrganisation.id;
   done();
@@ -20,9 +18,7 @@ afterEach(done => {
 
 describe("## Organisations Functions", () => {
   it("should save a new organisation", async done => {
-    const organisationData = new Organisation(
-      experiments.pneumonia.organisation
-    );
+    const organisationData = new Organisation(organisations.diagnostics);
     const savedOrganisation = await organisationData.save();
     expect(savedOrganisation.name).toEqual("Diagnostic systems");
     done();

@@ -13,7 +13,40 @@ export default {
       phenotyping: metadata.uploadedMetadata.phenotyping
     }
   },
-  tbWithPredictorResults: {},
-  tbWithTreatment: {},
-  tbWithOutcome: {}
+  tbUploadMetadataChinese: {
+    metadata: {
+      patient: metadata.uploadedMetadataChina.patient,
+      sample: metadata.uploadedMetadataChina.sample,
+      genotyping: metadata.uploadedMetadataChina.genotyping,
+      phenotyping: metadata.uploadedMetadataChina.phenotyping
+    },
+    results: []
+  },
+  tbWithPredictorResults: {
+    metadata: {
+      patient: metadata.uploadedMetadataChina.patient,
+      sample: metadata.uploadedMetadataChina.sample,
+      genotyping: metadata.uploadedMetadataChina.genotyping,
+      phenotyping: metadata.uploadedMetadataChina.phenotyping
+    },
+    results: []
+  },
+  tbWithTreatment: {
+    metadata: {
+      patient: metadata.uploadedMetadata.patient,
+      sample: metadata.uploadedMetadata.sample,
+      genotyping: metadata.uploadedMetadata.genotyping,
+      phenotyping: metadata.uploadedMetadata.phenotyping
+    },
+    results: []
+  },
+  tbWithOutcome: {
+    metadata: {
+      patient: metadata.uploadedMetadata.patient,
+      sample: metadata.uploadedMetadata.sample,
+      genotyping: metadata.uploadedMetadata.genotyping,
+      phenotyping: metadata.uploadedMetadata.phenotyping
+    },
+    results: []
+  }
 };

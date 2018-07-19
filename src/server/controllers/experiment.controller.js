@@ -3,16 +3,21 @@ import httpStatus from "http-status";
 import mkdirp from "mkdirp-promise";
 import Promise from "bluebird";
 import { ElasticsearchHelper } from "makeandship-api-common/lib/modules/elasticsearch/";
+
 import Experiment from "../models/experiment.model";
 import Metadata from "../models/metadata.model";
 import Organisation from "../models/organisation.model";
-import ExperimentJSONTransformer from "../transformers/ExperimentJSONTransformer";
-import ArrayJSONTransformer from "../transformers/ArrayJSONTransformer";
 import Resumable from "../helpers/Resumable";
-import APIError from "../helpers/APIError";
 import DownloadersFactory from "../helpers/DownloadersFactory";
-import ChoicesESTransformer from "../transformers/es/ChoicesESTransformer";
-import ExperimentsESTransformer from "../transformers/es/ExperimentsESTransformer";
+
+import ArrayJSONTransformer from "../transformers/ArrayJSONTransformer";
+import ExperimentJSONTransformer from "../transformers/ExperimentJSONTransformer";
+import ExperimentsResultJSONTransformer from "../transformers/es/ExperimentsResultJSONTransformer";
+import SearchResultsJSONTransformer from "makeandship-api-common/lib/modules/elasticsearch/transformers/SearchResultsJSONTransformer";
+import SearchQueryJSONTransformer from "makeandship-api-common/lib/modules/elasticsearch/transformers/SearchQueryJSONTransformer";
+import ChoicesJSONTransformer from "makeandship-api-common/lib/modules/elasticsearch/transformers/ChoicesJSONTransformer";
+
+import APIError from "../helpers/APIError";
 import { schedule } from "../modules/agenda";
 import experimentSchema from "../../schemas/experiment";
 import ResultsHelper from "../helpers/ResultsHelper";
@@ -129,7 +134,7 @@ async function metadata(req, res) {
   // use set - https://github.com/Automattic/mongoose/issues/5378
   const experiment = req.experiment;
   experiment.set("metadata", req.body);
-  console.log(req.body);
+
   try {
     const savedExperiment = await experiment.save();
     await ElasticsearchHelper.updateDocument(
@@ -297,8 +302,8 @@ async function choices(req, res) {
       { ...req.query },
       "experiment"
     );
-    const resultsTransformer = new ChoicesESTransformer(resp, {});
-    return res.jsend(resultsTransformer.transform());
+    const choices = new ChoicesJSONTransformer().transform(resp, {});
+    return res.jsend(choices);
   } catch (e) {
     return res.jerror(new errors.SearchMetadataValuesError(e.message));
   }
@@ -315,10 +320,27 @@ async function search(req, res) {
       { ...req.query },
       "experiment"
     );
-    const transformer = new ExperimentsESTransformer(resp, {
-      includeSummary: true
-    });
-    return res.jsend(transformer.transform());
+
+    // core elastic search structure
+    const options = {
+      per: req.query.per || config.elasticsearch.resultsPerPage,
+      page: req.query.page || 1
+    };
+    const results = new SearchResultsJSONTransformer().transform(resp, options);
+
+    if (results) {
+      // hits
+      results.results = new ExperimentsResultJSONTransformer().transform(
+        resp,
+        {}
+      );
+      // query
+      results.search = new SearchQueryJSONTransformer().transform(
+        req.query,
+        {}
+      );
+    }
+    return res.jsend(results);
   } catch (e) {
     return res.jerror(new errors.SearchMetadataValuesError(e.message));
   }

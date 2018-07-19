@@ -485,7 +485,7 @@ const keycloak = AccountsHelper.keycloakInstance();
 /**
  * @swagger
  * definitions:
- *   MetadataChoicesResponse:
+ *   ChoicesResponse:
  *     properties:
  *       status:
  *         type: string
@@ -706,6 +706,30 @@ router
     userController.loadCurrentUser,
     experimentController.create
   );
+router
+  .route("/choices")
+  /**
+   * @swagger
+   * /experiments/choices:
+   *   get:
+   *     tags:
+   *       - Experiments
+   *     description: Get choice values for experiements
+   *     operationId: experimentsChoices
+   *     produces:
+   *       - application/json
+   *     security:
+   *       - Bearer: []
+   *     responses:
+   *       200:
+   *         description: Experiments choices
+   *         schema:
+   *           $ref: '#/definitions/ChoicesResponse'
+   *       401:
+   *         description: Failed authentication
+   */
+  .get(keycloak.connect.protect(), experimentController.choices);
+
 router
   .route("/search")
   /**
@@ -1122,29 +1146,6 @@ router
    *           $ref: '#/definitions/BasicResponse'
    */
   .post(keycloak.connect.protect(), experimentController.reindex);
-router
-  .route("/metadata/choices")
-  /**
-   * @swagger
-   * /experiments/metadata/choices:
-   *   get:
-   *     tags:
-   *       - Experiments
-   *     description: Metadata choices
-   *     operationId: experimentsMetadataChoices
-   *     produces:
-   *       - application/json
-   *     security:
-   *       - Bearer: []
-   *     responses:
-   *       200:
-   *         description: Experiments metadata choices
-   *         schema:
-   *           $ref: '#/definitions/MetadataChoicesResponse'
-   *       401:
-   *         description: Failed authentication
-   */
-  .get(keycloak.connect.protect(), experimentController.choices);
 /** Load user when API with id route parameter is hit */
 router.param("id", experimentController.load);
 

@@ -270,8 +270,8 @@ const Patient = {
         "Zimbabwe"
       ]
     },
-    patientAge: {
-      title: "Patient Age",
+    age: {
+      title: "Age",
       type: "number"
     },
     bmi: {
