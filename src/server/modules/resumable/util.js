@@ -121,7 +121,7 @@ const isUploadCompleted = (
     if (currentTestChunk > numberOfChunks) {
       return true;
     }
-    return isUploadCompleted(numberOfChunks, identifier, currentTestChunk + 1);
+    return isUploadCompleted(numberOfChunks, identifier, currentTestChunk);
   }
   return false;
 };
