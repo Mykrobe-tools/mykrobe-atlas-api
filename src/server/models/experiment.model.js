@@ -3,8 +3,6 @@ import errors from "errors";
 import schemaValidator from "mongoose-jsonschema-validator";
 import experimentJsonSchema from "../../schemas/experiment";
 import ExperimentJSONTransformer from "../transformers/ExperimentJSONTransformer";
-import DistanceJSONTransformer from "../transformers/DistanceJSONTransformer";
-import LocationJSONTransformer from "../transformers/LocationJSONTransformer";
 
 /**
  * Experiment Schema

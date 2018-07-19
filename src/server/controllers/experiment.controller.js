@@ -5,7 +5,6 @@ import Promise from "bluebird";
 import { ElasticsearchHelper } from "makeandship-api-common/lib/modules/elasticsearch/";
 
 import Experiment from "../models/experiment.model";
-import Metadata from "../models/metadata.model";
 import Organisation from "../models/organisation.model";
 import Resumable from "../helpers/Resumable";
 import DownloadersFactory from "../helpers/DownloadersFactory";

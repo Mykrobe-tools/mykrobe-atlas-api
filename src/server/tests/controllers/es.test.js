@@ -5,7 +5,6 @@ import { createApp } from "../setup";
 import User from "../../models/user.model";
 import Experiment from "../../models/experiment.model";
 import Organisation from "../../models/organisation.model";
-import Metadata from "../../models/metadata.model";
 import config from "../../../config/env/";
 import experimentSchema from "../../../schemas/experiment";
 
