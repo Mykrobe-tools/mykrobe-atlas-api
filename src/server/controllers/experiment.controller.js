@@ -207,32 +207,31 @@ const uploadFile = async (req, res) => {
   }
 
   // from local file
-  return await resumable.setUploadDirectory(
-    `${config.express.uploadDir}/experiments/${experiment.id}/file`,
-    err => {
-      if (err) {
-        return res.jerror(new errors.UploadFileError(err.message));
-      }
-      const postUpload = resumable.post(req);
-      if (postUpload.complete) {
-        return resumable.reassembleChunks(
-          experiment.id,
-          req.body.resumableFilename,
-          async () => {
-            await schedule("now", "call analysis api", {
-              file: `${config.express.uploadsLocation}/experiments/${
-                experiment.id
-              }/file/${req.body.resumableFilename}`,
-              sample_id: experiment.id,
-              attempt: 0
-            });
-            return res.jsend("File uploaded and reassembled");
-          }
-        );
-      }
-      return res.jerror(postUpload);
+  try {
+    await resumable.setUploadDirectory(
+      `${config.express.uploadDir}/experiments/${experiment.id}/file`
+    );
+    const postUpload = await resumable.post(req);
+    if (postUpload.complete) {
+      return resumable.reassembleChunks(
+        experiment.id,
+        req.body.resumableFilename,
+        async () => {
+          await schedule("now", "call analysis api", {
+            file: `${config.express.uploadsLocation}/experiments/${
+              experiment.id
+            }/file/${req.body.resumableFilename}`,
+            sample_id: experiment.id,
+            attempt: 0
+          });
+          return res.jsend("File uploaded and reassembled");
+        }
+      );
     }
-  );
+    return res.jerror(postUpload);
+  } catch (err) {
+    return res.jerror(new errors.UploadFileError(err.message));
+  }
 };
 
 /**
@@ -251,23 +250,22 @@ const readFile = (req, res) => {
 
 const uploadStatus = async (req, res) => {
   const experiment = req.experiment;
-  return await resumable.setUploadDirectory(
-    `${config.express.uploadDir}/experiments/${experiment.id}/file`,
-    err => {
-      if (err) {
-        return res.jerror(new errors.UploadFileError(err.message));
-      }
-      const validateGetRequest = resumable.get(req);
-      if (validateGetRequest.valid) {
-        return res.jsend(validateGetRequest);
-      }
-      const error = new APIError(
-        validateGetRequest.message,
-        httpStatus.NO_CONTENT
-      );
-      return res.jerror(error);
+  try {
+    await resumable.setUploadDirectory(
+      `${config.express.uploadDir}/experiments/${experiment.id}/file`
+    );
+    const validateGetRequest = resumable.get(req);
+    if (validateGetRequest.valid) {
+      return res.jsend(validateGetRequest);
     }
-  );
+    const error = new APIError(
+      validateGetRequest.message,
+      httpStatus.NO_CONTENT
+    );
+    return res.jerror(error);
+  } catch (err) {
+    return res.jerror(new errors.UploadFileError(err.message));
+  }
 };
 
 /**
