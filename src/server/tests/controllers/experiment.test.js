@@ -173,14 +173,14 @@ describe("## Experiment APIs", () => {
   });
 
   describe("# PUT /experiments/:id", () => {
+    const data = {
+      location: {
+        name: "America",
+        lat: 2.4,
+        lng: 4.5
+      }
+    };
     it("should update experiment details", done => {
-      const data = {
-        location: {
-          name: "America",
-          lat: 2.4,
-          lng: 4.5
-        }
-      };
       request(app)
         .put(`/experiments/${id}`)
         .set("Authorization", `Bearer ${token}`)
@@ -193,6 +193,32 @@ describe("## Experiment APIs", () => {
           expect(res.body.data.organisation.name).toEqual("Apex Entertainment");
           done();
         });
+    });
+    describe("when the owner is not the logged in user", () => {
+      let thomasToken = null;
+      beforeEach(async done => {
+        request(app)
+          .post("/auth/login")
+          .send({ email: "thomas@nhs.co.uk", password: "password" })
+          .end(async (err, res) => {
+            thomasToken = res.body.data.access_token;
+            done();
+          });
+      });
+      it("should return an permission error", done => {
+        request(app)
+          .put(`/experiments/${id}`)
+          .set("Authorization", `Bearer ${thomasToken}`)
+          .send(data)
+          .expect(httpStatus.UNAUTHORIZED)
+          .end((err, res) => {
+            expect(res.body.status).toEqual("error");
+            expect(res.body.message).toEqual(
+              "Only the owner can edit this experiment"
+            );
+            done();
+          });
+      });
     });
   });
 
@@ -235,6 +261,31 @@ describe("## Experiment APIs", () => {
           );
           done();
         });
+    });
+    describe("when the owner is not the logged in user", () => {
+      let thomasToken = null;
+      beforeEach(async done => {
+        request(app)
+          .post("/auth/login")
+          .send({ email: "thomas@nhs.co.uk", password: "password" })
+          .end(async (err, res) => {
+            thomasToken = res.body.data.access_token;
+            done();
+          });
+      });
+      it("should return an permission error", done => {
+        request(app)
+          .delete(`/experiments/${id}`)
+          .set("Authorization", `Bearer ${thomasToken}`)
+          .expect(httpStatus.UNAUTHORIZED)
+          .end((err, res) => {
+            expect(res.body.status).toEqual("error");
+            expect(res.body.message).toEqual(
+              "Only the owner can edit this experiment"
+            );
+            done();
+          });
+      });
     });
   });
   describe("# PUT /experiments/:id/metadata", () => {
