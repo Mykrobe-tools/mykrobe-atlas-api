@@ -151,20 +151,6 @@ describe("## Experiment APIs", () => {
           done();
         });
     });
-    it("should not return null values", done => {
-      request(app)
-        .get("/experiments/choices?metadata.patient.patientId=missing")
-        .set("Authorization", `Bearer ${token}`)
-        .expect(httpStatus.OK)
-        .end((err, res) => {
-          expect(res.body.status).toEqual("success");
-          const data = res.body.data;
-          expect(data["metadata.patient.age"]).toEqual({});
-          expect(data["metadata.patient.bmi"]).toEqual({});
-          expect(data["metadata.sample.dateArrived"]).toEqual({});
-          done();
-        });
-    });
     it("should be a protected route", done => {
       request(app)
         .get("/experiments/choices")

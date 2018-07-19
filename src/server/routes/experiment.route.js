@@ -21,6 +21,14 @@ const keycloak = AccountsHelper.keycloakInstance();
  *       data:
  *         type: object
  *         properties:
+ *           id:
+ *             type: string
+ *           created:
+ *             type: string
+ *             format: date-time
+ *           modified:
+ *             type: string
+ *             format: date-time
  *           owner:
  *             type: object
  *             properties:
@@ -34,176 +42,410 @@ const keycloak = AccountsHelper.keycloakInstance();
  *                 type: string
  *               id:
  *                 type: string
- *           organisation:
- *             type: object
- *             properties:
- *               name:
- *                 type: string
- *               template:
- *                 type: string
- *           location:
- *             type: object
- *             properties:
- *               name:
- *                 type: string
- *               lat:
- *                 type: number
- *               lng:
- *                 type: number
- *           collected:
- *             type: string
- *             format: date-time
- *           uploaded:
- *             type: string
- *             format: date-time
- *           jaccardIndex:
- *             type: object
- *             properties:
- *               analysed:
- *                 type: string
- *                 format: date-time
- *               engine:
- *                 type: string
- *               version:
- *                 type: string
- *           snpDistance:
- *             type: object
- *             properties:
- *               analysed:
- *                 type: string
- *                 format: date-time
- *               engine:
- *                 type: string
- *               version:
- *                 type: string
- *           geoDistance:
- *             type: object
- *             properties:
- *               analysed:
- *                 type: string
- *                 format: date-time
- *               engine:
- *                 type: string
- *               version:
- *                 type: string
  *           metadata:
  *             type: object
  *             properties:
- *               patientId:
- *                 type: string
- *               siteId:
- *                 type: string
- *               genderAtBirth:
- *                 type: string
- *               countryOfBirth:
- *                 type: string
- *               bmi:
- *                 type: number
- *               injectingDrugUse:
- *                 type: string
- *               homeless:
- *                 type: string
- *               imprisoned:
- *                 type: string
- *               smoker:
- *                 type: string
- *               diabetic:
- *                 type: string
- *               hivStatus:
- *                 type: string
- *               art:
- *                 type: string
- *               labId:
- *                 type: string
- *               isolateId:
- *                 type: string
- *               collectionDate:
- *                 type: string
- *                 format: date-time
- *               prospectiveIsolate:
- *                 type: boolean
- *               patientAge:
- *                 type: number
- *               countryIsolate:
- *                 type: string
- *               cityIsolate:
- *                 type: string
- *               dateArrived:
- *                 type: string
- *                 format: date-time
- *               anatomicalOrigin:
- *                 type: string
- *               smear:
- *                 type: string
- *               wgsPlatform:
- *                 type: string
- *               wgsPlatformOther:
- *                 type: string
- *               otherGenotypeInformation:
- *                 type: boolean
- *               genexpert:
- *                 type: string
- *               hain:
- *                 type: string
- *               hainRif:
- *                 type: string
- *               hainInh:
- *                 type: string
- *               hainFl:
- *                 type: string
- *               hainAm:
- *                 type: string
- *               hainEth:
- *                 type: string
- *               phenotypeInformationFirstLineDrugs:
- *                 type: boolean
- *               phenotypeInformationOtherDrugs:
- *                 type: boolean
- *               previousTbinformation:
- *                 type: boolean
- *               recentMdrTb:
- *                 type: string
- *               priorTreatmentDate:
- *                 type: string
- *                 format: date-time
- *               tbProphylaxis:
- *                 type: string
- *               tbProphylaxisDate:
- *                 type: string
- *                 format: date-time
- *               currentTbinformation:
- *                 type: boolean
- *               startProgrammaticTreatment:
- *                 type: boolean
- *               intensiveStartDate:
- *                 type: string
- *                 format: date-time
- *               intensiveStopDate:
- *                 type: string
- *                 format: date-time
- *               startProgrammaticContinuationTreatment:
- *                 type: string
- *               continuationStartDate:
- *                 type: string
- *                 format: date-time
- *               continuationStopDate:
- *                 type: string
- *                 format: date-time
- *               nonStandardTreatment:
- *                 type: string
- *               sputumSmearConversion:
- *                 type: string
- *               sputumCultureConversion:
- *                 type: string
- *               whoOutcomeCategory:
- *                 type: string
- *               dateOfDeath:
- *                 type: string
- *                 format: date-time
- *               id:
- *                 type: string
- *           id:
- *             type: string
+ *               patient:
+ *                 type: object
+ *                 properties:
+ *                   patientId:
+ *                     type: string
+ *                   siteId:
+ *                     type: string
+ *                   genderAtBirth:
+ *                     type: string
+ *                   countryOfBirth:
+ *                     type: string
+ *                   age:
+ *                     type: number
+ *                   bmi:
+ *                     type: number
+ *                   injectingDrugUse:
+ *                     type: string
+ *                   homeless:
+ *                     type: string
+ *                   imprisoned:
+ *                     type: string
+ *                   smoker:
+ *                     type: string
+ *                   diabetic:
+ *                     type: string
+ *                   hivStatus:
+ *                     type: string
+ *                   art:
+ *                     type: string
+ *               sample:
+ *                 type: object
+ *                 properties:
+ *                   labId:
+ *                     type: string
+ *                   isolateId:
+ *                     type: string
+ *                   collectionDate:
+ *                     type: string
+ *                     format: date-time
+ *                   prospectiveIsolate:
+ *                     type: boolean
+ *                   countryIsolate:
+ *                     type: string
+ *                   cityIsolate:
+ *                     type: string
+ *                   dateArrived:
+ *                     type: string
+ *                     format: date-time
+ *                   anatomicalOrigin:
+ *                     type: string
+ *                   smear:
+ *                     type: string
+ *               genotyping:
+ *                 type: object
+ *                 properties:
+ *                   wgsPlatform:
+ *                     type: string
+ *                   wgsPlatformOther:
+ *                     type: string
+ *                   otherGenotypeInformation:
+ *                     type: boolean
+ *                   genexpert:
+ *                     type: string
+ *                   hain:
+ *                     type: string
+ *                   hainRif:
+ *                     type: string
+ *                   hainInh:
+ *                     type: string
+ *                   hainFl:
+ *                     type: string
+ *                   hainAm:
+ *                     type: string
+ *                   hainEth:
+ *                     type: string
+ *               phenotyping:
+ *                 type: object
+ *                 properties:
+ *                   phenotypeInformationFirstLineDrugs:
+ *                      type: string
+ *                      enum: ["Yes", "No"]
+ *                   rifampicin:
+ *                      type: object
+ *                      properties:
+ *                        susceptibility:
+ *                          type: "string"
+ *                          enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
+ *                        method:
+ *                          type: "string"
+ *                          enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
+ *                   ethambutol:
+ *                      type: object
+ *                      properties:
+ *                        susceptibility:
+ *                          type: "string"
+ *                          enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
+ *                        method:
+ *                          type: "string"
+ *                          enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
+ *                   pyrazinamide:
+ *                      type: object
+ *                      properties:
+ *                        susceptibility:
+ *                          type: "string"
+ *                          enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
+ *                        method:
+ *                          type: "string"
+ *                          enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
+ *                   isoniazid:
+ *                      type: object
+ *                      properties:
+ *                        susceptibility:
+ *                          type: "string"
+ *                          enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
+ *                        method:
+ *                          type: "string"
+ *                          enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
+ *                   phenotypeInformationOtherDrugs:
+ *                      type: string
+ *                      enum: ["Yes", "No"]
+ *                   rifabutin:
+ *                      type: object
+ *                      properties:
+ *                        susceptibility:
+ *                          type: "string"
+ *                          enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
+ *                        method:
+ *                          type: "string"
+ *                          enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
+ *                   ofloxacin:
+ *                      type: object
+ *                      properties:
+ *                        susceptibility:
+ *                          type: "string"
+ *                          enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
+ *                        method:
+ *                          type: "string"
+ *                          enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
+ *                   ciprofloxacin:
+ *                      type: object
+ *                      properties:
+ *                        susceptibility:
+ *                          type: "string"
+ *                          enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
+ *                        method:
+ *                          type: "string"
+ *                          enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
+ *                   levofloxacin:
+ *                      type: object
+ *                      properties:
+ *                        susceptibility:
+ *                          type: "string"
+ *                          enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
+ *                        method:
+ *                          type: "string"
+ *                          enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
+ *                   gatifloxacin:
+ *                      type: object
+ *                      properties:
+ *                        susceptibility:
+ *                          type: "string"
+ *                          enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
+ *                        method:
+ *                          type: "string"
+ *                          enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
+ *                   amikacin:
+ *                      type: object
+ *                      properties:
+ *                        susceptibility:
+ *                          type: "string"
+ *                          enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
+ *                        method:
+ *                          type: "string"
+ *                          enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
+ *                   kanamycin:
+ *                      type: object
+ *                      properties:
+ *                        susceptibility:
+ *                          type: "string"
+ *                          enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
+ *                        method:
+ *                          type: "string"
+ *                          enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
+ *                   gentamicin:
+ *                      type: object
+ *                      properties:
+ *                        susceptibility:
+ *                          type: "string"
+ *                          enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
+ *                        method:
+ *                          type: "string"
+ *                          enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
+ *                   streptomycin:
+ *                      type: object
+ *                      properties:
+ *                        susceptibility:
+ *                          type: "string"
+ *                          enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
+ *                        method:
+ *                          type: "string"
+ *                          enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
+ *                   capreomycin:
+ *                      type: object
+ *                      properties:
+ *                        susceptibility:
+ *                          type: "string"
+ *                          enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
+ *                        method:
+ *                          type: "string"
+ *                          enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
+ *                   clofazimine:
+ *                      type: object
+ *                      properties:
+ *                        susceptibility:
+ *                          type: "string"
+ *                          enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
+ *                        method:
+ *                          type: "string"
+ *                          enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
+ *                   pas:
+ *                      type: object
+ *                      properties:
+ *                        susceptibility:
+ *                          type: "string"
+ *                          enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
+ *                        method:
+ *                          type: "string"
+ *                          enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
+ *                   linezolid:
+ *                      type: object
+ *                      properties:
+ *                        susceptibility:
+ *                          type: "string"
+ *                          enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
+ *                        method:
+ *                          type: "string"
+ *                          enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
+ *                   ethionamideProthionamide:
+ *                      type: object
+ *                      properties:
+ *                        susceptibility:
+ *                          type: "string"
+ *                          enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
+ *                        method:
+ *                          type: "string"
+ *                          enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
+ *                   rerizidone:
+ *                      type: object
+ *                      properties:
+ *                        susceptibility:
+ *                          type: "string"
+ *                          enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
+ *                        method:
+ *                          type: "string"
+ *                          enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
+ *                   amoxicilinClavulanate:
+ *                      type: object
+ *                      properties:
+ *                        susceptibility:
+ *                          type: "string"
+ *                          enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
+ *                        method:
+ *                          type: "string"
+ *                          enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
+ *                   thioacetazone:
+ *                      type: object
+ *                      properties:
+ *                        susceptibility:
+ *                          type: "string"
+ *                          enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
+ *                        method:
+ *                          type: "string"
+ *                          enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
+ *                   imipenemImipenemcilastatin:
+ *                      type: object
+ *                      properties:
+ *                        susceptibility:
+ *                          type: "string"
+ *                          enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
+ *                        method:
+ *                          type: "string"
+ *                          enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
+ *                   meropenem:
+ *                      type: object
+ *                      properties:
+ *                        susceptibility:
+ *                          type: "string"
+ *                          enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
+ *                        method:
+ *                          type: "string"
+ *                          enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
+ *                   clarythromycin:
+ *                      type: object
+ *                      properties:
+ *                        susceptibility:
+ *                          type: "string"
+ *                          enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
+ *                        method:
+ *                          type: "string"
+ *                          enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
+ *                   highDoseIsoniazid:
+ *                      type: object
+ *                      properties:
+ *                        susceptibility:
+ *                          type: "string"
+ *                          enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
+ *                        method:
+ *                          type: "string"
+ *                          enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
+ *                   bedaquiline:
+ *                      type: object
+ *                      properties:
+ *                        susceptibility:
+ *                          type: "string"
+ *                          enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
+ *                        method:
+ *                          type: "string"
+ *                          enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
+ *                   delamanid:
+ *                      type: object
+ *                      properties:
+ *                        susceptibility:
+ *                          type: "string"
+ *                          enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
+ *                        method:
+ *                          type: "string"
+ *                          enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
+ *                   prothionamide:
+ *                      type: object
+ *                      properties:
+ *                        susceptibility:
+ *                          type: "string"
+ *                          enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
+ *                        method:
+ *                          type: "string"
+ *                          enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
+ *                   pretothionamide:
+ *                      type: object
+ *                      properties:
+ *                        susceptibility:
+ *                          type: "string"
+ *                          enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
+ *                        method:
+ *                          type: "string"
+ *                          enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
+ *                   pretomanid:
+ *                      type: object
+ *                      properties:
+ *                        susceptibility:
+ *                          type: "string"
+ *                          enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
+ *                        method:
+ *                          type: "string"
+ *                          enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
+ *               treatment:
+ *                 type: object
+ *                 properties:
+ *                   previousTbinformation:
+ *                     type: boolean
+ *                   recentMdrTb:
+ *                     type: string
+ *                   priorTreatmentDate:
+ *                     type: string
+ *                     format: date-time
+ *                   tbProphylaxis:
+ *                     type: string
+ *                   tbProphylaxisDate:
+ *                     type: string
+ *                     format: date-time
+ *                   currentTbinformation:
+ *                     type: boolean
+ *                   startProgrammaticTreatment:
+ *                     type: boolean
+ *                   intensiveStartDate:
+ *                     type: string
+ *                     format: date-time
+ *                   intensiveStopDate:
+ *                     type: string
+ *                     format: date-time
+ *                   startProgrammaticContinuationTreatment:
+ *                     type: string
+ *                   continuationStartDate:
+ *                     type: string
+ *                     format: date-time
+ *                   continuationStopDate:
+ *                     type: string
+ *                     format: date-time
+ *                   nonStandardTreatment:
+ *                     type: string
+ *                   sputumSmearConversion:
+ *                     type: string
+ *                   sputumCultureConversion:
+ *                     type: string
+ *               outcome:
+ *                 type: object
+ *                 properties:
+ *                   whoOutcomeCategory:
+ *                     type: string
+ *                   dateOfDeath:
+ *                     type: string
+ *                     format: date-time
  *     example:
  *       status: success
  *       data:
@@ -720,6 +962,62 @@ router
    *       - application/json
    *     security:
    *       - Bearer: []
+   *     parameters:
+   *       - in: query
+   *         name: metadata.genotyping.wgsPlatform
+   *         type: string
+   *         description: The sample sequencing platform
+   *       - in: query
+   *         name: metadata.outcome.whoOutcomeCategory
+   *         type: string
+   *         description: The WHO outcome category
+   *       - in: query
+   *         name: metadata.patient.countryOfBirth
+   *         type: string
+   *         description: The country the patient was born in
+   *       - in: query
+   *         name: metadata.patient.diabetic
+   *         type: string
+   *         enum: ["Diet alone", "Tablets", "Insulin", "Insulin+tablets", "Not known"]
+   *         description: Whether the patient is diabetic
+   *       - in: query
+   *         name: metadata.patient.genderAtBirth
+   *         type: string
+   *         enum: ["Male", "Female", "Other or Intersex", "Not known / unavailable"]
+   *         description: The patient's gender when born
+   *       - in: query
+   *         name: metadata.patient.hivStatus
+   *         type: string
+   *         enum: ["Tested, negative", "Tested, positive", "Not tested", "Not known"]
+   *         description: The patient's HIV status
+   *       - in: query
+   *         name: metadata.patient.homeless
+   *         type: string
+   *         enum: ["Yes", "No"]
+   *         description: Whether the patient is homeless
+   *       - in: query
+   *         name: metadata.patient.imprisoned
+   *         type: string
+   *         enum: ["Yes", "No"]
+   *         description: Whether the patient is in prison
+   *       - in: query
+   *         name: metadata.patient.injectingDrugUse
+   *         type: string
+   *         enum: ["Yes", "No"]
+   *         description: Whether the patient injects drugs
+   *       - in: query
+   *         name: metadata.patient.smoker
+   *         type: string
+   *         enum: ["Yes", "No"]
+   *         description: Whether the patient smokes
+   *       - in: query
+   *         name: metadata.sample.anatomicalOrigin
+   *         type: string
+   *         description: Where the sample was taken from
+   *       - in: query
+   *         name: metadata.sample.countryIsolate
+   *         type: string
+   *         description: Which country the sample was collected in
    *     responses:
    *       200:
    *         description: Experiments choices
@@ -744,6 +1042,79 @@ router
    *       - application/json
    *     security:
    *       - Bearer: []
+   *     parameters:
+   *       - in: query
+   *         name: metadata.genotyping.wgsPlatform
+   *         type: string
+   *         description: The sample sequencing platform
+   *       - in: query
+   *         name: metadata.outcome.whoOutcomeCategory
+   *         type: string
+   *         description: The WHO outcome category
+   *       - in: query
+   *         name: metadata.patient.countryOfBirth
+   *         type: string
+   *         description: The country the patient was born in
+   *       - in: query
+   *         name: metadata.patient.diabetic
+   *         type: string
+   *         enum: ["Diet alone", "Tablets", "Insulin", "Insulin+tablets", "Not known"]
+   *         description: Whether the patient is diabetic
+   *       - in: query
+   *         name: metadata.patient.genderAtBirth
+   *         type: string
+   *         enum: ["Male", "Female", "Other or Intersex", "Not known / unavailable"]
+   *         description: The patient's gender when born
+   *       - in: query
+   *         name: metadata.patient.hivStatus
+   *         type: string
+   *         enum: ["Tested, negative", "Tested, positive", "Not tested", "Not known"]
+   *         description: The patient's HIV status
+   *       - in: query
+   *         name: metadata.patient.homeless
+   *         type: string
+   *         enum: ["Yes", "No"]
+   *         description: Whether the patient is homeless
+   *       - in: query
+   *         name: metadata.patient.imprisoned
+   *         type: string
+   *         enum: ["Yes", "No"]
+   *         description: Whether the patient is in prison
+   *       - in: query
+   *         name: metadata.patient.injectingDrugUse
+   *         type: string
+   *         enum: ["Yes", "No"]
+   *         description: Whether the patient injects drugs
+   *       - in: query
+   *         name: metadata.patient.smoker
+   *         type: string
+   *         enum: ["Yes", "No"]
+   *         description: Whether the patient smokes
+   *       - in: query
+   *         name: metadata.sample.anatomicalOrigin
+   *         type: string
+   *         description: Where the sample was taken from
+   *       - in: query
+   *         name: metadata.sample.countryIsolate
+   *         type: string
+   *         description: Which country the sample was collected in
+   *       - in: query
+   *         name: page
+   *         type: number
+   *         description: The page to return
+   *       - in: query
+   *         name: per
+   *         type: number
+   *         description: The total results per page
+   *       - in: query
+   *         name: sort
+   *         type: string
+   *         description: The field to sort by
+   *       - in: query
+   *         name: order
+   *         type: string
+   *         enum: [asc, desc]
+   *         description: The ordering type
    *     responses:
    *       200:
    *         description: Experiments search
