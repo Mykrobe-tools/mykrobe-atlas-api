@@ -102,24 +102,33 @@ const keycloak = AccountsHelper.keycloakInstance();
  *                 properties:
  *                   wgsPlatform:
  *                     type: string
+ *                     enum: ["HiSeq", "MiSeq", "NextSeq", "Other"]
  *                   wgsPlatformOther:
  *                     type: string
  *                   otherGenotypeInformation:
- *                     type: boolean
+ *                     type: string
+ *                     enum: ["Yes", "No"]
  *                   genexpert:
  *                     type: string
+ *                     enum: ["RIF sensitive", "RIF resistant", "RIF inconclusive", "Not tested"]
  *                   hain:
  *                     type: string
+ *                     enum: ["INH/RIF test","Fluoroquinolone/aminoglycoside/ethambutol test","Both","Not tested"]
  *                   hainRif:
  *                     type: string
+ *                     enum: ["RIF sensitive", "RIF resistant", "RIF inconclusive", "Not tested"]
  *                   hainInh:
  *                     type: string
+ *                     enum: ["INH sensitive", "INH resistant", "INH inconclusive", "Not tested"]
  *                   hainFl:
  *                     type: string
+ *                     enum: ["FL sensitive", "FL resistant", "FL inconclusive", "Not tested"]
  *                   hainAm:
  *                     type: string
+ *                     enum: ["AM sensitive", "AM resistant", "AM inconclusive", "Not tested"]
  *                   hainEth:
  *                     type: string
+ *                     enum: ["ETH sensitive", "ETH resistant", "ETH inconclusive", "Not tested"]
  *               phenotyping:
  *                 type: object
  *                 properties:
