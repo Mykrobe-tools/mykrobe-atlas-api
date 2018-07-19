@@ -9,16 +9,14 @@ jest.mock("keycloak-admin-client");
 const app = createApp();
 
 const users = require("../fixtures/users");
-const experiments = require("../fixtures/experiments");
+const organisations = require("../fixtures/organisations");
 
 let token = null;
 let id = null;
 
 beforeEach(async done => {
   const userData = new User(users.admin);
-  const organisationData = new Organisation(
-    experiments.tuberculosis.organisation
-  );
+  const organisationData = new Organisation(organisations.apex);
   await userData.save();
   request(app)
     .post("/auth/login")
