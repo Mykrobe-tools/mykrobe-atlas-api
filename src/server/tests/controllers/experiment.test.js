@@ -5,8 +5,6 @@ import nock from "nock";
 import { config, createApp } from "../setup";
 import User from "../../models/user.model";
 import Experiment from "../../models/experiment.model";
-import Organisation from "../../models/organisation.model";
-import Metadata from "../../models/metadata.model";
 import Audit from "../../models/audit.model";
 import MDR from "../../tests/fixtures/files/MDR_Results.json";
 import { mockEsCalls } from "../mocks";
@@ -20,7 +18,6 @@ const app = createApp();
 const mongo = require("promised-mongo").compatible();
 const users = require("../fixtures/users");
 const experiments = require("../fixtures/experiments");
-const metadata = require("../fixtures/metadata");
 
 let token = null;
 let id = null;
@@ -30,11 +27,7 @@ const findJob = (jobs, id) =>
 
 beforeEach(async done => {
   const userData = new User(users.admin);
-  const organisationData = new Organisation(
-    experiments.tuberculosis.organisation
-  );
-  const metadataData = new Metadata(metadata.sample1);
-  const experimentData = new Experiment(experiments.tuberculosis);
+  const experimentData = new Experiment(experiments.tbUploadMetadata);
 
   const savedUser = await userData.save();
   request(app)
@@ -42,20 +35,18 @@ beforeEach(async done => {
     .send({ email: "admin@nhs.co.uk", password: "password" })
     .end(async (err, res) => {
       token = res.body.data.access_token;
-      const savedOrganisation = await organisationData.save();
-      const savedMetadata = await metadataData.save();
-      experimentData.organisation = savedOrganisation;
+
       experimentData.owner = savedUser;
-      experimentData.metadata = savedMetadata;
       const savedExperiment = await experimentData.save();
+
       id = savedExperiment.id;
+
       done();
     });
 });
 
 afterEach(async done => {
   await User.remove({});
-  await Organisation.remove({});
   await Experiment.remove({});
   done();
 });
@@ -66,14 +57,20 @@ describe("## Experiment APIs", () => {
       request(app)
         .post("/experiments")
         .set("Authorization", `Bearer ${token}`)
-        .send(experiments.pneumonia)
+        .send(experiments.tbUploadMetadata)
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("success");
-          expect(res.body.data.organisation.name).toEqual("Diagnostic systems");
-          expect(res.body.data.location.name).toEqual("India");
-          expect(res.body.data.jaccardIndex.version).toEqual("1.0");
-          expect(res.body.data.snpDistance.version).toEqual("1.1");
+          expect(res.body.data).toHaveProperty("metadata");
+
+          const metadata = res.body.data.metadata;
+          expect(metadata).toHaveProperty("patient");
+          expect(metadata).toHaveProperty("sample");
+          expect(metadata).toHaveProperty("genotyping");
+          expect(metadata).toHaveProperty("phenotyping");
+          expect(metadata).not.toHaveProperty("treatment");
+          expect(metadata).not.toHaveProperty("outcome");
+
           done();
         });
     });
@@ -82,7 +79,7 @@ describe("## Experiment APIs", () => {
       request(app)
         .post("/experiments")
         .set("Authorization", `Bearer ${token}`)
-        .send(experiments.pneumonia)
+        .send(experiments.tbUploadMetadata)
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("success");
@@ -101,8 +98,15 @@ describe("## Experiment APIs", () => {
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("success");
-          expect(res.body.data.organisation.name).toEqual("Apex Entertainment");
-          expect(res.body.data.location.name).toEqual("London");
+          expect(res.body.data).toHaveProperty("metadata");
+
+          const metadata = res.body.data.metadata;
+          expect(metadata).toHaveProperty("patient");
+          expect(metadata).toHaveProperty("sample");
+          expect(metadata).toHaveProperty("genotyping");
+          expect(metadata).toHaveProperty("phenotyping");
+          expect(metadata).not.toHaveProperty("treatment");
+          expect(metadata).not.toHaveProperty("outcome");
           done();
         });
     });
@@ -118,19 +122,6 @@ describe("## Experiment APIs", () => {
           expect(owner.firstname).toEqual("David");
           expect(owner.lastname).toEqual("Robin");
           expect(owner.email).toEqual("admin@nhs.co.uk");
-          done();
-        });
-    });
-
-    it("should populate the organisation", done => {
-      request(app)
-        .get(`/experiments/${id}`)
-        .set("Authorization", `Bearer ${token}`)
-        .expect(httpStatus.OK)
-        .end((err, res) => {
-          expect(res.body.status).toEqual("success");
-          const organisation = res.body.data.organisation;
-          expect(organisation.name).toEqual("Apex Entertainment");
           done();
         });
     });
@@ -174,10 +165,11 @@ describe("## Experiment APIs", () => {
 
   describe("# PUT /experiments/:id", () => {
     const data = {
-      location: {
-        name: "America",
-        lat: 2.4,
-        lng: 4.5
+      metadata: {
+        patient: {
+          age: 45,
+          bmi: 23.7
+        }
       }
     };
     it("should update experiment details", done => {
@@ -187,10 +179,8 @@ describe("## Experiment APIs", () => {
         .send(data)
         .expect(httpStatus.OK)
         .end((err, res) => {
-          expect(res.body.data.location.name).toEqual("America");
-          expect(res.body.data.location.lat).toEqual(2.4);
-          expect(res.body.data.location.lng).toEqual(4.5);
-          expect(res.body.data.organisation.name).toEqual("Apex Entertainment");
+          expect(res.body.data.metadata.patient.age).toEqual(45);
+          expect(res.body.data.metadata.patient.bmi).toEqual(23.7);
           done();
         });
     });
@@ -290,24 +280,39 @@ describe("## Experiment APIs", () => {
   });
   describe("# PUT /experiments/:id/metadata", () => {
     it("should update experiment metadata", done => {
+      const updatedMetadata = JSON.parse(
+        JSON.stringify(experiments.tbUploadMetadata.metadata)
+      );
+      updatedMetadata.patient.patientId =
+        "7e89a3b3-8d7e-4120-87c5-741fb4ddeb8c";
+      updatedMetadata.patient.bmi = 31.2;
+      updatedMetadata.patient.smoker = "No";
+      updatedMetadata.sample.labId = "7e89a3b3-8d7e-4120-87c5-741fb4ddeb8c";
+      updatedMetadata.genotyping.wgsPlatform = "HiSeq";
+      updatedMetadata.phenotyping.phenotypeInformationOtherDrugs = "Yes";
+
       request(app)
         .put(`/experiments/${id}/metadata`)
         .set("Authorization", `Bearer ${token}`)
-        .send(metadata.sample1)
+        .send(updatedMetadata)
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("success");
-          expect(res.body.data.metadata.patientId).toEqual("12345");
-          expect(res.body.data.metadata.siteId).toEqual("abc");
-          expect(res.body.data.metadata.genderAtBirth).toEqual("Male");
-          expect(res.body.data.metadata.countryOfBirth).toEqual("Hong Kong");
-          expect(res.body.data.metadata.bmi).toEqual(12);
-          expect(res.body.data.metadata.injectingDrugUse).toEqual("notice");
-          expect(res.body.data.metadata.homeless).toEqual("Yes");
-          expect(res.body.data.metadata.imprisoned).toEqual("Yes");
-          expect(res.body.data.metadata.smoker).toEqual("No");
-          expect(res.body.data.metadata.diabetic).toEqual("Yes");
-          expect(res.body.data.metadata.hivStatus).toEqual("Negative");
+          const metadataSaved = res.body.data.metadata;
+
+          expect(metadataSaved.patient.patientId).toEqual(
+            "7e89a3b3-8d7e-4120-87c5-741fb4ddeb8c"
+          );
+          expect(metadataSaved.patient.bmi).toEqual(31.2);
+          expect(metadataSaved.patient.smoker).toEqual("No");
+          expect(metadataSaved.sample.labId).toEqual(
+            "7e89a3b3-8d7e-4120-87c5-741fb4ddeb8c"
+          );
+          expect(metadataSaved.genotyping.wgsPlatform).toEqual("HiSeq");
+          expect(
+            metadataSaved.phenotyping.phenotypeInformationOtherDrugs
+          ).toEqual("Yes");
+
           done();
         });
     });
@@ -996,8 +1001,9 @@ describe("## Experiment APIs", () => {
         .expect(httpStatus.OK)
         .end(async (err, res) => {
           const experimentWithResults = await Experiment.get(id);
-          expect(experimentWithResults).toHaveProperty("results");
-          expect(experimentWithResults.results.length).toEqual(1);
+          const results = experimentWithResults.get("results");
+
+          expect(results.length).toEqual(1);
           done();
         });
     });

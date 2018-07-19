@@ -3,16 +3,19 @@ import httpStatus from "http-status";
 import mkdirp from "mkdirp-promise";
 import Promise from "bluebird";
 import { ElasticsearchHelper } from "makeandship-api-common/lib/modules/elasticsearch/";
+
 import Experiment from "../models/experiment.model";
-import Metadata from "../models/metadata.model";
 import Organisation from "../models/organisation.model";
-import ExperimentJSONTransformer from "../transformers/ExperimentJSONTransformer";
-import ArrayJSONTransformer from "../transformers/ArrayJSONTransformer";
 import resumable from "../modules/resumable";
-import APIError from "../helpers/APIError";
+import ArrayJSONTransformer from "../transformers/ArrayJSONTransformer";
+import ExperimentJSONTransformer from "../transformers/ExperimentJSONTransformer";
 import DownloadersFactory from "../helpers/DownloadersFactory";
-import ChoicesESTransformer from "../transformers/es/ChoicesESTransformer";
-import ExperimentsESTransformer from "../transformers/es/ExperimentsESTransformer";
+import ExperimentsResultJSONTransformer from "../transformers/es/ExperimentsResultJSONTransformer";
+import SearchResultsJSONTransformer from "makeandship-api-common/lib/modules/elasticsearch/transformers/SearchResultsJSONTransformer";
+import SearchQueryJSONTransformer from "makeandship-api-common/lib/modules/elasticsearch/transformers/SearchQueryJSONTransformer";
+import ChoicesJSONTransformer from "makeandship-api-common/lib/modules/elasticsearch/transformers/ChoicesJSONTransformer";
+
+import APIError from "../helpers/APIError";
 import { schedule } from "../modules/agenda";
 import experimentSchema from "../../schemas/experiment";
 import ResultsHelper from "../helpers/ResultsHelper";
@@ -26,6 +29,7 @@ const load = async (req, res, next, id) => {
   try {
     const experiment = await Experiment.get(id);
     req.experiment = experiment;
+
     return next();
   } catch (e) {
     return res.jerror(e);
@@ -46,24 +50,6 @@ const create = async (req, res) => {
   const experiment = new Experiment(req.body);
   experiment.owner = req.dbUser;
 
-  if (req.body.organisation) {
-    try {
-      const organisation = await Organisation.findOrganisationAndUpdate(
-        req.body.organisation,
-        req.body.organisation
-      );
-      experiment.organisation = organisation;
-      const savedExperiment = await experiment.save();
-      await ElasticsearchHelper.indexDocument(
-        config,
-        savedExperiment,
-        "experiment"
-      );
-      return res.jsend(savedExperiment);
-    } catch (e) {
-      return res.jerror(new errors.CreateExperimentError(e.message));
-    }
-  }
   try {
     const savedExperiment = await experiment.save();
     await ElasticsearchHelper.indexDocument(
@@ -81,8 +67,14 @@ const create = async (req, res) => {
  * Update existing experiment
  * @returns {Experiment}
  */
+
 const update = async (req, res) => {
-  const experiment = Object.assign(req.experiment, req.body);
+  // use set - https://github.com/Automattic/mongoose/issues/5378
+  const experiment = req.experiment;
+  Object.keys(req.body).forEach(key => {
+    experiment.set(key, req.body[key]);
+  });
+
   try {
     const savedExperiment = await experiment.save();
     await ElasticsearchHelper.updateDocument(
@@ -132,15 +124,15 @@ const remove = async (req, res) => {
 };
 
 /**
- * Update experiment metadata
+ * Update existing metadata
  * @returns {Experiment}
  */
-const updateMetadata = async (req, res) => {
-  const metadata = new Metadata(req.body);
+const metadata = async (req, res) => {
+  // use set - https://github.com/Automattic/mongoose/issues/5378
   const experiment = req.experiment;
-  experiment.metadata = metadata;
+  experiment.set("metadata", req.body);
+
   try {
-    await metadata.save();
     const savedExperiment = await experiment.save();
     await ElasticsearchHelper.updateDocument(
       config,
@@ -149,7 +141,7 @@ const updateMetadata = async (req, res) => {
     );
     return res.jsend(savedExperiment);
   } catch (e) {
-    return res.jerror(new errors.CreateExperimentError(e.message));
+    return res.jerror(new errors.UpdateExperimentError(e.message));
   }
 };
 
@@ -161,8 +153,14 @@ const updateMetadata = async (req, res) => {
 const results = async (req, res) => {
   const experiment = req.experiment;
   const predictorResult = ResultsHelper.parse(req.body);
-  experiment.results.push(predictorResult);
+  const results = experiment.get("results");
 
+  const updatedResults = [];
+  if (results) {
+    updatedResults.push(...results);
+  }
+  updatedResults.push(predictorResult);
+  experiment.set("results", updatedResults);
   try {
     const savedExperiment = await experiment.save();
     await ElasticsearchHelper.updateDocument(
@@ -299,8 +297,8 @@ const choices = async (req, res) => {
       { ...req.query },
       "experiment"
     );
-    const resultsTransformer = new ChoicesESTransformer(resp, {});
-    return res.jsend(resultsTransformer.transform());
+    const choices = new ChoicesJSONTransformer().transform(resp, {});
+    return res.jsend(choices);
   } catch (e) {
     return res.jerror(new errors.SearchMetadataValuesError(e.message));
   }
@@ -317,10 +315,27 @@ const search = async (req, res) => {
       { ...req.query },
       "experiment"
     );
-    const transformer = new ExperimentsESTransformer(resp, {
-      includeSummary: true
-    });
-    return res.jsend(transformer.transform());
+
+    // core elastic search structure
+    const options = {
+      per: req.query.per || config.elasticsearch.resultsPerPage,
+      page: req.query.page || 1
+    };
+    const results = new SearchResultsJSONTransformer().transform(resp, options);
+
+    if (results) {
+      // hits
+      results.results = new ExperimentsResultJSONTransformer().transform(
+        resp,
+        {}
+      );
+      // query
+      results.search = new SearchQueryJSONTransformer().transform(
+        req.query,
+        {}
+      );
+    }
+    return res.jsend(results);
   } catch (e) {
     return res.jerror(new errors.SearchMetadataValuesError(e.message));
   }
@@ -333,8 +348,8 @@ export default {
   update,
   list,
   remove,
-  updateMetadata,
   uploadFile,
+  metadata,
   results,
   readFile,
   uploadStatus,

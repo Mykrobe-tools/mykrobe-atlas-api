@@ -1,65 +1,52 @@
+import metadata from "./metadata.js";
+
 export default {
-  tuberculosis: {
-    organisation: {
-      name: "Apex Entertainment",
-      template: "MODS"
-    },
-    location: {
-      name: "London",
-      lat: 3.4,
-      lng: -2.3
-    },
-    collected: "2017-04-17",
-    uploaded: "2017-04-20",
-    resistance: {},
-    jaccardIndex: {
-      analysed: "2017-04-20",
-      engine: "",
-      version: "1.0",
-      experiments: []
-    },
-    snpDistance: {
-      analysed: "2017-04-21",
-      engine: "",
-      version: "1.1",
-      experiments: []
-    },
-    geoDistance: {
-      analysed: "2017-04-22",
-      engine: "",
-      version: "1.2",
-      experiments: []
+  tbUpload: {
+    file:
+      "/Users/mark/makeandship/mykrobe-atlas-api/src/server/tests/fixtures/files/333-08.fastq.gz"
+  },
+  tbUploadMetadata: {
+    metadata: {
+      patient: metadata.uploadedMetadata.patient,
+      sample: metadata.uploadedMetadata.sample,
+      genotyping: metadata.uploadedMetadata.genotyping,
+      phenotyping: metadata.uploadedMetadata.phenotyping
     }
   },
-  pneumonia: {
-    organisation: {
-      name: "Diagnostic systems"
+  tbUploadMetadataChinese: {
+    metadata: {
+      patient: metadata.uploadedMetadataChina.patient,
+      sample: metadata.uploadedMetadataChina.sample,
+      genotyping: metadata.uploadedMetadataChina.genotyping,
+      phenotyping: metadata.uploadedMetadataChina.phenotyping
     },
-    location: {
-      name: "India",
-      lat: 1.4,
-      lng: -4.5
+    results: []
+  },
+  tbWithPredictorResults: {
+    metadata: {
+      patient: metadata.uploadedMetadataChina.patient,
+      sample: metadata.uploadedMetadataChina.sample,
+      genotyping: metadata.uploadedMetadataChina.genotyping,
+      phenotyping: metadata.uploadedMetadataChina.phenotyping
     },
-    collected: "2017-04-16",
-    uploaded: "2017-04-19",
-    resistance: {},
-    jaccardIndex: {
-      analysed: "2017-04-19",
-      engine: "",
-      version: "1.0",
-      experiments: []
+    results: []
+  },
+  tbWithTreatment: {
+    metadata: {
+      patient: metadata.uploadedMetadata.patient,
+      sample: metadata.uploadedMetadata.sample,
+      genotyping: metadata.uploadedMetadata.genotyping,
+      phenotyping: metadata.uploadedMetadata.phenotyping
     },
-    snpDistance: {
-      analysed: "2017-04-20",
-      engine: "",
-      version: "1.1",
-      experiments: []
+    results: []
+  },
+  tbWithOutcome: {
+    metadata: {
+      patient: metadata.uploadedMetadata.patient,
+      sample: metadata.uploadedMetadata.sample,
+      genotyping: metadata.uploadedMetadata.genotyping,
+      phenotyping: metadata.uploadedMetadata.phenotyping
     },
-    geoDistance: {
-      analysed: "2017-04-21",
-      engine: "",
-      version: "1.2",
-      experiments: []
-    }
+    results: []
   }
 };
