@@ -22,7 +22,7 @@ const config = require("../../config/env");
 /**
  * Load experiment and append to req.
  */
-async function load(req, res, next, id) {
+const load = async (req, res, next, id) => {
   try {
     const experiment = await Experiment.get(id);
     req.experiment = experiment;
@@ -30,21 +30,19 @@ async function load(req, res, next, id) {
   } catch (e) {
     return res.jerror(e);
   }
-}
+};
 
 /**
  * Get experiment
  * @returns {Experiment}
  */
-function get(req, res) {
-  return res.jsend(req.experiment);
-}
+const get = (req, res) => res.jsend(req.experiment);
 
 /**
  * Create new experiment
  * @returns {Experiment}
  */
-async function create(req, res) {
+const create = async (req, res) => {
   const experiment = new Experiment(req.body);
   experiment.owner = req.dbUser;
 
@@ -77,13 +75,13 @@ async function create(req, res) {
   } catch (e) {
     return res.jerror(new errors.CreateExperimentError(e.message));
   }
-}
+};
 
 /**
  * Update existing experiment
  * @returns {Experiment}
  */
-async function update(req, res) {
+const update = async (req, res) => {
   const experiment = Object.assign(req.experiment, req.body);
   try {
     const savedExperiment = await experiment.save();
@@ -96,13 +94,13 @@ async function update(req, res) {
   } catch (e) {
     return res.jerror(new errors.UpdateExperimentError(e.message));
   }
-}
+};
 
 /**
  * Get experiments list.
  * @returns {Experiment[]}
  */
-async function list(req, res) {
+const list = async (req, res) => {
   try {
     const experiments = await Experiment.list();
     const transformer = new ArrayJSONTransformer(experiments, {
@@ -112,13 +110,13 @@ async function list(req, res) {
   } catch (e) {
     return res.jerror(e);
   }
-}
+};
 
 /**
  * Delete experiment.
  * @returns {Experiment}
  */
-async function remove(req, res) {
+const remove = async (req, res) => {
   const experiment = req.experiment;
   try {
     await experiment.remove();
@@ -131,13 +129,13 @@ async function remove(req, res) {
   } catch (e) {
     return res.jerror(e);
   }
-}
+};
 
 /**
  * Update experiment metadata
  * @returns {Experiment}
  */
-async function updateMetadata(req, res) {
+const updateMetadata = async (req, res) => {
   const metadata = new Metadata(req.body);
   const experiment = req.experiment;
   experiment.metadata = metadata;
@@ -153,14 +151,14 @@ async function updateMetadata(req, res) {
   } catch (e) {
     return res.jerror(new errors.CreateExperimentError(e.message));
   }
-}
+};
 
 /**
  * Store result of analysis
  * @param {object} req
  * @param {object} res
  */
-async function results(req, res) {
+const results = async (req, res) => {
   const experiment = req.experiment;
   const predictorResult = ResultsHelper.parse(req.body);
   experiment.results.push(predictorResult);
@@ -176,13 +174,13 @@ async function results(req, res) {
   } catch (e) {
     return res.jerror(new errors.UpdateExperimentError(e.message));
   }
-}
+};
 
 /**
  * Upload sequence file
  * @returns {Experiment}
  */
-async function uploadFile(req, res) {
+const uploadFile = async (req, res) => {
   const experiment = req.experiment;
 
   // from 3rd party provider
@@ -235,12 +233,12 @@ async function uploadFile(req, res) {
       return res.jerror(postUpload);
     }
   );
-}
+};
 
 /**
  * Sends the files as API response
  */
-function readFile(req, res) {
+const readFile = (req, res) => {
   const experiment = req.experiment;
   if (experiment.file) {
     const path = `${config.express.uploadDir}/experiments/${
@@ -249,9 +247,9 @@ function readFile(req, res) {
     return res.sendFile(`${path}/${experiment.file}`);
   }
   return res.jerror("No file found for this Experiment");
-}
+};
 
-function uploadStatus(req, res) {
+const uploadStatus = (req, res) => {
   const experiment = req.experiment;
   return Resumable.setUploadDirectory(
     `${config.express.uploadDir}/experiments/${experiment.id}/file`,
@@ -270,12 +268,12 @@ function uploadStatus(req, res) {
       return res.jerror(error);
     }
   );
-}
+};
 
 /**
  * Reindex all experiments to ES
  */
-async function reindex(req, res) {
+const reindex = async (req, res) => {
   try {
     await ElasticsearchHelper.deleteIndexIfExists(config);
     await ElasticsearchHelper.createIndex(
@@ -289,12 +287,12 @@ async function reindex(req, res) {
   } catch (e) {
     return res.jerror(e.message);
   }
-}
+};
 
 /**
  * Search distinct metadata values from ES
  */
-async function choices(req, res) {
+const choices = async (req, res) => {
   try {
     const attribute = req.params.attribute;
     const resp = await ElasticsearchHelper.aggregate(
@@ -308,13 +306,13 @@ async function choices(req, res) {
   } catch (e) {
     return res.jerror(new errors.SearchMetadataValuesError(e.message));
   }
-}
+};
 
 /**
  * Get experiments list from ES.
  * @returns {Experiment[]}
  */
-async function search(req, res) {
+const search = async (req, res) => {
   try {
     const resp = await ElasticsearchHelper.search(
       config,
@@ -328,7 +326,7 @@ async function search(req, res) {
   } catch (e) {
     return res.jerror(new errors.SearchMetadataValuesError(e.message));
   }
-}
+};
 
 export default {
   load,

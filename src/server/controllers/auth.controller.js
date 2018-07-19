@@ -19,7 +19,7 @@ const keycloak = AccountsHelper.keycloakInstance();
  * @param res
  * @returns {*}
  */
-async function login(req, res) {
+const login = async (req, res) => {
   try {
     const { email, password } = req.body;
     const data = await keycloak.authenticate(email, password);
@@ -27,7 +27,7 @@ async function login(req, res) {
   } catch (e) {
     return res.jerror(new APIError(e.message, httpStatus.UNAUTHORIZED));
   }
-}
+};
 
 /**
  * This is a protected route. Will return random number only if jwt token is provided in header.
@@ -35,13 +35,13 @@ async function login(req, res) {
  * @param res
  * @returns {*}
  */
-function getRandomNumber(req, res) {
+const getRandomNumber = (req, res) => {
   // req.user is assigned by jwt middleware if valid token is provided
   return res.jsend({
     user: req.user,
     num: Math.random() * 100
   });
-}
+};
 
 /**
  * This is a function to generate the token and send email.
@@ -49,7 +49,7 @@ function getRandomNumber(req, res) {
  * @param res
  * @returns {*}
  */
-async function forgot(req, res) {
+const forgot = async (req, res) => {
   try {
     const email = req.body.email;
     const user = await User.getByEmail(email);
@@ -76,9 +76,9 @@ async function forgot(req, res) {
   } catch (e) {
     return res.jerror(new errors.UpdateUserError(e.message));
   }
-}
+};
 
-async function resend(req, res) {
+const resend = async (req, res) => {
   try {
     const email = req.body.email;
     const user = await User.getByEmail(email);
@@ -105,15 +105,15 @@ async function resend(req, res) {
   } catch (e) {
     return res.jerror(new errors.UpdateUserError(e.message));
   }
-}
+};
 
-async function refresh(req, res) {
+const refresh = async (req, res) => {
   try {
     const data = await keycloak.refreshToken(req.body);
     return res.jsend(data);
   } catch (e) {
     return res.jerror(new APIError(e.message, httpStatus.UNAUTHORIZED));
   }
-}
+};
 
 export default { login, getRandomNumber, forgot, refresh, resend };

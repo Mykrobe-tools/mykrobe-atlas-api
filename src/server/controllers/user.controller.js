@@ -12,7 +12,7 @@ const keycloak = AccountsHelper.keycloakInstance();
 /**
  * Load user and append to req.
  */
-async function load(req, res, next, id) {
+const load = async (req, res, next, id) => {
   try {
     const user = await User.get(id);
     req.dbUser = user;
@@ -20,21 +20,17 @@ async function load(req, res, next, id) {
   } catch (e) {
     return res.jerror(e);
   }
-}
+};
 
 /**
  * Load current user and append to req.
  */
-function loadCurrentUser(req, res, next) {
-  return load(req, res, next, req.user.id);
-}
+const loadCurrentUser = (req, res, next) => load(req, res, next, req.user.id);
 /**
  * Get user
  * @returns {User}
  */
-function get(req, res) {
-  return res.jsend(req.dbUser);
-}
+const get = (req, res) => res.jsend(req.dbUser);
 
 /**
  * Create new user
@@ -43,7 +39,7 @@ function get(req, res) {
  * @property {string} req.body.profile - The profile of user.
  * @returns {User}
  */
-async function create(req, res) {
+const create = async (req, res) => {
   try {
     const { firstname, lastname, phone, email } = req.body;
     const keycloakId = await keycloak.register(
@@ -56,7 +52,7 @@ async function create(req, res) {
   } catch (e) {
     return res.jerror(e);
   }
-}
+};
 
 /**
  * Update existing user
@@ -64,7 +60,7 @@ async function create(req, res) {
  * @property {string} req.body.lastname - The lastname of user.
  * @returns {User}
  */
-async function update(req, res) {
+const update = async (req, res) => {
   const user = req.dbUser;
   user.firstname = req.body.firstname || user.firstname;
   user.lastname = req.body.lastname || user.lastname;
@@ -79,7 +75,7 @@ async function update(req, res) {
   } catch (e) {
     return res.jerror(new errors.UpdateUserError(e.message));
   }
-}
+};
 
 /**
  * Get user list.
@@ -87,7 +83,7 @@ async function update(req, res) {
  * @property {number} req.query.limit - Limit number of users to be returned.
  * @returns {User[]}
  */
-async function list(req, res) {
+const list = async (req, res) => {
   const { limit = 50, skip = 0 } = req.query;
   try {
     const users = await User.list({ limit, skip });
@@ -98,13 +94,13 @@ async function list(req, res) {
   } catch (e) {
     return res.jerror(e);
   }
-}
+};
 
 /**
  * Delete user.
  * @returns {User}
  */
-async function remove(req, res) {
+const remove = async (req, res) => {
   const user = req.dbUser;
   try {
     await user.remove();
@@ -112,13 +108,13 @@ async function remove(req, res) {
   } catch (e) {
     return res.jerror(e);
   }
-}
+};
 
 /**
  * Make user an admin.
  * @returns {User}
  */
-async function assignRole(req, res) {
+const assignRole = async (req, res) => {
   const user = req.dbUser;
   user.role = config.accounts.adminRole;
   try {
@@ -127,7 +123,7 @@ async function assignRole(req, res) {
   } catch (e) {
     return res.jerror(e);
   }
-}
+};
 
 export default {
   load,
