@@ -6,6 +6,7 @@ import paramValidation from "../../config/param-validation";
 import experimentController from "../controllers/experiment.controller";
 import userController from "../controllers/user.controller";
 import config from "../../config/env";
+import { ownerOnly } from "../modules/security";
 
 const upload = multer({ dest: "tmp/" });
 const router = express.Router(); // eslint-disable-line new-cap
@@ -2767,7 +2768,12 @@ router
    *         schema:
    *           $ref: '#/definitions/ExperimentResponse'
    */
-  .put(keycloak.connect.protect(), experimentController.update)
+  .put(
+    keycloak.connect.protect(),
+    userController.loadCurrentUser,
+    ownerOnly,
+    experimentController.update
+  )
   /**
    * @swagger
    * /experiments/{id}:
@@ -2792,7 +2798,12 @@ router
    *         schema:
    *           $ref: '#/definitions/BasicResponse'
    */
-  .delete(keycloak.connect.protect(), experimentController.remove);
+  .delete(
+    keycloak.connect.protect(),
+    userController.loadCurrentUser,
+    ownerOnly,
+    experimentController.remove
+  );
 router
   .route("/:id/metadata")
   /**
@@ -2826,10 +2837,10 @@ router
    */
   .put(keycloak.connect.protect(), experimentController.metadata);
 router
-  .route("/:id/result")
+  .route("/:id/results")
   /**
    * @swagger
-   * /experiments/{id}/result:
+   * /experiments/{id}/results:
    *   post:
    *     tags:
    *       - Experiments
@@ -2854,7 +2865,7 @@ router
    *         schema:
    *           $ref: '#/definitions/ExperimentResponse'
    */
-  .post(experimentController.result);
+  .post(experimentController.results);
 router
   .route("/:id/file")
   /**

@@ -153,7 +153,7 @@ async function metadata(req, res) {
  * @param {object} req
  * @param {object} res
  */
-async function result(req, res) {
+async function results(req, res) {
   const experiment = req.experiment;
   const predictorResult = ResultsHelper.parse(req.body);
   const results = experiment.get("results");
@@ -221,7 +221,7 @@ async function uploadFile(req, res) {
           req.body.resumableFilename,
           async () => {
             await schedule("now", "call analysis api", {
-              file: `${config.express.uploadDir}/experiments/${
+              file: `${config.express.uploadsLocation}/experiments/${
                 experiment.id
               }/file/${req.body.resumableFilename}`,
               sample_id: experiment.id,
@@ -355,7 +355,7 @@ export default {
   remove,
   uploadFile,
   metadata,
-  result,
+  results,
   readFile,
   uploadStatus,
   reindex,
