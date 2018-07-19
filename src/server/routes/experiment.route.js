@@ -139,37 +139,37 @@ const keycloak = AccountsHelper.keycloakInstance();
  *                      type: object
  *                      properties:
  *                        susceptibility:
- *                          type: "string"
+ *                          type: string
  *                          enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
  *                        method:
- *                          type: "string"
+ *                          type: string
  *                          enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
  *                   ethambutol:
  *                      type: object
  *                      properties:
  *                        susceptibility:
- *                          type: "string"
+ *                          type: string
  *                          enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
  *                        method:
- *                          type: "string"
+ *                          type: string
  *                          enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
  *                   pyrazinamide:
  *                      type: object
  *                      properties:
  *                        susceptibility:
- *                          type: "string"
+ *                          type: string
  *                          enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
  *                        method:
- *                          type: "string"
+ *                          type: string
  *                          enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
  *                   isoniazid:
  *                      type: object
  *                      properties:
  *                        susceptibility:
- *                          type: "string"
+ *                          type: string
  *                          enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
  *                        method:
- *                          type: "string"
+ *                          type: string
  *                          enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
  *                   phenotypeInformationOtherDrugs:
  *                      type: string
@@ -178,235 +178,235 @@ const keycloak = AccountsHelper.keycloakInstance();
  *                      type: object
  *                      properties:
  *                        susceptibility:
- *                          type: "string"
+ *                          type: string
  *                          enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
  *                        method:
- *                          type: "string"
+ *                          type: string
  *                          enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
  *                   ofloxacin:
  *                      type: object
  *                      properties:
  *                        susceptibility:
- *                          type: "string"
+ *                          type: string
  *                          enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
  *                        method:
- *                          type: "string"
+ *                          type: string
  *                          enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
  *                   ciprofloxacin:
  *                      type: object
  *                      properties:
  *                        susceptibility:
- *                          type: "string"
+ *                          type: string
  *                          enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
  *                        method:
- *                          type: "string"
+ *                          type: string
  *                          enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
  *                   levofloxacin:
  *                      type: object
  *                      properties:
  *                        susceptibility:
- *                          type: "string"
+ *                          type: string
  *                          enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
  *                        method:
- *                          type: "string"
+ *                          type: string
  *                          enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
  *                   gatifloxacin:
  *                      type: object
  *                      properties:
  *                        susceptibility:
- *                          type: "string"
+ *                          type: string
  *                          enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
  *                        method:
- *                          type: "string"
+ *                          type: string
  *                          enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
  *                   amikacin:
  *                      type: object
  *                      properties:
  *                        susceptibility:
- *                          type: "string"
+ *                          type: string
  *                          enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
  *                        method:
- *                          type: "string"
+ *                          type: string
  *                          enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
  *                   kanamycin:
  *                      type: object
  *                      properties:
  *                        susceptibility:
- *                          type: "string"
+ *                          type: string
  *                          enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
  *                        method:
- *                          type: "string"
+ *                          type: string
  *                          enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
  *                   gentamicin:
  *                      type: object
  *                      properties:
  *                        susceptibility:
- *                          type: "string"
+ *                          type: string
  *                          enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
  *                        method:
- *                          type: "string"
+ *                          type: string
  *                          enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
  *                   streptomycin:
  *                      type: object
  *                      properties:
  *                        susceptibility:
- *                          type: "string"
+ *                          type: string
  *                          enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
  *                        method:
- *                          type: "string"
+ *                          type: string
  *                          enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
  *                   capreomycin:
  *                      type: object
  *                      properties:
  *                        susceptibility:
- *                          type: "string"
+ *                          type: string
  *                          enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
  *                        method:
- *                          type: "string"
+ *                          type: string
  *                          enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
  *                   clofazimine:
  *                      type: object
  *                      properties:
  *                        susceptibility:
- *                          type: "string"
+ *                          type: string
  *                          enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
  *                        method:
- *                          type: "string"
+ *                          type: string
  *                          enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
  *                   pas:
  *                      type: object
  *                      properties:
  *                        susceptibility:
- *                          type: "string"
+ *                          type: string
  *                          enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
  *                        method:
- *                          type: "string"
+ *                          type: string
  *                          enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
  *                   linezolid:
  *                      type: object
  *                      properties:
  *                        susceptibility:
- *                          type: "string"
+ *                          type: string
  *                          enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
  *                        method:
- *                          type: "string"
+ *                          type: string
  *                          enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
  *                   ethionamideProthionamide:
  *                      type: object
  *                      properties:
  *                        susceptibility:
- *                          type: "string"
+ *                          type: string
  *                          enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
  *                        method:
- *                          type: "string"
+ *                          type: string
  *                          enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
  *                   rerizidone:
  *                      type: object
  *                      properties:
  *                        susceptibility:
- *                          type: "string"
+ *                          type: string
  *                          enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
  *                        method:
- *                          type: "string"
+ *                          type: string
  *                          enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
  *                   amoxicilinClavulanate:
  *                      type: object
  *                      properties:
  *                        susceptibility:
- *                          type: "string"
+ *                          type: string
  *                          enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
  *                        method:
- *                          type: "string"
+ *                          type: string
  *                          enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
  *                   thioacetazone:
  *                      type: object
  *                      properties:
  *                        susceptibility:
- *                          type: "string"
+ *                          type: string
  *                          enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
  *                        method:
- *                          type: "string"
+ *                          type: string
  *                          enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
  *                   imipenemImipenemcilastatin:
  *                      type: object
  *                      properties:
  *                        susceptibility:
- *                          type: "string"
+ *                          type: string
  *                          enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
  *                        method:
- *                          type: "string"
+ *                          type: string
  *                          enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
  *                   meropenem:
  *                      type: object
  *                      properties:
  *                        susceptibility:
- *                          type: "string"
+ *                          type: string
  *                          enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
  *                        method:
- *                          type: "string"
+ *                          type: string
  *                          enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
  *                   clarythromycin:
  *                      type: object
  *                      properties:
  *                        susceptibility:
- *                          type: "string"
+ *                          type: string
  *                          enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
  *                        method:
- *                          type: "string"
+ *                          type: string
  *                          enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
  *                   highDoseIsoniazid:
  *                      type: object
  *                      properties:
  *                        susceptibility:
- *                          type: "string"
+ *                          type: string
  *                          enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
  *                        method:
- *                          type: "string"
+ *                          type: string
  *                          enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
  *                   bedaquiline:
  *                      type: object
  *                      properties:
  *                        susceptibility:
- *                          type: "string"
+ *                          type: string
  *                          enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
  *                        method:
- *                          type: "string"
+ *                          type: string
  *                          enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
  *                   delamanid:
  *                      type: object
  *                      properties:
  *                        susceptibility:
- *                          type: "string"
+ *                          type: string
  *                          enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
  *                        method:
- *                          type: "string"
+ *                          type: string
  *                          enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
  *                   prothionamide:
  *                      type: object
  *                      properties:
  *                        susceptibility:
- *                          type: "string"
+ *                          type: string
  *                          enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
  *                        method:
- *                          type: "string"
+ *                          type: string
  *                          enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
  *                   pretothionamide:
  *                      type: object
  *                      properties:
  *                        susceptibility:
- *                          type: "string"
+ *                          type: string
  *                          enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
  *                        method:
- *                          type: "string"
+ *                          type: string
  *                          enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
  *                   pretomanid:
  *                      type: object
  *                      properties:
  *                        susceptibility:
- *                          type: "string"
+ *                          type: string
  *                          enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
  *                        method:
- *                          type: "string"
+ *                          type: string
  *                          enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
  *               treatment:
  *                 type: object
@@ -455,211 +455,211 @@ const keycloak = AccountsHelper.keycloakInstance();
  *                   sputumCultureConversion:
  *                     type: string
  *                   outsideStandardPhaseRifampicinRifabutin:
- *                     type: "object"
+ *                     type: object
  *                     properties:
  *                       start:
- *                         type: "string"
+ *                         type: string
  *                         format: "date"
  *                       stop:
- *                         type: "string"
+ *                         type: string
  *                         format: "date"
  *                   outsideStandardPhaseEthambutol:
- *                     type: "object"
+ *                     type: object
  *                     properties:
  *                       start:
- *                         type: "string"
+ *                         type: string
  *                         format: "date"
  *                       stop:
- *                         type: "string"
+ *                         type: string
  *                         format: "date"
  *                   outsideStandardPhasePyrazinamide:
- *                     type: "object"
+ *                     type: object
  *                     properties:
  *                       start:
- *                         type: "string"
+ *                         type: string
  *                         format: "date"
  *                       stop:
- *                         type: "string"
+ *                         type: string
  *                         format: "date"
  *                   outsideStandardPhaseIsoniazid:
- *                     type: "object"
+ *                     type: object
  *                     properties:
  *                       start:
- *                         type: "string"
+ *                         type: string
  *                         format: "date"
  *                       stop:
- *                         type: "string"
+ *                         type: string
  *                         format: "date"
  *                   outsideStandardPhaseOfloxacin:
- *                     type: "object"
+ *                     type: object
  *                     properties:
  *                       start:
- *                         type: "string"
+ *                         type: string
  *                         format: "date"
  *                       stop:
- *                         type: "string"
+ *                         type: string
  *                         format: "date"
  *                   outsideStandardPhaseMoxifloxacin:
- *                     type: "object"
+ *                     type: object
  *                     properties:
  *                       start:
- *                         type: "string"
+ *                         type: string
  *                         format: "date"
  *                       stop:
- *                         type: "string"
+ *                         type: string
  *                         format: "date"
  *                   outsideStandardPhaseLevofloxacin:
- *                     type: "object"
+ *                     type: object
  *                     properties:
  *                       start:
- *                         type: "string"
+ *                         type: string
  *                         format: "date"
  *                       stop:
- *                         type: "string"
+ *                         type: string
  *                         format: "date"
  *                   outsideStandardPhaseGatifloxacin:
- *                     type: "object"
+ *                     type: object
  *                     properties:
  *                       start:
- *                         type: "string"
+ *                         type: string
  *                         format: "date"
  *                       stop:
- *                         type: "string"
+ *                         type: string
  *                         format: "date"
  *                   outsideStandardPhaseAmikacin:
- *                     type: "object"
+ *                     type: object
  *                     properties:
  *                       start:
- *                         type: "string"
+ *                         type: string
  *                         format: "date"
  *                       stop:
- *                         type: "string"
+ *                         type: string
  *                         format: "date"
  *                   outsideStandardPhaseGentamicin:
- *                     type: "object"
+ *                     type: object
  *                     properties:
  *                       start:
- *                         type: "string"
+ *                         type: string
  *                         format: "date"
  *                       stop:
- *                         type: "string"
+ *                         type: string
  *                         format: "date"
  *                   outsideStandardPhaseStreptomycin:
- *                     type: "object"
+ *                     type: object
  *                     properties:
  *                       start:
- *                         type: "string"
+ *                         type: string
  *                         format: "date"
  *                       stop:
- *                         type: "string"
+ *                         type: string
  *                         format: "date"
  *                   outsideStandardPhaseCapreomycin:
- *                     type: "object"
+ *                     type: object
  *                     properties:
  *                       start:
- *                         type: "string"
+ *                         type: string
  *                         format: "date"
  *                       stop:
- *                         type: "string"
+ *                         type: string
  *                         format: "date"
  *                   outsideStandardPhaseClofazimine:
- *                     type: "object"
+ *                     type: object
  *                     properties:
  *                       start:
- *                         type: "string"
+ *                         type: string
  *                         format: "date"
  *                       stop:
- *                         type: "string"
+ *                         type: string
  *                         format: "date"
  *                   outsideStandardPhasePas:
- *                     type: "object"
+ *                     type: object
  *                     properties:
  *                       start:
- *                         type: "string"
+ *                         type: string
  *                         format: "date"
  *                       stop:
- *                         type: "string"
+ *                         type: string
  *                         format: "date"
  *                   outsideStandardPhaseLinezolid:
- *                     type: "object"
+ *                     type: object
  *                     properties:
  *                       start:
- *                         type: "string"
+ *                         type: string
  *                         format: "date"
  *                       stop:
- *                         type: "string"
+ *                         type: string
  *                         format: "date"
  *                   outsideStandardPhaseEthionamideProthionamide:
- *                     type: "object"
+ *                     type: object
  *                     properties:
  *                       start:
- *                         type: "string"
+ *                         type: string
  *                         format: "date"
  *                       stop:
- *                         type: "string"
+ *                         type: string
  *                         format: "date"
  *                   outsideStandardPhaseTerizidone:
- *                     type: "object"
+ *                     type: object
  *                     properties:
  *                       start:
- *                         type: "string"
+ *                         type: string
  *                         format: "date"
  *                       stop:
- *                         type: "string"
+ *                         type: string
  *                         format: "date"
  *                   outsideStandardPhaseAmoxicilinClavulanate:
- *                     type: "object"
+ *                     type: object
  *                     properties:
  *                       start:
- *                         type: "string"
+ *                         type: string
  *                         format: "date"
  *                       stop:
- *                         type: "string"
+ *                         type: string
  *                         format: "date"
  *                   outsideStandardPhaseThioacetazone:
- *                     type: "object"
+ *                     type: object
  *                     properties:
  *                       start:
- *                         type: "string"
+ *                         type: string
  *                         format: "date"
  *                       stop:
- *                         type: "string"
+ *                         type: string
  *                         format: "date"
  *                   outsideStandardPhaseImipenemImipenemcilastatin:
- *                     type: "object"
+ *                     type: object
  *                     properties:
  *                       start:
- *                         type: "string"
+ *                         type: string
  *                         format: "date"
  *                       stop:
- *                         type: "string"
+ *                         type: string
  *                         format: "date"
  *                   outsideStandardPhaseMeropenem:
- *                     type: "object"
+ *                     type: object
  *                     properties:
  *                       start:
- *                         type: "string"
+ *                         type: string
  *                         format: "date"
  *                       stop:
- *                         type: "string"
+ *                         type: string
  *                         format: "date"
  *                   outsideStandardPhaseClarythromycin:
- *                     type: "object"
+ *                     type: object
  *                     properties:
  *                       start:
- *                         type: "string"
+ *                         type: string
  *                         format: "date"
  *                       stop:
- *                         type: "string"
+ *                         type: string
  *                         format: "date"
  *                   outsideStandardPhaseHighDoseIsoniazid:
- *                     type: "object"
+ *                     type: object
  *                     properties:
  *                       start:
- *                         type: "string"
+ *                         type: string
  *                         format: "date"
  *                       stop:
- *                         type: "string"
+ *                         type: string
  *                         format: "date"
  *               outcome:
  *                 type: object
@@ -860,37 +860,37 @@ const keycloak = AccountsHelper.keycloakInstance();
  *                        type: object
  *                        properties:
  *                          susceptibility:
- *                            type: "string"
+ *                            type: string
  *                            enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
  *                          method:
- *                            type: "string"
+ *                            type: string
  *                            enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
  *                     ethambutol:
  *                        type: object
  *                        properties:
  *                          susceptibility:
- *                            type: "string"
+ *                            type: string
  *                            enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
  *                          method:
- *                            type: "string"
+ *                            type: string
  *                            enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
  *                     pyrazinamide:
  *                        type: object
  *                        properties:
  *                          susceptibility:
- *                            type: "string"
+ *                            type: string
  *                            enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
  *                          method:
- *                            type: "string"
+ *                            type: string
  *                            enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
  *                     isoniazid:
  *                        type: object
  *                        properties:
  *                          susceptibility:
- *                            type: "string"
+ *                            type: string
  *                            enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
  *                          method:
- *                            type: "string"
+ *                            type: string
  *                            enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
  *                     phenotypeInformationOtherDrugs:
  *                        type: string
@@ -899,235 +899,235 @@ const keycloak = AccountsHelper.keycloakInstance();
  *                        type: object
  *                        properties:
  *                          susceptibility:
- *                            type: "string"
+ *                            type: string
  *                            enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
  *                          method:
- *                            type: "string"
+ *                            type: string
  *                            enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
  *                     ofloxacin:
  *                        type: object
  *                        properties:
  *                          susceptibility:
- *                            type: "string"
+ *                            type: string
  *                            enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
  *                          method:
- *                            type: "string"
+ *                            type: string
  *                            enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
  *                     ciprofloxacin:
  *                        type: object
  *                        properties:
  *                          susceptibility:
- *                            type: "string"
+ *                            type: string
  *                            enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
  *                          method:
- *                            type: "string"
+ *                            type: string
  *                            enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
  *                     levofloxacin:
  *                        type: object
  *                        properties:
  *                          susceptibility:
- *                            type: "string"
+ *                            type: string
  *                            enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
  *                          method:
- *                            type: "string"
+ *                            type: string
  *                            enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
  *                     gatifloxacin:
  *                        type: object
  *                        properties:
  *                          susceptibility:
- *                            type: "string"
+ *                            type: string
  *                            enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
  *                          method:
- *                            type: "string"
+ *                            type: string
  *                            enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
  *                     amikacin:
  *                        type: object
  *                        properties:
  *                          susceptibility:
- *                            type: "string"
+ *                            type: string
  *                            enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
  *                          method:
- *                            type: "string"
+ *                            type: string
  *                            enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
  *                     kanamycin:
  *                        type: object
  *                        properties:
  *                          susceptibility:
- *                            type: "string"
+ *                            type: string
  *                            enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
  *                          method:
- *                            type: "string"
+ *                            type: string
  *                            enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
  *                     gentamicin:
  *                        type: object
  *                        properties:
  *                          susceptibility:
- *                            type: "string"
+ *                            type: string
  *                            enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
  *                          method:
- *                            type: "string"
+ *                            type: string
  *                            enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
  *                     streptomycin:
  *                        type: object
  *                        properties:
  *                          susceptibility:
- *                            type: "string"
+ *                            type: string
  *                            enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
  *                          method:
- *                            type: "string"
+ *                            type: string
  *                            enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
  *                     capreomycin:
  *                        type: object
  *                        properties:
  *                          susceptibility:
- *                            type: "string"
+ *                            type: string
  *                            enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
  *                          method:
- *                            type: "string"
+ *                            type: string
  *                            enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
  *                     clofazimine:
  *                        type: object
  *                        properties:
  *                          susceptibility:
- *                            type: "string"
+ *                            type: string
  *                            enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
  *                          method:
- *                            type: "string"
+ *                            type: string
  *                            enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
  *                     pas:
  *                        type: object
  *                        properties:
  *                          susceptibility:
- *                            type: "string"
+ *                            type: string
  *                            enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
  *                          method:
- *                            type: "string"
+ *                            type: string
  *                            enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
  *                     linezolid:
  *                        type: object
  *                        properties:
  *                          susceptibility:
- *                            type: "string"
+ *                            type: string
  *                            enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
  *                          method:
- *                            type: "string"
+ *                            type: string
  *                            enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
  *                     ethionamideProthionamide:
  *                        type: object
  *                        properties:
  *                          susceptibility:
- *                            type: "string"
+ *                            type: string
  *                            enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
  *                          method:
- *                            type: "string"
+ *                            type: string
  *                            enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
  *                     rerizidone:
  *                        type: object
  *                        properties:
  *                          susceptibility:
- *                            type: "string"
+ *                            type: string
  *                            enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
  *                          method:
- *                            type: "string"
+ *                            type: string
  *                            enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
  *                     amoxicilinClavulanate:
  *                        type: object
  *                        properties:
  *                          susceptibility:
- *                            type: "string"
+ *                            type: string
  *                            enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
  *                          method:
- *                            type: "string"
+ *                            type: string
  *                            enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
  *                     thioacetazone:
  *                        type: object
  *                        properties:
  *                          susceptibility:
- *                            type: "string"
+ *                            type: string
  *                            enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
  *                          method:
- *                            type: "string"
+ *                            type: string
  *                            enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
  *                     imipenemImipenemcilastatin:
  *                        type: object
  *                        properties:
  *                          susceptibility:
- *                            type: "string"
+ *                            type: string
  *                            enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
  *                          method:
- *                            type: "string"
+ *                            type: string
  *                            enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
  *                     meropenem:
  *                        type: object
  *                        properties:
  *                          susceptibility:
- *                            type: "string"
+ *                            type: string
  *                            enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
  *                          method:
- *                            type: "string"
+ *                            type: string
  *                            enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
  *                     clarythromycin:
  *                        type: object
  *                        properties:
  *                          susceptibility:
- *                            type: "string"
+ *                            type: string
  *                            enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
  *                          method:
- *                            type: "string"
+ *                            type: string
  *                            enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
  *                     highDoseIsoniazid:
  *                        type: object
  *                        properties:
  *                          susceptibility:
- *                            type: "string"
+ *                            type: string
  *                            enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
  *                          method:
- *                            type: "string"
+ *                            type: string
  *                            enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
  *                     bedaquiline:
  *                        type: object
  *                        properties:
  *                          susceptibility:
- *                            type: "string"
+ *                            type: string
  *                            enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
  *                          method:
- *                            type: "string"
+ *                            type: string
  *                            enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
  *                     delamanid:
  *                        type: object
  *                        properties:
  *                          susceptibility:
- *                            type: "string"
+ *                            type: string
  *                            enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
  *                          method:
- *                            type: "string"
+ *                            type: string
  *                            enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
  *                     prothionamide:
  *                        type: object
  *                        properties:
  *                          susceptibility:
- *                            type: "string"
+ *                            type: string
  *                            enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
  *                          method:
- *                            type: "string"
+ *                            type: string
  *                            enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
  *                     pretothionamide:
  *                        type: object
  *                        properties:
  *                          susceptibility:
- *                            type: "string"
+ *                            type: string
  *                            enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
  *                          method:
- *                            type: "string"
+ *                            type: string
  *                            enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
  *                     pretomanid:
  *                        type: object
  *                        properties:
  *                          susceptibility:
- *                            type: "string"
+ *                            type: string
  *                            enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
  *                          method:
- *                            type: "string"
+ *                            type: string
  *                            enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
  *                 treatment:
  *                   type: object
@@ -1176,211 +1176,211 @@ const keycloak = AccountsHelper.keycloakInstance();
  *                     sputumCultureConversion:
  *                       type: string
  *                     outsideStandardPhaseRifampicinRifabutin:
- *                       type: "object"
+ *                       type: object
  *                       properties:
  *                         start:
- *                           type: "string"
+ *                           type: string
  *                           format: "date"
  *                         stop:
- *                           type: "string"
+ *                           type: string
  *                           format: "date"
  *                     outsideStandardPhaseEthambutol:
- *                       type: "object"
+ *                       type: object
  *                       properties:
  *                         start:
- *                           type: "string"
+ *                           type: string
  *                           format: "date"
  *                         stop:
- *                           type: "string"
+ *                           type: string
  *                           format: "date"
  *                     outsideStandardPhasePyrazinamide:
- *                       type: "object"
+ *                       type: object
  *                       properties:
  *                         start:
- *                           type: "string"
+ *                           type: string
  *                           format: "date"
  *                         stop:
- *                           type: "string"
+ *                           type: string
  *                           format: "date"
  *                     outsideStandardPhaseIsoniazid:
- *                       type: "object"
+ *                       type: object
  *                       properties:
  *                         start:
- *                           type: "string"
+ *                           type: string
  *                           format: "date"
  *                         stop:
- *                           type: "string"
+ *                           type: string
  *                           format: "date"
  *                     outsideStandardPhaseOfloxacin:
- *                       type: "object"
+ *                       type: object
  *                       properties:
  *                         start:
- *                           type: "string"
+ *                           type: string
  *                           format: "date"
  *                         stop:
- *                           type: "string"
+ *                           type: string
  *                           format: "date"
  *                     outsideStandardPhaseMoxifloxacin:
- *                       type: "object"
+ *                       type: object
  *                       properties:
  *                         start:
- *                           type: "string"
+ *                           type: string
  *                           format: "date"
  *                         stop:
- *                           type: "string"
+ *                           type: string
  *                           format: "date"
  *                     outsideStandardPhaseLevofloxacin:
- *                       type: "object"
+ *                       type: object
  *                       properties:
  *                         start:
- *                           type: "string"
+ *                           type: string
  *                           format: "date"
  *                         stop:
- *                           type: "string"
+ *                           type: string
  *                           format: "date"
  *                     outsideStandardPhaseGatifloxacin:
- *                       type: "object"
+ *                       type: object
  *                       properties:
  *                         start:
- *                           type: "string"
+ *                           type: string
  *                           format: "date"
  *                         stop:
- *                           type: "string"
+ *                           type: string
  *                           format: "date"
  *                     outsideStandardPhaseAmikacin:
- *                       type: "object"
+ *                       type: object
  *                       properties:
  *                         start:
- *                           type: "string"
+ *                           type: string
  *                           format: "date"
  *                         stop:
- *                           type: "string"
+ *                           type: string
  *                           format: "date"
  *                     outsideStandardPhaseGentamicin:
- *                       type: "object"
+ *                       type: object
  *                       properties:
  *                         start:
- *                           type: "string"
+ *                           type: string
  *                           format: "date"
  *                         stop:
- *                           type: "string"
+ *                           type: string
  *                           format: "date"
  *                     outsideStandardPhaseStreptomycin:
- *                       type: "object"
+ *                       type: object
  *                       properties:
  *                         start:
- *                           type: "string"
+ *                           type: string
  *                           format: "date"
  *                         stop:
- *                           type: "string"
+ *                           type: string
  *                           format: "date"
  *                     outsideStandardPhaseCapreomycin:
- *                       type: "object"
+ *                       type: object
  *                       properties:
  *                         start:
- *                           type: "string"
+ *                           type: string
  *                           format: "date"
  *                         stop:
- *                           type: "string"
+ *                           type: string
  *                           format: "date"
  *                     outsideStandardPhaseClofazimine:
- *                       type: "object"
+ *                       type: object
  *                       properties:
  *                         start:
- *                           type: "string"
+ *                           type: string
  *                           format: "date"
  *                         stop:
- *                           type: "string"
+ *                           type: string
  *                           format: "date"
  *                     outsideStandardPhasePas:
- *                       type: "object"
+ *                       type: object
  *                       properties:
  *                         start:
- *                           type: "string"
+ *                           type: string
  *                           format: "date"
  *                         stop:
- *                           type: "string"
+ *                           type: string
  *                           format: "date"
  *                     outsideStandardPhaseLinezolid:
- *                       type: "object"
+ *                       type: object
  *                       properties:
  *                         start:
- *                           type: "string"
+ *                           type: string
  *                           format: "date"
  *                         stop:
- *                           type: "string"
+ *                           type: string
  *                           format: "date"
  *                     outsideStandardPhaseEthionamideProthionamide:
- *                       type: "object"
+ *                       type: object
  *                       properties:
  *                         start:
- *                           type: "string"
+ *                           type: string
  *                           format: "date"
  *                         stop:
- *                           type: "string"
+ *                           type: string
  *                           format: "date"
  *                     outsideStandardPhaseTerizidone:
- *                       type: "object"
+ *                       type: object
  *                       properties:
  *                         start:
- *                           type: "string"
+ *                           type: string
  *                           format: "date"
  *                         stop:
- *                           type: "string"
+ *                           type: string
  *                           format: "date"
  *                     outsideStandardPhaseAmoxicilinClavulanate:
- *                       type: "object"
+ *                       type: object
  *                       properties:
  *                         start:
- *                           type: "string"
+ *                           type: string
  *                           format: "date"
  *                         stop:
- *                           type: "string"
+ *                           type: string
  *                           format: "date"
  *                     outsideStandardPhaseThioacetazone:
- *                       type: "object"
+ *                       type: object
  *                       properties:
  *                         start:
- *                           type: "string"
+ *                           type: string
  *                           format: "date"
  *                         stop:
- *                           type: "string"
+ *                           type: string
  *                           format: "date"
  *                     outsideStandardPhaseImipenemImipenemcilastatin:
- *                       type: "object"
+ *                       type: object
  *                       properties:
  *                         start:
- *                           type: "string"
+ *                           type: string
  *                           format: "date"
  *                         stop:
- *                           type: "string"
+ *                           type: string
  *                           format: "date"
  *                     outsideStandardPhaseMeropenem:
- *                       type: "object"
+ *                       type: object
  *                       properties:
  *                         start:
- *                           type: "string"
+ *                           type: string
  *                           format: "date"
  *                         stop:
- *                           type: "string"
+ *                           type: string
  *                           format: "date"
  *                     outsideStandardPhaseClarythromycin:
- *                       type: "object"
+ *                       type: object
  *                       properties:
  *                         start:
- *                           type: "string"
+ *                           type: string
  *                           format: "date"
  *                         stop:
- *                           type: "string"
+ *                           type: string
  *                           format: "date"
  *                     outsideStandardPhaseHighDoseIsoniazid:
- *                       type: "object"
+ *                       type: object
  *                       properties:
  *                         start:
- *                           type: "string"
+ *                           type: string
  *                           format: "date"
  *                         stop:
- *                           type: "string"
+ *                           type: string
  *                           format: "date"
  *                 outcome:
  *                   type: object
@@ -1586,37 +1586,37 @@ const keycloak = AccountsHelper.keycloakInstance();
  *                            type: object
  *                            properties:
  *                              susceptibility:
- *                                type: "string"
+ *                                type: string
  *                                enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
  *                              method:
- *                                type: "string"
+ *                                type: string
  *                                enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
  *                         ethambutol:
  *                            type: object
  *                            properties:
  *                              susceptibility:
- *                                type: "string"
+ *                                type: string
  *                                enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
  *                              method:
- *                                type: "string"
+ *                                type: string
  *                                enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
  *                         pyrazinamide:
  *                            type: object
  *                            properties:
  *                              susceptibility:
- *                                type: "string"
+ *                                type: string
  *                                enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
  *                              method:
- *                                type: "string"
+ *                                type: string
  *                                enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
  *                         isoniazid:
  *                            type: object
  *                            properties:
  *                              susceptibility:
- *                                type: "string"
+ *                                type: string
  *                                enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
  *                              method:
- *                                type: "string"
+ *                                type: string
  *                                enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
  *                         phenotypeInformationOtherDrugs:
  *                            type: string
@@ -1625,235 +1625,235 @@ const keycloak = AccountsHelper.keycloakInstance();
  *                            type: object
  *                            properties:
  *                              susceptibility:
- *                                type: "string"
+ *                                type: string
  *                                enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
  *                              method:
- *                                type: "string"
+ *                                type: string
  *                                enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
  *                         ofloxacin:
  *                            type: object
  *                            properties:
  *                              susceptibility:
- *                                type: "string"
+ *                                type: string
  *                                enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
  *                              method:
- *                                type: "string"
+ *                                type: string
  *                                enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
  *                         ciprofloxacin:
  *                            type: object
  *                            properties:
  *                              susceptibility:
- *                                type: "string"
+ *                                type: string
  *                                enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
  *                              method:
- *                                type: "string"
+ *                                type: string
  *                                enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
  *                         levofloxacin:
  *                            type: object
  *                            properties:
  *                              susceptibility:
- *                                type: "string"
+ *                                type: string
  *                                enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
  *                              method:
- *                                type: "string"
+ *                                type: string
  *                                enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
  *                         gatifloxacin:
  *                            type: object
  *                            properties:
  *                              susceptibility:
- *                                type: "string"
+ *                                type: string
  *                                enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
  *                              method:
- *                                type: "string"
+ *                                type: string
  *                                enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
  *                         amikacin:
  *                            type: object
  *                            properties:
  *                              susceptibility:
- *                                type: "string"
+ *                                type: string
  *                                enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
  *                              method:
- *                                type: "string"
+ *                                type: string
  *                                enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
  *                         kanamycin:
  *                            type: object
  *                            properties:
  *                              susceptibility:
- *                                type: "string"
+ *                                type: string
  *                                enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
  *                              method:
- *                                type: "string"
+ *                                type: string
  *                                enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
  *                         gentamicin:
  *                            type: object
  *                            properties:
  *                              susceptibility:
- *                                type: "string"
+ *                                type: string
  *                                enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
  *                              method:
- *                                type: "string"
+ *                                type: string
  *                                enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
  *                         streptomycin:
  *                            type: object
  *                            properties:
  *                              susceptibility:
- *                                type: "string"
+ *                                type: string
  *                                enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
  *                              method:
- *                                type: "string"
+ *                                type: string
  *                                enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
  *                         capreomycin:
  *                            type: object
  *                            properties:
  *                              susceptibility:
- *                                type: "string"
+ *                                type: string
  *                                enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
  *                              method:
- *                                type: "string"
+ *                                type: string
  *                                enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
  *                         clofazimine:
  *                            type: object
  *                            properties:
  *                              susceptibility:
- *                                type: "string"
+ *                                type: string
  *                                enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
  *                              method:
- *                                type: "string"
+ *                                type: string
  *                                enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
  *                         pas:
  *                            type: object
  *                            properties:
  *                              susceptibility:
- *                                type: "string"
+ *                                type: string
  *                                enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
  *                              method:
- *                                type: "string"
+ *                                type: string
  *                                enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
  *                         linezolid:
  *                            type: object
  *                            properties:
  *                              susceptibility:
- *                                type: "string"
+ *                                type: string
  *                                enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
  *                              method:
- *                                type: "string"
+ *                                type: string
  *                                enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
  *                         ethionamideProthionamide:
  *                            type: object
  *                            properties:
  *                              susceptibility:
- *                                type: "string"
+ *                                type: string
  *                                enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
  *                              method:
- *                                type: "string"
+ *                                type: string
  *                                enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
  *                         rerizidone:
  *                            type: object
  *                            properties:
  *                              susceptibility:
- *                                type: "string"
+ *                                type: string
  *                                enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
  *                              method:
- *                                type: "string"
+ *                                type: string
  *                                enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
  *                         amoxicilinClavulanate:
  *                            type: object
  *                            properties:
  *                              susceptibility:
- *                                type: "string"
+ *                                type: string
  *                                enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
  *                              method:
- *                                type: "string"
+ *                                type: string
  *                                enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
  *                         thioacetazone:
  *                            type: object
  *                            properties:
  *                              susceptibility:
- *                                type: "string"
+ *                                type: string
  *                                enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
  *                              method:
- *                                type: "string"
+ *                                type: string
  *                                enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
  *                         imipenemImipenemcilastatin:
  *                            type: object
  *                            properties:
  *                              susceptibility:
- *                                type: "string"
+ *                                type: string
  *                                enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
  *                              method:
- *                                type: "string"
+ *                                type: string
  *                                enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
  *                         meropenem:
  *                            type: object
  *                            properties:
  *                              susceptibility:
- *                                type: "string"
+ *                                type: string
  *                                enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
  *                              method:
- *                                type: "string"
+ *                                type: string
  *                                enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
  *                         clarythromycin:
  *                            type: object
  *                            properties:
  *                              susceptibility:
- *                                type: "string"
+ *                                type: string
  *                                enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
  *                              method:
- *                                type: "string"
+ *                                type: string
  *                                enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
  *                         highDoseIsoniazid:
  *                            type: object
  *                            properties:
  *                              susceptibility:
- *                                type: "string"
+ *                                type: string
  *                                enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
  *                              method:
- *                                type: "string"
+ *                                type: string
  *                                enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
  *                         bedaquiline:
  *                            type: object
  *                            properties:
  *                              susceptibility:
- *                                type: "string"
+ *                                type: string
  *                                enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
  *                              method:
- *                                type: "string"
+ *                                type: string
  *                                enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
  *                         delamanid:
  *                            type: object
  *                            properties:
  *                              susceptibility:
- *                                type: "string"
+ *                                type: string
  *                                enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
  *                              method:
- *                                type: "string"
+ *                                type: string
  *                                enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
  *                         prothionamide:
  *                            type: object
  *                            properties:
  *                              susceptibility:
- *                                type: "string"
+ *                                type: string
  *                                enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
  *                              method:
- *                                type: "string"
+ *                                type: string
  *                                enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
  *                         pretothionamide:
  *                            type: object
  *                            properties:
  *                              susceptibility:
- *                                type: "string"
+ *                                type: string
  *                                enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
  *                              method:
- *                                type: "string"
+ *                                type: string
  *                                enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
  *                         pretomanid:
  *                            type: object
  *                            properties:
  *                              susceptibility:
- *                                type: "string"
+ *                                type: string
  *                                enum: ["Sensitive", "Resistant", "Inconclusive", "Not tested"]
  *                              method:
- *                                type: "string"
+ *                                type: string
  *                                enum: ["MGIT", "LJ", "Microtitre plate", "MODS", "Other", "Not known"]
  *                     treatment:
  *                       type: object
@@ -1902,211 +1902,211 @@ const keycloak = AccountsHelper.keycloakInstance();
  *                         sputumCultureConversion:
  *                           type: string
  *                         outsideStandardPhaseRifampicinRifabutin:
- *                           type: "object"
+ *                           type: object
  *                           properties:
  *                             start:
- *                               type: "string"
+ *                               type: string
  *                               format: "date"
  *                             stop:
- *                               type: "string"
+ *                               type: string
  *                               format: "date"
  *                         outsideStandardPhaseEthambutol:
- *                           type: "object"
+ *                           type: object
  *                           properties:
  *                             start:
- *                               type: "string"
+ *                               type: string
  *                               format: "date"
  *                             stop:
- *                               type: "string"
+ *                               type: string
  *                               format: "date"
  *                         outsideStandardPhasePyrazinamide:
- *                           type: "object"
+ *                           type: object
  *                           properties:
  *                             start:
- *                               type: "string"
+ *                               type: string
  *                               format: "date"
  *                             stop:
- *                               type: "string"
+ *                               type: string
  *                               format: "date"
  *                         outsideStandardPhaseIsoniazid:
- *                           type: "object"
+ *                           type: object
  *                           properties:
  *                             start:
- *                               type: "string"
+ *                               type: string
  *                               format: "date"
  *                             stop:
- *                               type: "string"
+ *                               type: string
  *                               format: "date"
  *                         outsideStandardPhaseOfloxacin:
- *                           type: "object"
+ *                           type: object
  *                           properties:
  *                             start:
- *                               type: "string"
+ *                               type: string
  *                               format: "date"
  *                             stop:
- *                               type: "string"
+ *                               type: string
  *                               format: "date"
  *                         outsideStandardPhaseMoxifloxacin:
- *                           type: "object"
+ *                           type: object
  *                           properties:
  *                             start:
- *                               type: "string"
+ *                               type: string
  *                               format: "date"
  *                             stop:
- *                               type: "string"
+ *                               type: string
  *                               format: "date"
  *                         outsideStandardPhaseLevofloxacin:
- *                           type: "object"
+ *                           type: object
  *                           properties:
  *                             start:
- *                               type: "string"
+ *                               type: string
  *                               format: "date"
  *                             stop:
- *                               type: "string"
+ *                               type: string
  *                               format: "date"
  *                         outsideStandardPhaseGatifloxacin:
- *                           type: "object"
+ *                           type: object
  *                           properties:
  *                             start:
- *                               type: "string"
+ *                               type: string
  *                               format: "date"
  *                             stop:
- *                               type: "string"
+ *                               type: string
  *                               format: "date"
  *                         outsideStandardPhaseAmikacin:
- *                           type: "object"
+ *                           type: object
  *                           properties:
  *                             start:
- *                               type: "string"
+ *                               type: string
  *                               format: "date"
  *                             stop:
- *                               type: "string"
+ *                               type: string
  *                               format: "date"
  *                         outsideStandardPhaseGentamicin:
- *                           type: "object"
+ *                           type: object
  *                           properties:
  *                             start:
- *                               type: "string"
+ *                               type: string
  *                               format: "date"
  *                             stop:
- *                               type: "string"
+ *                               type: string
  *                               format: "date"
  *                         outsideStandardPhaseStreptomycin:
- *                           type: "object"
+ *                           type: object
  *                           properties:
  *                             start:
- *                               type: "string"
+ *                               type: string
  *                               format: "date"
  *                             stop:
- *                               type: "string"
+ *                               type: string
  *                               format: "date"
  *                         outsideStandardPhaseCapreomycin:
- *                           type: "object"
+ *                           type: object
  *                           properties:
  *                             start:
- *                               type: "string"
+ *                               type: string
  *                               format: "date"
  *                             stop:
- *                               type: "string"
+ *                               type: string
  *                               format: "date"
  *                         outsideStandardPhaseClofazimine:
- *                           type: "object"
+ *                           type: object
  *                           properties:
  *                             start:
- *                               type: "string"
+ *                               type: string
  *                               format: "date"
  *                             stop:
- *                               type: "string"
+ *                               type: string
  *                               format: "date"
  *                         outsideStandardPhasePas:
- *                           type: "object"
+ *                           type: object
  *                           properties:
  *                             start:
- *                               type: "string"
+ *                               type: string
  *                               format: "date"
  *                             stop:
- *                               type: "string"
+ *                               type: string
  *                               format: "date"
  *                         outsideStandardPhaseLinezolid:
- *                           type: "object"
+ *                           type: object
  *                           properties:
  *                             start:
- *                               type: "string"
+ *                               type: string
  *                               format: "date"
  *                             stop:
- *                               type: "string"
+ *                               type: string
  *                               format: "date"
  *                         outsideStandardPhaseEthionamideProthionamide:
- *                           type: "object"
+ *                           type: object
  *                           properties:
  *                             start:
- *                               type: "string"
+ *                               type: string
  *                               format: "date"
  *                             stop:
- *                               type: "string"
+ *                               type: string
  *                               format: "date"
  *                         outsideStandardPhaseTerizidone:
- *                           type: "object"
+ *                           type: object
  *                           properties:
  *                             start:
- *                               type: "string"
+ *                               type: string
  *                               format: "date"
  *                             stop:
- *                               type: "string"
+ *                               type: string
  *                               format: "date"
  *                         outsideStandardPhaseAmoxicilinClavulanate:
- *                           type: "object"
+ *                           type: object
  *                           properties:
  *                             start:
- *                               type: "string"
+ *                               type: string
  *                               format: "date"
  *                             stop:
- *                               type: "string"
+ *                               type: string
  *                               format: "date"
  *                         outsideStandardPhaseThioacetazone:
- *                           type: "object"
+ *                           type: object
  *                           properties:
  *                             start:
- *                               type: "string"
+ *                               type: string
  *                               format: "date"
  *                             stop:
- *                               type: "string"
+ *                               type: string
  *                               format: "date"
  *                         outsideStandardPhaseImipenemImipenemcilastatin:
- *                           type: "object"
+ *                           type: object
  *                           properties:
  *                             start:
- *                               type: "string"
+ *                               type: string
  *                               format: "date"
  *                             stop:
- *                               type: "string"
+ *                               type: string
  *                               format: "date"
  *                         outsideStandardPhaseMeropenem:
- *                           type: "object"
+ *                           type: object
  *                           properties:
  *                             start:
- *                               type: "string"
+ *                               type: string
  *                               format: "date"
  *                             stop:
- *                               type: "string"
+ *                               type: string
  *                               format: "date"
  *                         outsideStandardPhaseClarythromycin:
- *                           type: "object"
+ *                           type: object
  *                           properties:
  *                             start:
- *                               type: "string"
+ *                               type: string
  *                               format: "date"
  *                             stop:
- *                               type: "string"
+ *                               type: string
  *                               format: "date"
  *                         outsideStandardPhaseHighDoseIsoniazid:
- *                           type: "object"
+ *                           type: object
  *                           properties:
  *                             start:
- *                               type: "string"
+ *                               type: string
  *                               format: "date"
  *                             stop:
- *                               type: "string"
+ *                               type: string
  *                               format: "date"
  *                     outcome:
  *                       type: object
