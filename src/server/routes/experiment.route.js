@@ -741,7 +741,7 @@ const keycloak = AccountsHelper.keycloakInstance();
  *         type: array
  *         items:
  *           type: object
- *             properties:
+ *           properties:
  *             id:
  *               type: string
  *             created:
