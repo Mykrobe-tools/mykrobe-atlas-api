@@ -48,7 +48,7 @@ RUN chmod 600 /root/.ssh/bitbucket-readonly && \
 
 # install yarn
 RUN apt-get install apt-transport-https
-RUN apt-get update && apt-get install yarn
+RUN npm install -g yarn
 
 # install global packages
 RUN yarn global add forever
@@ -61,8 +61,7 @@ WORKDIR /app
 ADD . /app
 
 # install dependencies as a cachable step
-ADD package.json /tmp/package.json
-RUN cd /tmp && yarn install
+RUN cd /app && yarn
 
 # build and compile the source
 RUN yarn global add gulp
@@ -71,7 +70,7 @@ RUN gulp
 # trim to production dependencies post build
 RUN cp -rf /app/node_modules/makeandship-api-common /tmp
 RUN rm -rf /app/node_modules
-RUN cd /app && yarn install --ignore-scripts --production
+RUN cd /app && yarn --ignore-scripts --production
 RUN cp -rf /tmp/makeandship-api-common /app/node_modules
 
 # Remove SSH keys
