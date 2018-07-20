@@ -121,7 +121,7 @@ UserSchema.statics = {
  */
 UserSchema.set("toJSON", {
   transform(doc, ret) {
-    return new UserJSONTransformer(ret).transform();
+    return new UserJSONTransformer().transform(ret);
   }
 });
 

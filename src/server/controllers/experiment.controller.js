@@ -7,10 +7,10 @@ import { ElasticsearchHelper } from "makeandship-api-common/lib/modules/elastics
 import Experiment from "../models/experiment.model";
 import Organisation from "../models/organisation.model";
 import resumable from "../modules/resumable";
-import ArrayJSONTransformer from "../transformers/ArrayJSONTransformer";
 import ExperimentJSONTransformer from "../transformers/ExperimentJSONTransformer";
 import DownloadersFactory from "../helpers/DownloadersFactory";
 import ExperimentsResultJSONTransformer from "../transformers/es/ExperimentsResultJSONTransformer";
+import ArrayJSONTransformer from "makeandship-api-common/lib/transformers/ArrayJSONTransformer";
 import SearchResultsJSONTransformer from "makeandship-api-common/lib/modules/elasticsearch/transformers/SearchResultsJSONTransformer";
 import SearchQueryJSONTransformer from "makeandship-api-common/lib/modules/elasticsearch/transformers/SearchQueryJSONTransformer";
 import ChoicesJSONTransformer from "makeandship-api-common/lib/modules/elasticsearch/transformers/ChoicesJSONTransformer";
@@ -95,10 +95,12 @@ const update = async (req, res) => {
 const list = async (req, res) => {
   try {
     const experiments = await Experiment.list();
-    const transformer = new ArrayJSONTransformer(experiments, {
-      transformer: ExperimentJSONTransformer
-    });
-    return res.jsend(transformer.transform());
+    const transformer = new ArrayJSONTransformer();
+    return res.jsend(
+      transformer.transform(experiments, {
+        transformer: ExperimentJSONTransformer
+      })
+    );
   } catch (e) {
     return res.jerror(e);
   }

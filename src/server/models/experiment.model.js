@@ -88,7 +88,7 @@ ExperimentSchema.statics = {
  */
 ExperimentSchema.set("toJSON", {
   transform(doc, ret) {
-    return new ExperimentJSONTransformer(ret).transform();
+    return new ExperimentJSONTransformer().transform(ret);
   }
 });
 

@@ -72,7 +72,7 @@ OrganisationSchema.statics = {
 
 OrganisationSchema.set("toJSON", {
   transform(doc, ret) {
-    return new OrganisationJSONTransformer(ret).transform();
+    return new OrganisationJSONTransformer().transform(ret);
   }
 });
 

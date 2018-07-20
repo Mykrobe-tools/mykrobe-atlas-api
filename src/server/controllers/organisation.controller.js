@@ -1,7 +1,7 @@
 import errors from "errors";
+import ArrayJSONTransformer from "makeandship-api-common/lib/transformers/ArrayJSONTransformer";
 import Organisation from "../models/organisation.model";
 import OrganisationJSONTransformer from "../transformers/OrganisationJSONTransformer";
-import ArrayJSONTransformer from "../transformers/ArrayJSONTransformer";
 
 /**
  * Load organisation and append to req.
@@ -60,10 +60,12 @@ const list = async (req, res) => {
   const { limit = 50, skip = 0 } = req.query;
   try {
     const organisations = await Organisation.list({ limit, skip });
-    const transformer = new ArrayJSONTransformer(organisations, {
-      transformer: OrganisationJSONTransformer
-    });
-    return res.jsend(transformer.transform());
+    const transformer = new ArrayJSONTransformer();
+    return res.jsend(
+      transformer.transform(organisations, {
+        transformer: OrganisationJSONTransformer
+      })
+    );
   } catch (e) {
     return res.jerror(e);
   }

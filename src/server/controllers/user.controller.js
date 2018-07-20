@@ -1,7 +1,7 @@
 import passwordHash from "password-hash";
 import errors from "errors";
+import ArrayJSONTransformer from "makeandship-api-common/lib/transformers/ArrayJSONTransformer";
 import User from "../models/user.model";
-import ArrayJSONTransformer from "../transformers/ArrayJSONTransformer";
 import UserJSONTransformer from "../transformers/UserJSONTransformer";
 import AccountsHelper from "../helpers/AccountsHelper";
 import MonqHelper from "../helpers/MonqHelper";
@@ -71,7 +71,7 @@ const update = async (req, res) => {
 
   try {
     const savedUser = await user.save({ lean: true });
-    return res.jsend(new UserJSONTransformer(savedUser).transform());
+    return res.jsend(new UserJSONTransformer().transform(savedUser));
   } catch (e) {
     return res.jerror(new errors.UpdateUserError(e.message));
   }
@@ -87,10 +87,12 @@ const list = async (req, res) => {
   const { limit = 50, skip = 0 } = req.query;
   try {
     const users = await User.list({ limit, skip });
-    const transformer = new ArrayJSONTransformer(users, {
-      transformer: UserJSONTransformer
-    });
-    return res.jsend(transformer.transform());
+    const transformer = new ArrayJSONTransformer();
+    return res.jsend(
+      transformer.transform(users, {
+        transformer: UserJSONTransformer
+      })
+    );
   } catch (e) {
     return res.jerror(e);
   }
@@ -119,7 +121,7 @@ const assignRole = async (req, res) => {
   user.role = config.accounts.adminRole;
   try {
     const savedUser = await user.save();
-    return res.jsend(new UserJSONTransformer(savedUser.toObject()).transform());
+    return res.jsend(new UserJSONTransformer().transform(savedUser.toObject()));
   } catch (e) {
     return res.jerror(e);
   }

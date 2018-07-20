@@ -1,5 +1,5 @@
-import ModelJSONTransformer from "./ModelJSONTransformer";
-import BlacklistTransformer from "./BlacklistTransformer";
+import ModelJSONTransformer from "makeandship-api-common/lib/transformers/ModelJSONTransformer";
+import BlacklistTransformer from "makeandship-api-common/lib/transformers/BlacklistJSONTransformer";
 import OrganisationJSONTransformer from "./OrganisationJSONTransformer";
 
 const BLACKLIST = [
@@ -18,13 +18,13 @@ class UserJSONTransformer extends ModelJSONTransformer {
   /**
    * The transformation engine
    */
-  transform() {
-    let res = super.transform();
-    res = new BlacklistTransformer(res, { blacklist: BLACKLIST }).transform();
+  transform(o) {
+    let res = super.transform(o, {});
+    res = new BlacklistTransformer().transform(res, { blacklist: BLACKLIST });
     if (res.organisation) {
-      res.organisation = new OrganisationJSONTransformer(
+      res.organisation = new OrganisationJSONTransformer().transform(
         res.organisation
-      ).transform();
+      );
     }
     return res;
   }
