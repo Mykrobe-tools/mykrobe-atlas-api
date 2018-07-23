@@ -284,7 +284,9 @@ describe("## Experiment APIs", () => {
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
           expect(res.body.message).toEqual(
-            '"page" must be larger than or equal to 1'
+            expect.stringContaining(
+              "numHits must be > 0; please use TotalHitCountCollector if you just need the total hit count"
+            )
           );
           done();
         });

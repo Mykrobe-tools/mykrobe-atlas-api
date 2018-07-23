@@ -68,7 +68,11 @@ describe("## Misc", () => {
         })
         .expect(httpStatus.BAD_REQUEST)
         .end((err, res) => {
-          expect(res.body.message).toEqual('"email" is required');
+          expect(res.body.status).toEqual("error");
+          expect(res.body.code).toEqual(10005);
+          expect(res.body.data.errors[""].message).toEqual(
+            "should have required property 'email'"
+          );
           done();
         });
     });

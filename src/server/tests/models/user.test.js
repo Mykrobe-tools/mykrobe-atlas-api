@@ -32,7 +32,21 @@ describe("## User Functions", () => {
     try {
       await userData.save();
     } catch (e) {
-      expect(e.message).toEqual("thomas@nhs.co.uk has already been registered");
+      expect(e.message).toEqual(
+        "User validation failed: email: thomas@nhs.co.uk has already been registered"
+      );
+      done();
+    }
+  });
+  it("should require and email address", async done => {
+    const userData = new User(users.invalid.missingEmail);
+    try {
+      await userData.save();
+    } catch (e) {
+      expect(e.code).toEqual("ValidationError");
+      expect(e.data.errors.email.message).toEqual(
+        "should have required property 'email'"
+      );
       done();
     }
   });

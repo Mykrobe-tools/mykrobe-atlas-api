@@ -1,8 +1,9 @@
 import express from "express";
-import validate from "express-validation";
 import multer from "multer";
+import errors from "errors";
+import { jsonschema } from "makeandship-api-common/lib/modules/express/middleware";
+import * as schemas from "../../schemas";
 import AccountsHelper from "../helpers/AccountsHelper";
-import paramValidation from "../../config/param-validation";
 import experimentController from "../controllers/experiment.controller";
 import userController from "../controllers/user.controller";
 import config from "../../config/env";
@@ -2446,7 +2447,11 @@ router
    */
   .post(
     keycloak.connect.protect(),
-    validate(paramValidation.createExperiment),
+    jsonschema.schemaValidation(
+      schemas["experiment"],
+      errors,
+      "CreateExperimentError"
+    ),
     userController.loadCurrentUser,
     experimentController.create
   );
@@ -2625,11 +2630,7 @@ router
    *       401:
    *         description: Failed authentication
    */
-  .get(
-    keycloak.connect.protect(),
-    validate(paramValidation.searchExperiment),
-    experimentController.search
-  );
+  .get(keycloak.connect.protect(), experimentController.search);
 
 router
   .route("/:id")
@@ -2902,7 +2903,6 @@ router
    */
   .put(
     keycloak.connect.protect(),
-    validate(paramValidation.uploadFile),
     upload.single("file"),
     experimentController.uploadFile
   )
@@ -2977,7 +2977,11 @@ router
    */
   .put(
     keycloak.connect.protect(),
-    validate(paramValidation.uploadFile),
+    jsonschema.schemaValidation(
+      schemas["uploadExperiment"],
+      errors,
+      "UploadExperimentError"
+    ),
     upload.single("file"),
     experimentController.uploadFile
   );

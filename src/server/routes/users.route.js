@@ -1,7 +1,8 @@
 import express from "express";
-import validate from "express-validation";
+import errors from "errors";
+import { jsonschema } from "makeandship-api-common/lib/modules/express/middleware";
+import * as schemas from "../../schemas";
 import AccountsHelper from "../helpers/AccountsHelper";
-import paramValidation from "../../config/param-validation";
 import userController from "../controllers/user.controller";
 import config from "../../config/env";
 import jwt from "../../config/jwt";
@@ -130,7 +131,10 @@ router
    *         schema:
    *           $ref: '#/definitions/UserResponse'
    */
-  .post(validate(paramValidation.createUser), userController.create);
+  .post(
+    jsonschema.schemaValidation(schemas["register"], errors, "CreateUserError"),
+    userController.create
+  );
 
 router
   .route("/:id")
@@ -203,11 +207,7 @@ router
    *         schema:
    *           $ref: '#/definitions/UserResponse'
    */
-  .put(
-    keycloak.connect.protect(),
-    validate(paramValidation.updateUser),
-    userController.update
-  )
+  .put(keycloak.connect.protect(), userController.update)
 
   /**
    * @swagger

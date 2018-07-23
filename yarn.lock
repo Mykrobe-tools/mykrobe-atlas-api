@@ -2264,12 +2264,6 @@ express-request-id@^1.4.0:
   dependencies:
     uuid "^3.0.1"
 
-express-validation@^1.0.2:
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/express-validation/-/express-validation-1.0.2.tgz#7d589dd3b257c55b3e004665b6c69cb12cc2b142"
-  dependencies:
-    lodash "^4.9.0"
-
 express-winston@^2.5.1:
   version "2.5.1"
   resolved "https://registry.yarnpkg.com/express-winston/-/express-winston-2.5.1.tgz#0263581b4441a06493ba31882e3c5250791522f0"
