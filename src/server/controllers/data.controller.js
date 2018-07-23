@@ -10,12 +10,12 @@ import Experiment from "../models/experiment.model";
  * @param res
  * @returns {*}
  */
-async function clean(req, res) {
+const clean = async (req, res) => {
   await User.remove({});
   await Experiment.remove({});
   await Organisation.remove({});
   return res.jsend("data cleared successfully");
-}
+};
 
 /**
  * Creates the data in the db
@@ -23,7 +23,7 @@ async function clean(req, res) {
  * @param res
  * @returns {*}
  */
-async function create(req, res) {
+const create = async (req, res) => {
   const total = req.body.total || 50;
   const promises = [];
   for (let index = 0; index < total; index += 1) {
@@ -31,9 +31,9 @@ async function create(req, res) {
   }
   const results = await Promise.all(promises);
   return res.jsend(results);
-}
+};
 
-async function saveExperiment() {
+const saveExperiment = async () => {
   const savedOrganisation = await saveOrganisation();
   const savedOwner = await saveOwner();
   const experiment = new Experiment({
@@ -65,16 +65,16 @@ async function saveExperiment() {
     file: faker.system.fileName()
   });
   return experiment.save();
-}
+};
 
-function saveOrganisation() {
+const saveOrganisation = () => {
   const organisation = new Organisation({
     name: faker.company.companyName()
   });
   return organisation.save();
-}
+};
 
-function saveOwner() {
+const saveOwner = () => {
   const owner = new User({
     firstname: faker.name.firstName(),
     lastname: faker.name.lastName(),
@@ -84,10 +84,9 @@ function saveOwner() {
     valid: true
   });
   return owner.save();
-}
+};
 
-function getRandomInt(min, max) {
-  return Math.floor(Math.random() * (max - min)) + min;
-}
+const getRandomInt = (min, max) =>
+  Math.floor(Math.random() * (max - min)) + min;
 
 export default { clean, create };

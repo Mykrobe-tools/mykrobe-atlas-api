@@ -6,12 +6,11 @@ import { ElasticsearchHelper } from "makeandship-api-common/lib/modules/elastics
 
 import Experiment from "../models/experiment.model";
 import Organisation from "../models/organisation.model";
-import Resumable from "../helpers/Resumable";
-import DownloadersFactory from "../helpers/DownloadersFactory";
-
-import ArrayJSONTransformer from "../transformers/ArrayJSONTransformer";
+import resumable from "../modules/resumable";
 import ExperimentJSONTransformer from "../transformers/ExperimentJSONTransformer";
+import DownloadersFactory from "../helpers/DownloadersFactory";
 import ExperimentsResultJSONTransformer from "../transformers/es/ExperimentsResultJSONTransformer";
+import ArrayJSONTransformer from "makeandship-api-common/lib/transformers/ArrayJSONTransformer";
 import SearchResultsJSONTransformer from "makeandship-api-common/lib/modules/elasticsearch/transformers/SearchResultsJSONTransformer";
 import SearchQueryJSONTransformer from "makeandship-api-common/lib/modules/elasticsearch/transformers/SearchQueryJSONTransformer";
 import ChoicesJSONTransformer from "makeandship-api-common/lib/modules/elasticsearch/transformers/ChoicesJSONTransformer";
@@ -26,7 +25,7 @@ const config = require("../../config/env");
 /**
  * Load experiment and append to req.
  */
-async function load(req, res, next, id) {
+const load = async (req, res, next, id) => {
   try {
     const experiment = await Experiment.get(id);
     req.experiment = experiment;
@@ -35,21 +34,19 @@ async function load(req, res, next, id) {
   } catch (e) {
     return res.jerror(e);
   }
-}
+};
 
 /**
  * Get experiment
  * @returns {Experiment}
  */
-function get(req, res) {
-  return res.jsend(req.experiment);
-}
+const get = (req, res) => res.jsend(req.experiment);
 
 /**
  * Create new experiment
  * @returns {Experiment}
  */
-async function create(req, res) {
+const create = async (req, res) => {
   const experiment = new Experiment(req.body);
   experiment.owner = req.dbUser;
 
@@ -64,13 +61,14 @@ async function create(req, res) {
   } catch (e) {
     return res.jerror(new errors.CreateExperimentError(e.message));
   }
-}
+};
 
 /**
  * Update existing experiment
  * @returns {Experiment}
  */
-async function update(req, res) {
+
+const update = async (req, res) => {
   // use set - https://github.com/Automattic/mongoose/issues/5378
   const experiment = req.experiment;
   Object.keys(req.body).forEach(key => {
@@ -88,29 +86,31 @@ async function update(req, res) {
   } catch (e) {
     return res.jerror(new errors.UpdateExperimentError(e.message));
   }
-}
+};
 
 /**
  * Get experiments list.
  * @returns {Experiment[]}
  */
-async function list(req, res) {
+const list = async (req, res) => {
   try {
     const experiments = await Experiment.list();
-    const transformer = new ArrayJSONTransformer(experiments, {
-      transformer: ExperimentJSONTransformer
-    });
-    return res.jsend(transformer.transform());
+    const transformer = new ArrayJSONTransformer();
+    return res.jsend(
+      transformer.transform(experiments, {
+        transformer: ExperimentJSONTransformer
+      })
+    );
   } catch (e) {
     return res.jerror(e);
   }
-}
+};
 
 /**
  * Delete experiment.
  * @returns {Experiment}
  */
-async function remove(req, res) {
+const remove = async (req, res) => {
   const experiment = req.experiment;
   try {
     await experiment.remove();
@@ -123,13 +123,13 @@ async function remove(req, res) {
   } catch (e) {
     return res.jerror(e);
   }
-}
+};
 
 /**
  * Update existing metadata
  * @returns {Experiment}
  */
-async function metadata(req, res) {
+const metadata = async (req, res) => {
   // use set - https://github.com/Automattic/mongoose/issues/5378
   const experiment = req.experiment;
   experiment.set("metadata", req.body);
@@ -145,14 +145,14 @@ async function metadata(req, res) {
   } catch (e) {
     return res.jerror(new errors.UpdateExperimentError(e.message));
   }
-}
+};
 
 /**
  * Store result of analysis
  * @param {object} req
  * @param {object} res
  */
-async function results(req, res) {
+const results = async (req, res) => {
   const experiment = req.experiment;
   const predictorResult = ResultsHelper.parse(req.body);
   const results = experiment.get("results");
@@ -174,13 +174,13 @@ async function results(req, res) {
   } catch (e) {
     return res.jerror(new errors.UpdateExperimentError(e.message));
   }
-}
+};
 
 /**
  * Upload sequence file
  * @returns {Experiment}
  */
-async function uploadFile(req, res) {
+const uploadFile = async (req, res) => {
   const experiment = req.experiment;
 
   // from 3rd party provider
@@ -207,38 +207,37 @@ async function uploadFile(req, res) {
   }
 
   // from local file
-  return Resumable.setUploadDirectory(
-    `${config.express.uploadDir}/experiments/${experiment.id}/file`,
-    err => {
-      if (err) {
-        return res.jerror(new errors.UploadFileError(err.message));
-      }
-      const postUpload = Resumable.post(req);
-      if (postUpload.complete) {
-        return Resumable.reassembleChunks(
-          experiment.id,
-          req.body.resumableFilename,
-          async () => {
-            await schedule("now", "call analysis api", {
-              file: `${config.express.uploadsLocation}/experiments/${
-                experiment.id
-              }/file/${req.body.resumableFilename}`,
-              sample_id: experiment.id,
-              attempt: 0
-            });
-            return res.jsend("File uploaded and reassembled");
-          }
-        );
-      }
-      return res.jerror(postUpload);
+  try {
+    await resumable.setUploadDirectory(
+      `${config.express.uploadDir}/experiments/${experiment.id}/file`
+    );
+    const postUpload = await resumable.post(req);
+    if (postUpload.complete) {
+      return resumable.reassembleChunks(
+        experiment.id,
+        req.body.resumableFilename,
+        async () => {
+          await schedule("now", "call analysis api", {
+            file: `${config.express.uploadsLocation}/experiments/${
+              experiment.id
+            }/file/${req.body.resumableFilename}`,
+            sample_id: experiment.id,
+            attempt: 0
+          });
+          return res.jsend("File uploaded and reassembled");
+        }
+      );
     }
-  );
-}
+    return res.jerror(postUpload);
+  } catch (err) {
+    return res.jerror(new errors.UploadFileError(err.message));
+  }
+};
 
 /**
  * Sends the files as API response
  */
-function readFile(req, res) {
+const readFile = (req, res) => {
   const experiment = req.experiment;
   if (experiment.file) {
     const path = `${config.express.uploadDir}/experiments/${
@@ -247,33 +246,32 @@ function readFile(req, res) {
     return res.sendFile(`${path}/${experiment.file}`);
   }
   return res.jerror("No file found for this Experiment");
-}
+};
 
-function uploadStatus(req, res) {
+const uploadStatus = async (req, res) => {
   const experiment = req.experiment;
-  return Resumable.setUploadDirectory(
-    `${config.express.uploadDir}/experiments/${experiment.id}/file`,
-    err => {
-      if (err) {
-        return res.jerror(new errors.UploadFileError(err.message));
-      }
-      const validateGetRequest = Resumable.get(req);
-      if (validateGetRequest.valid) {
-        return res.jsend(validateGetRequest);
-      }
-      const error = new APIError(
-        validateGetRequest.message,
-        httpStatus.NO_CONTENT
-      );
-      return res.jerror(error);
+  try {
+    await resumable.setUploadDirectory(
+      `${config.express.uploadDir}/experiments/${experiment.id}/file`
+    );
+    const validateGetRequest = resumable.get(req);
+    if (validateGetRequest.valid) {
+      return res.jsend(validateGetRequest);
     }
-  );
-}
+    const error = new APIError(
+      validateGetRequest.message,
+      httpStatus.NO_CONTENT
+    );
+    return res.jerror(error);
+  } catch (err) {
+    return res.jerror(new errors.UploadFileError(err.message));
+  }
+};
 
 /**
  * Reindex all experiments to ES
  */
-async function reindex(req, res) {
+const reindex = async (req, res) => {
   try {
     await ElasticsearchHelper.deleteIndexIfExists(config);
     await ElasticsearchHelper.createIndex(
@@ -287,12 +285,12 @@ async function reindex(req, res) {
   } catch (e) {
     return res.jerror(e.message);
   }
-}
+};
 
 /**
  * Search distinct metadata values from ES
  */
-async function choices(req, res) {
+const choices = async (req, res) => {
   try {
     const attribute = req.params.attribute;
     const resp = await ElasticsearchHelper.aggregate(
@@ -306,13 +304,13 @@ async function choices(req, res) {
   } catch (e) {
     return res.jerror(new errors.SearchMetadataValuesError(e.message));
   }
-}
+};
 
 /**
  * Get experiments list from ES.
  * @returns {Experiment[]}
  */
-async function search(req, res) {
+const search = async (req, res) => {
   try {
     const resp = await ElasticsearchHelper.search(
       config,
@@ -343,7 +341,7 @@ async function search(req, res) {
   } catch (e) {
     return res.jerror(new errors.SearchMetadataValuesError(e.message));
   }
-}
+};
 
 export default {
   load,
