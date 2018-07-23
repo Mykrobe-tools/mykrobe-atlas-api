@@ -6,7 +6,7 @@ import User from "../../models/user.model";
 import Experiment from "../../models/experiment.model";
 import Organisation from "../../models/organisation.model";
 import config from "../../../config/env/";
-import experimentSchema from "../../../schemas/experiment";
+import { experiment as experimentSchema } from "mykrobe-atlas-jsonschema";
 
 jest.mock("keycloak-admin-client");
 

@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import errors from "errors";
 import schemaValidator from "mongoose-jsonschema-validator";
-import experimentJsonSchema from "../../schemas/experiment";
+import { experiment as experimentJsonSchema } from "mykrobe-atlas-jsonschema";
 import ExperimentJSONTransformer from "../transformers/ExperimentJSONTransformer";
 
 /**
