@@ -488,8 +488,9 @@ describe("## Experiment APIs", () => {
           .expect(httpStatus.OK)
           .end((err, res) => {
             expect(res.body.status).toEqual("error");
-            expect(res.body.message).toEqual(
-              '"provider" must be one of [dropbox, box, googleDrive, oneDrive]'
+            expect(res.body.message).toEqual("Failed to upload sample file.");
+            expect(res.body.data.errors.provider.message).toEqual(
+              "should be equal to one of the allowed values"
             );
             done();
           });
@@ -611,7 +612,10 @@ describe("## Experiment APIs", () => {
           .expect(httpStatus.OK)
           .end((err, res) => {
             expect(res.body.status).toEqual("error");
-            expect(res.body.message).toEqual('"accessToken" is required');
+            expect(res.body.message).toEqual("Failed to upload sample file.");
+            expect(res.body.data.errors.accessToken.message).toEqual(
+              "should have required property 'accessToken'"
+            );
             done();
           });
       });

@@ -3,6 +3,8 @@ import mongoose from "mongoose";
 import errors from "errors";
 import randomstring from "randomstring";
 import uniqueValidator from "mongoose-unique-validator";
+import schemaValidator from "mongoose-jsonschema-validator";
+import { user as userJsonSchema } from "../../schemas";
 import UserJSONTransformer from "../transformers/UserJSONTransformer";
 
 /**
@@ -36,13 +38,9 @@ UserSchema.plugin(uniqueValidator, {
   message: "{VALUE} has already been registered"
 });
 
-UserSchema.post("save", (error, doc, next) => {
-  if (error.errors) {
-    const errorObject = error.errors.email || error.errors.phone;
-    next(new Error(errorObject.message));
-  } else {
-    next(error);
-  }
+UserSchema.plugin(schemaValidator, {
+  jsonschema: userJsonSchema,
+  modelName: "User"
 });
 
 /**

@@ -93,5 +93,35 @@ export default {
       defaultMessage: "Failed to search in ES.",
       parent: errors.AtlasAPIError
     });
+    errors.create({
+      name: "UploadExperimentError",
+      code: 10014,
+      defaultMessage: "Failed to upload sample file.",
+      parent: errors.AtlasAPIError
+    });
+    errors.create({
+      name: "RefreshTokenError",
+      code: 10015,
+      defaultMessage: "Failed to refresh the token.",
+      parent: errors.AtlasAPIError
+    });
+    errors.create({
+      name: "ResendVerificationEmailError",
+      code: 10016,
+      defaultMessage: "Failed to resend the notification.",
+      parent: errors.AtlasAPIError
+    });
+    errors.create({
+      name: "ForgotPasswordError",
+      code: 10017,
+      defaultMessage: "Failed to reset the password.",
+      parent: errors.AtlasAPIError
+    });
+    errors.create({
+      name: "LoginError",
+      code: 10019,
+      defaultMessage: "Failed to authenticate.",
+      parent: errors.AtlasAPIError
+    });
   }
 };

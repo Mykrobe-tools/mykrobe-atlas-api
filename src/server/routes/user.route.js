@@ -70,6 +70,10 @@ router
    *         description: User details
    *         schema:
    *           $ref: '#/definitions/UserResponse'
+   *       500:
+   *         description: Validation Failed
+   *         schema:
+   *           $ref: '#/definitions/ValidationErrorResponse'
    *       401:
    *         description: Failed authentication
    */

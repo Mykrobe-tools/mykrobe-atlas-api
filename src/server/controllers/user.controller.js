@@ -73,7 +73,7 @@ const update = async (req, res) => {
     const savedUser = await user.save({ lean: true });
     return res.jsend(new UserJSONTransformer().transform(savedUser));
   } catch (e) {
-    return res.jerror(new errors.UpdateUserError(e.message));
+    return res.jerror(e);
   }
 };
 
