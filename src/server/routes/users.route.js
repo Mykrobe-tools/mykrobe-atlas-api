@@ -130,6 +130,10 @@ router
    *         description: User data
    *         schema:
    *           $ref: '#/definitions/UserResponse'
+   *       500:
+   *         description: Validation Failed
+   *         schema:
+   *           $ref: '#/definitions/ValidationErrorResponse'
    */
   .post(
     jsonschema.schemaValidation(schemas["register"], errors, "CreateUserError"),

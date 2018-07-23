@@ -2444,6 +2444,12 @@ router
    *         description: Experiment data
    *         schema:
    *           $ref: '#/definitions/ExperimentResponse'
+   *       500:
+   *         description: Validation Failed
+   *         schema:
+   *           $ref: '#/definitions/ValidationErrorResponse'
+   *       401:
+   *         description: Failed authentication
    */
   .post(
     keycloak.connect.protect(),
@@ -2768,6 +2774,12 @@ router
    *         description: Experiment data
    *         schema:
    *           $ref: '#/definitions/ExperimentResponse'
+   *       500:
+   *         description: Validation Failed
+   *         schema:
+   *           $ref: '#/definitions/ValidationErrorResponse'
+   *       401:
+   *         description: Failed authentication
    */
   .put(
     keycloak.connect.protect(),

@@ -151,6 +151,10 @@ const keycloak = AccountsHelper.keycloakInstance();
  *           $ref: '#/definitions/UserResponse'
  *       401:
  *         description: Failed authentication
+ *       500:
+ *         description: Validation Failed
+ *         schema:
+ *           $ref: '#/definitions/ValidationErrorResponse'
  */
 router
   .route("/login")
@@ -237,6 +241,10 @@ router
  *         description: A jsend response
  *         schema:
  *           $ref: '#/definitions/BasicResponse'
+ *       500:
+ *         description: Validation Failed
+ *         schema:
+ *           $ref: '#/definitions/ValidationErrorResponse'
  */
 router
   .route("/forgot")
@@ -277,6 +285,10 @@ router
  *         description: A jsend response
  *         schema:
  *           $ref: '#/definitions/BasicResponse'
+ *       500:
+ *         description: Validation Failed
+ *         schema:
+ *           $ref: '#/definitions/ValidationErrorResponse'
  */
 router
   .route("/resend")
