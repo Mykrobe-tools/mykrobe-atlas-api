@@ -338,7 +338,7 @@ router
   .route("/refresh")
   .post(
     jsonschema.schemaValidation(
-      schemas["refershToken"],
+      schemas["refreshToken"],
       errors,
       "RefreshTokenError"
     ),
