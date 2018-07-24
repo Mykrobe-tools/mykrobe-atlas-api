@@ -1,7 +1,7 @@
 import express from "express";
 import errors from "errors";
 import { jsonschema } from "makeandship-api-common/lib/modules/express/middleware";
-import * as schemas from "../../schemas";
+import * as schemas from "mykrobe-atlas-jsonschema";
 import AccountsHelper from "../helpers/AccountsHelper";
 import authController from "../controllers/auth.controller";
 import config from "../../config/env";
@@ -338,7 +338,7 @@ router
   .route("/refresh")
   .post(
     jsonschema.schemaValidation(
-      schemas["refershToken"],
+      schemas["refreshToken"],
       errors,
       "RefreshTokenError"
     ),

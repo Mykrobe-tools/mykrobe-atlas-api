@@ -4,7 +4,7 @@ import errors from "errors";
 import randomstring from "randomstring";
 import uniqueValidator from "mongoose-unique-validator";
 import schemaValidator from "mongoose-jsonschema-validator";
-import { user as userJsonSchema } from "../../schemas";
+import { user as userJsonSchema } from "mykrobe-atlas-jsonschema";
 import UserJSONTransformer from "../transformers/UserJSONTransformer";
 
 /**

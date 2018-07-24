@@ -39,12 +39,16 @@ ENV PATH      $NVM_DIR/v$NODE_VERSION/bin:$PATH
 # Add the keys and set permissions
 RUN mkdir -p /root/.ssh && \
     chmod 0700 /root/.ssh && \
-    echo "IdentityFile /root/.ssh/bitbucket-readonly" >> /root/.ssh/config
+    echo "IdentityFile /root/.ssh/bitbucket-readonly" >> /root/.ssh/config && \
+    echo "IdentityFile /root/.ssh/github-readonly" >> /root/.ssh/config
 
 ADD bitbucket-readonly /root/.ssh/
+ADD github-readonly /root/.ssh/
 
 RUN chmod 600 /root/.ssh/bitbucket-readonly && \
-    ssh-keyscan bitbucket.org > /root/.ssh/known_hosts
+    chmod 600 /root/.ssh/github-readonly && \
+    ssh-keyscan bitbucket.org > /root/.ssh/known_hosts && \
+    ssh-keyscan github.com > /root/.ssh/known_hosts
 
 # install yarn
 RUN apt-get install apt-transport-https
@@ -75,6 +79,7 @@ RUN cp -rf /tmp/makeandship-api-common /app/node_modules
 
 # Remove SSH keys
 RUN rm /app/bitbucket-readonly
+RUN rm /app/github-readonly
 RUN rm -rf /root/.ssh
 RUN rm -rf /tmp/makeandship-api-common
 

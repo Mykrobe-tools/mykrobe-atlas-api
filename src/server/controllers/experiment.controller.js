@@ -17,7 +17,7 @@ import ChoicesJSONTransformer from "makeandship-api-common/lib/modules/elasticse
 
 import APIError from "../helpers/APIError";
 import { schedule } from "../modules/agenda";
-import experimentSchema from "../../schemas/experiment";
+import { experiment as experimentSchema } from "mykrobe-atlas-jsonschema";
 import ResultsHelper from "../helpers/ResultsHelper";
 
 const config = require("../../config/env");
