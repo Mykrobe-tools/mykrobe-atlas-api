@@ -39,8 +39,7 @@ ENV PATH      $NVM_DIR/v$NODE_VERSION/bin:$PATH
 # Add the keys and set permissions
 RUN mkdir -p /root/.ssh && \
     chmod 0700 /root/.ssh && \
-    echo "IdentityFile /root/.ssh/bitbucket-readonly" >> /root/.ssh/config && \
-    echo "IdentityFile /root/.ssh/github-readonly" >> /root/.ssh/config
+    echo "IdentityFile /root/.ssh/bitbucket-readonly" >> /root/.ssh/config
 
 ADD bitbucket-readonly /root/.ssh/
 ADD atlas-jsonschema-readonly /root/.ssh/
