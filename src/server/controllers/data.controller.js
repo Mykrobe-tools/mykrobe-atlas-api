@@ -3,6 +3,9 @@ import _ from "lodash";
 import User from "../models/user.model";
 import Organisation from "../models/organisation.model";
 import Experiment from "../models/experiment.model";
+import { experiment as experimentSchema } from "mykrobe-atlas-jsonschema";
+import { user as userSchema } from "mykrobe-atlas-jsonschema";
+import Randomizer from "../modules/Randomizer";
 
 /**
  * Clears the data in the db
@@ -29,11 +32,26 @@ const create = async (req, res) => {
   for (let index = 0; index < total; index += 1) {
     promises.push(saveExperiment());
   }
-  const results = await Promise.all(promises);
-  return res.jsend(results);
+  try {
+    const results = await Promise.all(promises);
+    return res.jsend(results);
+  } catch (e) {
+    res.jerror(e);
+  }
 };
 
 const saveExperiment = async () => {
+  const experimentRandomizer = new Randomizer({ schema: experimentSchema });
+  const userRandomizer = new Randomizer({ schema: userSchema });
+  const experimentData = experimentRandomizer.generateSample();
+  const ownerData = userRandomizer.generateSample();
+  const owner = await new User(ownerData).save();
+  experimentData.owner = owner;
+  const experiment = new Experiment(experimentData);
+  return experiment.save();
+};
+
+const saveExperiment2 = async () => {
   const savedOrganisation = await saveOrganisation();
   const savedOwner = await saveOwner();
   const experiment = new Experiment({
