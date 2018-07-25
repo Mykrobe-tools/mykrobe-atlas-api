@@ -56,7 +56,7 @@ beforeAll(async done => {
   while (data.hits.total < 2) {
     data = await ElasticsearchHelper.search(config, {}, "experiment");
   }
-  console.log("Indexed 2 experiments");
+
   done();
 });
 
@@ -269,7 +269,6 @@ describe("## Experiment APIs", () => {
         .set("Authorization", `Bearer ${token}`)
         .expect(httpStatus.OK)
         .end((err, res) => {
-          console.log(res.body);
           expect(res.body.status).toEqual("success");
           expect(res.body.data).toHaveProperty("total", 1);
           expect(res.body.data).toHaveProperty("results");
