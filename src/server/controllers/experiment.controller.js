@@ -318,7 +318,7 @@ const choices = async (req, res) => {
 const search = async (req, res) => {
   try {
     const query = req.query;
-    console.log(`Query: ${JSON.stringify(query, null, 2)}`);
+
     // only allow the whitelist of filters if set
     const whitelist = ExperimentsHelper.getFiltersWhitelist();
     if (whitelist) {
