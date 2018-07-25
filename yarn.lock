@@ -4393,7 +4393,7 @@ make-iterator@^1.0.0:
 
 "makeandship-api-common@git+ssh://git@bitbucket.org:makeandship/makeandship-api-common.git":
   version "1.0.0"
-  resolved "git+ssh://git@bitbucket.org:makeandship/makeandship-api-common.git#067a7b53b0c55b7ec6c71cd0d1d6da657ae290cb"
+  resolved "git+ssh://git@bitbucket.org:makeandship/makeandship-api-common.git#b04526c18cfe11642bcc3a7012806039130f6fc8"
   dependencies:
     ajv "^6.5.0"
     axios "^0.18.0"
