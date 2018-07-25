@@ -2,23 +2,28 @@ import errors from "errors";
 import httpStatus from "http-status";
 import mkdirp from "mkdirp-promise";
 import Promise from "bluebird";
-import { ElasticsearchHelper } from "makeandship-api-common/lib/modules/elasticsearch/";
 
-import Experiment from "../models/experiment.model";
-import Organisation from "../models/organisation.model";
-import resumable from "../modules/resumable";
-import ExperimentJSONTransformer from "../transformers/ExperimentJSONTransformer";
-import DownloadersFactory from "../helpers/DownloadersFactory";
-import ExperimentsResultJSONTransformer from "../transformers/es/ExperimentsResultJSONTransformer";
+import { ElasticsearchHelper } from "makeandship-api-common/lib/modules/elasticsearch/";
 import ArrayJSONTransformer from "makeandship-api-common/lib/transformers/ArrayJSONTransformer";
 import SearchResultsJSONTransformer from "makeandship-api-common/lib/modules/elasticsearch/transformers/SearchResultsJSONTransformer";
 import SearchQueryJSONTransformer from "makeandship-api-common/lib/modules/elasticsearch/transformers/SearchQueryJSONTransformer";
 import ChoicesJSONTransformer from "makeandship-api-common/lib/modules/elasticsearch/transformers/ChoicesJSONTransformer";
 
+import Experiment from "../models/experiment.model";
+import Organisation from "../models/organisation.model";
+
+import resumable from "../modules/resumable";
+import DownloadersFactory from "../helpers/DownloadersFactory";
+
+import ExperimentJSONTransformer from "../transformers/ExperimentJSONTransformer";
+import ExperimentsResultJSONTransformer from "../transformers/es/ExperimentsResultJSONTransformer";
+
 import APIError from "../helpers/APIError";
 import { schedule } from "../modules/agenda";
 import { experiment as experimentSchema } from "mykrobe-atlas-jsonschema";
+
 import ResultsHelper from "../helpers/ResultsHelper";
+import ExperimentsHelper from "../helpers/ExperimentsHelper";
 
 const config = require("../../config/env");
 
@@ -312,26 +317,34 @@ const choices = async (req, res) => {
  */
 const search = async (req, res) => {
   try {
+    const query = req.query;
+
+    // only allow the whitelist of filters if set
+    const whitelist = ExperimentsHelper.getFiltersWhitelist();
+    if (whitelist) {
+      query.whitelist = whitelist;
+    }
+
     const resp = await ElasticsearchHelper.search(
       config,
-      { ...req.query },
+      { ...query },
       "experiment"
     );
 
-    // core elastic search structure
+    // generate the core elastic search structure
     const options = {
-      per: req.query.per || config.elasticsearch.resultsPerPage,
-      page: req.query.page || 1
+      per: query.per || config.elasticsearch.resultsPerPage,
+      page: query.page || 1
     };
     const results = new SearchResultsJSONTransformer().transform(resp, options);
 
     if (results) {
-      // hits
+      // augment with hits (project specific transformation)
       results.results = new ExperimentsResultJSONTransformer().transform(
         resp,
         {}
       );
-      // query
+      // augment with the original search query
       results.search = new SearchQueryJSONTransformer().transform(
         req.query,
         {}
