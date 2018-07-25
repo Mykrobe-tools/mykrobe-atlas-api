@@ -2477,6 +2477,10 @@ router
    *       - Bearer: []
    *     parameters:
    *       - in: query
+   *         name: q
+   *         type: string
+   *         description: A free text query
+   *       - in: query
    *         name: metadata.genotyping.wgsPlatform
    *         type: string
    *         description: The sample sequencing platform
@@ -2556,6 +2560,10 @@ router
    *     security:
    *       - Bearer: []
    *     parameters:
+   *       - in: query
+   *         name: q
+   *         type: string
+   *         description: A free text query
    *       - in: query
    *         name: metadata.genotyping.wgsPlatform
    *         type: string

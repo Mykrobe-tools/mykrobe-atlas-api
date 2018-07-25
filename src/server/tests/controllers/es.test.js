@@ -202,6 +202,19 @@ describe("## Experiment APIs", () => {
           done();
         });
     });
+    it.only("should apply a search query", done => {
+      request(app)
+        .get("/experiments/search?q=Male")
+        .set("Authorization", `Bearer ${token}`)
+        .expect(httpStatus.OK)
+        .end((err, res) => {
+          expect(res.body.status).toEqual("success");
+          expect(res.body.data).toHaveProperty("total", 1);
+          expect(res.body.data).toHaveProperty("results");
+          expect(res.body.data.results.length).toEqual(1);
+          done();
+        });
+    });
     it("should include a summary", done => {
       request(app)
         .get(
