@@ -56,7 +56,7 @@ beforeAll(async done => {
   while (data.hits.total < 2) {
     data = await ElasticsearchHelper.search(config, {}, "experiment");
   }
-
+  console.log("Indexed 2 experiments");
   done();
 });
 
@@ -202,9 +202,9 @@ describe("## Experiment APIs", () => {
           done();
         });
     });
-    it.only("should apply a search query", done => {
+    it("should apply a free text search query", done => {
       request(app)
-        .get("/experiments/search?q=Male")
+        .get("/experiments/search?q=Female")
         .set("Authorization", `Bearer ${token}`)
         .expect(httpStatus.OK)
         .end((err, res) => {
@@ -212,6 +212,26 @@ describe("## Experiment APIs", () => {
           expect(res.body.data).toHaveProperty("total", 1);
           expect(res.body.data).toHaveProperty("results");
           expect(res.body.data.results.length).toEqual(1);
+          expect(res.body.data).toHaveProperty("search");
+          expect(res.body.data.search).toHaveProperty("q", "Female");
+          done();
+        });
+    });
+    it("should apply a free text search query with filters", done => {
+      request(app)
+        .get("/experiments/search?metadata.patient.smoker=No&q=Female")
+        .set("Authorization", `Bearer ${token}`)
+        .expect(httpStatus.OK)
+        .end((err, res) => {
+          console.log(res.body);
+          expect(res.body.status).toEqual("success");
+          expect(res.body.data).toHaveProperty("total", 1);
+          expect(res.body.data).toHaveProperty("results");
+          expect(res.body.data.results.length).toEqual(1);
+          expect(res.body.data).toHaveProperty("search");
+          expect(res.body.data.search).toHaveProperty("q", "Female");
+          expect(res.body.data.search["metadata.patient.smoker"]).toEqual("No");
+
           done();
         });
     });
