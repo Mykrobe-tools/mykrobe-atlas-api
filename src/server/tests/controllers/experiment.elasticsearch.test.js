@@ -78,6 +78,26 @@ describe("## Experiment APIs", () => {
           expect(res.body.status).toEqual("success");
           const data = res.body.data;
 
+          // use country as a sample enum
+          expect(data["metadata.sample.countryIsolate"]).toBeTruthy();
+          const country = data["metadata.sample.countryIsolate"];
+
+          expect(country).toHaveProperty("choices");
+          expect(country.choices.length).toEqual(2);
+
+          country.choices.forEach(country => {
+            const key = country.key;
+            const count = country.count;
+            switch (key) {
+              case "India":
+                expect(count).toEqual(1);
+                break;
+              case "China":
+                expect(count).toEqual(1);
+                break;
+            }
+          });
+
           done();
         });
     });
