@@ -2329,14 +2329,24 @@ const keycloak = AccountsHelper.keycloakInstance();
  *       status: success
  *       data:
  *         metadata.sample.collectionDate:
+ *           title: Collection date
  *           min: 2018-04-03T14:03:00.036Z
  *           max: 2018-05-03T12:09:57.322Z
  *         metadata.patient.patientAge:
+ *           title: Age
  *           min: 4
  *           max: 63
  *         metadata.patient.smoker:
+ *           title: Smoker
  *           Yes: 57
  *           No: 63
+ *         metadata.patient.countryOfBirth:
+ *           title: Country of birth
+ *           choices:
+ *             - key: India
+ *               count: 12
+ *             - key: China
+ *               count: 27
  */
 router
   .route("/")
