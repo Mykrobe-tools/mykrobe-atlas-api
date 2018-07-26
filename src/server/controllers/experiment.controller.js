@@ -298,6 +298,13 @@ const reindex = async (req, res) => {
  */
 const choices = async (req, res) => {
   try {
+    const query = req.query;
+
+    // add wildcards if not already set
+    if (query.q && !query.q.indexOf("*") > -1) {
+      query.q = `*${query.q}*`;
+    }
+
     const resp = await ElasticsearchHelper.aggregate(
       config,
       experimentSchema,
@@ -318,7 +325,12 @@ const choices = async (req, res) => {
  */
 const search = async (req, res) => {
   try {
-    const query = req.query;
+    const query = JSON.parse(JSON.stringify(req.query));
+
+    // add wildcards if not already set
+    if (query.q && !query.q.indexOf("*") > -1) {
+      query.q = `*${query.q}*`;
+    }
 
     // only allow the whitelist of filters if set
     const whitelist = ExperimentsHelper.getFiltersWhitelist();
