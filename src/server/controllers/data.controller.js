@@ -1,8 +1,12 @@
-import faker from "faker";
 import _ from "lodash";
+import * as schemas from "mykrobe-atlas-jsonschema";
+import Randomizer from "makeandship-api-common/lib/modules/schema-faker/Randomizer";
 import User from "../models/user.model";
-import Organisation from "../models/organisation.model";
 import Experiment from "../models/experiment.model";
+
+// randomizers
+const userRandomizer = new Randomizer(schemas.user, {});
+const experimentRandomizer = new Randomizer(schemas.experiment, {});
 
 /**
  * Clears the data in the db
@@ -13,7 +17,6 @@ import Experiment from "../models/experiment.model";
 const clean = async (req, res) => {
   await User.remove({});
   await Experiment.remove({});
-  await Organisation.remove({});
   return res.jsend("data cleared successfully");
 };
 
@@ -25,68 +28,36 @@ const clean = async (req, res) => {
  */
 const create = async (req, res) => {
   const total = req.body.total || 50;
+  const owners = await createOwners(5);
   const promises = [];
   for (let index = 0; index < total; index += 1) {
-    promises.push(saveExperiment());
+    promises.push(saveExperiment(_.sample(owners)));
   }
-  const results = await Promise.all(promises);
-  return res.jsend(results);
+  try {
+    const results = await Promise.all(promises);
+    return res.jsend(results);
+  } catch (e) {
+    res.jerror(e);
+  }
 };
 
-const saveExperiment = async () => {
-  const savedOrganisation = await saveOrganisation();
-  const savedOwner = await saveOwner();
-  const experiment = new Experiment({
-    organisation: savedOrganisation,
-    owner: savedOwner,
-    location: {
-      name: faker.address.city(),
-      lat: faker.address.latitude(),
-      lng: faker.address.longitude()
-    },
-    collected: faker.date.past(),
-    uploaded: faker.date.past(),
-    resistance: {},
-    jaccardIndex: {
-      analysed: faker.date.past(),
-      engine: faker.lorem.word(),
-      version: faker.fake("v{{random.number}}")
-    },
-    snpDistance: {
-      analysed: faker.date.past(),
-      engine: faker.lorem.word(),
-      version: faker.fake("v{{random.number}}")
-    },
-    geoDistance: {
-      analysed: faker.date.past(),
-      engine: faker.lorem.word(),
-      version: faker.fake("v{{random.number}}")
-    },
-    file: faker.system.fileName()
-  });
-  return experiment.save();
-};
-
-const saveOrganisation = () => {
-  const organisation = new Organisation({
-    name: faker.company.companyName()
-  });
-  return organisation.save();
+const saveExperiment = async owner => {
+  const experimentData = experimentRandomizer.sample();
+  experimentData.owner = owner;
+  return new Experiment(experimentData).save();
 };
 
 const saveOwner = () => {
-  const owner = new User({
-    firstname: faker.name.firstName(),
-    lastname: faker.name.lastName(),
-    phone: faker.phone.phoneNumber(),
-    email: faker.internet.email(),
-    password: faker.internet.password(),
-    valid: true
-  });
-  return owner.save();
+  const ownerData = userRandomizer.sample();
+  return new User(ownerData).save();
 };
 
-const getRandomInt = (min, max) =>
-  Math.floor(Math.random() * (max - min)) + min;
+const createOwners = count => {
+  const promises = [];
+  for (let index = 0; index < count; index += 1) {
+    promises.push(saveOwner());
+  }
+  return Promise.all(promises);
+};
 
 export default { clean, create };
