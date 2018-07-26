@@ -29,7 +29,7 @@ const create = async (req, res) => {
   }
   try {
     const results = await Promise.all(promises);
-    return res.jsend("data created successfully");
+    return res.jsend(results);
   } catch (e) {
     res.jerror(e);
   }
