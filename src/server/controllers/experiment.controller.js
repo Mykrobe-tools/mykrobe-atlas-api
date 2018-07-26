@@ -8,6 +8,7 @@ import ArrayJSONTransformer from "makeandship-api-common/lib/transformers/ArrayJ
 import SearchResultsJSONTransformer from "makeandship-api-common/lib/modules/elasticsearch/transformers/SearchResultsJSONTransformer";
 import SearchQueryJSONTransformer from "makeandship-api-common/lib/modules/elasticsearch/transformers/SearchQueryJSONTransformer";
 import ChoicesJSONTransformer from "makeandship-api-common/lib/modules/elasticsearch/transformers/ChoicesJSONTransformer";
+import { util as jsonschemaUtil } from "makeandship-api-common/lib/modules/jsonschema";
 
 import Experiment from "../models/experiment.model";
 import Organisation from "../models/organisation.model";
@@ -297,14 +298,14 @@ const reindex = async (req, res) => {
  */
 const choices = async (req, res) => {
   try {
-    const attribute = req.params.attribute;
     const resp = await ElasticsearchHelper.aggregate(
       config,
       experimentSchema,
       { ...req.query },
       "experiment"
     );
-    const choices = new ChoicesJSONTransformer().transform(resp, {});
+    const titles = jsonschemaUtil.schemaTitles(experimentSchema);
+    const choices = new ChoicesJSONTransformer().transform(resp, { titles });
     return res.jsend(choices);
   } catch (e) {
     return res.jerror(new errors.SearchMetadataValuesError(e.message));
