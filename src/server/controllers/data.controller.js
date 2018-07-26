@@ -37,15 +37,15 @@ const create = async (req, res) => {
 
 const saveExperiment = async () => {
   const savedOwner = await saveOwner();
-  const experimentRandomizer = new Randomizer({ schema: schemas.experiment });
-  const experimentData = experimentRandomizer.generateSample();
+  const experimentRandomizer = new Randomizer(schemas.experiment, {});
+  const experimentData = experimentRandomizer.sample();
   experimentData.owner = savedOwner;
   return new Experiment(experimentData).save();
 };
 
 const saveOwner = () => {
-  const userRandomizer = new Randomizer({ schema: schemas.user });
-  const ownerData = userRandomizer.generateSample();
+  const userRandomizer = new Randomizer(schemas.user, {});
+  const ownerData = userRandomizer.sample();
   return new User(ownerData).save();
 };
 
