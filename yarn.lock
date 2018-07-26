@@ -4837,9 +4837,9 @@ multipipe@^0.1.2:
   dependencies:
     duplexer2 "0.0.2"
 
-"mykrobe-atlas-jsonschema@git+ssh://github.com/Mykrobe-tools/mykrobe-atlas-jsonschema.git":
+"mykrobe-atlas-jsonschema@git+ssh://git@github.com/Mykrobe-tools/mykrobe-atlas-jsonschema.git":
   version "1.0.0"
-  resolved "git+ssh://github.com/Mykrobe-tools/mykrobe-atlas-jsonschema.git#4c9aa725c5e108f9e17813193b70012490dcd112"
+  resolved "git+ssh://git@github.com/Mykrobe-tools/mykrobe-atlas-jsonschema.git#4c9aa725c5e108f9e17813193b70012490dcd112"
   dependencies:
     onchange "^4.0.0"
 

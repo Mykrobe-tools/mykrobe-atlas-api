@@ -39,16 +39,14 @@ ENV PATH      $NVM_DIR/v$NODE_VERSION/bin:$PATH
 # Add the keys and set permissions
 RUN mkdir -p /root/.ssh && \
     chmod 0700 /root/.ssh && \
-    echo "IdentityFile /root/.ssh/bitbucket-readonly" >> /root/.ssh/config && \
-    echo "IdentityFile /root/.ssh/github-readonly" >> /root/.ssh/config
+    echo "IdentityFile /root/.ssh/bitbucket-readonly" >> /root/.ssh/config
 
 ADD bitbucket-readonly /root/.ssh/
-ADD github-readonly /root/.ssh/
+ADD atlas-jsonschema-readonly /root/.ssh/
 
 RUN chmod 600 /root/.ssh/bitbucket-readonly && \
-    chmod 600 /root/.ssh/github-readonly && \
-    ssh-keyscan bitbucket.org > /root/.ssh/known_hosts && \
-    ssh-keyscan github.com > /root/.ssh/known_hosts
+    ssh-keyscan bitbucket.org >> /root/.ssh/known_hosts && \
+    ssh-keyscan github.com >> /root/.ssh/known_hosts
 
 # install yarn
 RUN apt-get install apt-transport-https
@@ -65,7 +63,12 @@ WORKDIR /app
 ADD . /app
 
 # install dependencies as a cachable step
-RUN cd /app && yarn
+RUN cat /root/.ssh/atlas-jsonschema-readonly > /etc/ssh/id_rsa && \
+    chmod 600 /etc/ssh/id_rsa && \
+    eval $(ssh-agent -s) && \
+    ssh-add /etc/ssh/id_rsa && \
+    cd /app && \
+    yarn
 
 # build and compile the source
 RUN yarn global add gulp
@@ -79,8 +82,8 @@ RUN cp -rf /tmp/makeandship-api-common /app/node_modules
 
 # Remove SSH keys
 RUN rm /app/bitbucket-readonly
-RUN rm /app/github-readonly
 RUN rm -rf /root/.ssh
+RUN rm /etc/ssh/id_rsa
 RUN rm -rf /tmp/makeandship-api-common
 
 # run local api on 3000

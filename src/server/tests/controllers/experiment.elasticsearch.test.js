@@ -150,6 +150,75 @@ describe("## Experiment APIs", () => {
           done();
         });
     });
+    it("should apply a free text query to choices - male", done => {
+      request(app)
+        .get("/experiments/choices?q=Male")
+        .set("Authorization", `Bearer ${token}`)
+        .expect(httpStatus.OK)
+        .end((err, res) => {
+          expect(res.body.status).toEqual("success");
+
+          const data = res.body.data;
+          expect(data["metadata.patient.age"].min).toEqual(43);
+          expect(data["metadata.patient.age"].max).toEqual(43);
+          expect(data["metadata.patient.bmi"].min).toEqual(25.3);
+          expect(data["metadata.patient.bmi"].max).toEqual(25.3);
+          expect(data["metadata.sample.dateArrived"].min).toEqual(
+            "2018-09-01T00:00:00.000Z"
+          );
+          expect(data["metadata.sample.dateArrived"].max).toEqual(
+            "2018-09-01T00:00:00.000Z"
+          );
+
+          done();
+        });
+    });
+    it("should apply a free text query to choices - female", done => {
+      request(app)
+        .get("/experiments/choices?q=Female")
+        .set("Authorization", `Bearer ${token}`)
+        .expect(httpStatus.OK)
+        .end((err, res) => {
+          expect(res.body.status).toEqual("success");
+
+          const data = res.body.data;
+          expect(data["metadata.patient.age"].min).toEqual(32);
+          expect(data["metadata.patient.age"].max).toEqual(32);
+          expect(data["metadata.patient.bmi"].min).toEqual(33.1);
+          expect(data["metadata.patient.bmi"].max).toEqual(33.1);
+          expect(data["metadata.sample.dateArrived"].min).toEqual(
+            "2017-11-05T00:00:00.000Z"
+          );
+          expect(data["metadata.sample.dateArrived"].max).toEqual(
+            "2017-11-05T00:00:00.000Z"
+          );
+
+          done();
+        });
+    });
+    it("should apply partial match free text queries", done => {
+      request(app)
+        .get("/experiments/choices?q=emale")
+        .set("Authorization", `Bearer ${token}`)
+        .expect(httpStatus.OK)
+        .end((err, res) => {
+          expect(res.body.status).toEqual("success");
+
+          const data = res.body.data;
+          expect(data["metadata.patient.age"].min).toEqual(32);
+          expect(data["metadata.patient.age"].max).toEqual(32);
+          expect(data["metadata.patient.bmi"].min).toEqual(33.1);
+          expect(data["metadata.patient.bmi"].max).toEqual(33.1);
+          expect(data["metadata.sample.dateArrived"].min).toEqual(
+            "2017-11-05T00:00:00.000Z"
+          );
+          expect(data["metadata.sample.dateArrived"].max).toEqual(
+            "2017-11-05T00:00:00.000Z"
+          );
+
+          done();
+        });
+    });
     it("should be a protected route", done => {
       request(app)
         .get("/experiments/choices")
@@ -199,6 +268,53 @@ describe("## Experiment APIs", () => {
           expect(res.body.data).toHaveProperty("total", 1);
           expect(res.body.data).toHaveProperty("results");
           expect(res.body.data.results.length).toEqual(1);
+          done();
+        });
+    });
+    it("should apply a free text search query", done => {
+      request(app)
+        .get("/experiments/search?q=Female")
+        .set("Authorization", `Bearer ${token}`)
+        .expect(httpStatus.OK)
+        .end((err, res) => {
+          expect(res.body.status).toEqual("success");
+          expect(res.body.data).toHaveProperty("total", 1);
+          expect(res.body.data).toHaveProperty("results");
+          expect(res.body.data.results.length).toEqual(1);
+          expect(res.body.data).toHaveProperty("search");
+          expect(res.body.data.search).toHaveProperty("q", "Female");
+          done();
+        });
+    });
+    it("should partial match free text search queries", done => {
+      request(app)
+        .get("/experiments/search?q=emale")
+        .set("Authorization", `Bearer ${token}`)
+        .expect(httpStatus.OK)
+        .end((err, res) => {
+          expect(res.body.status).toEqual("success");
+          expect(res.body.data).toHaveProperty("total", 1);
+          expect(res.body.data).toHaveProperty("results");
+          expect(res.body.data.results.length).toEqual(1);
+          expect(res.body.data).toHaveProperty("search");
+          expect(res.body.data.search).toHaveProperty("q", "emale");
+          done();
+        });
+    });
+    it("should apply a free text search query with filters", done => {
+      request(app)
+        .get("/experiments/search?metadata.patient.smoker=No&q=Female")
+        .set("Authorization", `Bearer ${token}`)
+        .expect(httpStatus.OK)
+        .end((err, res) => {
+          expect(res.body.status).toEqual("success");
+          expect(res.body.data).toHaveProperty("total", 1);
+          expect(res.body.data).toHaveProperty("results");
+          expect(res.body.data.results.length).toEqual(1);
+          expect(res.body.data).toHaveProperty("search");
+          expect(res.body.data.search).toHaveProperty("q", "Female");
+          expect(res.body.data.search["metadata.patient.smoker"]).toEqual("No");
+
           done();
         });
     });
