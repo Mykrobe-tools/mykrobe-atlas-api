@@ -4,7 +4,7 @@ import results from "../fixtures/results";
 describe("ResultsJSONTransformer", () => {
   describe("#transform", () => {
     it("should transform results", done => {
-      const json = new ResultsJSONTransformer(results.mdr).transform();
+      const json = new ResultsJSONTransformer().transform(results.mdr);
 
       expect(json).toHaveProperty("probeSets");
       expect(json).toHaveProperty("files");

@@ -67,8 +67,10 @@ describe("## User APIs", () => {
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
-          expect(res.body.code).toEqual(10003);
-          expect(res.body.message).toEqual('"email" is required');
+          expect(res.body.code).toEqual(10005);
+          expect(res.body.data.errors[""].message).toEqual(
+            "should have required property 'email'"
+          );
           done();
         });
     });
@@ -85,8 +87,10 @@ describe("## User APIs", () => {
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
-          expect(res.body.code).toEqual(10003);
-          expect(res.body.message).toEqual('"password" is required');
+          expect(res.body.code).toEqual(10005);
+          expect(res.body.data.errors[""].message).toEqual(
+            "should have required property 'password'"
+          );
           done();
         });
     });
@@ -105,9 +109,9 @@ describe("## User APIs", () => {
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
-          expect(res.body.code).toEqual("Error");
+          expect(res.body.code).toEqual("ValidationError");
           expect(res.body.message).toEqual(
-            "admin@nhs.co.uk has already been registered"
+            "User validation failed: email: admin@nhs.co.uk has already been registered"
           );
           done();
         });
@@ -127,8 +131,10 @@ describe("## User APIs", () => {
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
-          expect(res.body.code).toEqual(10003);
-          expect(res.body.message).toEqual('"email" must be a valid email');
+          expect(res.body.code).toEqual(10005);
+          expect(res.body.data.errors.email.message).toEqual(
+            'should match format "email"'
+          );
           done();
         });
     });
@@ -388,9 +394,9 @@ describe("## User APIs", () => {
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
-          expect(res.body.code).toEqual(10003);
-          expect(res.body.message).toEqual(
-            '"email" is not allowed to be empty'
+          expect(res.body.code).toEqual("ValidationError");
+          expect(res.body.data.errors.email.message).toEqual(
+            'should match format "email"'
           );
           done();
         });
@@ -460,7 +466,10 @@ describe("## User APIs", () => {
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
-          expect(res.body.message).toEqual('"email" is required');
+          expect(res.body.message).toEqual("Failed to reset the password.");
+          expect(res.body.data.errors[""].message).toEqual(
+            "should have required property 'email'"
+          );
           done();
         });
     });
@@ -474,7 +483,10 @@ describe("## User APIs", () => {
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
-          expect(res.body.message).toEqual('"email" must be a valid email');
+          expect(res.body.message).toEqual("Failed to reset the password.");
+          expect(res.body.data.errors.email.message).toEqual(
+            'should match format "email"'
+          );
           done();
         });
     });
@@ -517,7 +529,12 @@ describe("## User APIs", () => {
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
-          expect(res.body.message).toEqual('"email" is required');
+          expect(res.body.message).toEqual(
+            "Failed to resend the notification."
+          );
+          expect(res.body.data.errors[""].message).toEqual(
+            "should have required property 'email'"
+          );
           done();
         });
     });
@@ -528,7 +545,12 @@ describe("## User APIs", () => {
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
-          expect(res.body.message).toEqual('"email" must be a valid email');
+          expect(res.body.message).toEqual(
+            "Failed to resend the notification."
+          );
+          expect(res.body.data.errors.email.message).toEqual(
+            'should match format "email"'
+          );
           done();
         });
     });

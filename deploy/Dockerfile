@@ -42,13 +42,15 @@ RUN mkdir -p /root/.ssh && \
     echo "IdentityFile /root/.ssh/bitbucket-readonly" >> /root/.ssh/config
 
 ADD bitbucket-readonly /root/.ssh/
+ADD atlas-jsonschema-readonly /root/.ssh/
 
 RUN chmod 600 /root/.ssh/bitbucket-readonly && \
-    ssh-keyscan bitbucket.org > /root/.ssh/known_hosts
+    ssh-keyscan bitbucket.org >> /root/.ssh/known_hosts && \
+    ssh-keyscan github.com >> /root/.ssh/known_hosts
 
 # install yarn
 RUN apt-get install apt-transport-https
-RUN apt-get update && apt-get install yarn
+RUN npm install -g yarn
 
 # install global packages
 RUN yarn global add forever
@@ -61,22 +63,27 @@ WORKDIR /app
 ADD . /app
 
 # install dependencies as a cachable step
-RUN cd /app && yarn install
+RUN cat /root/.ssh/atlas-jsonschema-readonly > /etc/ssh/id_rsa && \
+    chmod 600 /etc/ssh/id_rsa && \
+    eval $(ssh-agent -s) && \
+    ssh-add /etc/ssh/id_rsa && \
+    cd /app && \
+    yarn
 
 # build and compile the source
 RUN yarn global add gulp
 RUN gulp
 
-
 # trim to production dependencies post build
 RUN cp -rf /app/node_modules/makeandship-api-common /tmp
 RUN rm -rf /app/node_modules
-RUN cd /app && yarn install --ignore-scripts --production
+RUN cd /app && yarn --ignore-scripts --production
 RUN cp -rf /tmp/makeandship-api-common /app/node_modules
 
 # Remove SSH keys
 RUN rm /app/bitbucket-readonly
 RUN rm -rf /root/.ssh
+RUN rm /etc/ssh/id_rsa
 RUN rm -rf /tmp/makeandship-api-common
 
 # run local api on 3000

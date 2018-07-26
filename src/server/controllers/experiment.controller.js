@@ -2,72 +2,62 @@ import errors from "errors";
 import httpStatus from "http-status";
 import mkdirp from "mkdirp-promise";
 import Promise from "bluebird";
+
 import { ElasticsearchHelper } from "makeandship-api-common/lib/modules/elasticsearch/";
+import ArrayJSONTransformer from "makeandship-api-common/lib/transformers/ArrayJSONTransformer";
+import SearchResultsJSONTransformer from "makeandship-api-common/lib/modules/elasticsearch/transformers/SearchResultsJSONTransformer";
+import SearchQueryJSONTransformer from "makeandship-api-common/lib/modules/elasticsearch/transformers/SearchQueryJSONTransformer";
+import ChoicesJSONTransformer from "makeandship-api-common/lib/modules/elasticsearch/transformers/ChoicesJSONTransformer";
+import { util as jsonschemaUtil } from "makeandship-api-common/lib/modules/jsonschema";
+
 import Experiment from "../models/experiment.model";
-import Metadata from "../models/metadata.model";
 import Organisation from "../models/organisation.model";
-import ExperimentJSONTransformer from "../transformers/ExperimentJSONTransformer";
-import ArrayJSONTransformer from "../transformers/ArrayJSONTransformer";
-import Resumable from "../helpers/Resumable";
-import APIError from "../helpers/APIError";
+
+import resumable from "../modules/resumable";
 import DownloadersFactory from "../helpers/DownloadersFactory";
-import ChoicesESTransformer from "../transformers/es/ChoicesESTransformer";
-import ExperimentsESTransformer from "../transformers/es/ExperimentsESTransformer";
+
+import ExperimentJSONTransformer from "../transformers/ExperimentJSONTransformer";
+import ExperimentsResultJSONTransformer from "../transformers/es/ExperimentsResultJSONTransformer";
+
+import APIError from "../helpers/APIError";
 import { schedule } from "../modules/agenda";
-import experimentSchema from "../../schemas/experiment";
+import { experiment as experimentSchema } from "mykrobe-atlas-jsonschema";
+
 import ResultsHelper from "../helpers/ResultsHelper";
 import { experimentChannel } from "../modules/channels";
 import { experimentEvent } from "../modules/events";
+import ExperimentsHelper from "../helpers/ExperimentsHelper";
 
 const config = require("../../config/env");
 
 /**
  * Load experiment and append to req.
  */
-async function load(req, res, next, id) {
+const load = async (req, res, next, id) => {
   try {
     const experiment = await Experiment.get(id);
     req.experiment = experiment;
+
     return next();
   } catch (e) {
     return res.jerror(e);
   }
-}
+};
 
 /**
  * Get experiment
  * @returns {Experiment}
  */
-function get(req, res) {
-  return res.jsend(req.experiment);
-}
+const get = (req, res) => res.jsend(req.experiment);
 
 /**
  * Create new experiment
  * @returns {Experiment}
  */
-async function create(req, res) {
+const create = async (req, res) => {
   const experiment = new Experiment(req.body);
   experiment.owner = req.dbUser;
 
-  if (req.body.organisation) {
-    try {
-      const organisation = await Organisation.findOrganisationAndUpdate(
-        req.body.organisation,
-        req.body.organisation
-      );
-      experiment.organisation = organisation;
-      const savedExperiment = await experiment.save();
-      await ElasticsearchHelper.indexDocument(
-        config,
-        savedExperiment,
-        "experiment"
-      );
-      return res.jsend(savedExperiment);
-    } catch (e) {
-      return res.jerror(new errors.CreateExperimentError(e.message));
-    }
-  }
   try {
     const savedExperiment = await experiment.save();
     await ElasticsearchHelper.indexDocument(
@@ -79,14 +69,20 @@ async function create(req, res) {
   } catch (e) {
     return res.jerror(new errors.CreateExperimentError(e.message));
   }
-}
+};
 
 /**
  * Update existing experiment
  * @returns {Experiment}
  */
-async function update(req, res) {
-  const experiment = Object.assign(req.experiment, req.body);
+
+const update = async (req, res) => {
+  // use set - https://github.com/Automattic/mongoose/issues/5378
+  const experiment = req.experiment;
+  Object.keys(req.body).forEach(key => {
+    experiment.set(key, req.body[key]);
+  });
+
   try {
     const savedExperiment = await experiment.save();
     await ElasticsearchHelper.updateDocument(
@@ -98,29 +94,31 @@ async function update(req, res) {
   } catch (e) {
     return res.jerror(new errors.UpdateExperimentError(e.message));
   }
-}
+};
 
 /**
  * Get experiments list.
  * @returns {Experiment[]}
  */
-async function list(req, res) {
+const list = async (req, res) => {
   try {
     const experiments = await Experiment.list();
-    const transformer = new ArrayJSONTransformer(experiments, {
-      transformer: ExperimentJSONTransformer
-    });
-    return res.jsend(transformer.transform());
+    const transformer = new ArrayJSONTransformer();
+    return res.jsend(
+      transformer.transform(experiments, {
+        transformer: ExperimentJSONTransformer
+      })
+    );
   } catch (e) {
     return res.jerror(e);
   }
-}
+};
 
 /**
  * Delete experiment.
  * @returns {Experiment}
  */
-async function remove(req, res) {
+const remove = async (req, res) => {
   const experiment = req.experiment;
   try {
     await experiment.remove();
@@ -133,18 +131,18 @@ async function remove(req, res) {
   } catch (e) {
     return res.jerror(e);
   }
-}
+};
 
 /**
- * Update experiment metadata
+ * Update existing metadata
  * @returns {Experiment}
  */
-async function updateMetadata(req, res) {
-  const metadata = new Metadata(req.body);
+const metadata = async (req, res) => {
+  // use set - https://github.com/Automattic/mongoose/issues/5378
   const experiment = req.experiment;
-  experiment.metadata = metadata;
+  experiment.set("metadata", req.body);
+
   try {
-    await metadata.save();
     const savedExperiment = await experiment.save();
     await ElasticsearchHelper.updateDocument(
       config,
@@ -153,20 +151,26 @@ async function updateMetadata(req, res) {
     );
     return res.jsend(savedExperiment);
   } catch (e) {
-    return res.jerror(new errors.CreateExperimentError(e.message));
+    return res.jerror(new errors.UpdateExperimentError(e.message));
   }
-}
+};
 
 /**
  * Store result of analysis
  * @param {object} req
  * @param {object} res
  */
-async function result(req, res) {
+const results = async (req, res) => {
   const experiment = req.experiment;
   const predictorResult = ResultsHelper.parse(req.body);
-  experiment.results.push(predictorResult);
+  const results = experiment.get("results");
 
+  const updatedResults = [];
+  if (results) {
+    updatedResults.push(...results);
+  }
+  updatedResults.push(predictorResult);
+  experiment.set("results", updatedResults);
   try {
     const savedExperiment = await experiment.save();
     await ElasticsearchHelper.updateDocument(
@@ -179,13 +183,13 @@ async function result(req, res) {
   } catch (e) {
     return res.jerror(new errors.UpdateExperimentError(e.message));
   }
-}
+};
 
 /**
  * Upload sequence file
  * @returns {Experiment}
  */
-async function uploadFile(req, res) {
+const uploadFile = async (req, res) => {
   const experiment = req.experiment;
 
   // from 3rd party provider
@@ -212,39 +216,38 @@ async function uploadFile(req, res) {
   }
 
   // from local file
-  return Resumable.setUploadDirectory(
-    `${config.express.uploadDir}/experiments/${experiment.id}/file`,
-    err => {
-      if (err) {
-        return res.jerror(new errors.UploadFileError(err.message));
-      }
-      const postUpload = Resumable.post(req);
-      experimentEvent.emit("upload-progress", postUpload);
-      if (postUpload.complete) {
-        return Resumable.reassembleChunks(
-          experiment.id,
-          req.body.resumableFilename,
-          async () => {
-            await schedule("now", "call analysis api", {
-              file: `${config.express.uploadsLocation}/experiments/${
-                experiment.id
-              }/file/${req.body.resumableFilename}`,
-              sample_id: experiment.id,
-              attempt: 0
-            });
-            return res.jsend("File uploaded and reassembled");
-          }
-        );
-      }
-      return res.jerror(postUpload);
+  try {
+    await resumable.setUploadDirectory(
+      `${config.express.uploadDir}/experiments/${experiment.id}/file`
+    );
+    const postUpload = await resumable.post(req);
+    experimentEvent.emit("upload-progress", postUpload);
+    if (postUpload.complete) {
+      return resumable.reassembleChunks(
+        experiment.id,
+        req.body.resumableFilename,
+        async () => {
+          await schedule("now", "call analysis api", {
+            file: `${config.express.uploadsLocation}/experiments/${
+              experiment.id
+            }/file/${req.body.resumableFilename}`,
+            sample_id: experiment.id,
+            attempt: 0
+          });
+          return res.jsend("File uploaded and reassembled");
+        }
+      );
     }
-  );
-}
+    return res.jerror(postUpload);
+  } catch (err) {
+    return res.jerror(new errors.UploadFileError(err.message));
+  }
+};
 
 /**
  * Sends the files as API response
  */
-function readFile(req, res) {
+const readFile = (req, res) => {
   const experiment = req.experiment;
   if (experiment.file) {
     const path = `${config.express.uploadDir}/experiments/${
@@ -253,33 +256,32 @@ function readFile(req, res) {
     return res.sendFile(`${path}/${experiment.file}`);
   }
   return res.jerror("No file found for this Experiment");
-}
+};
 
-function uploadStatus(req, res) {
+const uploadStatus = async (req, res) => {
   const experiment = req.experiment;
-  return Resumable.setUploadDirectory(
-    `${config.express.uploadDir}/experiments/${experiment.id}/file`,
-    err => {
-      if (err) {
-        return res.jerror(new errors.UploadFileError(err.message));
-      }
-      const validateGetRequest = Resumable.get(req);
-      if (validateGetRequest.valid) {
-        return res.jsend(validateGetRequest);
-      }
-      const error = new APIError(
-        validateGetRequest.message,
-        httpStatus.NO_CONTENT
-      );
-      return res.jerror(error);
+  try {
+    await resumable.setUploadDirectory(
+      `${config.express.uploadDir}/experiments/${experiment.id}/file`
+    );
+    const validateGetRequest = resumable.get(req);
+    if (validateGetRequest.valid) {
+      return res.jsend(validateGetRequest);
     }
-  );
-}
+    const error = new APIError(
+      validateGetRequest.message,
+      httpStatus.NO_CONTENT
+    );
+    return res.jerror(error);
+  } catch (err) {
+    return res.jerror(new errors.UploadFileError(err.message));
+  }
+};
 
 /**
  * Reindex all experiments to ES
  */
-async function reindex(req, res) {
+const reindex = async (req, res) => {
   try {
     await ElasticsearchHelper.deleteIndexIfExists(config);
     await ElasticsearchHelper.createIndex(
@@ -293,46 +295,83 @@ async function reindex(req, res) {
   } catch (e) {
     return res.jerror(e.message);
   }
-}
+};
 
 /**
  * Search distinct metadata values from ES
  */
-async function choices(req, res) {
+const choices = async (req, res) => {
   try {
-    const attribute = req.params.attribute;
+    const query = req.query;
+
+    // add wildcards if not already set
+    if (query.q && !query.q.indexOf("*") > -1) {
+      query.q = `*${query.q}*`;
+    }
+
     const resp = await ElasticsearchHelper.aggregate(
       config,
       experimentSchema,
       { ...req.query },
       "experiment"
     );
-    const resultsTransformer = new ChoicesESTransformer(resp, {});
-    return res.jsend(resultsTransformer.transform());
+    const titles = jsonschemaUtil.schemaTitles(experimentSchema);
+    const choices = new ChoicesJSONTransformer().transform(resp, { titles });
+    return res.jsend(choices);
   } catch (e) {
     return res.jerror(new errors.SearchMetadataValuesError(e.message));
   }
-}
+};
 
 /**
  * Get experiments list from ES.
  * @returns {Experiment[]}
  */
-async function search(req, res) {
+const search = async (req, res) => {
   try {
+    const query = JSON.parse(JSON.stringify(req.query));
+
+    // add wildcards if not already set
+    if (query.q && !query.q.indexOf("*") > -1) {
+      query.q = `*${query.q}*`;
+    }
+
+    // only allow the whitelist of filters if set
+    const whitelist = ExperimentsHelper.getFiltersWhitelist();
+    if (whitelist) {
+      query.whitelist = whitelist;
+    }
+
     const resp = await ElasticsearchHelper.search(
       config,
-      { ...req.query },
+      { ...query },
       "experiment"
     );
-    const transformer = new ExperimentsESTransformer(resp, {
-      includeSummary: true
-    });
-    return res.jsend(transformer.transform());
+
+    // generate the core elastic search structure
+    const options = {
+      per: query.per || config.elasticsearch.resultsPerPage,
+      page: query.page || 1
+    };
+    const results = new SearchResultsJSONTransformer().transform(resp, options);
+
+    if (results) {
+      // augment with hits (project specific transformation)
+      results.results = new ExperimentsResultJSONTransformer().transform(
+        resp,
+        {}
+      );
+      // augment with the original search query
+      results.search = new SearchQueryJSONTransformer().transform(
+        req.query,
+        {}
+      );
+    }
+    return res.jsend(results);
   } catch (e) {
     return res.jerror(new errors.SearchMetadataValuesError(e.message));
   }
-}
+};
 
 /**
  * Get experiment events
@@ -349,9 +388,9 @@ export default {
   update,
   list,
   remove,
-  updateMetadata,
   uploadFile,
-  result,
+  metadata,
+  results,
   readFile,
   uploadStatus,
   reindex,

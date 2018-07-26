@@ -1,9 +1,10 @@
-import ModelJSONTransformer from "./ModelJSONTransformer";
-import BlacklistTransformer from "./BlacklistTransformer";
+import ModelJSONTransformer from "makeandship-api-common/lib/transformers/ModelJSONTransformer";
+import BlacklistTransformer from "makeandship-api-common/lib/transformers/BlacklistJSONTransformer";
+import ArrayJSONTransformer from "makeandship-api-common/lib/transformers/ArrayJSONTransformer";
 import UserJSONTransformer from "./UserJSONTransformer";
 import OrganisationJSONTransformer from "./OrganisationJSONTransformer";
-import ArrayJSONTransformer from "./ArrayJSONTransformer";
 import ResultsJSONTransformer from "./ResultsJSONTransformer";
+import MetadataJSONTransformer from "./MetadataJSONTransformer";
 
 const BLACKLIST = ["__v"];
 
@@ -15,21 +16,21 @@ class ExperimentJSONTransformer extends ModelJSONTransformer {
   /**
    * The transformation engine
    */
-  transform() {
-    let res = super.transform();
-    res = new BlacklistTransformer(res, { blacklist: BLACKLIST }).transform();
+  transform(o) {
+    let res = super.transform(o, {});
+    res = new BlacklistTransformer().transform(res, { blacklist: BLACKLIST });
     if (res.owner) {
-      res.owner = new UserJSONTransformer(res.owner).transform();
+      res.owner = new UserJSONTransformer().transform(res.owner);
     }
-    if (res.organisation) {
-      res.organisation = new OrganisationJSONTransformer(
-        res.organisation
-      ).transform();
+
+    if (res.metadata) {
+      res.metadata = new MetadataJSONTransformer().transform(res.metadata);
     }
+
     if (res.results) {
-      res.results = new ArrayJSONTransformer(res.results, {
+      res.results = new ArrayJSONTransformer().transform(res.results, {
         transformer: ResultsJSONTransformer
-      }).transform();
+      });
     }
     return res;
   }

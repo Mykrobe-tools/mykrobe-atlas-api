@@ -1,7 +1,8 @@
 import express from "express";
-import validate from "express-validation";
+import errors from "errors";
+import { jsonschema } from "makeandship-api-common/lib/modules/express/middleware";
+import * as schemas from "mykrobe-atlas-jsonschema";
 import AccountsHelper from "../helpers/AccountsHelper";
-import paramValidation from "../../config/param-validation";
 import authController from "../controllers/auth.controller";
 import config from "../../config/env";
 
@@ -150,10 +151,17 @@ const keycloak = AccountsHelper.keycloakInstance();
  *           $ref: '#/definitions/UserResponse'
  *       401:
  *         description: Failed authentication
+ *       500:
+ *         description: Validation Failed
+ *         schema:
+ *           $ref: '#/definitions/ValidationErrorResponse'
  */
 router
   .route("/login")
-  .post(validate(paramValidation.login), authController.login);
+  .post(
+    jsonschema.schemaValidation(schemas["login"], errors, "LoginError"),
+    authController.login
+  );
 
 /**
  * @swagger
@@ -233,10 +241,21 @@ router
  *         description: A jsend response
  *         schema:
  *           $ref: '#/definitions/BasicResponse'
+ *       500:
+ *         description: Validation Failed
+ *         schema:
+ *           $ref: '#/definitions/ValidationErrorResponse'
  */
 router
   .route("/forgot")
-  .post(validate(paramValidation.forgotPassword), authController.forgot);
+  .post(
+    jsonschema.schemaValidation(
+      schemas["forgotPassword"],
+      errors,
+      "ForgotPasswordError"
+    ),
+    authController.forgot
+  );
 
 /**
  * @swagger
@@ -266,10 +285,21 @@ router
  *         description: A jsend response
  *         schema:
  *           $ref: '#/definitions/BasicResponse'
+ *       500:
+ *         description: Validation Failed
+ *         schema:
+ *           $ref: '#/definitions/ValidationErrorResponse'
  */
 router
   .route("/resend")
-  .post(validate(paramValidation.resendNotification), authController.resend);
+  .post(
+    jsonschema.schemaValidation(
+      schemas["resendNotification"],
+      errors,
+      "ResendVerificationEmailError"
+    ),
+    authController.resend
+  );
 
 /**
  * @swagger
@@ -306,6 +336,13 @@ router
  */
 router
   .route("/refresh")
-  .post(validate(paramValidation.refreshToken), authController.refresh);
+  .post(
+    jsonschema.schemaValidation(
+      schemas["refreshToken"],
+      errors,
+      "RefreshTokenError"
+    ),
+    authController.refresh
+  );
 
 export default router;

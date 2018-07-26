@@ -16,9 +16,6 @@ docker images -q --filter "dangling=true" | xargs --no-run-if-empty docker rmi
 # build the target container
 docker-compose build
 
-# remove unwanted containers
-docker ps -a -q | xargs --no-run-if-empty docker rm -f	
-
 # run docker-compose up
 docker-compose up -d
 

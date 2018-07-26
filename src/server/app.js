@@ -6,7 +6,6 @@ import compress from "compression";
 import methodOverride from "method-override";
 import cors from "cors";
 import expressWinston from "express-winston";
-import expressValidation from "express-validation";
 import helmet from "helmet";
 import errors from "errors";
 import httpStatus from "http-status";
@@ -92,15 +91,6 @@ const createApp = (
       "Access-Control-Allow-Headers",
       "Origin, X-Requested-With, Content-Type, Accept"
     );
-    // eslint-disable-line no-unused-vars
-    if (err instanceof expressValidation.ValidationError) {
-      // validation error contains errors which is an array of error each containing message[]
-      const unifiedErrorMessage = err.errors
-        .map(error => error.messages.join(". "))
-        .join(" and ");
-      const error = new errors.ValidationError(unifiedErrorMessage);
-      return res.jerror(error);
-    }
     return res.jerror(err);
   });
 

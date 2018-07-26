@@ -24,6 +24,54 @@ const router = express.Router(); // eslint-disable-line new-cap
  */
 /**
  * @swagger
+ * definitions:
+ *   ValidationErrorResponse:
+ *     properties:
+ *       status:
+ *         type: string
+ *       code:
+ *         type: string
+ *       message:
+ *         type: string
+ *       data:
+ *         type: object
+ *         properties:
+ *           errors:
+ *             type: object
+ *             properties:
+ *               field1:
+ *                 type: object
+ *                 properties:
+ *                   path:
+ *                     type: string
+ *                   message:
+ *                     type: string
+ *               field2:
+ *                 type: object
+ *                 properties:
+ *                   path:
+ *                     type: string
+ *                   message:
+ *                     type: string
+ *               field3:
+ *                 type: object
+ *                 properties:
+ *                   path:
+ *                     type: string
+ *                   message:
+ *                     type: string
+ *     example:
+ *       status: success
+ *       code: ValidationError
+ *       message: Failed to update model
+ *       data:
+ *         errors:
+ *           properties:
+ *              path: properties
+ *              message: should have required property 'properties'
+ */
+/**
+ * @swagger
  * /health-check:
  *   get:
  *     tags:

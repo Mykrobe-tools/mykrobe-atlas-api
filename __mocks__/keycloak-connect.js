@@ -10,7 +10,7 @@ const setup = (request, response, next) => {
 const verifyToken = (request, response, next) => {
   const auth = request.headers.authorization;
   if (auth && auth.startsWith("Bearer ") && auth.length > 100) {
-    return validToken(request, response, next);
+    return validToken(request, response, auth, next);
   } else if (auth) {
     return accessDenied(request, response, next);
   } else {
@@ -20,7 +20,15 @@ const verifyToken = (request, response, next) => {
 
 const accessDenied = (req, res) => res.jerror(new APIError("Not Authorised", httpStatus.UNAUTHORIZED));
 
-const validToken = (request, response, next) => {
+const validToken = (request, response, auth, next) => {
+  const adminToken = "eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJTLUVoTEVSSzl4UXczNWM1QkY2UmFaOUR0Vk9wdTY4ZUVieXZZN1E2OXdvIn0.eyJqdGkiOiJlN2MwMTBiNS1hNjU1LTRiMjMtYjgyYi1kM2E5MTA2NmIzMWMiLCJleHAiOjE1Mjg5Njg4NTIsIm5iZiI6MCwiaWF0IjoxNTI4OTY4NTUyLCJpc3MiOiJodHRwczovL2FjY291bnRzLm1ha2VhbmRzaGlwLmNvbS9hdXRoL3JlYWxtcy9jYXJlcmVwb3J0IiwiYXVkIjoiY2FyZXJlcG9ydC1hcHAiLCJzdWIiOiIyMjA0NDFhZS01N2U5LTRhNmEtOTU1MS0zYjk2YTQ1ZDE3MzIiLCJ0eXAiOiJCZWFyZXIiLCJhenAiOiJjYXJlcmVwb3J0LWFwcCIsImF1dGhfdGltZSI6MCwic2Vzc2lvbl9zdGF0ZSI6IjI4ZmJkMjVmLTBiZTgtNGRkYi05MWUyLTk2MDBkNWJhZThjMCIsImFjciI6IjEiLCJhbGxvd2VkLW9yaWdpbnMiOltdLCJyZWFsbV9hY2Nlc3MiOnsicm9sZXMiOlsidW1hX2F1dGhvcml6YXRpb24iXX0sInJlc291cmNlX2FjY2VzcyI6eyJhY2NvdW50Ijp7InJvbGVzIjpbIm1hbmFnZS1hY2NvdW50IiwibWFuYWdlLWFjY291bnQtbGlua3MiLCJ2aWV3LXByb2ZpbGUiXX19LCJuYW1lIjoiWWFzc2lyZSBFbGhhbmkiLCJwcmVmZXJyZWRfdXNlcm5hbWUiOiJ5YXNzaXJlQG1ha2VhbmRzaGlwLmNvbSIsImdpdmVuX25hbWUiOiJZYXNzaXJlIiwiZmFtaWx5X25hbWUiOiJFbGhhbmkiLCJlbWFpbCI6Inlhc3NpcmVAbWFrZWFuZHNoaXAuY29tIn0.cdKo03xWKXrUyvBZdzgMsIF1_lv57_2u3xfjvBVZAwCu6JaXvYloUnZ99X-z4vGeBLU7Ictcp8_H8GBlZb4XRstEmDy2rbPWRES5rqY5RQobRt_wckdelxdidp-j5PInaD8vXSuu_VThbNaTSIWkhGdxUkwAbJ17k2BCH_8_HuJvWBh3fF9SBxxPSCmr7GftAfx12wOVk_0ucvb_R7qlY6NdM5MMseA5OPdHJ-TJWObuuCLxfZ76LAeu8M8YXZvvVm7fNpF8Z9ngjZ48lZLXpwrTFjtleObrhnXcZwx5CsG3vL2DK2TnojxGgnpOWRgjhfCTFlOHeVWA3x6Nr42A1A";
+  let email;
+  if (auth === `Bearer ${adminToken}`) {
+    email = "admin@nhs.co.uk";
+  }
+  else {
+    email = "thomas@nhs.co.uk";
+  }
   request.kauth = {
     grant: {
       access_token: {
@@ -53,10 +61,10 @@ const validToken = (request, response, next) => {
             }
           },
           name: "David Robin",
-          preferred_username: "admin@nhs.co.uk",
+          preferred_username: email,
           given_name: "David",
           family_name: "Robin",
-          email: "admin@nhs.co.uk"
+          email
         },
         signature: {
           type: "Buffer",
