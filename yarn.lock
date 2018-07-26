@@ -4389,7 +4389,7 @@ make-iterator@^1.0.0:
 
 "makeandship-api-common@git+ssh://git@bitbucket.org:makeandship/makeandship-api-common.git":
   version "1.0.0"
-  resolved "git+ssh://git@bitbucket.org:makeandship/makeandship-api-common.git#3585c747045cabdc58a79fe31c99023b654fc5e1"
+  resolved "git+ssh://git@bitbucket.org:makeandship/makeandship-api-common.git#ec90125eff74d90266fd930dc83ba471bf9c4a7a"
   dependencies:
     ajv "^6.5.0"
     axios "^0.18.0"
@@ -4398,12 +4398,14 @@ make-iterator@^1.0.0:
     deepmerge "^2.1.1"
     elasticsearch "^15.0.0"
     errors "^0.3.0"
+    faker "^4.1.0"
     http-status "^1.2.0"
     json-schema-parser "^0.1.0"
     jsonpointer "^4.0.1"
     keycloak-admin-client "^0.12.0"
     keycloak-connect "^4.0.0"
     lodash "^4.17.10"
+    moment "^2.22.2"
     nhs-number-validator "^1.1.1"
     nodemailer "^4.6.5"
     nodemailer-mock "^1.3.13"
@@ -4636,7 +4638,7 @@ moment-timezone@^0.5.x, moment-timezone@~0.5.0:
   dependencies:
     moment ">= 2.9.0"
 
-"moment@>= 2.9.0":
+"moment@>= 2.9.0", moment@^2.22.2:
   version "2.22.2"
   resolved "https://registry.yarnpkg.com/moment/-/moment-2.22.2.tgz#3c257f9839fc0e93ff53149632239eb90783ff66"
 
