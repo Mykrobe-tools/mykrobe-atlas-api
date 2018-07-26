@@ -2238,53 +2238,80 @@ const keycloak = AccountsHelper.keycloakInstance();
  *         type: object
  *         properties:
  *           field1:
- *             type: array
- *             items:
- *               type: object
- *               properties:
- *                 key:
- *                   type: string
- *                 count:
- *                   type: integer
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *               choices:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   properties:
+ *                     key:
+ *                       type: string
+ *                     count:
+ *                       type: integer
  *           field2:
- *             type: array
- *             items:
- *               type: object
- *               properties:
- *                 key:
- *                   type: string
- *                 count:
- *                   type: integer
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *               choices:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   properties:
+ *                     key:
+ *                       type: string
+ *                     count:
+ *                       type: integer
  *           field3:
- *             type: array
- *             items:
- *               type: object
- *               properties:
- *                 key:
- *                   type: string
- *                 count:
- *                   type: integer
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *               choices:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   properties:
+ *                     key:
+ *                       type: string
+ *                     count:
+ *                       type: integer
  *           field4:
- *             type: array
- *             items:
- *               type: object
- *               properties:
- *                 key:
- *                   type: string
- *                 count:
- *                   type: integer
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *               choices:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   properties:
+ *                     key:
+ *                       type: string
+ *                     count:
+ *                       type: integer
  *           field5:
- *             type: array
- *             items:
- *               type: object
- *               properties:
- *                 key:
- *                   type: string
- *                 count:
- *                   type: integer
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *               choices:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   properties:
+ *                     key:
+ *                       type: string
+ *                     count:
+ *                       type: integer
  *           range1:
  *             type: object
  *             properties:
+ *               title:
+ *                 type: string
  *               min:
  *                 type: integer
  *               max:
@@ -2292,6 +2319,8 @@ const keycloak = AccountsHelper.keycloakInstance();
  *           range2:
  *             type: object
  *             properties:
+ *               title:
+ *                 type: string
  *               min:
  *                 type: string
  *               max:
