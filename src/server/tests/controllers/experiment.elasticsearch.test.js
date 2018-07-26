@@ -78,6 +78,26 @@ describe("## Experiment APIs", () => {
           expect(res.body.status).toEqual("success");
           const data = res.body.data;
 
+          // use country as a sample enum
+          expect(data["metadata.sample.countryIsolate"]).toBeTruthy();
+          const country = data["metadata.sample.countryIsolate"];
+
+          expect(country).toHaveProperty("choices");
+          expect(country.choices.length).toEqual(2);
+
+          country.choices.forEach(country => {
+            const key = country.key;
+            const count = country.count;
+            switch (key) {
+              case "India":
+                expect(count).toEqual(1);
+                break;
+              case "China":
+                expect(count).toEqual(1);
+                break;
+            }
+          });
+
           done();
         });
     });
@@ -96,6 +116,37 @@ describe("## Experiment APIs", () => {
           expect(data["metadata.sample.dateArrived"].max).toEqual(
             "2018-09-01T00:00:00.000Z"
           );
+          done();
+        });
+    });
+    it("should include the titles", done => {
+      request(app)
+        .get("/experiments/choices")
+        .set("Authorization", `Bearer ${token}`)
+        .expect(httpStatus.OK)
+        .end((err, res) => {
+          expect(res.body.status).toEqual("success");
+          const data = res.body.data;
+
+          expect(
+            data["metadata.phenotyping.gatifloxacin.method"].title
+          ).toEqual("Method");
+          expect(
+            data["metadata.phenotyping.phenotypeInformationFirstLineDrugs"]
+              .title
+          ).toEqual("Phenotype Information First Line Drugs");
+          expect(
+            data["metadata.treatment.outsideStandardPhaseAmikacin.stop"].title
+          ).toEqual("Date stopped");
+          expect(data["metadata.patient.diabetic"].title).toEqual("Diabetic");
+          expect(
+            data["metadata.phenotyping.pretothionamide.susceptibility"].title
+          ).toEqual("Susceptible");
+          expect(data["metadata.outcome.whoOutcomeCategory"].title).toEqual(
+            "WHO Outcome Category"
+          );
+          expect(data["metadata.genotyping.hainAm"].title).toEqual("HAIN AM");
+
           done();
         });
     });
