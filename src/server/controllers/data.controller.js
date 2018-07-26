@@ -1,7 +1,12 @@
-import User from "../models/user.model";
-import Experiment from "../models/experiment.model";
+import _ from "lodash";
 import * as schemas from "mykrobe-atlas-jsonschema";
 import Randomizer from "makeandship-api-common/lib/modules/schema-faker/Randomizer";
+import User from "../models/user.model";
+import Experiment from "../models/experiment.model";
+
+// randomizers
+const userRandomizer = new Randomizer(schemas.user, {});
+const experimentRandomizer = new Randomizer(schemas.experiment, {});
 
 /**
  * Clears the data in the db
@@ -23,9 +28,10 @@ const clean = async (req, res) => {
  */
 const create = async (req, res) => {
   const total = req.body.total || 50;
+  const owners = await createOwners(5);
   const promises = [];
   for (let index = 0; index < total; index += 1) {
-    promises.push(saveExperiment());
+    promises.push(saveExperiment(_.sample(owners)));
   }
   try {
     const results = await Promise.all(promises);
@@ -35,18 +41,23 @@ const create = async (req, res) => {
   }
 };
 
-const saveExperiment = async () => {
-  const savedOwner = await saveOwner();
-  const experimentRandomizer = new Randomizer(schemas.experiment, {});
+const saveExperiment = async owner => {
   const experimentData = experimentRandomizer.sample();
-  experimentData.owner = savedOwner;
+  experimentData.owner = owner;
   return new Experiment(experimentData).save();
 };
 
 const saveOwner = () => {
-  const userRandomizer = new Randomizer(schemas.user, {});
   const ownerData = userRandomizer.sample();
   return new User(ownerData).save();
+};
+
+const createOwners = count => {
+  const promises = [];
+  for (let index = 0; index < count; index += 1) {
+    promises.push(saveOwner());
+  }
+  return Promise.all(promises);
 };
 
 export default { clean, create };
