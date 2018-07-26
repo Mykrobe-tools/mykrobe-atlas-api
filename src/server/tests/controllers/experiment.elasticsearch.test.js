@@ -99,6 +99,37 @@ describe("## Experiment APIs", () => {
           done();
         });
     });
+    it("should include the titles", done => {
+      request(app)
+        .get("/experiments/choices")
+        .set("Authorization", `Bearer ${token}`)
+        .expect(httpStatus.OK)
+        .end((err, res) => {
+          expect(res.body.status).toEqual("success");
+          const data = res.body.data;
+
+          expect(
+            data["metadata.phenotyping.gatifloxacin.method"].title
+          ).toEqual("Method");
+          expect(
+            data["metadata.phenotyping.phenotypeInformationFirstLineDrugs"]
+              .title
+          ).toEqual("Phenotype Information First Line Drugs");
+          expect(
+            data["metadata.treatment.outsideStandardPhaseAmikacin.stop"].title
+          ).toEqual("Date stopped");
+          expect(data["metadata.patient.diabetic"].title).toEqual("Diabetic");
+          expect(
+            data["metadata.phenotyping.pretothionamide.susceptibility"].title
+          ).toEqual("Susceptible");
+          expect(data["metadata.outcome.whoOutcomeCategory"].title).toEqual(
+            "WHO Outcome Category"
+          );
+          expect(data["metadata.genotyping.hainAm"].title).toEqual("HAIN AM");
+
+          done();
+        });
+    });
     it("should return min and max bmi values", done => {
       request(app)
         .get("/experiments/choices")
