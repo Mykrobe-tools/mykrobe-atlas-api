@@ -87,6 +87,8 @@ router
    *     operationId: organisationsCreate
    *     produces:
    *       - application/json
+   *     security:
+   *       - Bearer: []
    *     parameters:
    *       - in: body
    *         name: organisation
