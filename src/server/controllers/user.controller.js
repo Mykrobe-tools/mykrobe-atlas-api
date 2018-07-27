@@ -1,6 +1,7 @@
 import passwordHash from "password-hash";
 import errors from "errors";
 import ArrayJSONTransformer from "makeandship-api-common/lib/transformers/ArrayJSONTransformer";
+import channels from "../modules/channels";
 import User from "../models/user.model";
 import UserJSONTransformer from "../transformers/UserJSONTransformer";
 import AccountsHelper from "../helpers/AccountsHelper";
@@ -127,6 +128,15 @@ const assignRole = async (req, res) => {
   }
 };
 
+/**
+ * Get user events
+ */
+const events = async (req, res) => {
+  const channel = await channels.getUserChannel(req.dbUser.id);
+  channel.addClient(req, res);
+  return res.jsend("Subscribed.");
+}
+
 export default {
   load,
   get,
@@ -135,5 +145,6 @@ export default {
   list,
   remove,
   assignRole,
-  loadCurrentUser
+  loadCurrentUser,
+  events
 };

@@ -24,7 +24,6 @@ import { schedule } from "../modules/agenda";
 import { experiment as experimentSchema } from "mykrobe-atlas-jsonschema";
 
 import ResultsHelper from "../helpers/ResultsHelper";
-import { experimentChannel } from "../modules/channels";
 import { experimentEvent } from "../modules/events";
 import ExperimentsHelper from "../helpers/ExperimentsHelper";
 
@@ -373,14 +372,6 @@ const search = async (req, res) => {
   }
 };
 
-/**
- * Get experiment events
- * @returns {Experiment}
- */
-function events(req, res) {
-  experimentChannel.addClient(req, res);
-}
-
 export default {
   load,
   get,
@@ -395,6 +386,5 @@ export default {
   uploadStatus,
   reindex,
   choices,
-  search,
-  events
+  search
 };
