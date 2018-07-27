@@ -210,12 +210,12 @@ describe("## Experiment APIs", () => {
           expect(res.body.status).toEqual("success");
 
           const data = res.body.data;
-          expect(data["metadata.patient.age"].min).toEqual(43);
+          expect(data["metadata.patient.age"].min).toEqual(32);
           expect(data["metadata.patient.age"].max).toEqual(43);
           expect(data["metadata.patient.bmi"].min).toEqual(25.3);
-          expect(data["metadata.patient.bmi"].max).toEqual(25.3);
+          expect(data["metadata.patient.bmi"].max).toEqual(33.1);
           expect(data["metadata.sample.dateArrived"].min).toEqual(
-            "2018-09-01T00:00:00.000Z"
+            "2017-11-05T00:00:00.000Z"
           );
           expect(data["metadata.sample.dateArrived"].max).toEqual(
             "2018-09-01T00:00:00.000Z"
@@ -242,6 +242,54 @@ describe("## Experiment APIs", () => {
           );
           expect(data["metadata.sample.dateArrived"].max).toEqual(
             "2017-11-05T00:00:00.000Z"
+          );
+
+          done();
+        });
+    });
+    it("should apply case insensitive free text query to choices", done => {
+      request(app)
+        .get("/experiments/choices?q=INSU")
+        .set("Authorization", `Bearer ${token}`)
+        .expect(httpStatus.OK)
+        .end((err, res) => {
+          expect(res.body.status).toEqual("success");
+
+          const data = res.body.data;
+          expect(data["metadata.patient.diabetic"].choices[0].key).toEqual(
+            "Insulin"
+          );
+          expect(data["metadata.genotyping.genexpert"].choices[0].key).toEqual(
+            "Not tested"
+          );
+          expect(data["metadata.patient.age"].max).toEqual(43);
+          expect(data["metadata.patient.bmi"].min).toEqual(25.3);
+          expect(data["metadata.sample.dateArrived"].min).toEqual(
+            "2018-09-01T00:00:00.000Z"
+          );
+
+          done();
+        });
+    });
+    it("should apply case insensitive free text query to choices", done => {
+      request(app)
+        .get("/experiments/choices?q=nSuL")
+        .set("Authorization", `Bearer ${token}`)
+        .expect(httpStatus.OK)
+        .end((err, res) => {
+          expect(res.body.status).toEqual("success");
+
+          const data = res.body.data;
+          expect(data["metadata.patient.diabetic"].choices[0].key).toEqual(
+            "Insulin"
+          );
+          expect(data["metadata.genotyping.genexpert"].choices[0].key).toEqual(
+            "Not tested"
+          );
+          expect(data["metadata.patient.age"].max).toEqual(43);
+          expect(data["metadata.patient.bmi"].min).toEqual(25.3);
+          expect(data["metadata.sample.dateArrived"].min).toEqual(
+            "2018-09-01T00:00:00.000Z"
           );
 
           done();
@@ -349,6 +397,42 @@ describe("## Experiment APIs", () => {
           expect(res.body.data.results.length).toEqual(1);
           expect(res.body.data).toHaveProperty("search");
           expect(res.body.data.search).toHaveProperty("q", "emale");
+          done();
+        });
+    });
+    it("should support case-insensitive free text search queries", done => {
+      request(app)
+        .get("/experiments/search?q=INSUL")
+        .set("Authorization", `Bearer ${token}`)
+        .expect(httpStatus.OK)
+        .end((err, res) => {
+          expect(res.body.status).toEqual("success");
+          const result = res.body.data.results[0];
+
+          expect(result.metadata.patient.diabetic).toEqual("Insulin");
+          expect(result.metadata.patient.age).toEqual(43);
+          expect(result.metadata.sample.labId).toEqual(
+            "d19637ed-e5b4-4ca7-8418-8713646a3359"
+          );
+
+          done();
+        });
+    });
+    it("should support case-insensitive free text search queries", done => {
+      request(app)
+        .get("/experiments/search?q=nSuL")
+        .set("Authorization", `Bearer ${token}`)
+        .expect(httpStatus.OK)
+        .end((err, res) => {
+          expect(res.body.status).toEqual("success");
+          const result = res.body.data.results[0];
+
+          expect(result.metadata.patient.diabetic).toEqual("Insulin");
+          expect(result.metadata.patient.age).toEqual(43);
+          expect(result.metadata.sample.labId).toEqual(
+            "d19637ed-e5b4-4ca7-8418-8713646a3359"
+          );
+
           done();
         });
     });
