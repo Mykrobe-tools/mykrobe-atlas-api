@@ -189,6 +189,8 @@ const results = async (req, res) => {
  * @returns {Experiment}
  */
 const uploadFile = async (req, res) => {
+  console.log(`Body: ${JSON.stringify(req.body, null, 2)}`);
+  console.log(`Query: ${JSON.stringify(req.query, null, 2)}`);
   const experiment = req.experiment;
 
   // from 3rd party provider
@@ -265,6 +267,8 @@ const uploadStatus = async (req, res) => {
     await resumable.setUploadDirectory(
       `${config.express.uploadDir}/experiments/${experiment.id}/file`
     );
+    console.log(`uploadStatus Query: ${JSON.stringify(req.query, null, 2)}`);
+    console.log(`uploadStatus Body: ${JSON.stringify(req.body, null, 2)}`);
     const validateGetRequest = resumable.get(req);
     if (validateGetRequest.valid) {
       return res.jsend(validateGetRequest);

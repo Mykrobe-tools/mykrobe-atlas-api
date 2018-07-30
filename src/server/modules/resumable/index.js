@@ -43,6 +43,8 @@ const get = req => {
 // handle post requests
 const post = async req => {
   const files = req.file;
+  console.log(`Body: ${JSON.stringify(req.body, null, 2)}`);
+  console.log(`Query: ${JSON.stringify(req.query, null, 2)}`);
   const status = initialise(req.body);
   if (!files.size) {
     status.message = "Invalid resumable request";

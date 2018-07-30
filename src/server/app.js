@@ -51,16 +51,16 @@ const createApp = (
 
   // enable detailed API logging in dev env
   if (config.env === "development") {
-    expressWinston.responseWhitelist.push("body");
-    app.use(
-      expressWinston.logger({
-        winstonInstance,
-        meta: true, // optional: log meta data about request (defaults to true)
-        msg:
-          "HTTP {{req.method}} {{req.url}} {{res.statusCode}} {{res.responseTime}}ms",
-        colorStatus: true // Color the status code (default green, 3XX cyan, 4XX yellow, 5XX red).
-      })
-    );
+    // expressWinston.responseWhitelist.push("body");
+    // app.use(
+    //   expressWinston.logger({
+    //     winstonInstance,
+    //     meta: true, // optional: log meta data about request (defaults to true)
+    //     msg:
+    //       "HTTP {{req.method}} {{req.url}} {{res.statusCode}} {{res.responseTime}}ms",
+    //     colorStatus: true // Color the status code (default green, 3XX cyan, 4XX yellow, 5XX red).
+    //   })
+    // );
   }
   // 1000 requests per 15 min
   const limiter = new RateLimit({
