@@ -126,6 +126,10 @@ router
    *         schema:
    *           $ref: '#/definitions/BasicResponse'
    */
-  .get(keycloak.connect.protect(), userController.loadCurrentUser, userController.events);
+  .get(
+    keycloak.connect.protect(),
+    userController.loadCurrentUser,
+    userController.events
+  );
 
 export default router;

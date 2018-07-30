@@ -1,70 +1,79 @@
 import fs from "fs";
 import spawn from "await-spawn";
 import {
-  initFields,
+  initialise,
   validateRequest,
   validateChecksum,
-  isUploadCompleted,
+  setComplete,
   setUploadDirectory,
   getChunkFilename
 } from "./util";
 import Experiment from "../../models/experiment.model";
 import config from "../../../config/env";
 
+// handle get requests
+const get = req => {
+  const status = initialise(req.query);
+
+  const validation = validateRequest(status);
+  if (!validation.valid) {
+    status.valid = validation.valid;
+    status.message = validation.message;
+    return status;
+  }
+
+  const chunkFilename = status.chunkFilename;
+  const chunkNumber = status.chunkNumber;
+  if (!fs.existsSync(chunkFilename)) {
+    status.valid = false;
+    status.message = `Chunk ${chunkNumber} not uploaded yet`;
+    return status;
+  }
+
+  const validChecksum = validateChecksum(chunkFilename, checksum);
+  if (!validChecksum) {
+    status.valid = false;
+    status.message = "Uploaded file checksum doesn't match original checksum";
+    return status;
+  }
+
+  return status;
+};
+
 // handle post requests
 const post = async req => {
   const files = req.file;
-
-  const {
-    chunkNumber,
-    chunkSize,
-    totalSize,
-    identifier,
-    filename,
-    originalFilename,
-    checksum,
-    chunkFilename
-  } = initFields(req.body);
-
-  const status = {
-    complete: false,
-    message: null,
-    filename,
-    originalFilename,
-    identifier
-  };
-
+  const status = initialise(req.body);
   if (!files.size) {
     status.message = "Invalid resumable request";
     return status;
   }
 
-  const validation = validateRequest(
-    chunkNumber,
-    chunkSize,
-    totalSize,
-    identifier,
-    filename,
-    parseInt(files.size, 10)
-  );
-
+  const fileSize = parseInt(files.size, 10);
+  const validation = validateRequest(status, fileSize);
   if (!validation.valid) {
     status.message = validation.message;
     return status;
   }
 
-  const validChecksum = validateChecksum(files.path, checksum);
+  const path = files.path;
+  const checksum = status.checksum;
+  const validChecksum = validateChecksum(path, checksum);
+
   if (!validChecksum) {
     status.message = "Uploaded file checksum doesn't match original checksum";
     return status;
   }
 
   // save uploaded chunk to disk
+  const chunkFilename = status.chunkFilename;
   await spawn("mv", [files.path, chunkFilename]);
 
+  // detailed verification of complete - chunk by chunk
+  setComplete(status);
+  const chunkNumber = status.chunkNumber;
   status.message = `Chunk ${chunkNumber} uploaded`;
-  const numberOfChunks = Math.max(Math.floor(totalSize / (chunkSize * 1.0)), 1);
-  status.complete = isUploadCompleted(numberOfChunks, identifier);
+
   return status;
 };
 
@@ -88,58 +97,6 @@ const reassembleChunks = async (id, name, cb) => {
   foundExperiment.file = name;
   await foundExperiment.save();
   cb();
-};
-
-// handle get requests
-const get = req => {
-  console.log(`Query: ${JSON.stringify(req.query, null, 2)}`);
-  console.log(`Body: ${JSON.stringify(req.body, null, 2)}`);
-  const chunkNumber = req.query.resumableChunkNumber || 0;
-  const chunkSize = req.query.resumableChunkSize || 0;
-  const totalSize = req.query.resumableTotalSize || 0;
-  const identifier = req.query.resumableIdentifier || "";
-  const filename = req.query.resumableFilename || "";
-  const checksum = req.query.checksum || "";
-
-  const chunkFilename = getChunkFilename(chunkNumber, identifier);
-
-  const status = {
-    valid: true,
-    message: null,
-    filename: chunkFilename,
-    originalFilename: filename,
-    identifier,
-    count: chunkNumber,
-    total: totalSize
-  };
-
-  const validation = validateRequest(
-    chunkNumber,
-    chunkSize,
-    totalSize,
-    identifier,
-    filename
-  );
-  if (!validation.valid) {
-    status.valid = validation.valid;
-    status.message = validation.message;
-    return status;
-  }
-
-  if (!fs.existsSync(chunkFilename)) {
-    status.valid = false;
-    status.message = `Chunk ${chunkNumber} not uploaded yet`;
-    return status;
-  }
-
-  const validChecksum = validateChecksum(chunkFilename, checksum);
-  if (!validChecksum) {
-    status.valid = false;
-    status.message = "Uploaded file checksum doesn't match original checksum";
-    return status;
-  }
-
-  return status;
 };
 
 const resumable = Object.freeze({

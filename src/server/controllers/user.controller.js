@@ -134,8 +134,7 @@ const assignRole = async (req, res) => {
 const events = async (req, res) => {
   const channel = await channels.getUserChannel(req.dbUser.id);
   channel.addClient(req, res);
-  return res.jsend("Subscribed.");
-}
+};
 
 export default {
   load,
