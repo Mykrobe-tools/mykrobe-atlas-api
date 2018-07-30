@@ -220,8 +220,10 @@ const uploadFile = async (req, res) => {
       `${config.express.uploadDir}/experiments/${experiment.id}/file`
     );
     const postUpload = await resumable.post(req);
-    experimentEvent.emit("upload-progress", postUpload);
-    if (postUpload.complete) {
+    if (!postUpload.complete) {
+      experimentEvent.emit("upload-progress", req.experiment, postUpload);
+    } else {
+      experimentEvent.emit("upload-complete", req.experiment, postUpload);
       return resumable.reassembleChunks(
         experiment.id,
         req.body.resumableFilename,

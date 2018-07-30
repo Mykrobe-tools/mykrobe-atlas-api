@@ -92,6 +92,8 @@ const reassembleChunks = async (id, name, cb) => {
 
 // handle get requests
 const get = req => {
+  console.log(`Query: ${JSON.stringify(req.query, null, 2)}`);
+  console.log(`Body: ${JSON.stringify(req.body, null, 2)}`);
   const chunkNumber = req.query.resumableChunkNumber || 0;
   const chunkSize = req.query.resumableChunkSize || 0;
   const totalSize = req.query.resumableTotalSize || 0;
@@ -106,7 +108,9 @@ const get = req => {
     message: null,
     filename: chunkFilename,
     originalFilename: filename,
-    identifier
+    identifier,
+    count: chunkNumber,
+    total: totalSize
   };
 
   const validation = validateRequest(

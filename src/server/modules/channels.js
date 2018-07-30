@@ -1,18 +1,31 @@
 import SseChannel from "sse-channel";
 
-const liveChannels = {};
+const USER = "user";
 
-const getUserChannel = userId => {
-  if (liveChannels[userId]) {
-    return liveChannels[userId];
+class Channels {
+  constructor() {
+    this.channels = {};
   }
-  const userChannel = new SseChannel({ jsonEncode: true });
-  liveChannels[userId] = userChannel;
-  return userChannel;
-};
 
-const channels = Object.freeze({
-  getUserChannel
-});
+  getUserChannel(id) {
+    return this.getChannel(USER, id);
+  }
 
+  getChannel(type, id) {
+    const channelId = this.getChannelId(type, id);
+
+    if (!this.channels.hasOwnProperty(channelId)) {
+      const channel = new SseChannel({ jsonEncode: true });
+      this.channels[channelId] = channel;
+    }
+
+    return this.channels[channelId];
+  }
+
+  getChannelId(type, id) {
+    return `${type}_${id}`;
+  }
+}
+
+const channels = new Channels();
 export default channels;
