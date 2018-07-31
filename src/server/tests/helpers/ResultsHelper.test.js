@@ -31,7 +31,7 @@ describe("ResultsHelper", () => {
 
       expect(mappedResults["Isoniazid"].name).toEqual("Isoniazid");
       expect(mappedResults["Isoniazid"].prediction).toEqual("R");
-      expect(mappedResults["Isoniazid"].calledBy).toBeTruthy();
+      expect(mappedResults["Isoniazid"].calledBy).toBeFalsy();
 
       expect(mappedResults["Kanamycin"].name).toEqual("Kanamycin");
       expect(mappedResults["Kanamycin"].prediction).toEqual("S");
@@ -83,8 +83,8 @@ describe("ResultsHelper", () => {
       expect(mappedResults["phylo_group"].result).toEqual(
         "Mycobacterium_tuberculosis_complex"
       );
-      expect(mappedResults["phylo_group"].percentCoverage).toEqual(99.631);
-      expect(mappedResults["phylo_group"].medianDepth).toEqual(55);
+      expect(mappedResults["phylo_group"].percentCoverage).toEqual(99.722);
+      expect(mappedResults["phylo_group"].medianDepth).toEqual(122);
 
       expect(mappedResults["sub_complex"].type).toEqual("sub_complex");
       expect(mappedResults["sub_complex"].result).toEqual("Unknown");
@@ -95,13 +95,13 @@ describe("ResultsHelper", () => {
       expect(mappedResults["species"].result).toEqual(
         "Mycobacterium_tuberculosis"
       );
-      expect(mappedResults["species"].percentCoverage).toEqual(97.744);
-      expect(mappedResults["species"].medianDepth).toEqual(51);
+      expect(mappedResults["species"].percentCoverage).toEqual(98.199);
+      expect(mappedResults["species"].medianDepth).toEqual(116);
 
       expect(mappedResults["lineage"].type).toEqual("lineage");
       expect(mappedResults["lineage"].result).toEqual("European_American");
       expect(mappedResults["lineage"].percentCoverage).toEqual(100);
-      expect(mappedResults["lineage"].medianDepth).toEqual(47);
+      expect(mappedResults["lineage"].medianDepth).toEqual(117);
 
       done();
     });

@@ -12,6 +12,7 @@ const CALLED_BY = "called_by";
 const RESISTANT = "R";
 const PERCENT_COVERAGE = "percent_coverage";
 const MEDIAN_DEPTH = "median_depth";
+const EXTERNAL_ID = "external_id";
 
 class ResultsHelper {
   static parse(predictorNamedResult) {
@@ -19,9 +20,10 @@ class ResultsHelper {
       type: "predictor",
       received: new Date()
     };
-    if (predictorNamedResult) {
-      const predictorResult = this.getPredictorResult(predictorNamedResult);
-
+    if (predictorNamedResult.result) {
+      const predictorResult = this.getPredictorResult(
+        predictorNamedResult.result
+      );
       if (predictorResult) {
         const keys = Object.keys(predictorResult);
         for (var i = 0; i < keys.length; i++) {
@@ -59,6 +61,9 @@ class ResultsHelper {
             case GENOTYPE_MODEL:
               result.genotypeModel = predictorResult[attribute];
               break;
+            case EXTERNAL_ID:
+              result.externalId = predictorResult[attribute];
+              break;
           }
         }
       }
@@ -82,7 +87,9 @@ class ResultsHelper {
       const keys = Object.keys(predictorNamedResult);
       if (keys && keys.length) {
         const first = keys[0];
-        return predictorNamedResult[first];
+        const namedResult = predictorNamedResult[first];
+        namedResult[EXTERNAL_ID] = first;
+        return namedResult;
       }
     }
     return predictorResult;
