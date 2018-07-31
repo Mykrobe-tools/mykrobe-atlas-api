@@ -79,11 +79,57 @@ const post = async req => {
   return status;
 };
 
+const isNumber = num => {
+  if (typeof num === "number") {
+    return num - num === 0;
+  }
+  if (typeof num === "string" && num.trim() !== "") {
+    return Number.isFinite ? Number.isFinite(+num) : isFinite(+num);
+  }
+  return false;
+};
+
+const filenameSort = (first, second) => {
+  // nulls
+  if (!first && !second) {
+    return 0;
+  }
+  if (!first) {
+    return -1;
+  }
+  if (!second) {
+    return 1;
+  }
+
+  // no partial files
+  if (first.indexOf(".") === -1 || second.indexOf(".") === -1) {
+    return first.localeCompare(second);
+  }
+
+  // files with a part number
+  const firstPosition = first.substring(
+    first.lastIndexOf(".") + 1,
+    first.length
+  );
+  const secondPosition = second.substring(
+    second.lastIndexOf(".") + 1,
+    second.length
+  );
+
+  if (isNumber(firstPosition) && isNumber(secondPosition)) {
+    return parseInt(firstPosition) - parseInt(secondPosition);
+  }
+
+  // anything else - string comparison
+  return first.localeCompare(second);
+};
+
 const reassembleChunks = async (id, name, cb) => {
   const files = fs.readdirSync(
     `${config.express.uploadDir}/experiments/${id}/file`
   );
-  files.forEach(file => {
+  const sortedFiles = files.sort(filenameSort);
+  sortedFiles.forEach(file => {
     const readableStream = fs.createReadStream(
       `${config.express.uploadDir}/experiments/${id}/file/${file}`
     );
@@ -105,6 +151,7 @@ const resumable = Object.freeze({
   post,
   setUploadDirectory,
   reassembleChunks,
+  filenameSort,
   get
 });
 
