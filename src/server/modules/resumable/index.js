@@ -43,8 +43,6 @@ const get = req => {
 // handle post requests
 const post = async req => {
   const files = req.file;
-  console.log(`Body: ${JSON.stringify(req.body, null, 2)}`);
-  console.log(`Query: ${JSON.stringify(req.query, null, 2)}`);
   const status = initialise(req.body);
   if (!files.size) {
     status.message = "Invalid resumable request";
@@ -126,9 +124,9 @@ const filenameSort = (first, second) => {
 
 const reassembleChunks = async (id, name, cb) => {
   const directory = `${config.express.uploadDir}/experiments/${id}/file`;
-  const targetPath = `${config.express.uploadDir}/experiments/${id}/file/${
-    name
-  }`;
+  const targetPath = `${
+    config.express.uploadDir
+  }/experiments/${id}/file/${name}`;
   console.log(`Reassembling file at: ${targetPath}`);
 
   const files = fs.readdirSync(directory);
@@ -137,9 +135,9 @@ const reassembleChunks = async (id, name, cb) => {
   const writableStream = fs.createWriteStream(targetPath, { flags: "a+" });
 
   sortedFiles.forEach(file => {
-    const partPath = `${config.express.uploadDir}/experiments/${id}/file/${
-      file
-    }`;
+    const partPath = `${
+      config.express.uploadDir
+    }/experiments/${id}/file/${file}`;
 
     const readableStream = fs.createReadStream(partPath);
     console.log(`Stream for ${partPath}`);

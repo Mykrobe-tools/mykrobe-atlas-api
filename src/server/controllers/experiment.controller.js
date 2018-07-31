@@ -189,8 +189,6 @@ const results = async (req, res) => {
  * @returns {Experiment}
  */
 const uploadFile = async (req, res) => {
-  console.log(`Body: ${JSON.stringify(req.body, null, 2)}`);
-  console.log(`Query: ${JSON.stringify(req.query, null, 2)}`);
   const experiment = req.experiment;
 
   // from 3rd party provider
