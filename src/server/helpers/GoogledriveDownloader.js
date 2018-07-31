@@ -10,7 +10,7 @@ class GoogledriveDownloader {
     this.data = data;
   }
 
-  download() {
+  download(done) {
     const hostname = url.parse(this.data.path).hostname;
     const path = url.parse(this.data.path).path;
     const options = {
@@ -23,7 +23,7 @@ class GoogledriveDownloader {
       }
     };
     const downloader = new Downloader(this.destination, options);
-    downloader.download();
+    downloader.download(done);
   }
 }
 

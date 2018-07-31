@@ -12,7 +12,7 @@ class Downloader {
     this.options = options;
   }
 
-  download() {
+  download(done) {
     const file = fs.createWriteStream(this.destination);
     https.get(this.options).on("response", res => {
       let downloaded = 0;
@@ -22,6 +22,9 @@ class Downloader {
           downloaded += chunk.length;
         })
         .on("end", () => {
+          if (done) {
+            done();
+          }
           file.end();
         })
         .on("error", err => {
