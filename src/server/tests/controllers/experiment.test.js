@@ -666,7 +666,7 @@ describe("## Experiment APIs", () => {
             done();
           });
       });
-      it.only("should call the analysis api when download is done - googleDrive", done => {
+      it("should call the analysis api when download is done - googleDrive", done => {
         request(app)
           .put(`/experiments/${id}/provider`)
           .set("Authorization", `Bearer ${token}`)
