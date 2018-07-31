@@ -59,11 +59,11 @@ const create = async (req, res) => {
 
   try {
     const savedExperiment = await experiment.save();
-    // await ElasticsearchHelper.indexDocument(
-    //   config,
-    //   savedExperiment,
-    //   "experiment"
-    // );
+    await ElasticsearchHelper.indexDocument(
+      config,
+      savedExperiment,
+      "experiment"
+    );
     return res.jsend(savedExperiment);
   } catch (e) {
     return res.jerror(new errors.CreateExperimentError(e.message));
@@ -84,11 +84,11 @@ const update = async (req, res) => {
 
   try {
     const savedExperiment = await experiment.save();
-    // await ElasticsearchHelper.updateDocument(
-    //   config,
-    //   savedExperiment,
-    //   "experiment"
-    // );
+    await ElasticsearchHelper.updateDocument(
+      config,
+      savedExperiment,
+      "experiment"
+    );
     return res.jsend(savedExperiment);
   } catch (e) {
     return res.jerror(new errors.UpdateExperimentError(e.message));
@@ -265,8 +265,7 @@ const uploadStatus = async (req, res) => {
     await resumable.setUploadDirectory(
       `${config.express.uploadDir}/experiments/${experiment.id}/file`
     );
-    console.log(`uploadStatus Query: ${JSON.stringify(req.query, null, 2)}`);
-    console.log(`uploadStatus Body: ${JSON.stringify(req.body, null, 2)}`);
+
     const validateGetRequest = resumable.get(req);
     if (validateGetRequest.valid) {
       return res.jsend(validateGetRequest);

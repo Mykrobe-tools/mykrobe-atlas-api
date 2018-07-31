@@ -78,6 +78,7 @@
     "nodemailer-ses-transport": "^1.5.0",
     "password-hash": "1.2.2",
     "randomstring": "^1.1.5",
+    "split-file": "^2.1.0",
     "sse-channel": "^3.1.0",
     "swagger-jsdoc": "^1.9.7",
     "swagger-parser": "^5.0.0",
@@ -108,6 +109,8 @@
     "mongodb-memory-server": "^1.7.4",
     "nock": "^9.3.2",
     "promised-mongo": "^1.2.0",
+    "rimraf": "^2.6.2",
+    "rmfr": "^2.0.0",
     "run-sequence": "^2.2.1",
     "supertest": "^3.1.0"
   }

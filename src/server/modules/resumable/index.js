@@ -1,5 +1,6 @@
 import fs from "fs";
 import spawn from "await-spawn";
+import splitFile from "split-file";
 import {
   initialise,
   validateRequest,
@@ -122,28 +123,43 @@ const filenameSort = (first, second) => {
   return first.localeCompare(second);
 };
 
-const reassembleChunks = async (id, name, cb) => {
-  const directory = `${config.express.uploadDir}/experiments/${id}/file`;
-  const targetPath = `${
-    config.express.uploadDir
-  }/experiments/${id}/file/${name}`;
-  console.log(`Reassembling file at: ${targetPath}`);
-
+const reassembleChunksToFile = (directory, targetPath, remove = true) => {
   const files = fs.readdirSync(directory);
-  const sortedFiles = files.sort(filenameSort);
 
-  const writableStream = fs.createWriteStream(targetPath, { flags: "a+" });
+  // remove hidden / unwanted files
+  const filteredFiles = files.filter(item => !/(^|\/)\.[^\/\.]/g.test(item));
+
+  // sort into a natural order i.e. file.9, file.10, file.11
+  const sortedFiles = filteredFiles.sort(filenameSort);
+
+  const parts = [];
 
   sortedFiles.forEach(file => {
-    const partPath = `${
-      config.express.uploadDir
-    }/experiments/${id}/file/${file}`;
-
-    const readableStream = fs.createReadStream(partPath);
-    console.log(`Stream for ${partPath}`);
-    readableStream.pipe(writableStream);
-    fs.unlinkSync(`${config.express.uploadDir}/experiments/${id}/file/${file}`);
+    const partPath = `${directory}/${file}`;
+    parts.push(partPath);
   });
+
+  if (remove) {
+    return splitFile.mergeFiles(parts, targetPath).then(savedPath => {
+      parts.forEach(part => {
+        fs.unlinkSync(part);
+      });
+
+      return savedPath;
+    });
+  } else {
+    return splitFile.mergeFiles(parts, targetPath);
+  }
+};
+
+const reassembleChunks = async (id, name, cb) => {
+  const directory = `${config.express.uploadDir}/experiments/${id}/file`;
+  const targetPath = `${config.express.uploadDir}/experiments/${id}/file/${
+    name
+  }`;
+
+  reassembleChunksToFile(directory, targetPath, true);
+
   const foundExperiment = await Experiment.get(id);
   foundExperiment.file = name;
   await foundExperiment.save();
@@ -154,6 +170,7 @@ const resumable = Object.freeze({
   post,
   setUploadDirectory,
   reassembleChunks,
+  reassembleChunksToFile,
   filenameSort,
   get
 });

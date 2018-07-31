@@ -1,7 +1,14 @@
-import { filenameSort } from "../../../modules/resumable";
+import fs from "fs";
+import path from "path";
+import spawn from "await-spawn";
+import rmfr from "rmfr";
+import {
+  filenameSort,
+  reassembleChunksToFile
+} from "../../../modules/resumable";
 
 describe("Resumable", () => {
-  describe("#filenameDiff", () => {
+  describe("#filenameSort", () => {
     it("should sort an array of filenames", () => {
       const filenames = [
         "resumable-452248119-RIF_monoresistantfastqgz.1",
@@ -97,5 +104,39 @@ describe("Resumable", () => {
         "resumable-452248119-RIF_monoresistantfastqgz.b"
       ]);
     });
+  });
+
+  describe("#reassembleChunksToFile", async () => {
+    it.skip(
+      "should reassemble a complete file",
+      async () => {
+        const directory = path.resolve(
+          __dirname,
+          "../../fixtures/files/parts/"
+        );
+        const reassemblePath = path.resolve(
+          directory,
+          "RIF_monoresistantfast.q.gz"
+        );
+
+        const savedPath = await reassembleChunksToFile(
+          directory,
+          reassemblePath,
+          false
+        );
+
+        const checksumResponse = await spawn("md5", [savedPath]);
+        const checksum = checksumResponse.toString().trim();
+
+        expect(checksum).toEqual(
+          `MD5 (${savedPath}) = 6a5d8ad9ff173f02d773de59da23669e`
+        );
+        console.log(checksum);
+        await rmfr(savedPath);
+
+        // rm ~/makeandship/mykrobe-atlas-api/src/server/tests/fixtures/files/parts/RIF_monoresistantfast.q.gz
+      },
+      20000
+    );
   });
 });
