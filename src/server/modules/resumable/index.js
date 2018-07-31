@@ -125,20 +125,25 @@ const filenameSort = (first, second) => {
 };
 
 const reassembleChunks = async (id, name, cb) => {
-  const files = fs.readdirSync(
-    `${config.express.uploadDir}/experiments/${id}/file`
-  );
+  const directory = `${config.express.uploadDir}/experiments/${id}/file`;
+  const targetPath = `${config.express.uploadDir}/experiments/${id}/file/${
+    name
+  }`;
+  console.log(`Reassembling file at: ${targetPath}`);
+
+  const files = fs.readdirSync(directory);
   const sortedFiles = files.sort(filenameSort);
+
+  const writableStream = fs.createWriteStream(targetPath, { flags: "a+" });
+
   sortedFiles.forEach(file => {
-    const readableStream = fs.createReadStream(
-      `${config.express.uploadDir}/experiments/${id}/file/${file}`
-    );
-    readableStream.pipe(
-      fs.createWriteStream(
-        `${config.express.uploadDir}/experiments/${id}/file/${name}`,
-        { flags: "a" }
-      )
-    );
+    const partPath = `${config.express.uploadDir}/experiments/${id}/file/${
+      file
+    }`;
+
+    const readableStream = fs.createReadStream(partPath);
+    console.log(`Stream for ${partPath}`);
+    readableStream.pipe(writableStream);
     fs.unlinkSync(`${config.express.uploadDir}/experiments/${id}/file/${file}`);
   });
   const foundExperiment = await Experiment.get(id);
