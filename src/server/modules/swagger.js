@@ -10,7 +10,7 @@ const swaggerDefinition = {
   },
   host: config.express.apiBaseUrl,
   basePath: "/",
-  schemes: ["http"],
+  schemes: ["https"],
   securityDefinitions: {
     Bearer: {
       type: "apiKey",

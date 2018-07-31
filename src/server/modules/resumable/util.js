@@ -70,7 +70,7 @@ const setComplete = status => {
 const setPercentageComplete = status => {
   // percentage complete for valid number of and total chunks
   if (status && status.chunkNumber && status.totalChunks) {
-    status.percentageComplete = status.chunkNumber / status.totalChunks;
+    status.percentageComplete = status.chunkNumber / status.totalChunks * 100;
   }
 };
 
