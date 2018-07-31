@@ -154,9 +154,9 @@ const reassembleChunksToFile = (directory, targetPath, remove = true) => {
 
 const reassembleChunks = async (id, name, cb) => {
   const directory = `${config.express.uploadDir}/experiments/${id}/file`;
-  const targetPath = `${config.express.uploadDir}/experiments/${id}/file/${
-    name
-  }`;
+  const targetPath = `${
+    config.express.uploadDir
+  }/experiments/${id}/file/${name}`;
 
   reassembleChunksToFile(directory, targetPath, true);
 
