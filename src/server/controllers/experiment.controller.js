@@ -24,6 +24,7 @@ import { schedule } from "../modules/agenda";
 import { experiment as experimentSchema } from "mykrobe-atlas-jsonschema";
 
 import ResultsHelper from "../helpers/ResultsHelper";
+import { experimentEvent } from "../modules/events";
 import ExperimentsHelper from "../helpers/ExperimentsHelper";
 
 const config = require("../../config/env");
@@ -176,6 +177,7 @@ const results = async (req, res) => {
       savedExperiment,
       "experiment"
     );
+    experimentEvent.emit("result-status", savedExperiment);
     return res.jsend(savedExperiment);
   } catch (e) {
     return res.jerror(new errors.UpdateExperimentError(e.message));
@@ -226,7 +228,10 @@ const uploadFile = async (req, res) => {
       `${config.express.uploadDir}/experiments/${experiment.id}/file`
     );
     const postUpload = await resumable.post(req);
-    if (postUpload.complete) {
+    if (!postUpload.complete) {
+      experimentEvent.emit("upload-progress", req.experiment, postUpload);
+    } else {
+      experimentEvent.emit("upload-complete", req.experiment, postUpload);
       return resumable.reassembleChunks(
         experiment.id,
         req.body.resumableFilename,
@@ -268,6 +273,7 @@ const uploadStatus = async (req, res) => {
     await resumable.setUploadDirectory(
       `${config.express.uploadDir}/experiments/${experiment.id}/file`
     );
+
     const validateGetRequest = resumable.get(req);
     if (validateGetRequest.valid) {
       return res.jsend(validateGetRequest);

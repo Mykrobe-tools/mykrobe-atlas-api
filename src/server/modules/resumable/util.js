@@ -13,18 +13,65 @@ const setUploadDirectory = uploadDir => {
   return mkdirp(uploadDirectory);
 };
 
-const initFields = fields => {
-  const identifier = cleanIdentifier(fields.resumableIdentifier);
-  return {
-    chunkNumber: fields.resumableChunkNumber,
-    chunkSize: parseInt(fields.resumableChunkSize, 10),
-    totalSize: parseInt(fields.resumableTotalSize, 10),
+const initialise = fields => {
+  const identifier = fields.resumableIdentifier
+    ? cleanIdentifier(fields.resumableIdentifier)
+    : "";
+  const chunkNumber = fields.resumableChunkNumber || 0;
+  const totalChunks = fields.resumableTotalChunks || 0;
+  const chunkFilename = getChunkFilename(chunkNumber, identifier);
+  const chunkSize = fields.resumableChunkSize
+    ? parseInt(fields.resumableChunkSize, 10)
+    : 0;
+  const totalSize = fields.resumableTotalSize
+    ? parseInt(fields.resumableTotalSize, 10)
+    : 0;
+  const filename = fields.resumableFilename || "";
+  const originalFilename = fields.resumableOriginalFilename || "";
+  const type = fields.resumableType || "";
+  const checksum = fields.checksum || "";
+  const status = {
     identifier,
-    filename: fields.resumableFilename,
-    originalFilename: fields.resumableIdentifier,
-    checksum: fields.checksum,
-    chunkFilename: getChunkFilename(fields.resumableChunkNumber, identifier)
+    chunkNumber,
+    totalChunks,
+    chunkSize,
+    totalSize,
+    filename,
+    originalFilename,
+    type,
+    checksum,
+    chunkFilename,
+    complete: false
   };
+  setVerifiedTotalChunks(status);
+  setPercentageComplete(status);
+
+  return status;
+};
+
+const setVerifiedTotalChunks = status => {
+  if (status && status.totalSize && status.chunkSize) {
+    status.verifiedTotalChunks = Math.max(
+      Math.floor(status.totalSize / (status.chunkSize * 1.0)),
+      1
+    );
+  }
+};
+
+const setComplete = status => {
+  if (status && status.verifiedTotalChunks && status.identifier) {
+    status.complete = isUploadComplete(
+      status.verifiedTotalChunks,
+      status.identifier
+    );
+  }
+};
+
+const setPercentageComplete = status => {
+  // percentage complete for valid number of and total chunks
+  if (status && status.chunkNumber && status.totalChunks) {
+    status.percentageComplete = status.chunkNumber / status.totalChunks * 100;
+  }
 };
 
 const cleanIdentifier = identifier => identifier.replace(/^0-9A-Za-z_-/gim, "");
@@ -34,15 +81,9 @@ const getChunkFilename = (chunkNumber, identifier) => {
   return path.join(uploadDirectory, `./resumable-${identifier}.${chunkNumber}`);
 };
 
-const validateRequest = (
-  chunkNumber,
-  chunkSize,
-  totalSize,
-  identifier,
-  filename,
-  fileSize
-) => {
-  identifier = cleanIdentifier(identifier);
+const validateRequest = (status, fileSize) => {
+  const { chunkNumber, chunkSize, totalSize, identifier, filename } = status;
+
   const validation = {
     valid: true,
     message: null
@@ -109,11 +150,7 @@ const validateChecksum = (filename, checksum) => {
   return generatedChecksum === checksum;
 };
 
-const isUploadCompleted = (
-  numberOfChunks,
-  identifier,
-  currentTestChunk = 1
-) => {
+const isUploadComplete = (numberOfChunks, identifier, currentTestChunk = 1) => {
   const fileName = getChunkFilename(currentTestChunk, identifier);
   const fileExists = fs.existsSync(fileName);
   if (fileExists) {
@@ -121,16 +158,17 @@ const isUploadCompleted = (
     if (currentTestChunk > numberOfChunks) {
       return true;
     }
-    return isUploadCompleted(numberOfChunks, identifier, currentTestChunk);
+    return isUploadComplete(numberOfChunks, identifier, currentTestChunk);
   }
   return false;
 };
 
 const utils = Object.freeze({
-  initFields,
+  initialise,
   validateRequest,
   validateChecksum,
-  isUploadCompleted,
+  isUploadComplete,
+  setComplete,
   setUploadDirectory,
   getChunkFilename
 });

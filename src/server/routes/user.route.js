@@ -106,4 +106,30 @@ router
     userController.remove
   );
 
+router
+  .route("/events")
+  /**
+   * @swagger
+   * /user/events:
+   *   get:
+   *     tags:
+   *       - User
+   *     description: User events
+   *     operationId: userEvents
+   *     produces:
+   *       - application/json
+   *     security:
+   *       - Bearer: []
+   *     responses:
+   *       200:
+   *         description: A jsend response
+   *         schema:
+   *           $ref: '#/definitions/BasicResponse'
+   */
+  .get(
+    keycloak.connect.protect(),
+    userController.loadCurrentUser,
+    userController.events
+  );
+
 export default router;
