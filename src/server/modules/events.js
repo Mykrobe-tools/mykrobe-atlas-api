@@ -9,7 +9,6 @@ const sendExperimentOwnerEvent = (experiment, data, type) => {
     const ownerId = owner.id;
     if (ownerId) {
       const channel = channels.getUserChannel(ownerId);
-      console.log(`Sending an event to ${ownerId}`);
       channel.send({ data });
     }
   }
