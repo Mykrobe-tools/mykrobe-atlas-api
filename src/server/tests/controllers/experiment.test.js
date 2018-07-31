@@ -527,6 +527,39 @@ describe("## Experiment APIs", () => {
             done();
           });
       });
+      it("should call the analysis api when download is done - dropbox", done => {
+        request(app)
+          .put(`/experiments/${id}/provider`)
+          .set("Authorization", `Bearer ${token}`)
+          .send({
+            provider: "dropbox",
+            name: "333-08.json",
+            path: "https://jsonplaceholder.typicode.com/posts/1"
+          })
+          .expect(httpStatus.OK)
+          .end(async (err, res) => {
+            const jobs = mongo(config.db.uri, []).agendaJobs;
+            expect(res.body.status).toEqual("success");
+            expect(res.body.data).toEqual("Download started from dropbox");
+            try {
+              let job = await findJob(jobs, id);
+              while (!job) {
+                job = await findJob(jobs, id);
+              }
+              expect(job.data.file).toEqual(
+                `${
+                  config.express.uploadsLocation
+                }/experiments/${id}/file/333-08.json`
+              );
+              expect(job.data.sample_id).toEqual(id);
+              expect(job.data.attempt).toEqual(0);
+              done();
+            } catch (e) {
+              fail(e.message);
+              done();
+            }
+          });
+      });
       it("should save the dropbox file to the filesystem", done => {
         request(app)
           .put(`/experiments/${id}/provider`)
@@ -561,6 +594,39 @@ describe("## Experiment APIs", () => {
             expect(res.body.status).toEqual("success");
             expect(res.body.data).toEqual("Download started from box");
             done();
+          });
+      });
+      it("should call the analysis api when download is done - box", done => {
+        request(app)
+          .put(`/experiments/${id}/provider`)
+          .set("Authorization", `Bearer ${token}`)
+          .send({
+            provider: "box",
+            name: "333-08.json",
+            path: "https://jsonplaceholder.typicode.com/posts/1"
+          })
+          .expect(httpStatus.OK)
+          .end(async (err, res) => {
+            const jobs = mongo(config.db.uri, []).agendaJobs;
+            expect(res.body.status).toEqual("success");
+            expect(res.body.data).toEqual("Download started from box");
+            try {
+              let job = await findJob(jobs, id);
+              while (!job) {
+                job = await findJob(jobs, id);
+              }
+              expect(job.data.file).toEqual(
+                `${
+                  config.express.uploadsLocation
+                }/experiments/${id}/file/333-08.json`
+              );
+              expect(job.data.sample_id).toEqual(id);
+              expect(job.data.attempt).toEqual(0);
+              done();
+            } catch (e) {
+              fail(e.message);
+              done();
+            }
           });
       });
       it("should save the box file to the filesystem", done => {
@@ -598,6 +664,40 @@ describe("## Experiment APIs", () => {
             expect(res.body.status).toEqual("success");
             expect(res.body.data).toEqual("Download started from googleDrive");
             done();
+          });
+      });
+      it.only("should call the analysis api when download is done - googleDrive", done => {
+        request(app)
+          .put(`/experiments/${id}/provider`)
+          .set("Authorization", `Bearer ${token}`)
+          .send({
+            provider: "googleDrive",
+            name: "333-08.json",
+            path: "https://jsonplaceholder.typicode.com/posts/1",
+            accessToken: "dummy-token"
+          })
+          .expect(httpStatus.OK)
+          .end(async (err, res) => {
+            const jobs = mongo(config.db.uri, []).agendaJobs;
+            expect(res.body.status).toEqual("success");
+            expect(res.body.data).toEqual("Download started from googleDrive");
+            try {
+              let job = await findJob(jobs, id);
+              while (!job) {
+                job = await findJob(jobs, id);
+              }
+              expect(job.data.file).toEqual(
+                `${
+                  config.express.uploadsLocation
+                }/experiments/${id}/file/333-08.json`
+              );
+              expect(job.data.sample_id).toEqual(id);
+              expect(job.data.attempt).toEqual(0);
+              done();
+            } catch (e) {
+              fail(e.message);
+              done();
+            }
           });
       });
       it("should make accessToken mandatory for googleDrive", done => {
@@ -654,6 +754,39 @@ describe("## Experiment APIs", () => {
             expect(res.body.status).toEqual("success");
             expect(res.body.data).toEqual("Download started from oneDrive");
             done();
+          });
+      });
+      it("should call the analysis api when download is done - oneDrive", done => {
+        request(app)
+          .put(`/experiments/${id}/provider`)
+          .set("Authorization", `Bearer ${token}`)
+          .send({
+            provider: "oneDrive",
+            name: "333-08.json",
+            path: "https://jsonplaceholder.typicode.com/posts/1"
+          })
+          .expect(httpStatus.OK)
+          .end(async (err, res) => {
+            const jobs = mongo(config.db.uri, []).agendaJobs;
+            expect(res.body.status).toEqual("success");
+            expect(res.body.data).toEqual("Download started from oneDrive");
+            try {
+              let job = await findJob(jobs, id);
+              while (!job) {
+                job = await findJob(jobs, id);
+              }
+              expect(job.data.file).toEqual(
+                `${
+                  config.express.uploadsLocation
+                }/experiments/${id}/file/333-08.json`
+              );
+              expect(job.data.sample_id).toEqual(id);
+              expect(job.data.attempt).toEqual(0);
+              done();
+            } catch (e) {
+              fail(e.message);
+              done();
+            }
           });
       });
       it("should save the one drive file to the filesystem", done => {

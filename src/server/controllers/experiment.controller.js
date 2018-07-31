@@ -200,7 +200,15 @@ const uploadFile = async (req, res) => {
         `${path}/${req.body.name}`,
         req.body
       );
-      downloader.download();
+      downloader.download(async () => {
+        await schedule("now", "call analysis api", {
+          file: `${config.express.uploadsLocation}/experiments/${
+            experiment.id
+          }/file/${req.body.name}`,
+          sample_id: experiment.id,
+          attempt: 0
+        });
+      });
       return res.jsend(`Download started from ${req.body.provider}`);
     } catch (e) {
       return res.jerror(new errors.UploadFileError(e.message));

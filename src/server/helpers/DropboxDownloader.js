@@ -10,7 +10,7 @@ class DropboxDownloader {
     this.data = data;
   }
 
-  download() {
+  download(done) {
     const hostname = url.parse(this.data.path).hostname;
     const path = url.parse(this.data.path).pathname;
     const options = {
@@ -20,7 +20,7 @@ class DropboxDownloader {
       method: "GET"
     };
     const downloader = new Downloader(this.destination, options);
-    downloader.download();
+    downloader.download(done);
   }
 }
 
