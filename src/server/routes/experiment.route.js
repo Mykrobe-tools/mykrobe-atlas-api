@@ -2358,6 +2358,10 @@ const keycloak = AccountsHelper.keycloakInstance();
  *             properties:
  *               title:
  *                 type: string
+ *               titles:
+ *                 type: array
+ *                 items:
+ *                   type: string
  *               choices:
  *                 type: array
  *                 items:
@@ -2372,6 +2376,10 @@ const keycloak = AccountsHelper.keycloakInstance();
  *             properties:
  *               title:
  *                 type: string
+ *               titles:
+ *                 type: array
+ *                 items:
+ *                   type: string
  *               choices:
  *                 type: array
  *                 items:
@@ -2386,6 +2394,10 @@ const keycloak = AccountsHelper.keycloakInstance();
  *             properties:
  *               title:
  *                 type: string
+ *               titles:
+ *                 type: array
+ *                 items:
+ *                   type: string
  *               choices:
  *                 type: array
  *                 items:
@@ -2400,6 +2412,10 @@ const keycloak = AccountsHelper.keycloakInstance();
  *             properties:
  *               title:
  *                 type: string
+ *               titles:
+ *                 type: array
+ *                 items:
+ *                   type: string
  *               choices:
  *                 type: array
  *                 items:
@@ -2414,6 +2430,10 @@ const keycloak = AccountsHelper.keycloakInstance();
  *             properties:
  *               title:
  *                 type: string
+ *               titles:
+ *                 type: array
+ *                 items:
+ *                   type: string
  *               choices:
  *                 type: array
  *                 items:
@@ -2428,6 +2448,10 @@ const keycloak = AccountsHelper.keycloakInstance();
  *             properties:
  *               title:
  *                 type: string
+ *               titles:
+ *                 type: array
+ *                 items:
+ *                   type: string
  *               min:
  *                 type: integer
  *               max:
@@ -2437,6 +2461,10 @@ const keycloak = AccountsHelper.keycloakInstance();
  *             properties:
  *               title:
  *                 type: string
+ *               titles:
+ *                 type: array
+ *                 items:
+ *                   type: string
  *               min:
  *                 type: string
  *               max:
@@ -2446,18 +2474,34 @@ const keycloak = AccountsHelper.keycloakInstance();
  *       data:
  *         metadata.sample.collectionDate:
  *           title: Collection date
+ *           titles:
+ *             - Meatadata
+ *               Sample
+ *               Collection date
  *           min: 2018-04-03T14:03:00.036Z
  *           max: 2018-05-03T12:09:57.322Z
  *         metadata.patient.patientAge:
  *           title: Age
+ *           titles:
+ *             - Meatadata
+ *               Patient
+ *               Age
  *           min: 4
  *           max: 63
  *         metadata.patient.smoker:
  *           title: Smoker
+ *           titles:
+ *             - Meatadata
+ *               Patient
+ *               Smoker
  *           Yes: 57
  *           No: 63
  *         metadata.patient.countryOfBirth:
  *           title: Country of birth
+ *           titles:
+ *             - Meatadata
+ *               Patient
+ *               Country of birth
  *           choices:
  *             - key: India
  *               count: 12

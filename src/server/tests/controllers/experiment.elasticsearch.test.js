@@ -150,6 +150,56 @@ describe("## Experiment APIs", () => {
           done();
         });
     });
+    it("should include the titles array", done => {
+      request(app)
+        .get("/experiments/choices")
+        .set("Authorization", `Bearer ${token}`)
+        .expect(httpStatus.OK)
+        .end((err, res) => {
+          expect(res.body.status).toEqual("success");
+          const data = res.body.data;
+
+          expect(
+            data["metadata.phenotyping.gatifloxacin.method"].titles
+          ).toEqual(["Metadata", "Phenotyping", "Susceptibility", "Method"]);
+          expect(
+            data["metadata.phenotyping.phenotypeInformationFirstLineDrugs"]
+              .titles
+          ).toEqual([
+            "Metadata",
+            "Phenotyping",
+            "Phenotype Information First Line Drugs"
+          ]);
+          expect(
+            data["metadata.treatment.outsideStandardPhaseAmikacin.stop"].titles
+          ).toEqual(["Metadata", "Treatment", "Drug Phase", "Date stopped"]);
+          expect(data["metadata.patient.diabetic"].titles).toEqual([
+            "Metadata",
+            "Patient",
+            "Diabetic"
+          ]);
+          expect(
+            data["metadata.phenotyping.pretothionamide.susceptibility"].titles
+          ).toEqual([
+            "Metadata",
+            "Phenotyping",
+            "Susceptibility",
+            "Susceptible"
+          ]);
+          expect(data["metadata.outcome.whoOutcomeCategory"].titles).toEqual([
+            "Metadata",
+            "Outcome",
+            "WHO Outcome Category"
+          ]);
+          expect(data["metadata.genotyping.hainAm"].titles).toEqual([
+            "Metadata",
+            "Genotyping",
+            "HAIN AM"
+          ]);
+
+          done();
+        });
+    });
     it("should return min and max bmi values", done => {
       request(app)
         .get("/experiments/choices")
