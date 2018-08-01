@@ -4444,7 +4444,7 @@ make-iterator@^1.0.0:
 
 "makeandship-api-common@git+ssh://git@bitbucket.org:makeandship/makeandship-api-common.git":
   version "1.0.0"
-  resolved "git+ssh://git@bitbucket.org:makeandship/makeandship-api-common.git#830d015be2cf7b030563d2efffff69a22fa9260b"
+  resolved "git+ssh://git@bitbucket.org:makeandship/makeandship-api-common.git#cca7733412e83beff14238ac4d4605a552cd6464"
   dependencies:
     ajv "^6.5.0"
     axios "^0.18.0"
@@ -4894,7 +4894,7 @@ multipipe@^0.1.2:
 
 "mykrobe-atlas-jsonschema@git+ssh://git@github.com/Mykrobe-tools/mykrobe-atlas-jsonschema.git":
   version "1.0.0"
-  resolved "git+ssh://git@github.com/Mykrobe-tools/mykrobe-atlas-jsonschema.git#4c9aa725c5e108f9e17813193b70012490dcd112"
+  resolved "git+ssh://git@github.com/Mykrobe-tools/mykrobe-atlas-jsonschema.git#a77a16a60f373b11ee2d7f400eedd37bbbb9aaea"
   dependencies:
     onchange "^4.0.0"
 
