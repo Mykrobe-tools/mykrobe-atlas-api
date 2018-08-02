@@ -6,7 +6,7 @@ db:
   volumes:
     - /home/ubuntu/data/db:/data/db
   restart: always
-  command: --smallfiles --auth
+  command: --smallfiles --auth --replSet "rs0"
 atlas-api:
   build: ..
   dockerfile: ./deploy/Dockerfile
