@@ -177,7 +177,10 @@ const results = async (req, res) => {
       savedExperiment,
       "experiment"
     );
-    experimentEvent.emit("result-status", savedExperiment);
+    experimentEvent.emit("analysis-complete", {
+      experiment: savedExperiment,
+      results: updatedResults
+    });
     return res.jsend(savedExperiment);
   } catch (e) {
     return res.jerror(new errors.UpdateExperimentError(e.message));
