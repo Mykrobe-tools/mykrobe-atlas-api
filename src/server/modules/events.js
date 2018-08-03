@@ -35,20 +35,24 @@ experimentEvent.on("upload-complete", (experiment, uploadStatus) => {
 });
 
 experimentEvent.on("analysis-started", async audit => {
-  const experiment = await Experiment.get(audit.sampleId);
-  const data = new AnalysisStartedJSONTransformer().transform(audit, {
-    id: experiment.id
-  });
-  sendExperimentOwnerEvent(experiment, data);
+  try {
+    const experiment = await Experiment.get(audit.sampleId);
+    const data = new AnalysisStartedJSONTransformer().transform(audit, {
+      id: experiment.id
+    });
+    sendExperimentOwnerEvent(experiment, data);
+  } catch (e) {}
 });
 
 experimentEvent.on("analysis-complete", async payload => {
-  const audit = await Audit.getBySample(payload.experiment.id);
-  const data = new AnalysisCompleteJSONTransformer().transform(audit, {
-    id: payload.experiment.id,
-    results: payload.results
-  });
-  sendExperimentOwnerEvent(payload.experiment, data);
+  try {
+    const audit = await Audit.getBySample(payload.experiment.id);
+    const data = new AnalysisCompleteJSONTransformer().transform(audit, {
+      id: payload.experiment.id,
+      results: payload.results
+    });
+    sendExperimentOwnerEvent(payload.experiment, data);
+  } catch (e) {}
 });
 
 const events = Object.freeze({
