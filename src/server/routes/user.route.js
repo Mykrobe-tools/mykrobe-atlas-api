@@ -6,6 +6,53 @@ import config from "../../config/env";
 const router = express.Router(); // eslint-disable-line new-cap
 const keycloak = AccountsHelper.keycloakInstance();
 
+/**
+ * @swagger
+ * definitions:
+ *   uploadProgressExample:
+ *     example:
+ *       id: 5b6434fc2656da268e7cac5f
+ *       complete: 99.52
+ *       count: 206
+ *       total: 207
+ *       file: MDR.fastq.gz
+ *       event: Upload progress
+ */
+/**
+ * @swagger
+ * definitions:
+ *   uploadCompleteExample:
+ *     example:
+ *       id: 5b6434fc2656da268e7cac5f
+ *       complete: 100
+ *       count: 207
+ *       total: 207
+ *       file: MDR.fastq.gz
+ *       event: Upload complete
+ */
+/**
+ * @swagger
+ * definitions:
+ *   analysisStartedExample:
+ *     example:
+ *       id: 5b6434fc2656da268e7cac5f
+ *       taskId: e986f350-970b-11e8-8b76-7d2b3faf02cf
+ *       file: MDR.fastq.gz
+ *       event: Analysis started
+ */
+/**
+ * @swagger
+ * definitions:
+ *   analysisCompleteExample:
+ *     example:
+ *       id: 5b6434fc2656da268e7cac5f
+ *       taskId: e986f350-970b-11e8-8b76-7d2b3faf02cf
+ *       file: MDR.fastq.gz
+ *       results:
+ *         - type: predictor
+ *           received: 2018-08-03T10:17:40.626Z
+ *       event: Analysis complete
+ */
 router
   .route("/")
   /**
@@ -123,8 +170,15 @@ router
    *     responses:
    *       200:
    *         description: A jsend response
-   *         schema:
-   *           $ref: '#/definitions/BasicResponse'
+   *         examples:
+   *           uploadProgressExample:
+   *             $ref: '#/definitions/uploadProgressExample'
+   *           uploadCompleteExample:
+   *             $ref: '#/definitions/uploadCompleteExample'
+   *           analysisStartedExample:
+   *             $ref: '#/definitions/analysisStartedExample'
+   *           analysisCompleteExample:
+   *             $ref: '#/definitions/analysisCompleteExample'
    */
   .get(
     keycloak.connect.protect(),
