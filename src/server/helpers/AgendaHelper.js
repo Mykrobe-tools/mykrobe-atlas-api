@@ -1,6 +1,7 @@
 import axios from "axios";
 import Audit from "../models/audit.model";
 import config from "../../config/env";
+import { experimentEvent } from "../modules/events";
 
 class AgendaHelper {
   static async callAnalysisApi(job, done) {
@@ -21,7 +22,8 @@ class AgendaHelper {
           taskId: response.data && response.data.task_id,
           attempt: data.attempt + 1
         });
-        await audit.save();
+        const savedAudit = await audit.save();
+        experimentEvent.emit("analysis-started", savedAudit);
       }
       return done();
     } catch (e) {

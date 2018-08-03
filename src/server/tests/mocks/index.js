@@ -1,4 +1,5 @@
 import nock from "nock";
+import uuid from "uuid";
 import { ElasticsearchHelper } from "makeandship-api-common/lib/modules/elasticsearch/";
 import config from "../../../config/env";
 
@@ -20,6 +21,15 @@ const mockAnalysisApiCalls = () => {
       return body.file.endsWith("333-09.json");
     })
     .reply(500, { result: "error" });
+};
+
+const mockDevAnalysisApiCalls = () => {
+  nock(config.services.analysisApiUrl)
+    .post("/analyses")
+    .reply(200, {
+      result: "success",
+      task_id: uuid.v1()
+    });
 };
 
 // mock elasticsearch calls
@@ -74,7 +84,8 @@ const mockKeycloakCalls = () => {
 const mocks = Object.freeze({
   mockAnalysisApiCalls,
   mockEsCalls,
-  mockKeycloakCalls
+  mockKeycloakCalls,
+  mockDevAnalysisApiCalls
 });
 
 export default mocks;

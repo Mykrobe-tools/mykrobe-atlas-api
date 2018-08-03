@@ -8,6 +8,7 @@ import Experiment from "../../models/experiment.model";
 import Audit from "../../models/audit.model";
 import MDR from "../../tests/fixtures/files/MDR_Results.json";
 import { mockEsCalls } from "../mocks";
+import { experimentEvent } from "../../modules/events";
 
 mockEsCalls();
 
@@ -377,6 +378,46 @@ describe("## Experiment APIs", () => {
           expect(res.body.status).toEqual("success");
           expect(res.body.data).toEqual("File uploaded and reassembled");
           expect(fs.existsSync(filePath)).toEqual(true);
+          done();
+        });
+    });
+    it("should emit upload-complete event to all the subscribers", done => {
+      const mockCallback = jest.fn();
+      experimentEvent.on("upload-complete", mockCallback);
+      request(app)
+        .put(`/experiments/${id}/file`)
+        .set("Authorization", `Bearer ${token}`)
+        .field("resumableChunkNumber", 1)
+        .field("resumableChunkSize", 1048576)
+        .field("resumableCurrentChunkSize", 251726)
+        .field("resumableTotalSize", 251726)
+        .field("resumableType", "application/json")
+        .field("resumableIdentifier", "251726-333-08json")
+        .field("resumableFilename", "333-08.json")
+        .field("resumableRelativePath", "333-08.json")
+        .field("resumableTotalChunks", 1)
+        .field("checksum", "4f36e4cbfc9dfc37559e13bd3a309d50")
+        .attach("file", "src/server/tests/fixtures/files/333-08.json")
+        .expect(httpStatus.OK)
+        .end((err, res) => {
+          const filePath = `${
+            config.express.uploadDir
+          }/experiments/${id}/file/333-08.json`;
+          expect(res.body.status).toEqual("success");
+          expect(res.body.data).toEqual("File uploaded and reassembled");
+          expect(fs.existsSync(filePath)).toEqual(true);
+
+          expect(mockCallback.mock.calls.length).toEqual(1);
+          const calls = mockCallback.mock.calls;
+
+          expect(mockCallback.mock.calls[0].length).toEqual(2);
+          const arg1 = mockCallback.mock.calls[0][0];
+          const arg2 = mockCallback.mock.calls[0][1];
+
+          expect(arg1.id).toEqual(id);
+          expect(arg2.filename).toEqual("333-08.json");
+          expect(arg2.complete).toEqual(true);
+
           done();
         });
     });
@@ -922,6 +963,56 @@ describe("## Experiment APIs", () => {
             done();
           });
       });
+      it("should emit the analysis-started event to all subscribers", done => {
+        const mockCallback = jest.fn();
+        experimentEvent.on("analysis-started", mockCallback);
+        request(app)
+          .put(`/experiments/${id}/file`)
+          .set("Authorization", `Bearer ${token}`)
+          .field("resumableChunkNumber", 1)
+          .field("resumableChunkSize", 1048576)
+          .field("resumableCurrentChunkSize", 251726)
+          .field("resumableTotalSize", 251726)
+          .field("resumableType", "application/json")
+          .field("resumableIdentifier", "251726-333-08json")
+          .field("resumableFilename", "333-08.json")
+          .field("resumableRelativePath", "333-08.json")
+          .field("resumableTotalChunks", 1)
+          .field("checksum", "4f36e4cbfc9dfc37559e13bd3a309d50")
+          .attach("file", "src/server/tests/fixtures/files/333-08.json")
+          .expect(httpStatus.OK)
+          .end(async (err, res) => {
+            let audits = await Audit.find({ sampleId: id });
+            while (audits.length === 0) {
+              audits = await Audit.find({ sampleId: id });
+            }
+            const audit = audits[0];
+            expect(res.body.status).toEqual("success");
+            expect(res.body.data).toEqual("File uploaded and reassembled");
+            expect(audit.sampleId).toEqual(id);
+            expect(audit.fileLocation).toEqual(
+              `${
+                config.express.uploadsLocation
+              }/experiments/${id}/file/333-08.json`
+            );
+            expect(audit.status).toEqual("Successful");
+            expect(audit.attempt).toEqual(1);
+            expect(audit.taskId).toEqual(
+              "1447d80f-ca79-40ac-bc5d-8a02933323c3"
+            );
+
+            expect(mockCallback.mock.calls.length).toEqual(1);
+            const calls = mockCallback.mock.calls;
+
+            expect(mockCallback.mock.calls[0].length).toEqual(1);
+            const arg1 = mockCallback.mock.calls[0][0];
+
+            expect(arg1.sampleId).toEqual(id);
+            expect(arg1.taskId).toEqual("1447d80f-ca79-40ac-bc5d-8a02933323c3");
+
+            done();
+          });
+      });
       it("should retry the analysis api call when failed", done => {
         request(app)
           .put(`/experiments/${id}/file`)
@@ -1141,6 +1232,39 @@ describe("## Experiment APIs", () => {
           const results = experimentWithResults.get("results");
 
           expect(results.length).toEqual(1);
+          done();
+        });
+    });
+    it("should emit analysis-complete event to all subscribers", done => {
+      const mockCallback = jest.fn();
+      experimentEvent.on("analysis-complete", mockCallback);
+      request(app)
+        .post(`/experiments/${id}/results`)
+        .send(MDR)
+        .expect(httpStatus.OK)
+        .end(async (err, res) => {
+          const experimentWithResults = await Experiment.get(id);
+          const results = experimentWithResults.get("results");
+
+          expect(results.length).toEqual(1);
+
+          expect(mockCallback.mock.calls.length).toEqual(1);
+          const calls = mockCallback.mock.calls;
+
+          expect(mockCallback.mock.calls[0].length).toEqual(1);
+          const arg1 = mockCallback.mock.calls[0][0];
+
+          expect(arg1.experiment.id).toEqual(id);
+          expect(arg1.results[0].externalId).toEqual(results[0].externalId);
+          expect(arg1.results[0].files).toEqual(results[0].files);
+          expect(arg1.results[0].genotypeModel).toEqual(
+            results[0].genotypeModel
+          );
+          expect(arg1.results[0].kmer).toEqual(results[0].kmer);
+          expect(arg1.results[0].phylogenetics).toEqual(
+            results[0].phylogenetics
+          );
+
           done();
         });
     });
