@@ -680,7 +680,7 @@ const keycloak = AccountsHelper.keycloakInstance();
  *                   type: string
  *                 analysed:
  *                   type: string
- *                 susceptitibility:
+ *                 susceptibility:
  *                   type: array
  *                   items:
  *                     type: string
@@ -772,7 +772,7 @@ const keycloak = AccountsHelper.keycloakInstance();
  *         results:
  *           - type: result type
  *             analysed: Yes
- *             susceptitibility:
+ *             susceptibility:
  *               - lorem
  *                 ipsum
  *             phylogenetics:
@@ -1459,7 +1459,7 @@ const keycloak = AccountsHelper.keycloakInstance();
  *                     type: string
  *                   analysed:
  *                     type: string
- *                   susceptitibility:
+ *                   susceptibility:
  *                     type: array
  *                     items:
  *                       type: string
@@ -1551,7 +1551,7 @@ const keycloak = AccountsHelper.keycloakInstance();
  *           results:
  *             - type: result type
  *               analysed: Yes
- *               susceptitibility:
+ *               susceptibility:
  *                 - lorem
  *                   ipsum
  *               phylogenetics:
@@ -3250,7 +3250,7 @@ router
    *               outcome:
    *                 type: result type
    *                 analysed: Yes
-   *                 susceptitibility:
+   *                 susceptibility:
    *                   - lorem
    *                     ipsum
    *                 phylogenetics:
