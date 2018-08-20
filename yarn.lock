@@ -4894,7 +4894,7 @@ multipipe@^0.1.2:
 
 "mykrobe-atlas-jsonschema@git+ssh://git@github.com/Mykrobe-tools/mykrobe-atlas-jsonschema.git":
   version "1.0.0"
-  resolved "git+ssh://git@github.com/Mykrobe-tools/mykrobe-atlas-jsonschema.git#271ffcf31f13c2ef7eddd02fd6dcba303c133ca3"
+  resolved "git+ssh://git@github.com/Mykrobe-tools/mykrobe-atlas-jsonschema.git#3831c04b413f4dfea59ae1eed7357c8f62f2c3c3"
   dependencies:
     onchange "^4.0.0"
 
