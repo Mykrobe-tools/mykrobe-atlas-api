@@ -3714,7 +3714,8 @@ router
    *         schema:
    *           $ref: '#/definitions/ExperimentResponse'
    */
-  .post(experimentController.results);
+  .post(experimentController.results)
+  .get(experimentController.listResults);
 router
   .route("/:id/file")
   /**

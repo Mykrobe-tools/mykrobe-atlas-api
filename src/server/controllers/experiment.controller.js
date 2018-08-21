@@ -17,6 +17,7 @@ import resumable from "../modules/resumable";
 import DownloadersFactory from "../helpers/DownloadersFactory";
 
 import ExperimentJSONTransformer from "../transformers/ExperimentJSONTransformer";
+import ExperimentResultsPerTypeJSONTransformer from "../transformers/ExperimentResultsPerTypeJSONTransformer";
 import ExperimentsResultJSONTransformer from "../transformers/es/ExperimentsResultJSONTransformer";
 
 import APIError from "../helpers/APIError";
@@ -386,6 +387,23 @@ const search = async (req, res) => {
   }
 };
 
+/**
+ * List experiment results
+ * @param {object} req
+ * @param {object} res
+ */
+const listResults = async (req, res) => {
+  const experiment = req.experiment;
+  const results = experiment.get("results");
+
+  const resp = new ExperimentResultsPerTypeJSONTransformer().transform(
+    results,
+    {}
+  );
+
+  return res.jsend(resp);
+};
+
 export default {
   load,
   get,
@@ -400,5 +418,6 @@ export default {
   uploadStatus,
   reindex,
   choices,
-  search
+  search,
+  listResults
 };
