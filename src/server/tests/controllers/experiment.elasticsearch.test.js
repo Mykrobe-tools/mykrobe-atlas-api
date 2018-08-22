@@ -196,6 +196,7 @@ describe("## Experiment APIs", () => {
             "Genotyping",
             "HAIN AM"
           ]);
+          expect(data["results.kmer"].titles).toEqual(["Results", "K-mer"]);
 
           done();
         });
