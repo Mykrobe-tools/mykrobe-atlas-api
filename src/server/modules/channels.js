@@ -15,7 +15,12 @@ class Channels {
     const channelId = this.getChannelId(type, id);
 
     if (!this.channels.hasOwnProperty(channelId)) {
-      const channel = new SseChannel({ jsonEncode: true });
+      const channel = new SseChannel({
+        jsonEncode: true,
+        cors: {
+          origins: ["*"]
+        }
+      });
       this.channels[channelId] = channel;
     }
 
