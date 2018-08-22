@@ -13,6 +13,7 @@ const RESISTANT = "R";
 const PERCENT_COVERAGE = "percent_coverage";
 const MEDIAN_DEPTH = "median_depth";
 const EXTERNAL_ID = "external_id";
+const ANALYSED = "analysed";
 
 class ResultsHelper {
   static parse(predictorNamedResult) {
@@ -63,6 +64,9 @@ class ResultsHelper {
               break;
             case EXTERNAL_ID:
               result.externalId = predictorResult[attribute];
+              break;
+            case ANALYSED:
+              result.analysed = new Date();
               break;
           }
         }

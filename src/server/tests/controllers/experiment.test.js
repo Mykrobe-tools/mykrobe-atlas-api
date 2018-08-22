@@ -7,6 +7,7 @@ import User from "../../models/user.model";
 import Experiment from "../../models/experiment.model";
 import Audit from "../../models/audit.model";
 import MDR from "../../tests/fixtures/files/MDR_Results.json";
+import results from "../../tests/fixtures/results";
 import { mockEsCalls } from "../mocks";
 import { experimentEvent } from "../../modules/events";
 
@@ -1291,6 +1292,130 @@ describe("## Experiment APIs", () => {
           expect(res.body.message).toEqual("Not Authorised");
           done();
         });
+    });
+  });
+  describe("# GET /experiments/:id/results", () => {
+    describe("when the results are empty", () => {
+      it("should return empty results object", done => {
+        request(app)
+          .get(`/experiments/${id}/results`)
+          .set("Authorization", `Bearer ${token}`)
+          .expect(httpStatus.OK)
+          .end((err, res) => {
+            expect(res.body.status).toEqual("success");
+            expect(res.body.data).toEqual({});
+            done();
+          });
+      });
+    });
+    describe("when using one type", () => {
+      beforeEach(async done => {
+        const experiment = await Experiment.get(id);
+        const experimentResults = [];
+        experimentResults.push(results.mdr);
+        experiment.set("results", experimentResults);
+        await experiment.save();
+        done();
+      });
+      it("should return the results per type", done => {
+        request(app)
+          .get(`/experiments/${id}/results`)
+          .set("Authorization", `Bearer ${token}`)
+          .expect(httpStatus.OK)
+          .end((err, res) => {
+            expect(res.body.status).toEqual("success");
+            expect(res.body.data).toHaveProperty("predictor");
+            expect(res.body.data.predictor.susceptibility.length).toEqual(9);
+            expect(res.body.data.predictor.phylogenetics.length).toEqual(4);
+            expect(res.body.data.predictor.analysed).toEqual(
+              "2018-07-12T11:23:20.964Z"
+            );
+            expect(res.body.data.predictor.type).toBeUndefined();
+            done();
+          });
+      });
+      it("should be a protected route", done => {
+        request(app)
+          .get(`/experiments/${id}/results`)
+          .set("Authorization", "Bearer INVALID_TOKEN")
+          .expect(httpStatus.UNAUTHORIZED)
+          .end((err, res) => {
+            expect(res.body.status).toEqual("error");
+            expect(res.body.message).toEqual("Not Authorised");
+            done();
+          });
+      });
+    });
+    describe("when using multiple types", () => {
+      beforeEach(async done => {
+        const experiment = await Experiment.get(id);
+        const experimentResults = [];
+        experimentResults.push(results.mdr);
+        experimentResults.push(results.other);
+        experiment.set("results", experimentResults);
+        await experiment.save();
+        done();
+      });
+      it("should return the results per type", done => {
+        request(app)
+          .get(`/experiments/${id}/results`)
+          .set("Authorization", `Bearer ${token}`)
+          .expect(httpStatus.OK)
+          .end((err, res) => {
+            expect(res.body.status).toEqual("success");
+            expect(res.body.data).toHaveProperty("predictor");
+            expect(res.body.data.predictor.susceptibility.length).toEqual(9);
+            expect(res.body.data.predictor.phylogenetics.length).toEqual(4);
+            expect(res.body.data.predictor.analysed).toEqual(
+              "2018-07-12T11:23:20.964Z"
+            );
+            expect(res.body.data.predictor.type).toBeUndefined();
+            expect(res.body.data).toHaveProperty("other");
+            expect(res.body.data.other.susceptibility.length).toEqual(6);
+            expect(res.body.data.other.phylogenetics.length).toEqual(2);
+            expect(res.body.data.other.analysed).toEqual(
+              "2018-07-01T11:23:20.964Z"
+            );
+            expect(res.body.data.other.type).toBeUndefined();
+            done();
+          });
+      });
+    });
+    describe("when using duplicate types", () => {
+      beforeEach(async done => {
+        const experiment = await Experiment.get(id);
+        const experimentResults = [];
+        experimentResults.push(results.mdr);
+        experimentResults.push(results.other);
+        experimentResults.push(results.predictor);
+        experiment.set("results", experimentResults);
+        await experiment.save();
+        done();
+      });
+      it("should return the results per latest type", done => {
+        request(app)
+          .get(`/experiments/${id}/results`)
+          .set("Authorization", `Bearer ${token}`)
+          .expect(httpStatus.OK)
+          .end((err, res) => {
+            expect(res.body.status).toEqual("success");
+            expect(res.body.data).toHaveProperty("predictor");
+            expect(res.body.data.predictor.susceptibility.length).toEqual(4);
+            expect(res.body.data.predictor.phylogenetics.length).toEqual(2);
+            expect(res.body.data.predictor.analysed).toEqual(
+              "2018-09-12T11:23:20.964Z"
+            );
+            expect(res.body.data.predictor.type).toBeUndefined();
+            expect(res.body.data).toHaveProperty("other");
+            expect(res.body.data.other.susceptibility.length).toEqual(6);
+            expect(res.body.data.other.phylogenetics.length).toEqual(2);
+            expect(res.body.data.other.analysed).toEqual(
+              "2018-07-01T11:23:20.964Z"
+            );
+            expect(res.body.data.other.type).toBeUndefined();
+            done();
+          });
+      });
     });
   });
 });

@@ -1,21 +1,25 @@
-import ModelJSONTransformer from "makeandship-api-common/lib/transformers/ModelJSONTransformer";
-
 /**
  * A class to transform json responses
  * @property response : the response Object from mongoose
  */
-class ExperimentResultsPerTypeJSONTransformer extends ModelJSONTransformer {
+class ExperimentResultsPerTypeJSONTransformer {
   /**
    * The transformation engine
    */
-  transform(o) {
+  transform(res) {
     const response = {};
-    let res = super.transform(o, {});
 
     if (res && res.length) {
-      res.sort((a, b) => new Date(a.analysed) - new Date(b.analysed));
       res.forEach(result => {
-        response[result.type] = result;
+        if (response[result.type]) {
+          if (
+            new Date(result.analysed) > new Date(response[result.type].analysed)
+          ) {
+            response[result.type] = result;
+          }
+        } else {
+          response[result.type] = result;
+        }
         delete response[result.type].type;
       });
     }

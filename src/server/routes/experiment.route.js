@@ -1572,6 +1572,41 @@ const keycloak = AccountsHelper.keycloakInstance();
 /**
  * @swagger
  * definitions:
+ *   ExperimentResultsResponse:
+ *     properties:
+ *       status:
+ *         type: string
+ *       data:
+ *         type: object
+ *         properties:
+ *           resultType1:
+ *             type: object
+ *           resultType2:
+ *             type: object
+ *     example:
+ *       status: success
+ *       data:
+ *         predictor:
+ *           analysed: 2018-07-03T23:20:28.654Z
+ *           susceptibility:
+ *             - name: Ethambutol
+ *               prediction: R
+ *             - name: Quinolones
+ *               prediction: S
+ *           kmer: 217
+ *           phylogenetics:
+ *             - type: phylo_group
+ *               result: result
+ *               percentCoverage: 51.92
+ *               medianDepth: 118
+ *             - type: lineage
+ *               result: lineage_result
+ *               percentCoverage: 83.85
+ *               medianDepth: 523
+ */
+/**
+ * @swagger
+ * definitions:
  *   SearchExperimentsResponse:
  *     properties:
  *       status:
@@ -3715,7 +3750,31 @@ router
    *           $ref: '#/definitions/ExperimentResponse'
    */
   .post(experimentController.results)
-  .get(experimentController.listResults);
+  /**
+   * @swagger
+   * /experiments/{id}/results:
+   *   get:
+   *     tags:
+   *       - Experiments
+   *     description: Experiment results
+   *     operationId: experimentResultsPerType
+   *     produces:
+   *       - application/json
+   *     security:
+   *       - Bearer: []
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         type: string
+   *         description: The experiment id
+   *     responses:
+   *       200:
+   *         description: Experiment results
+   *         schema:
+   *           $ref: '#/definitions/ExperimentResultsResponse'
+   */
+  .get(keycloak.connect.protect(), experimentController.listResults);
 router
   .route("/:id/file")
   /**
