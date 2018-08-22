@@ -161,7 +161,7 @@ describe("## Experiment APIs", () => {
 
           expect(
             data["metadata.phenotyping.gatifloxacin.method"].titles
-          ).toEqual(["Metadata", "Phenotyping", "Susceptibility", "Method"]);
+          ).toEqual(["Metadata", "Phenotyping", "Gatifloxacin", "Method"]);
           expect(
             data["metadata.phenotyping.phenotypeInformationFirstLineDrugs"]
               .titles
@@ -172,7 +172,7 @@ describe("## Experiment APIs", () => {
           ]);
           expect(
             data["metadata.treatment.outsideStandardPhaseAmikacin.stop"].titles
-          ).toEqual(["Metadata", "Treatment", "Drug Phase", "Date stopped"]);
+          ).toEqual(["Metadata", "Treatment", "Amikacin", "Date stopped"]);
           expect(data["metadata.patient.diabetic"].titles).toEqual([
             "Metadata",
             "Patient",
@@ -183,7 +183,7 @@ describe("## Experiment APIs", () => {
           ).toEqual([
             "Metadata",
             "Phenotyping",
-            "Susceptibility",
+            "Pretothionamide",
             "Susceptible"
           ]);
           expect(data["metadata.outcome.whoOutcomeCategory"].titles).toEqual([
