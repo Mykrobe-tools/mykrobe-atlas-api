@@ -1,4 +1,7 @@
+import ArrayJSONTransformer from "makeandship-api-common/lib/transformers/ArrayJSONTransformer";
+
 import AnalysisEventJSONTransformer from "./AnalysisEventJSONTransformer";
+import ResultsJSONTransformer from "../ResultsJSONTransformer";
 
 /**
  * A class to transform event payloads
@@ -11,7 +14,14 @@ class AnalysisCompleteJSONTransformer extends AnalysisEventJSONTransformer {
   transform(o, options) {
     const res = super.transform(o, options);
     res.event = "Analysis complete";
-    res.results = options.results;
+
+    const results = options.results;
+    if (results) {
+      res.results = new ArrayJSONTransformer().transform(results, {
+        transformer: ResultsJSONTransformer
+      });
+    }
+
     return res;
   }
 }
