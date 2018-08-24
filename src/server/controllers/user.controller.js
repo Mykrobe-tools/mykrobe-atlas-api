@@ -132,6 +132,9 @@ const assignRole = async (req, res) => {
  * Get user events
  */
 const events = async (req, res) => {
+  res.set({
+    "X-Accel-Buffering": "no"
+  });
   const channel = await channels.getUserChannel(req.dbUser.id);
   channel.addClient(req, res);
 };

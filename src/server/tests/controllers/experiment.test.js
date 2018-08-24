@@ -1351,7 +1351,7 @@ describe("## Experiment APIs", () => {
         const experiment = await Experiment.get(id);
         const experimentResults = [];
         experimentResults.push(results.mdr);
-        experimentResults.push(results.other);
+        experimentResults.push(results.distance);
         experiment.set("results", experimentResults);
         await experiment.save();
         done();
@@ -1370,13 +1370,14 @@ describe("## Experiment APIs", () => {
               "2018-07-12T11:23:20.964Z"
             );
             expect(res.body.data.predictor.type).toBeUndefined();
-            expect(res.body.data).toHaveProperty("other");
-            expect(res.body.data.other.susceptibility.length).toEqual(6);
-            expect(res.body.data.other.phylogenetics.length).toEqual(2);
-            expect(res.body.data.other.analysed).toEqual(
+            expect(res.body.data).toHaveProperty("distance");
+            expect(res.body.data.distance.susceptibility.length).toEqual(6);
+            expect(res.body.data.distance.phylogenetics.length).toEqual(2);
+            expect(res.body.data.distance.analysed).toEqual(
               "2018-07-01T11:23:20.964Z"
             );
-            expect(res.body.data.other.type).toBeUndefined();
+            expect(res.body.data.distance.type).toBeUndefined();
+
             done();
           });
       });
@@ -1386,7 +1387,7 @@ describe("## Experiment APIs", () => {
         const experiment = await Experiment.get(id);
         const experimentResults = [];
         experimentResults.push(results.mdr);
-        experimentResults.push(results.other);
+        experimentResults.push(results.distance);
         experimentResults.push(results.predictor);
         experiment.set("results", experimentResults);
         await experiment.save();
@@ -1406,13 +1407,13 @@ describe("## Experiment APIs", () => {
               "2018-09-12T11:23:20.964Z"
             );
             expect(res.body.data.predictor.type).toBeUndefined();
-            expect(res.body.data).toHaveProperty("other");
-            expect(res.body.data.other.susceptibility.length).toEqual(6);
-            expect(res.body.data.other.phylogenetics.length).toEqual(2);
-            expect(res.body.data.other.analysed).toEqual(
+            expect(res.body.data).toHaveProperty("distance");
+            expect(res.body.data.distance.susceptibility.length).toEqual(6);
+            expect(res.body.data.distance.phylogenetics.length).toEqual(2);
+            expect(res.body.data.distance.analysed).toEqual(
               "2018-07-01T11:23:20.964Z"
             );
-            expect(res.body.data.other.type).toBeUndefined();
+            expect(res.body.data.distance.type).toBeUndefined();
             done();
           });
       });

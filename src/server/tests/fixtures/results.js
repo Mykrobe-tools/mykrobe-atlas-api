@@ -181,7 +181,7 @@ export default {
       a: "b"
     }
   },
-  other: {
+  distance: {
     probeSets: [
       "/home/admin/git/mykrobe-atlas-cli/src/mykrobe/data/panels/tb-species-170421.fasta.gz",
       "/home/admin/git/mykrobe-atlas-cli/src/mykrobe/data/panels/tb-walker-probe-set-feb-09-2017.fasta.gz"
@@ -291,7 +291,7 @@ export default {
         medianDepth: 47
       }
     ],
-    type: "other",
+    type: "distance",
     received: "2018-07-12T11:23:20.964Z",
     analysed: "2018-07-01T11:23:20.964Z",
     kmer: 21,
