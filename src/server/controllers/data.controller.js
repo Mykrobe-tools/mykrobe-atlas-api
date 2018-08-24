@@ -1,12 +1,22 @@
 import _ from "lodash";
 import * as schemas from "mykrobe-atlas-jsonschema";
 import Randomizer from "makeandship-api-common/lib/modules/schema-faker/Randomizer";
+import { getRandomPercentage } from "makeandship-api-common/lib/modules/schema-faker/utils";
 import User from "../models/user.model";
 import Experiment from "../models/experiment.model";
+import phylogenetics from "../../config/faker/phylogenetics-choices";
 
 // randomizers
 const userRandomizer = new Randomizer(schemas.user, {});
-const experimentRandomizer = new Randomizer(schemas.experiment, {});
+const experimentRandomizer = new Randomizer(schemas.experiment, {
+  overrides: {
+    results: {
+      phylogenetics: function(schema, property, data) {
+        return generatePhylogenetics.call(schema, property, data);
+      }
+    }
+  }
+});
 
 /**
  * Clears the data in the db
@@ -58,6 +68,35 @@ const createOwners = count => {
     promises.push(saveOwner());
   }
   return Promise.all(promises);
+};
+
+const generatePhylogenetics = (
+  schema,
+  property,
+  data,
+  choices = phylogenetics,
+  phylogeneticsArray = []
+) => {
+  if (choices && Object.keys(choices)) {
+    Object.keys(choices).forEach(type => {
+      const possibleResults = Object.keys(choices[type]);
+      const result = _.sample(possibleResults);
+      phylogeneticsArray.push({
+        type,
+        result,
+        percentCoverage: getRandomPercentage(),
+        medianDepth: _.sample([-1, 0, 40, 100, 116, 117, 122])
+      });
+      generatePhylogenetics(
+        schema,
+        property,
+        data,
+        choices[type][result],
+        phylogeneticsArray
+      );
+    });
+  }
+  return phylogeneticsArray;
 };
 
 export default { clean, create };
