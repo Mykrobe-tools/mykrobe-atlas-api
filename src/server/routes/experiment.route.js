@@ -3284,7 +3284,8 @@ router
     jsonschema.schemaValidation(
       schemas["experiment"],
       errors,
-      "CreateExperimentError"
+      "CreateExperimentError",
+      "all"
     ),
     userController.loadCurrentUser,
     experimentController.create

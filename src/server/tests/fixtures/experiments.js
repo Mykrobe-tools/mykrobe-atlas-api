@@ -48,5 +48,15 @@ export default {
       phenotyping: metadata.uploadedMetadata.phenotyping
     },
     results: []
+  },
+  tbUploadMetadataWithAdditional: {
+    metadata: {
+      patient: metadata.uploadedMetadata.patient,
+      sample: metadata.uploadedMetadata.sample,
+      genotyping: metadata.uploadedMetadata.genotyping,
+      phenotyping: metadata.uploadedMetadata.phenotyping
+    },
+    field1: "lorem",
+    field2: "ipsum"
   }
 };
