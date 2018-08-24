@@ -4442,33 +4442,10 @@ make-iterator@^1.0.0:
   dependencies:
     kind-of "^6.0.2"
 
-"makeandship-api-common@git+ssh://git@bitbucket.org:makeandship/makeandship-api-common.git":
+"makeandship-api-common@git+ssh://git@bitbucket.org:makeandship/makeandship-api-common.git", "makeandship-api-common@git+ssh://git@bitbucket.org:makeandship/makeandship-api-common.git#v0.0.5":
   version "1.0.0"
-  resolved "git+ssh://git@bitbucket.org:makeandship/makeandship-api-common.git#cca7733412e83beff14238ac4d4605a552cd6464"
-  dependencies:
-    ajv "^6.5.0"
-    axios "^0.18.0"
-    bluebird "^3.5.1"
-    bodybuilder "^2.2.10"
-    deepmerge "^2.1.1"
-    elasticsearch "^15.0.0"
-    errors "^0.3.0"
-    faker "^4.1.0"
-    http-status "^1.2.0"
-    json-schema-parser "^0.1.0"
-    jsonpointer "^4.0.1"
-    keycloak-admin-client "^0.12.0"
-    keycloak-connect "^4.0.0"
-    lodash "^4.17.10"
-    moment "^2.22.2"
-    nhs-number-validator "^1.1.1"
-    nodemailer "^4.6.5"
-    nodemailer-mock "^1.3.13"
-    path "^0.12.7"
-
-"makeandship-api-common@git+ssh://git@bitbucket.org:makeandship/makeandship-api-common.git#v0.0.4":
-  version "1.0.0"
-  resolved "git+ssh://git@bitbucket.org:makeandship/makeandship-api-common.git#dd669dc804056b27b6f9604bde7287c6652b8b69"
+  uid "3bc5ad98d28848e73cc228f132445366b6fd954d"
+  resolved "git+ssh://git@bitbucket.org:makeandship/makeandship-api-common.git#3bc5ad98d28848e73cc228f132445366b6fd954d"
   dependencies:
     ajv "^6.5.0"
     axios "^0.18.0"
