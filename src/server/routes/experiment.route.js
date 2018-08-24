@@ -672,43 +672,31 @@ const keycloak = AccountsHelper.keycloakInstance();
  *                     type: string
  *                     format: date-time
  *           results:
- *             type: array
- *             items:
- *               type: object
- *               properties:
- *                 type:
- *                   type: string
- *                 analysed:
- *                   type: string
- *                 susceptibility:
- *                   type: array
- *                   items:
+ *             type: object
+ *             properties:
+ *               predictor:
+ *                 type: object
+ *                 properties:
+ *                   type:
  *                     type: string
- *                 phylogenetics:
- *                   type: object
- *                   properties:
- *                     et:
- *                       type: object
- *                       properties:
- *                         voluptas:
- *                           type: object
- *                           properties:
- *                             percentCoverage:
- *                               type: number
- *                             medianDepth:
- *                               type: number
- *                 kmer:
- *                   type: number
- *                 probeSets:
- *                   type: array
- *                   items:
+ *                   analysed:
  *                     type: string
- *                 file:
- *                   type: array
- *                   items:
+ *                   susceptibility:
+ *                     type: object
+ *                   phylogenetics:
+ *                     type: object
+ *                   kmer:
+ *                     type: number
+ *                   probeSets:
+ *                     type: array
+ *                     items:
+ *                       type: string
+ *                   file:
+ *                     type: array
+ *                     items:
+ *                       type: string
+ *                   genotypeModel:
  *                     type: string
- *                 genotypeModel:
- *                   type: string
  *     example:
  *       status: success
  *       data:
@@ -770,25 +758,51 @@ const keycloak = AccountsHelper.keycloakInstance();
  *               method: Not known
  *             phenotypeInformationOtherDrugs: No
  *         results:
- *           - type: result type
- *             analysed: Yes
+ *           predictor:
+ *             analysed: 2018-11-01 11:11:11
  *             susceptibility:
- *               - lorem
- *                 ipsum
+ *               Isoniazid:
+ *                 prediction: R
+ *               Kanamycin:
+ *                 prediction: S
+ *               Ethambutol:
+ *                 prediction: S
+ *               Streptomycin:
+ *                 prediction: S
+ *               Capreomycin:
+ *                 prediction: S
+ *               Quinolones:
+ *                 prediction: S
+ *               Pyrazinamide:
+ *                 prediction: R
+ *               Amikacin:
+ *                 prediction: R
+ *               Rifampicin:
+ *                 prediction: R
  *             phylogenetics:
- *               et:
- *                 voluptas:
- *                   percentCoverage: 37.59
- *                   medianDepth: 55
+ *               phylo_group:
+ *                 Mycobacterium_tuberculosis_complex:
+ *                   percent_coverage: 99.722
+ *                   median_depth: 122
+ *               sub_complex:
+ *                 Unknown:
+ *                   percent_coverage: -1
+ *                   median_depth: -1
+ *               species:
+ *                 Mycobacterium_tuberculosis:
+ *                   percent_coverage: 98.199
+ *                   median_depth: 116
+ *               lineage:
+ *                 European_American:
+ *                   percent_coverage: 100.0
+ *                   median_depth: 117
  *             kmer: 787
  *             probeSets:
- *               - lorem
- *                 ipsum
- *                 lord
+ *               - /home/admin/git/mykrobe-atlas-cli/src/mykrobe/data/panels/tb-species-170421.fasta.gz
+ *                 /home/admin/git/mykrobe-atlas-cli/src/mykrobe/data/panels/tb-walker-probe-set-feb-09-2017.fasta.gz
  *             file:
- *               - file1.pdf
- *                 file2.pdf
- *             genotypeModel: dolorem
+ *               - /atlas/test-data/MDR.fastq.gz
+ *             genotypeModel: median_depth
  */
 /**
  * @swagger
@@ -1451,43 +1465,31 @@ const keycloak = AccountsHelper.keycloakInstance();
  *                       type: string
  *                       format: date-time
  *             results:
- *               type: array
- *               items:
- *                 type: object
- *                 properties:
- *                   type:
- *                     type: string
- *                   analysed:
- *                     type: string
- *                   susceptibility:
- *                     type: array
- *                     items:
+ *               type: object
+ *               properties:
+ *                 predictor:
+ *                   type: object
+ *                   properties:
+ *                     type:
  *                       type: string
- *                   phylogenetics:
- *                     type: object
- *                     properties:
- *                       et:
- *                         type: object
- *                         properties:
- *                           voluptas:
- *                             type: object
- *                             properties:
- *                               percentCoverage:
- *                                 type: number
- *                               medianDepth:
- *                                 type: number
- *                   kmer:
- *                     type: number
- *                   probeSets:
- *                     type: array
- *                     items:
+ *                     analysed:
  *                       type: string
- *                   file:
- *                     type: array
- *                     items:
+ *                     susceptibility:
+ *                       type: object
+ *                     phylogenetics:
+ *                       type: object
+ *                     kmer:
+ *                       type: number
+ *                     probeSets:
+ *                       type: array
+ *                       items:
+ *                         type: string
+ *                     file:
+ *                       type: array
+ *                       items:
+ *                         type: string
+ *                     genotypeModel:
  *                       type: string
- *                   genotypeModel:
- *                     type: string
  *     example:
  *       status: success
  *       data:
@@ -1549,25 +1551,51 @@ const keycloak = AccountsHelper.keycloakInstance();
  *                 method: Not known
  *               phenotypeInformationOtherDrugs: No
  *           results:
- *             - type: result type
- *               analysed: Yes
+ *             predictor:
+ *               analysed: 2018-11-01 11:11:11
  *               susceptibility:
- *                 - lorem
- *                   ipsum
+ *                 Isoniazid:
+ *                   prediction: R
+ *                 Kanamycin:
+ *                   prediction: S
+ *                 Ethambutol:
+ *                   prediction: S
+ *                 Streptomycin:
+ *                   prediction: S
+ *                 Capreomycin:
+ *                   prediction: S
+ *                 Quinolones:
+ *                   prediction: S
+ *                 Pyrazinamide:
+ *                   prediction: R
+ *                 Amikacin:
+ *                   prediction: R
+ *                 Rifampicin:
+ *                   prediction: R
  *               phylogenetics:
- *                 et:
- *                   voluptas:
- *                     percentCoverage: 37.59
- *                     medianDepth: 55
+ *                 phylo_group:
+ *                   Mycobacterium_tuberculosis_complex:
+ *                     percent_coverage: 99.722
+ *                     median_depth: 122
+ *                 sub_complex:
+ *                   Unknown:
+ *                     percent_coverage: -1
+ *                     median_depth: -1
+ *                 species:
+ *                   Mycobacterium_tuberculosis:
+ *                     percent_coverage: 98.199
+ *                     median_depth: 116
+ *                 lineage:
+ *                   European_American:
+ *                     percent_coverage: 100.0
+ *                     median_depth: 117
  *               kmer: 787
  *               probeSets:
- *                 - lorem
- *                   ipsum
- *                   lord
+ *                 - /home/admin/git/mykrobe-atlas-cli/src/mykrobe/data/panels/tb-species-170421.fasta.gz
+ *                   /home/admin/git/mykrobe-atlas-cli/src/mykrobe/data/panels/tb-walker-probe-set-feb-09-2017.fasta.gz
  *               file:
- *                 - file1.pdf
- *                   file2.pdf
- *               genotypeModel: dolorem
+ *                 - /atlas/test-data/MDR.fastq.gz
+ *               genotypeModel: median_depth
  */
 /**
  * @swagger
@@ -1586,23 +1614,49 @@ const keycloak = AccountsHelper.keycloakInstance();
  *     example:
  *       status: success
  *       data:
- *         predictor:
- *           analysed: 2018-07-03T23:20:28.654Z
- *           susceptibility:
- *             - name: Ethambutol
- *               prediction: R
- *             - name: Quinolones
- *               prediction: S
- *           kmer: 217
- *           phylogenetics:
- *             - type: phylo_group
- *               result: result
- *               percentCoverage: 51.92
- *               medianDepth: 118
- *             - type: lineage
- *               result: lineage_result
- *               percentCoverage: 83.85
- *               medianDepth: 523
+ *         susceptibility:
+ *           Isoniazid:
+ *             prediction: R
+ *           Kanamycin:
+ *             prediction: S
+ *           Ethambutol:
+ *             prediction: S
+ *           Streptomycin:
+ *             prediction: S
+ *           Capreomycin:
+ *             prediction: S
+ *           Quinolones:
+ *             prediction: S
+ *           Pyrazinamide:
+ *             prediction: R
+ *           Amikacin:
+ *             prediction: R
+ *           Rifampicin:
+ *             prediction: R
+ *         phylogenetics:
+ *           phylo_group:
+ *             Mycobacterium_tuberculosis_complex:
+ *               percent_coverage: 99.722
+ *               median_depth: 122
+ *           sub_complex:
+ *             Unknown:
+ *               percent_coverage: -1
+ *               median_depth: -1
+ *           species:
+ *             Mycobacterium_tuberculosis:
+ *               percent_coverage: 98.199
+ *               median_depth: 116
+ *           lineage:
+ *             European_American:
+ *               percent_coverage: 100.0
+ *               median_depth: 117
+ *         kmer: 787
+ *         probeSets:
+ *           - /home/admin/git/mykrobe-atlas-cli/src/mykrobe/data/panels/tb-species-170421.fasta.gz
+ *             /home/admin/git/mykrobe-atlas-cli/src/mykrobe/data/panels/tb-walker-probe-set-feb-09-2017.fasta.gz
+ *         file:
+ *           - /atlas/test-data/MDR.fastq.gz
+ *         genotypeModel: median_depth
  */
 /**
  * @swagger
