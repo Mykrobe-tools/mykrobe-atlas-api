@@ -82,14 +82,15 @@ describe("Random Data API", () => {
           done();
         });
     });
-    it("should populate the experiment results array", done => {
+    it("should populate experiment results", done => {
       request(app)
         .post("/data/create")
         .send({ total: 1 })
         .expect(httpStatus.OK)
         .end(async (err, res) => {
           expect(res.body.status).toEqual("success");
-          expect(res.body.data[0].results.length).toBeTruthy();
+          expect(res.body.data[0].results).toBeTruthy();
+          expect(res.body.data[0].results.predictor).toBeTruthy();
           done();
         });
     });

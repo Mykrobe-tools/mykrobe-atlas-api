@@ -1,3 +1,5 @@
+import ResultsJSONTransformer from "./ResultsJSONTransformer";
+
 /**
  * A class to transform json responses
  * @property response : the response Object from mongoose
@@ -21,6 +23,14 @@ class ExperimentResultsPerTypeJSONTransformer {
           response[result.type] = result;
         }
         delete response[result.type].type;
+      });
+
+      // transform the latest result
+      Object.keys(response).forEach(type => {
+        response[type] = new ResultsJSONTransformer().transform(
+          response[type],
+          {}
+        );
       });
     }
 
