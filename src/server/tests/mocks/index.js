@@ -23,6 +23,16 @@ const mockAnalysisApiCalls = () => {
     .reply(500, { result: "error" });
 };
 
+const mockDistanceApiCalls = () => {
+  nock(config.services.analysisApiUrl)
+    .persist()
+    .post("/distance")
+    .reply(200, {
+      result: "success",
+      task_id: "3a9ba217-4ccb-4108-9c01-60525e2ca905"
+    });
+};
+
 const mockDevAnalysisApiCalls = () => {
   nock(config.services.analysisApiUrl)
     .post("/analyses")
@@ -85,7 +95,8 @@ const mocks = Object.freeze({
   mockAnalysisApiCalls,
   mockEsCalls,
   mockKeycloakCalls,
-  mockDevAnalysisApiCalls
+  mockDevAnalysisApiCalls,
+  mockDistanceApiCalls
 });
 
 export default mocks;
