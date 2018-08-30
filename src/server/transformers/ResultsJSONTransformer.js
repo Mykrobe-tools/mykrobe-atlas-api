@@ -15,7 +15,7 @@ class ResultsJSONTransformer extends ModelJSONTransformer {
     let res = super.transform(o, {});
     res = new BlacklistTransformer().transform(res, { blacklist: BLACKLIST });
 
-    if (res.phylogenetics) {
+    if (res.phylogenetics && res.phylogenetics.length) {
       const phylogenetics = {};
       res.phylogenetics.forEach(result => {
         const type = result.type;
@@ -28,7 +28,7 @@ class ResultsJSONTransformer extends ModelJSONTransformer {
       });
       res.phylogenetics = phylogenetics;
     }
-    if (res.susceptibility) {
+    if (res.susceptibility && res.susceptibility.length) {
       const susceptibility = {};
       res.susceptibility.forEach(result => {
         const name = result.name;

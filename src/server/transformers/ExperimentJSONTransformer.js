@@ -5,6 +5,7 @@ import UserJSONTransformer from "./UserJSONTransformer";
 import OrganisationJSONTransformer from "./OrganisationJSONTransformer";
 import ResultsJSONTransformer from "./ResultsJSONTransformer";
 import MetadataJSONTransformer from "./MetadataJSONTransformer";
+import ExperimentResultsPerTypeJSONTransformer from "./ExperimentResultsPerTypeJSONTransformer";
 
 const BLACKLIST = ["__v"];
 
@@ -28,9 +29,10 @@ class ExperimentJSONTransformer extends ModelJSONTransformer {
     }
 
     if (res.results) {
-      res.results = new ArrayJSONTransformer().transform(res.results, {
-        transformer: ResultsJSONTransformer
-      });
+      res.results = new ExperimentResultsPerTypeJSONTransformer().transform(
+        res.results,
+        {}
+      );
     }
     return res;
   }

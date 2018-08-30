@@ -7,6 +7,7 @@ import User from "../../models/user.model";
 import Experiment from "../../models/experiment.model";
 import Audit from "../../models/audit.model";
 import MDR from "../../tests/fixtures/files/MDR_Results.json";
+import results from "../../tests/fixtures/results";
 import { mockEsCalls } from "../mocks";
 import { experimentEvent } from "../../modules/events";
 
@@ -161,6 +162,124 @@ describe("## Experiment APIs", () => {
           expect(res.body.data.id).toEqual(id);
           done();
         });
+    });
+
+    describe("when results are populated", () => {
+      describe("when using one type", () => {
+        beforeEach(async done => {
+          const experiment = await Experiment.get(id);
+          const experimentResults = [];
+          experimentResults.push(results.mdr);
+          experiment.set("results", experimentResults);
+          await experiment.save();
+          done();
+        });
+        it("should return the results per type", done => {
+          request(app)
+            .get(`/experiments/${id}`)
+            .set("Authorization", `Bearer ${token}`)
+            .expect(httpStatus.OK)
+            .end((err, res) => {
+              expect(res.body.status).toEqual("success");
+              expect(res.body.data).toHaveProperty("results");
+
+              const results = res.body.data.results;
+              expect(results).toHaveProperty("predictor");
+
+              const predictor = results.predictor;
+
+              expect(Object.keys(predictor.susceptibility).length).toEqual(9);
+              expect(Object.keys(predictor.phylogenetics).length).toEqual(4);
+              expect(predictor.analysed).toEqual("2018-07-12T11:23:20.964Z");
+              expect(predictor.type).toBeUndefined();
+              expect(predictor.variantCalls).toBeUndefined();
+              expect(predictor.sequenceCalls).toBeUndefined();
+              done();
+            });
+        });
+      });
+      describe("when using multiple types", () => {
+        beforeEach(async done => {
+          const experiment = await Experiment.get(id);
+          const experimentResults = [];
+          experimentResults.push(results.mdr);
+          experimentResults.push(results.distance);
+          experiment.set("results", experimentResults);
+          await experiment.save();
+          done();
+        });
+        it("should return the results per type", done => {
+          request(app)
+            .get(`/experiments/${id}`)
+            .set("Authorization", `Bearer ${token}`)
+            .expect(httpStatus.OK)
+            .end((err, res) => {
+              expect(res.body.status).toEqual("success");
+
+              expect(res.body.data).toHaveProperty("results");
+              const results = res.body.data.results;
+
+              expect(results).toHaveProperty("predictor");
+              const predictor = results.predictor;
+
+              expect(Object.keys(predictor.susceptibility).length).toEqual(9);
+              expect(Object.keys(predictor.phylogenetics).length).toEqual(4);
+              expect(predictor.analysed).toEqual("2018-07-12T11:23:20.964Z");
+              expect(predictor.type).toBeUndefined();
+
+              expect(results).toHaveProperty("distance");
+              const distance = results.distance;
+
+              expect(Object.keys(distance.susceptibility).length).toEqual(6);
+              expect(Object.keys(distance.phylogenetics).length).toEqual(2);
+              expect(distance.analysed).toEqual("2018-07-01T11:23:20.964Z");
+              expect(distance.type).toBeUndefined();
+
+              done();
+            });
+        });
+      });
+      describe("when using duplicate types", () => {
+        beforeEach(async done => {
+          const experiment = await Experiment.get(id);
+          const experimentResults = [];
+          experimentResults.push(results.mdr);
+          experimentResults.push(results.distance);
+          experimentResults.push(results.predictor);
+          experiment.set("results", experimentResults);
+          await experiment.save();
+          done();
+        });
+        it("should return the results per latest type", done => {
+          request(app)
+            .get(`/experiments/${id}`)
+            .set("Authorization", `Bearer ${token}`)
+            .expect(httpStatus.OK)
+            .end((err, res) => {
+              expect(res.body.status).toEqual("success");
+
+              expect(res.body.data).toHaveProperty("results");
+              const results = res.body.data.results;
+
+              expect(results).toHaveProperty("predictor");
+              const predictor = results.predictor;
+
+              expect(Object.keys(predictor.susceptibility).length).toEqual(4);
+              expect(Object.keys(predictor.phylogenetics).length).toEqual(2);
+              expect(predictor.analysed).toEqual("2018-09-12T11:23:20.964Z");
+              expect(predictor.type).toBeUndefined();
+
+              expect(results).toHaveProperty("distance");
+              const distance = results.distance;
+
+              expect(Object.keys(distance.susceptibility).length).toEqual(6);
+              expect(Object.keys(distance.phylogenetics).length).toEqual(2);
+              expect(distance.analysed).toEqual("2018-07-01T11:23:20.964Z");
+              expect(distance.type).toBeUndefined();
+              done();
+            });
+        });
+      });
     });
   });
 
@@ -1218,7 +1337,16 @@ describe("## Experiment APIs", () => {
         .end((err, res) => {
           expect(res.body.status).toEqual("success");
           expect(res.body.data).toHaveProperty("results");
-          expect(res.body.data.results.length).toEqual(1);
+          expect(Object.keys(res.body.data.results).length).toEqual(1);
+
+          const predictor = res.body.data.results["predictor"];
+
+          expect(Object.keys(predictor.susceptibility).length).toEqual(9);
+          expect(Object.keys(predictor.phylogenetics).length).toEqual(4);
+          expect(predictor.variantCalls).toBeFalsy();
+          expect(predictor.sequenceCalls).toBeFalsy();
+          expect(predictor.received).toBeTruthy();
+
           done();
         });
     });
@@ -1291,6 +1419,127 @@ describe("## Experiment APIs", () => {
           expect(res.body.message).toEqual("Not Authorised");
           done();
         });
+    });
+  });
+  describe("# GET /experiments/:id/results", () => {
+    describe("when the results are empty", () => {
+      it("should return empty results object", done => {
+        request(app)
+          .get(`/experiments/${id}/results`)
+          .set("Authorization", `Bearer ${token}`)
+          .expect(httpStatus.OK)
+          .end((err, res) => {
+            expect(res.body.status).toEqual("success");
+            expect(res.body.data).toEqual([]);
+            done();
+          });
+      });
+    });
+    describe("when using one type", () => {
+      beforeEach(async done => {
+        const experiment = await Experiment.get(id);
+        const experimentResults = [];
+        experimentResults.push(results.mdr);
+        experiment.set("results", experimentResults);
+        await experiment.save();
+        done();
+      });
+      it("should return the transformed results array", done => {
+        request(app)
+          .get(`/experiments/${id}/results`)
+          .set("Authorization", `Bearer ${token}`)
+          .expect(httpStatus.OK)
+          .end((err, res) => {
+            expect(res.body.status).toEqual("success");
+            expect(res.body.data.length).toEqual(1);
+
+            const result = res.body.data.shift();
+
+            expect(Object.keys(result.susceptibility).length).toEqual(9);
+            expect(Object.keys(result.phylogenetics).length).toEqual(4);
+            expect(result.analysed).toEqual("2018-07-12T11:23:20.964Z");
+            expect(result.type).toEqual("predictor");
+
+            done();
+          });
+      });
+      it("should be a protected route", done => {
+        request(app)
+          .get(`/experiments/${id}/results`)
+          .set("Authorization", "Bearer INVALID_TOKEN")
+          .expect(httpStatus.UNAUTHORIZED)
+          .end((err, res) => {
+            expect(res.body.status).toEqual("error");
+            expect(res.body.message).toEqual("Not Authorised");
+            done();
+          });
+      });
+    });
+    describe("when using multiple types", () => {
+      beforeEach(async done => {
+        const experiment = await Experiment.get(id);
+        const experimentResults = [];
+        experimentResults.push(results.mdr);
+        experimentResults.push(results.distance);
+        experiment.set("results", experimentResults);
+        await experiment.save();
+        done();
+      });
+      it("should return all results", done => {
+        request(app)
+          .get(`/experiments/${id}/results`)
+          .set("Authorization", `Bearer ${token}`)
+          .expect(httpStatus.OK)
+          .end((err, res) => {
+            expect(res.body.status).toEqual("success");
+            expect(res.body.data.length).toEqual(2);
+
+            const results = {};
+            res.body.data.forEach(result => {
+              results[result.type] = result;
+            });
+
+            const predictor = results.predictor;
+
+            expect(Object.keys(predictor.susceptibility).length).toEqual(9);
+            expect(Object.keys(predictor.phylogenetics).length).toEqual(4);
+            expect(predictor.analysed).toEqual("2018-07-12T11:23:20.964Z");
+            expect(predictor.type).toEqual("predictor");
+
+            const distance = results.distance;
+
+            expect(Object.keys(distance.susceptibility).length).toEqual(6);
+            expect(Object.keys(distance.phylogenetics).length).toEqual(2);
+            expect(distance.analysed).toEqual("2018-07-01T11:23:20.964Z");
+            expect(distance.type).toEqual("distance");
+
+            done();
+          });
+      });
+    });
+    describe("when using duplicate types", () => {
+      beforeEach(async done => {
+        const experiment = await Experiment.get(id);
+        const experimentResults = [];
+        experimentResults.push(results.mdr);
+        experimentResults.push(results.distance);
+        experimentResults.push(results.predictor);
+        experiment.set("results", experimentResults);
+        await experiment.save();
+        done();
+      });
+      it("should return all results", done => {
+        request(app)
+          .get(`/experiments/${id}/results`)
+          .set("Authorization", `Bearer ${token}`)
+          .expect(httpStatus.OK)
+          .end((err, res) => {
+            expect(res.body.status).toEqual("success");
+
+            expect(res.body.data.length).toEqual(3);
+            done();
+          });
+      });
     });
   });
 });
