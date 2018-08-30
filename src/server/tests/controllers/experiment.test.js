@@ -77,6 +77,31 @@ describe("## Experiment APIs", () => {
         });
     });
 
+    it("should remove additional fields from the new experiment", done => {
+      request(app)
+        .post("/experiments")
+        .set("Authorization", `Bearer ${token}`)
+        .send(experiments.tbUploadMetadataWithAdditional)
+        .expect(httpStatus.OK)
+        .end((err, res) => {
+          expect(res.body.status).toEqual("success");
+          expect(res.body.data).toHaveProperty("metadata");
+
+          const metadata = res.body.data.metadata;
+          expect(metadata).toHaveProperty("patient");
+          expect(metadata).toHaveProperty("sample");
+          expect(metadata).toHaveProperty("genotyping");
+          expect(metadata).toHaveProperty("phenotyping");
+          expect(metadata).not.toHaveProperty("treatment");
+          expect(metadata).not.toHaveProperty("outcome");
+
+          expect(res.body.data).not.toHaveProperty("field1");
+          expect(res.body.data).not.toHaveProperty("field2");
+
+          done();
+        });
+    });
+
     it("should set the owner to the current user", done => {
       request(app)
         .post("/experiments")
