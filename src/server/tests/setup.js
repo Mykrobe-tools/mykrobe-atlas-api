@@ -2,7 +2,11 @@ import mongoose from "mongoose";
 import MongodbMemoryServer from "mongodb-memory-server";
 import config from "../../config/env";
 import errorsDefinition from "../../config/errors-definition";
-import { mockAnalysisApiCalls, mockKeycloakCalls } from "./mocks";
+import {
+  mockAnalysisApiCalls,
+  mockDistanceApiCalls,
+  mockKeycloakCalls
+} from "./mocks";
 
 require("../../express-jsend");
 jest.mock("../modules/agenda");
@@ -37,6 +41,7 @@ afterAll(async () => {
 });
 
 mockAnalysisApiCalls();
+mockDistanceApiCalls();
 mockKeycloakCalls();
 
 export default { config, createApp };

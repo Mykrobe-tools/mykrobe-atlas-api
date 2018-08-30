@@ -5,6 +5,7 @@ import channels from "./channels";
 import UploadProgressJSONTransformer from "../transformers/events/UploadProgressJSONTransformer";
 import UploadCompleteJSONTransformer from "../transformers/events/UploadCompleteJSONTransformer";
 import AnalysisStartedJSONTransformer from "../transformers/events/AnalysisStartedJSONTransformer";
+import DistanceStartedJSONTransformer from "../transformers/events/DistanceStartedJSONTransformer";
 import AnalysisCompleteJSONTransformer from "../transformers/events/AnalysisCompleteJSONTransformer";
 
 const experimentEvent = new EventEmitter();
@@ -38,6 +39,16 @@ experimentEvent.on("analysis-started", async audit => {
   try {
     const experiment = await Experiment.get(audit.sampleId);
     const data = new AnalysisStartedJSONTransformer().transform(audit, {
+      id: experiment.id
+    });
+    sendExperimentOwnerEvent(experiment, data);
+  } catch (e) {}
+});
+
+experimentEvent.on("distance-search-started", async audit => {
+  try {
+    const experiment = await Experiment.get(audit.sampleId);
+    const data = new DistanceStartedJSONTransformer().transform(audit, {
       id: experiment.id
     });
     sendExperimentOwnerEvent(experiment, data);
