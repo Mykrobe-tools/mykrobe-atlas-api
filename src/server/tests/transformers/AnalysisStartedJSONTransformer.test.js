@@ -2,13 +2,14 @@ import AnalysisStartedJSONTransformer from "../../transformers/events/AnalysisSt
 
 const data = {
   taskId: "e986f350-970b-11e8-8b76-7d2b3faf02cf",
-  fileLocation: "MDR.fastq.gz",
+  fileLocation:
+    "/atlas/uploads/experiments/5b6433e4fde486245d5f0f94/file/MDR.fastq.gz",
   sampleId: "5b6433e4fde486245d5f0f94"
 };
 
 describe("AnalysisStartedJSONTransformer", () => {
   describe("#transform", () => {
-    it("should transform the analysis complete event", done => {
+    it("should transform the analysis started event", done => {
       const json = new AnalysisStartedJSONTransformer().transform(data, {
         id: "123"
       });
