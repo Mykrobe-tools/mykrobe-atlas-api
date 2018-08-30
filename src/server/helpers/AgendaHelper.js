@@ -20,7 +20,7 @@ class AgendaHelper {
           fileLocation: data.file,
           status: "Successful",
           taskId: response.data && response.data.task_id,
-          type: "Analysis",
+          type: "Predictor",
           attempt: data.attempt + 1
         });
         const savedAudit = await audit.save();
@@ -33,7 +33,7 @@ class AgendaHelper {
         sampleId: data.sample_id,
         fileLocation: data.file,
         status: "Failed",
-        type: "Analysis",
+        type: "Predictor",
         attempt: data.attempt
       });
       await audit.save();
