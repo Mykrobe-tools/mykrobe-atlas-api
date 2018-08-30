@@ -15,6 +15,54 @@ const MEDIAN_DEPTH = "median_depth";
 const EXTERNAL_ID = "external_id";
 const ANALYSED = "analysed";
 
+/**
+ * Caluclate the resistance per drug
+ * @param {*} susceptibility
+ */
+const buildDrugResistance = susceptibility => {
+  const drugResistance = {};
+  susceptibility.forEach(drug => {
+    drugResistance[drug.name] = drug.prediction;
+  });
+  return drugResistance;
+};
+
+/**
+ * Caluclate the resistance and TDR
+ * @param {*} susceptibility
+ */
+const calculateResistanceAndTDR = drugResistance => {
+  let r = false;
+  let tdr = true;
+  Object.keys(drugResistance).forEach(drug => {
+    if (drugResistance[drug] === "R") {
+      r = true;
+    } else {
+      tdr = false;
+    }
+  });
+  return { r, tdr };
+};
+
+/**
+ * Calculate MDR value
+ * @param {*} drugResistance
+ */
+const calculateMDR = drugResistance =>
+  drugResistance["Isoniazid"] === "R" && drugResistance["Rifampicin"] === "R";
+
+/**
+ * Calculate XDR value
+ * @param {*} drugResistance
+ */
+const calculateXDR = drugResistance =>
+  drugResistance["Isoniazid"] === "R" &&
+  drugResistance["Rifampicin"] === "R" &&
+  drugResistance["Quinolones"] === "R" &&
+  (drugResistance["Amikacin"] === "R" ||
+    drugResistance["Capreomycin"] === "R" ||
+    drugResistance["Kanamycin"] === "R");
+
 class ResultsHelper {
   static parse(predictorNamedResult) {
     const result = {
@@ -70,6 +118,11 @@ class ResultsHelper {
               break;
           }
         }
+        const resistantAttributes = this.calculateResistantAttributes(
+          result.susceptibility
+        );
+
+        Object.assign(result, resistantAttributes);
       }
     }
 
@@ -152,6 +205,19 @@ class ResultsHelper {
     }
 
     return phylogenetics;
+  }
+
+  static calculateResistantAttributes(susceptibility) {
+    let resistance = {};
+
+    if (susceptibility) {
+      const drugResistance = buildDrugResistance(susceptibility);
+      resistance = calculateResistanceAndTDR(drugResistance);
+      resistance.mdr = calculateMDR(drugResistance);
+      resistance.xdr = calculateXDR(drugResistance);
+    }
+
+    return resistance;
   }
 }
 

@@ -14,6 +14,10 @@ describe("ResultsHelper", () => {
       expect(result).toHaveProperty("files");
       expect(result).toHaveProperty("version");
       expect(result).toHaveProperty("genotypeModel");
+      expect(result).toHaveProperty("r");
+      expect(result).toHaveProperty("mdr");
+      expect(result).toHaveProperty("xdr");
+      expect(result).toHaveProperty("tdr");
 
       done();
     });
@@ -102,6 +106,22 @@ describe("ResultsHelper", () => {
       expect(mappedResults["lineage"].result).toEqual("European_American");
       expect(mappedResults["lineage"].percentCoverage).toEqual(100);
       expect(mappedResults["lineage"].medianDepth).toEqual(117);
+
+      done();
+    });
+
+    it("should calculate resistance, mdr, xdr and tdr", done => {
+      const result = ResultsHelper.parse(MDR);
+
+      expect(result).toHaveProperty("r");
+      expect(result).toHaveProperty("mdr");
+      expect(result).toHaveProperty("xdr");
+      expect(result).toHaveProperty("tdr");
+
+      expect(result.r).toBe(true);
+      expect(result.mdr).toBe(true);
+      expect(result.xdr).toBe(false);
+      expect(result.tdr).toBe(false);
 
       done();
     });
