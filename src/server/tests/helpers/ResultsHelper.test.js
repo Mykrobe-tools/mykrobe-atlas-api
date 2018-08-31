@@ -1,5 +1,13 @@
 import ResultsHelper from "../../helpers/ResultsHelper";
 import MDR from "../fixtures/files/MDR_Results.json";
+import {
+  SUSCEPTIBLE_ALL,
+  ONE_FIRST_CLASS_RESISTANCE,
+  MULTIPLE_FIRST_CLASS_RESISTANCE,
+  SECOND_CLASS_RESISTANCE,
+  MDR_XDR_RESISTANCE,
+  RESISTANCE_ALL
+} from "../fixtures/files/results_payloads";
 
 describe("ResultsHelper", () => {
   describe("#parse", () => {
@@ -14,6 +22,10 @@ describe("ResultsHelper", () => {
       expect(result).toHaveProperty("files");
       expect(result).toHaveProperty("version");
       expect(result).toHaveProperty("genotypeModel");
+      expect(result).toHaveProperty("r");
+      expect(result).toHaveProperty("mdr");
+      expect(result).toHaveProperty("xdr");
+      expect(result).toHaveProperty("tdr");
 
       done();
     });
@@ -104,6 +116,124 @@ describe("ResultsHelper", () => {
       expect(mappedResults["lineage"].medianDepth).toEqual(117);
 
       done();
+    });
+
+    it("should calculate resistance, mdr, xdr and tdr", done => {
+      const result = ResultsHelper.parse(MDR);
+
+      expect(result).toHaveProperty("r");
+      expect(result).toHaveProperty("mdr");
+      expect(result).toHaveProperty("xdr");
+      expect(result).toHaveProperty("tdr");
+
+      expect(result.r).toBe(true);
+      expect(result.mdr).toBe(true);
+      expect(result.xdr).toBe(false);
+      expect(result.tdr).toBe(false);
+
+      done();
+    });
+    describe("when patient is susceptible to all drugs", () => {
+      it("should set all resistance indicators to false", done => {
+        const result = ResultsHelper.parse(SUSCEPTIBLE_ALL);
+
+        expect(result).toHaveProperty("r");
+        expect(result).toHaveProperty("mdr");
+        expect(result).toHaveProperty("xdr");
+        expect(result).toHaveProperty("tdr");
+
+        expect(result.r).toBe(false);
+        expect(result.mdr).toBe(false);
+        expect(result.xdr).toBe(false);
+        expect(result.tdr).toBe(false);
+
+        done();
+      });
+    });
+    describe("when patient is first line drug resitant", () => {
+      describe("when resistant to one drug", () => {
+        it("should set resistance to true and other indicators to false", done => {
+          const result = ResultsHelper.parse(ONE_FIRST_CLASS_RESISTANCE);
+
+          expect(result).toHaveProperty("r");
+          expect(result).toHaveProperty("mdr");
+          expect(result).toHaveProperty("xdr");
+          expect(result).toHaveProperty("tdr");
+
+          expect(result.r).toBe(true);
+          expect(result.mdr).toBe(false);
+          expect(result.xdr).toBe(false);
+          expect(result.tdr).toBe(false);
+
+          done();
+        });
+      });
+      describe("when resistant to multiple drugs", () => {
+        it("should set resistance and mdr to true and other indicators to false", done => {
+          const result = ResultsHelper.parse(MULTIPLE_FIRST_CLASS_RESISTANCE);
+
+          expect(result).toHaveProperty("r");
+          expect(result).toHaveProperty("mdr");
+          expect(result).toHaveProperty("xdr");
+          expect(result).toHaveProperty("tdr");
+
+          expect(result.r).toBe(true);
+          expect(result.mdr).toBe(true);
+          expect(result.xdr).toBe(false);
+          expect(result.tdr).toBe(false);
+
+          done();
+        });
+      });
+    });
+    describe("when patient is second line drug resitant", () => {
+      it("should set resistance to true and other indicators to false", done => {
+        const result = ResultsHelper.parse(SECOND_CLASS_RESISTANCE);
+
+        expect(result).toHaveProperty("r");
+        expect(result).toHaveProperty("mdr");
+        expect(result).toHaveProperty("xdr");
+        expect(result).toHaveProperty("tdr");
+
+        expect(result.r).toBe(true);
+        expect(result.mdr).toBe(false);
+        expect(result.xdr).toBe(false);
+        expect(result.tdr).toBe(false);
+
+        done();
+      });
+    });
+    describe("when patient is first and second line drug resitant", () => {
+      it("should set resistance and xdr to true and other indicators to false", done => {
+        const result = ResultsHelper.parse(MDR_XDR_RESISTANCE);
+
+        expect(result).toHaveProperty("r");
+        expect(result).toHaveProperty("mdr");
+        expect(result).toHaveProperty("xdr");
+        expect(result).toHaveProperty("tdr");
+
+        expect(result.r).toBe(true);
+        expect(result.mdr).toBe(true);
+        expect(result.xdr).toBe(true);
+        expect(result.tdr).toBe(false);
+
+        done();
+      });
+      it("should set all resistance indicators to true", done => {
+        const result = ResultsHelper.parse(RESISTANCE_ALL);
+
+        expect(result).toHaveProperty("r");
+        expect(result).toHaveProperty("mdr");
+        expect(result).toHaveProperty("xdr");
+        expect(result).toHaveProperty("tdr");
+
+        expect(result.r).toBe(true);
+        expect(result.mdr).toBe(true);
+        expect(result.xdr).toBe(true);
+        expect(result.tdr).toBe(true);
+
+        done();
+      });
     });
   });
 });

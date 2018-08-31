@@ -14,6 +14,86 @@ const PERCENT_COVERAGE = "percent_coverage";
 const MEDIAN_DEPTH = "median_depth";
 const EXTERNAL_ID = "external_id";
 const ANALYSED = "analysed";
+// drug names
+const ISONIAZID = "Isoniazid";
+const RIFAMPICIN = "Rifampicin";
+const QUINOLONES = "Quinolones";
+const AMIKACIN = "Amikacin";
+const CAPREOMYCIN = "Capreomycin";
+const KANAMYCIN = "Kanamycin";
+const ETHAMBUTOL = "Ethambutol";
+const STREPTOMYCIN = "Streptomycin";
+const PYRAZINAMIDE = "Pyrazinamide";
+const ALL_DRUGS = [
+  ISONIAZID,
+  RIFAMPICIN,
+  QUINOLONES,
+  AMIKACIN,
+  CAPREOMYCIN,
+  KANAMYCIN,
+  ETHAMBUTOL,
+  STREPTOMYCIN,
+  PYRAZINAMIDE
+];
+
+/**
+ * Caluclate the resistance per drug
+ * @param {*} susceptibility
+ */
+const buildDrugResistance = susceptibility => {
+  const drugResistance = {};
+  susceptibility.forEach(drug => {
+    drugResistance[drug.name] = drug.prediction;
+  });
+  return drugResistance;
+};
+
+/**
+ * Caluclate the resistance
+ * @param {*} susceptibility
+ */
+const calculateResistance = drugResistance => {
+  let r = false;
+  ALL_DRUGS.forEach(drug => {
+    if (drugResistance[drug] && drugResistance[drug] === "R") {
+      r = true;
+    }
+  });
+  return r;
+};
+
+/**
+ * Caluclate the TDR
+ * @param {*} susceptibility
+ */
+const calculateTDR = drugResistance => {
+  let tdr = true;
+  ALL_DRUGS.forEach(drug => {
+    if (drugResistance[drug] && drugResistance[drug] !== "R") {
+      tdr = false;
+    }
+  });
+  return tdr;
+};
+
+/**
+ * Calculate MDR value
+ * @param {*} drugResistance
+ */
+const calculateMDR = drugResistance =>
+  drugResistance[ISONIAZID] === "R" && drugResistance[RIFAMPICIN] === "R";
+
+/**
+ * Calculate XDR value
+ * @param {*} drugResistance
+ */
+const calculateXDR = drugResistance =>
+  drugResistance[ISONIAZID] === "R" &&
+  drugResistance[RIFAMPICIN] === "R" &&
+  drugResistance[QUINOLONES] === "R" &&
+  (drugResistance[AMIKACIN] === "R" ||
+    drugResistance[CAPREOMYCIN] === "R" ||
+    drugResistance[KANAMYCIN] === "R");
 
 class ResultsHelper {
   static parse(predictorNamedResult) {
@@ -70,6 +150,11 @@ class ResultsHelper {
               break;
           }
         }
+        const resistantAttributes = this.calculateResistantAttributes(
+          result.susceptibility
+        );
+
+        Object.assign(result, resistantAttributes);
       }
     }
 
@@ -152,6 +237,20 @@ class ResultsHelper {
     }
 
     return phylogenetics;
+  }
+
+  static calculateResistantAttributes(susceptibility) {
+    let resistance = {};
+
+    if (susceptibility) {
+      const drugResistance = buildDrugResistance(susceptibility);
+      resistance.r = calculateResistance(drugResistance);
+      resistance.mdr = calculateMDR(drugResistance);
+      resistance.xdr = calculateXDR(drugResistance);
+      resistance.tdr = calculateTDR(drugResistance);
+    }
+
+    return resistance;
   }
 }
 
