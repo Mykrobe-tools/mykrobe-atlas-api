@@ -219,6 +219,10 @@ const uploadFile = async (req, res) => {
           sample_id: experiment.id
         });
       });
+      // save file attribute
+      experiment.file = req.body.name;
+      await experiment.save();
+
       return res.jsend(`Download started from ${req.body.provider}`);
     } catch (e) {
       return res.jerror(new errors.UploadFileError(e.message));

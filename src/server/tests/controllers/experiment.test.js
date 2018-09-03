@@ -714,6 +714,28 @@ describe("## Experiment APIs", () => {
             done();
           });
       });
+      it("should save file attribute", done => {
+        request(app)
+          .put(`/experiments/${id}/provider`)
+          .set("Authorization", `Bearer ${token}`)
+          .send({
+            provider: "dropbox",
+            name: "fake.json",
+            path: "https://jsonplaceholder.typicode.com/posts/1"
+          })
+          .expect(httpStatus.OK)
+          .end(async (err, res) => {
+            expect(res.body.status).toEqual("success");
+            expect(res.body.data).toEqual("Download started from dropbox");
+
+            let updatedExperiment = await Experiment.get(id);
+            while (!updatedExperiment.file) {
+              updatedExperiment = await Experiment.get(id);
+            }
+            expect(updatedExperiment.file).toEqual("fake.json");
+            done();
+          });
+      });
       it("should call the analysis api when download is done - dropbox", done => {
         request(app)
           .put(`/experiments/${id}/provider`)
