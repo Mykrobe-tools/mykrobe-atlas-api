@@ -179,11 +179,23 @@ const calculateResistantAttributes = susceptibility => {
   return resistance;
 };
 
+const calculateNearestNeighbours = nearestNeighboursResult => {
+  const nearestNeighbours = [];
+  Object.keys(nearestNeighboursResult).forEach(key => {
+    nearestNeighbours.push({
+      experimentId: key,
+      distance: nearestNeighboursResult[key]
+    });
+  });
+  return nearestNeighbours;
+};
+
 const resultsUtil = Object.freeze({
   calculateResistantAttributes,
   getPredictorResult,
   parseSusceptibility,
-  parsePhylogenetics
+  parsePhylogenetics,
+  calculateNearestNeighbours
 });
 
 export default resultsUtil;

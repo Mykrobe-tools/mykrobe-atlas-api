@@ -1,3 +1,4 @@
+import ResultParser from "./ResultParser";
 import {
   calculateResistantAttributes,
   getPredictorResult,
@@ -17,9 +18,9 @@ const GENOTYPE_MODEL = "genotype_model";
 const EXTERNAL_ID = "external_id";
 const ANALYSED = "analysed";
 
-class PredictorResultParser {
+class PredictorResultParser extends ResultParser {
   constructor(namedResult) {
-    this.namedResult = namedResult;
+    super(namedResult);
   }
 
   parse() {
