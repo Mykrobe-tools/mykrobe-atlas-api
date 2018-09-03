@@ -54,6 +54,7 @@ const createApp = (
   // enable detailed API logging in dev env
   if (config.env === "development" || config.env === "production") {
     expressWinston.responseWhitelist.push("body");
+    expressWinston.requestWhitelist.push("body");
     app.use(
       expressWinston.logger({
         winstonInstance,
