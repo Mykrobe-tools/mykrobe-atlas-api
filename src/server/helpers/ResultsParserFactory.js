@@ -8,10 +8,7 @@ class ResultsParserFactory {
   static create(result) {
     if (result.type === "predictor") {
       return new PredictorResultParser(result);
-    } else if (
-      result.type === "distance" &&
-      result.subType === "Nearest neighbours"
-    ) {
+    } else if (result.type === "distance") {
       return new NearestNeighboursResultParser(result);
     }
     return null;
