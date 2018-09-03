@@ -720,7 +720,7 @@ describe("## Experiment APIs", () => {
           .set("Authorization", `Bearer ${token}`)
           .send({
             provider: "dropbox",
-            name: "fake.json",
+            name: "MDR.fastq.gz",
             path: "https://jsonplaceholder.typicode.com/posts/1"
           })
           .expect(httpStatus.OK)
@@ -732,7 +732,7 @@ describe("## Experiment APIs", () => {
             while (!updatedExperiment.file) {
               updatedExperiment = await Experiment.get(id);
             }
-            expect(updatedExperiment.file).toEqual("fake.json");
+            expect(updatedExperiment.file).toEqual("MDR.fastq.gz");
             done();
           });
       });
