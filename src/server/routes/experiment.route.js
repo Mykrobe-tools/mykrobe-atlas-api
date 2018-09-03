@@ -1596,6 +1596,10 @@ const keycloak = AccountsHelper.keycloakInstance();
  *               file:
  *                 - /atlas/test-data/MDR.fastq.gz
  *               genotypeModel: median_depth
+ *               r: true
+ *               mdr: true
+ *               xdr: false
+ *               tdr: false
  */
 /**
  * @swagger
@@ -1657,6 +1661,10 @@ const keycloak = AccountsHelper.keycloakInstance();
  *         file:
  *           - /atlas/test-data/MDR.fastq.gz
  *         genotypeModel: median_depth
+ *         r: true
+ *         mdr: true
+ *         xdr: false
+ *         tdr: false
  */
 /**
  * @swagger
@@ -3286,6 +3294,14 @@ router
    *                         type: string
    *                     genotypeModel:
    *                       type: string
+   *                     r:
+   *                       type: boolean
+   *                     mdr:
+   *                       type: boolean
+   *                     xdr:
+   *                       type: boolean
+   *                     tdr:
+   *                       type: boolean
    *           example:
    *             metadata:
    *               patient:

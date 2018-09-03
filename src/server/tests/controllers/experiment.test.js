@@ -1637,6 +1637,31 @@ describe("## Experiment APIs", () => {
           done();
         });
     });
+    it("should return r, mdr, xdr and tdr attributes", done => {
+      request(app)
+        .post(`/experiments/${id}/results`)
+        .send(MDR)
+        .expect(httpStatus.OK)
+        .end((err, res) => {
+          expect(res.body.status).toEqual("success");
+          expect(res.body.data).toHaveProperty("results");
+          expect(Object.keys(res.body.data.results).length).toEqual(1);
+
+          const predictor = res.body.data.results["predictor"];
+
+          expect(predictor).toHaveProperty("r");
+          expect(predictor).toHaveProperty("mdr");
+          expect(predictor).toHaveProperty("xdr");
+          expect(predictor).toHaveProperty("tdr");
+
+          expect(predictor.r).toBe(true);
+          expect(predictor.mdr).toBe(true);
+          expect(predictor.xdr).toBe(false);
+          expect(predictor.tdr).toBe(false);
+
+          done();
+        });
+    });
     it("should save results against the experiment", done => {
       request(app)
         .post(`/experiments/${id}/results`)
@@ -1647,6 +1672,32 @@ describe("## Experiment APIs", () => {
           const results = experimentWithResults.get("results");
 
           expect(results.length).toEqual(1);
+          done();
+        });
+    });
+    it("should save r, mdr, xdr and tdr against the experiment", done => {
+      request(app)
+        .post(`/experiments/${id}/results`)
+        .send(MDR)
+        .expect(httpStatus.OK)
+        .end(async (err, res) => {
+          const experimentWithResults = await Experiment.get(id);
+          const results = experimentWithResults.get("results");
+
+          expect(results.length).toEqual(1);
+
+          const result = results[0];
+
+          expect(result).toHaveProperty("r");
+          expect(result).toHaveProperty("mdr");
+          expect(result).toHaveProperty("xdr");
+          expect(result).toHaveProperty("tdr");
+
+          expect(result.r).toBe(true);
+          expect(result.mdr).toBe(true);
+          expect(result.xdr).toBe(false);
+          expect(result.tdr).toBe(false);
+
           done();
         });
     });
