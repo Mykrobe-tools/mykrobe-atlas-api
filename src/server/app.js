@@ -52,9 +52,8 @@ const createApp = (
   app.use(keycloak.getUserMiddleware.bind(keycloak));
 
   // enable detailed API logging in dev env
-  if (config.env === "development" || config.env === "production") {
+  if (config.env === "development") {
     expressWinston.responseWhitelist.push("body");
-    expressWinston.requestWhitelist.push("body");
     app.use(
       expressWinston.logger({
         winstonInstance,
