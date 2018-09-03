@@ -1,4 +1,4 @@
-import ResultsHelper from "../../helpers/ResultsHelper";
+import PredictorResultParser from "../../helpers/PredictorResultParser";
 import MDR from "../fixtures/files/MDR_Results.json";
 import {
   SUSCEPTIBLE_ALL,
@@ -9,10 +9,11 @@ import {
   RESISTANCE_ALL
 } from "../fixtures/files/results_payloads";
 
-describe("ResultsHelper", () => {
+describe("PredictorResultParser", () => {
   describe("#parse", () => {
     it("should parse a result", done => {
-      const result = ResultsHelper.parse(MDR);
+      const parser = new PredictorResultParser(MDR);
+      const result = parser.parse();
       expect(result).toHaveProperty("susceptibility");
       expect(result).toHaveProperty("phylogenetics");
       expect(result).toHaveProperty("variantCalls");
@@ -31,7 +32,8 @@ describe("ResultsHelper", () => {
     });
 
     it("should parse susceptibility", done => {
-      const result = ResultsHelper.parse(MDR);
+      const parser = new PredictorResultParser(MDR);
+      const result = parser.parse();
       const susceptibility = result.susceptibility;
 
       expect(susceptibility.length).toEqual(9);
@@ -81,7 +83,8 @@ describe("ResultsHelper", () => {
     });
 
     it("should parse phylogenetics", done => {
-      const result = ResultsHelper.parse(MDR);
+      const parser = new PredictorResultParser(MDR);
+      const result = parser.parse();
       const phylogenetics = result.phylogenetics;
 
       expect(phylogenetics.length).toEqual(4);
@@ -119,7 +122,8 @@ describe("ResultsHelper", () => {
     });
 
     it("should calculate resistance, mdr, xdr and tdr", done => {
-      const result = ResultsHelper.parse(MDR);
+      const parser = new PredictorResultParser(MDR);
+      const result = parser.parse();
 
       expect(result).toHaveProperty("r");
       expect(result).toHaveProperty("mdr");
@@ -135,7 +139,8 @@ describe("ResultsHelper", () => {
     });
     describe("when patient is susceptible to all drugs", () => {
       it("should set all resistance indicators to false", done => {
-        const result = ResultsHelper.parse(SUSCEPTIBLE_ALL);
+        const parser = new PredictorResultParser(SUSCEPTIBLE_ALL);
+        const result = parser.parse();
 
         expect(result).toHaveProperty("r");
         expect(result).toHaveProperty("mdr");
@@ -153,7 +158,8 @@ describe("ResultsHelper", () => {
     describe("when patient is first line drug resitant", () => {
       describe("when resistant to one drug", () => {
         it("should set resistance to true and other indicators to false", done => {
-          const result = ResultsHelper.parse(ONE_FIRST_CLASS_RESISTANCE);
+          const parser = new PredictorResultParser(ONE_FIRST_CLASS_RESISTANCE);
+          const result = parser.parse();
 
           expect(result).toHaveProperty("r");
           expect(result).toHaveProperty("mdr");
@@ -170,7 +176,10 @@ describe("ResultsHelper", () => {
       });
       describe("when resistant to multiple drugs", () => {
         it("should set resistance and mdr to true and other indicators to false", done => {
-          const result = ResultsHelper.parse(MULTIPLE_FIRST_CLASS_RESISTANCE);
+          const parser = new PredictorResultParser(
+            MULTIPLE_FIRST_CLASS_RESISTANCE
+          );
+          const result = parser.parse();
 
           expect(result).toHaveProperty("r");
           expect(result).toHaveProperty("mdr");
@@ -188,7 +197,8 @@ describe("ResultsHelper", () => {
     });
     describe("when patient is second line drug resitant", () => {
       it("should set resistance to true and other indicators to false", done => {
-        const result = ResultsHelper.parse(SECOND_CLASS_RESISTANCE);
+        const parser = new PredictorResultParser(SECOND_CLASS_RESISTANCE);
+        const result = parser.parse();
 
         expect(result).toHaveProperty("r");
         expect(result).toHaveProperty("mdr");
@@ -205,7 +215,8 @@ describe("ResultsHelper", () => {
     });
     describe("when patient is first and second line drug resitant", () => {
       it("should set resistance and xdr to true and other indicators to false", done => {
-        const result = ResultsHelper.parse(MDR_XDR_RESISTANCE);
+        const parser = new PredictorResultParser(MDR_XDR_RESISTANCE);
+        const result = parser.parse();
 
         expect(result).toHaveProperty("r");
         expect(result).toHaveProperty("mdr");
@@ -220,7 +231,8 @@ describe("ResultsHelper", () => {
         done();
       });
       it("should set all resistance indicators to true", done => {
-        const result = ResultsHelper.parse(RESISTANCE_ALL);
+        const parser = new PredictorResultParser(RESISTANCE_ALL);
+        const result = parser.parse();
 
         expect(result).toHaveProperty("r");
         expect(result).toHaveProperty("mdr");

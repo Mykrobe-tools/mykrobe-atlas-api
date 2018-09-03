@@ -1,3 +1,10 @@
+import {
+  calculateResistantAttributes,
+  getPredictorResult,
+  parseSusceptibility,
+  parsePhylogenetics
+} from "../modules/resultsUtil";
+
 const SUSCEPTIBILITY = "susceptibility";
 const PHYLOGENETICS = "phylogenetics";
 const VARIANT_CALLS = "variant_calls";
@@ -7,24 +14,21 @@ const PROBE_SETS = "probe_sets";
 const FILES = "files";
 const VERSION = "version";
 const GENOTYPE_MODEL = "genotype_model";
-const PREDICT = "predict";
-const CALLED_BY = "called_by";
-const RESISTANT = "R";
-const PERCENT_COVERAGE = "percent_coverage";
-const MEDIAN_DEPTH = "median_depth";
 const EXTERNAL_ID = "external_id";
 const ANALYSED = "analysed";
 
 class PredictorResultParser {
-  static parse(predictorNamedResult) {
+  constructor(namedResult) {
+    this.namedResult = namedResult;
+  }
+
+  parse() {
     const result = {
       type: "predictor",
       received: new Date()
     };
-    if (predictorNamedResult.result) {
-      const predictorResult = this.getPredictorResult(
-        predictorNamedResult.result
-      );
+    if (this.namedResult.result) {
+      const predictorResult = getPredictorResult(this.namedResult.result);
       if (predictorResult) {
         const keys = Object.keys(predictorResult);
         for (var i = 0; i < keys.length; i++) {
@@ -32,12 +36,12 @@ class PredictorResultParser {
           const attribute = keys[i];
           switch (attribute) {
             case SUSCEPTIBILITY:
-              result.susceptibility = this.parseSusceptibility(
+              result.susceptibility = parseSusceptibility(
                 predictorResult[attribute]
               );
               break;
             case PHYLOGENETICS:
-              result.phylogenetics = this.parsePhylogenetics(
+              result.phylogenetics = parsePhylogenetics(
                 predictorResult[attribute]
               );
               break;
@@ -70,88 +74,15 @@ class PredictorResultParser {
               break;
           }
         }
+        const resistantAttributes = calculateResistantAttributes(
+          result.susceptibility
+        );
+
+        Object.assign(result, resistantAttributes);
       }
     }
 
     return result;
-  }
-
-  /**
-   * Extract the results from a result object
-   * {
-   *   someName: { .. result here .. }
-   * }
-   * @param {object} predictorNamedResult
-   * @return {object} result
-   */
-  static getPredictorResult(predictorNamedResult) {
-    let predictorResult = null;
-    if (predictorNamedResult) {
-      // assumption is there is only one wrapping name in predictor results
-      const keys = Object.keys(predictorNamedResult);
-      if (keys && keys.length) {
-        const first = keys[0];
-        const namedResult = predictorNamedResult[first];
-        namedResult[EXTERNAL_ID] = first;
-        return namedResult;
-      }
-    }
-    return predictorResult;
-  }
-
-  /**
-   * Parse a susceptibility sub schema and reshape it to store in the db
-   * @param {object} predictorSusceptibility
-   * @return {array} susceptibility
-   */
-  static parseSusceptibility(predictorSusceptibility) {
-    const susceptibility = [];
-    if (predictorSusceptibility) {
-      Object.keys(predictorSusceptibility).forEach(drug => {
-        const drugSusceptibility = {
-          name: drug
-        };
-
-        const results = predictorSusceptibility[drug];
-        const prediction = results[PREDICT];
-        if (prediction) {
-          drugSusceptibility.prediction = prediction;
-          if (prediction === RESISTANT) {
-            drugSusceptibility.calledBy = results[CALLED_BY];
-          }
-        }
-
-        susceptibility.push(drugSusceptibility);
-      });
-    }
-    return susceptibility;
-  }
-
-  /**
-   * Parse a phylogenetics sub schema and reshape it to store in the db
-   * @param {object} predictorPhylogenetics
-   * @return {array} phylogenetics
-   */
-  static parsePhylogenetics(predictorPhylogenetics) {
-    const phylogenetics = [];
-
-    if (predictorPhylogenetics) {
-      Object.keys(predictorPhylogenetics).forEach(type => {
-        const results = predictorPhylogenetics[type];
-        Object.keys(results).forEach(result => {
-          const typePhylogenetics = {
-            type: type
-          };
-          typePhylogenetics.result = result;
-          typePhylogenetics.percentCoverage = results[result][PERCENT_COVERAGE];
-          typePhylogenetics.medianDepth = results[result][MEDIAN_DEPTH];
-
-          phylogenetics.push(typePhylogenetics);
-        });
-      });
-    }
-
-    return phylogenetics;
   }
 }
 

@@ -95,7 +95,7 @@ const calculateXDR = drugResistance =>
     drugResistance[CAPREOMYCIN] === "R" ||
     drugResistance[KANAMYCIN] === "R");
 
-class ResultsHelper {
+class NearestNeighboursResultParser {
   static parse(predictorNamedResult) {
     const result = {
       type: "predictor",
@@ -254,4 +254,4 @@ class ResultsHelper {
   }
 }
 
-export default ResultsHelper;
+export default NearestNeighboursResultParser;

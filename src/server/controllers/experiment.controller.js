@@ -25,7 +25,7 @@ import APIError from "../helpers/APIError";
 import { schedule } from "../modules/agenda";
 import { experiment as experimentSchema } from "mykrobe-atlas-jsonschema";
 
-import ResultsHelper from "../helpers/ResultsHelper";
+import ResultsParserFactory from "../helpers/ResultsParserFactory";
 import { experimentEvent } from "../modules/events";
 import ExperimentsHelper from "../helpers/ExperimentsHelper";
 
@@ -163,14 +163,18 @@ const metadata = async (req, res) => {
  */
 const results = async (req, res) => {
   const experiment = req.experiment;
-  const predictorResult = ResultsHelper.parse(req.body);
+  const parser = ResultsParserFactory.create(req.body);
+  if (!parser) {
+    return res.jerror(new errors.UpdateExperimentError("Invalid result type."));
+  }
+  const result = parser.parse(req.body);
   const results = experiment.get("results");
 
   const updatedResults = [];
   if (results) {
     updatedResults.push(...results);
   }
-  updatedResults.push(predictorResult);
+  updatedResults.push(result);
   experiment.set("results", updatedResults);
   try {
     const savedExperiment = await experiment.save();
