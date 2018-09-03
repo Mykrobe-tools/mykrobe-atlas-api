@@ -7,6 +7,7 @@ import User from "../../models/user.model";
 import Experiment from "../../models/experiment.model";
 import Audit from "../../models/audit.model";
 import MDR from "../../tests/fixtures/files/MDR_Results.json";
+import NEAREST_NEIGHBOURS from "../../tests/fixtures/files/NEAREST_NEIGHBOURS_Results.json";
 import results from "../../tests/fixtures/results";
 import { mockEsCalls } from "../mocks";
 import { experimentEvent } from "../../modules/events";
@@ -1694,6 +1695,60 @@ describe("## Experiment APIs", () => {
           const results = experimentWithResults.get("results");
 
           expect(results.length).toEqual(1);
+          done();
+        });
+    });
+    it("should create nearest neighbours results", done => {
+      request(app)
+        .post(`/experiments/${id}/results`)
+        .send(NEAREST_NEIGHBOURS)
+        .expect(httpStatus.OK)
+        .end((err, res) => {
+          expect(res.body.status).toEqual("success");
+          expect(res.body.data).toHaveProperty("results");
+          expect(Object.keys(res.body.data.results).length).toEqual(1);
+
+          const distance = res.body.data.results["distance"];
+
+          expect(distance.subType).toEqual("Nearest neighbours");
+          expect(distance.nearestNeighbours.length).toEqual(9);
+          distance.nearestNeighbours.forEach(nearestNeighbour => {
+            expect(nearestNeighbour).toHaveProperty("experimentId");
+            expect(nearestNeighbour).toHaveProperty("distance");
+          });
+
+          done();
+        });
+    });
+    it("should save nearest neighbours results against the experiment", done => {
+      request(app)
+        .post(`/experiments/${id}/results`)
+        .send(NEAREST_NEIGHBOURS)
+        .expect(httpStatus.OK)
+        .end(async (err, res) => {
+          const experimentWithResults = await Experiment.get(id);
+          const results = experimentWithResults.get("results");
+
+          expect(results.length).toEqual(1);
+
+          expect(results[0].subType).toEqual("Nearest neighbours");
+          expect(results[0].nearestNeighbours.length).toEqual(9);
+          results[0].nearestNeighbours.forEach(nearestNeighbour => {
+            expect(nearestNeighbour).toHaveProperty("experimentId");
+            expect(nearestNeighbour).toHaveProperty("distance");
+          });
+
+          done();
+        });
+    });
+    it("should not handle invalid result type", done => {
+      request(app)
+        .post(`/experiments/${id}/results`)
+        .send({ type: "invalid" })
+        .expect(httpStatus.OK)
+        .end((err, res) => {
+          expect(res.body.status).toEqual("error");
+          expect(res.body.message).toEqual("Invalid result type.");
           done();
         });
     });
