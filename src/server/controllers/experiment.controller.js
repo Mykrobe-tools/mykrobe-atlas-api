@@ -163,7 +163,7 @@ const metadata = async (req, res) => {
  */
 const results = async (req, res) => {
   const experiment = req.experiment;
-  const parser = ResultsParserFactory.create(req.body);
+  const parser = await ResultsParserFactory.create(req.body);
   if (!parser) {
     return res.jerror(new errors.UpdateExperimentError("Invalid result type."));
   }
