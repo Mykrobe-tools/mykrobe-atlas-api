@@ -1698,7 +1698,7 @@ describe("## Experiment APIs", () => {
           done();
         });
     });
-    it("should create nearest neighbours results", done => {
+    it.skip("should create nearest neighbours results", done => {
       request(app)
         .post(`/experiments/${id}/results`)
         .send(NEAREST_NEIGHBOURS)
@@ -1720,7 +1720,7 @@ describe("## Experiment APIs", () => {
           done();
         });
     });
-    it("should save nearest neighbours results against the experiment", done => {
+    it.skip("should save nearest neighbours results against the experiment", done => {
       request(app)
         .post(`/experiments/${id}/results`)
         .send(NEAREST_NEIGHBOURS)

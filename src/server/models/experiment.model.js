@@ -76,9 +76,10 @@ ExperimentSchema.statics = {
    * List all experiments
    * @returns {Promise<Experiment[]>}
    */
-  list() {
+  list(limit = 0) {
     return this.find()
       .populate(["organisation", "owner"])
+      .limit(limit)
       .exec();
   }
 };
