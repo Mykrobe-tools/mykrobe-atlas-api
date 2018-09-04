@@ -17,7 +17,6 @@ import resumable from "../modules/resumable";
 import DownloadersFactory from "../helpers/DownloadersFactory";
 
 import ExperimentJSONTransformer from "../transformers/ExperimentJSONTransformer";
-import ExperimentResultsPerTypeJSONTransformer from "../transformers/ExperimentResultsPerTypeJSONTransformer";
 import ExperimentsResultJSONTransformer from "../transformers/es/ExperimentsResultJSONTransformer";
 import ResultsJSONTransformer from "../transformers/ResultsJSONTransformer";
 
@@ -49,7 +48,22 @@ const load = async (req, res, next, id) => {
  * Get experiment
  * @returns {Experiment}
  */
-const get = (req, res) => res.jsend(req.experiment);
+const get = async (req, res) => {
+  const experiment = req.experiment;
+  const results = experiment.get("results");
+  if (results && Array.isArray(results)) {
+    const enhancedResults = [];
+    for (let result of results) {
+      if (result.type === "nearestNeighbours") {
+        result = await enhanceNearestNeighbours(result);
+      }
+      enhancedResults.push(result);
+    }
+    experiment.set("results", enhancedResults);
+  }
+
+  return res.jsend(new ExperimentJSONTransformer().transform(experiment));
+};
 
 /**
  * Create new experiment
@@ -416,6 +430,28 @@ const listResults = async (req, res) => {
   });
 
   return res.jsend(resp);
+};
+
+const enhanceNearestNeighbours = async result => {
+  const enhancedExperiments = [];
+  if (result.experiments && Array.isArray(result.experiments)) {
+    for (const experiment of result.experiments) {
+      try {
+        const exp = await Experiment.get(experiment.id);
+        experiment.results = exp.get("results");
+        experiment.metadata = exp.get("metadata");
+      } catch (e) {}
+      enhancedExperiments.push(experiment);
+    }
+  }
+  const transformedExperiments = new ArrayJSONTransformer().transform(
+    enhancedExperiments,
+    {
+      transformer: ExperimentJSONTransformer
+    }
+  );
+  result.experiments = transformedExperiments;
+  return result;
 };
 
 export default {
