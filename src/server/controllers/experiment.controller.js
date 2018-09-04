@@ -49,20 +49,15 @@ const load = async (req, res, next, id) => {
  * @returns {Experiment}
  */
 const get = async (req, res) => {
-  const experiment = req.experiment;
-  const results = experiment.get("results");
-  if (results && Array.isArray(results)) {
-    const enhancedResults = [];
-    for (let result of results) {
-      if (result.type === "nearestNeighbours") {
-        result = await enhanceNearestNeighbours(result);
-      }
-      enhancedResults.push(result);
-    }
-    experiment.set("results", enhancedResults);
+  const experiment = req.experiment.toJSON();
+  if (experiment.results && experiment.results.nearestNeighbours) {
+    let nearestNeighbours = experiment.results.nearestNeighbours;
+    experiment.results.nearestNeighbours = await inflateResult(
+      nearestNeighbours
+    );
   }
 
-  return res.jsend(new ExperimentJSONTransformer().transform(experiment));
+  return res.jsend(experiment);
 };
 
 /**
@@ -432,17 +427,19 @@ const listResults = async (req, res) => {
   return res.jsend(resp);
 };
 
-const enhanceNearestNeighbours = async result => {
+const inflateResult = async result => {
   const enhancedExperiments = [];
   if (result.experiments && Array.isArray(result.experiments)) {
-    for (const experiment of result.experiments) {
+    const ids = result.experiments.map(experiment => experiment.id);
+    const experiments = await Experiment.findByIds(ids);
+    result.experiments.forEach(experiment => {
       try {
-        const exp = await Experiment.get(experiment.id);
-        experiment.results = exp.get("results");
-        experiment.metadata = exp.get("metadata");
+        const exp = experiments.filter(item => item.id === experiment.id);
+        experiment.results = exp[0].get("results");
+        experiment.metadata = exp[0].get("metadata");
       } catch (e) {}
       enhancedExperiments.push(experiment);
-    }
+    });
   }
   const transformedExperiments = new ArrayJSONTransformer().transform(
     enhancedExperiments,
