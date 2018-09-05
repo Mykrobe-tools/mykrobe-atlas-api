@@ -228,9 +228,6 @@ const uploadFile = async (req, res) => {
           sample_id: experiment.id,
           attempt: 0
         });
-        await schedule("now", "call distance api", {
-          sample_id: experiment.id
-        });
       });
       // save file attribute
       experiment.file = req.body.name;
@@ -267,9 +264,6 @@ const uploadFile = async (req, res) => {
             }/file/${req.body.resumableFilename}`,
             sample_id: experiment.id,
             attempt: 0
-          });
-          await schedule("now", "call distance api", {
-            sample_id: experiment.id
           });
           return res.jsend("File uploaded and reassembled");
         }
