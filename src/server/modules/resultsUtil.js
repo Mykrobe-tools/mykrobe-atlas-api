@@ -185,7 +185,7 @@ const calculateNearestNeighbours = nearestNeighboursResult => {
   const nearestNeighbours = [];
   Object.keys(nearestNeighboursResult).forEach(key => {
     nearestNeighbours.push({
-      experimentId: key,
+      id: key,
       distance: nearestNeighboursResult[key]
     });
   });

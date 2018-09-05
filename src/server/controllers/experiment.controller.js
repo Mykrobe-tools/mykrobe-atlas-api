@@ -17,7 +17,6 @@ import resumable from "../modules/resumable";
 import DownloadersFactory from "../helpers/DownloadersFactory";
 
 import ExperimentJSONTransformer from "../transformers/ExperimentJSONTransformer";
-import ExperimentResultsPerTypeJSONTransformer from "../transformers/ExperimentResultsPerTypeJSONTransformer";
 import ExperimentsResultJSONTransformer from "../transformers/es/ExperimentsResultJSONTransformer";
 import ResultsJSONTransformer from "../transformers/ResultsJSONTransformer";
 
@@ -49,7 +48,17 @@ const load = async (req, res, next, id) => {
  * Get experiment
  * @returns {Experiment}
  */
-const get = (req, res) => res.jsend(req.experiment);
+const get = async (req, res) => {
+  const experiment = req.experiment.toJSON();
+  if (experiment.results && experiment.results.nearestNeighbours) {
+    let nearestNeighbours = experiment.results.nearestNeighbours;
+    experiment.results.nearestNeighbours = await inflateResult(
+      nearestNeighbours
+    );
+  }
+
+  return res.jsend(experiment);
+};
 
 /**
  * Create new experiment
@@ -416,6 +425,30 @@ const listResults = async (req, res) => {
   });
 
   return res.jsend(resp);
+};
+
+const inflateResult = async result => {
+  const enhancedExperiments = [];
+  if (result.experiments && Array.isArray(result.experiments)) {
+    const ids = result.experiments.map(experiment => experiment.id);
+    const experiments = await Experiment.findByIds(ids);
+    result.experiments.forEach(experiment => {
+      try {
+        const exp = experiments.filter(item => item.id === experiment.id);
+        experiment.results = exp[0].get("results");
+        experiment.metadata = exp[0].get("metadata");
+      } catch (e) {}
+      enhancedExperiments.push(experiment);
+    });
+  }
+  const transformedExperiments = new ArrayJSONTransformer().transform(
+    enhancedExperiments,
+    {
+      transformer: ExperimentJSONTransformer
+    }
+  );
+  result.experiments = transformedExperiments;
+  return result;
 };
 
 export default {

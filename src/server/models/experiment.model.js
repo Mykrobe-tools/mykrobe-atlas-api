@@ -81,6 +81,14 @@ ExperimentSchema.statics = {
       .populate(["organisation", "owner"])
       .limit(limit)
       .exec();
+  },
+
+  /**
+   * Find experiments by ids
+   * @returns {Promise<Experiment[]>}
+   */
+  async findByIds(ids) {
+    return this.find({ _id: { $in: ids } }).exec();
   }
 };
 

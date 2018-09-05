@@ -308,6 +308,61 @@ describe("## Experiment APIs", () => {
             });
         });
       });
+      describe("when using nearest neighbours results", () => {
+        beforeEach(async done => {
+          const experimentWithMetadataResults = new Experiment(
+            experiments.tbUploadMetadataResults
+          );
+          const savedExperimentWithMetadataResults = await experimentWithMetadataResults.save();
+          const experiment = await Experiment.get(id);
+          const experimentResults = [];
+          experimentResults.push({
+            type: "nearestNeighbours",
+            subType: "Nearest neighbours",
+            experiments: [
+              {
+                id: savedExperimentWithMetadataResults.id,
+                distance: 24
+              }
+            ]
+          });
+          experiment.set("results", experimentResults);
+          await experiment.save();
+          done();
+        });
+        it("should inflate the nearest neighbours results", done => {
+          request(app)
+            .get(`/experiments/${id}`)
+            .set("Authorization", `Bearer ${token}`)
+            .expect(httpStatus.OK)
+            .end((err, res) => {
+              expect(res.body.status).toEqual("success");
+
+              expect(res.body.data).toHaveProperty("results");
+              const results = res.body.data.results;
+
+              expect(results).toHaveProperty("nearestNeighbours");
+              const nearestNeighbours = results.nearestNeighbours;
+
+              expect(nearestNeighbours.subType).toEqual("Nearest neighbours");
+
+              expect(nearestNeighbours).toHaveProperty("experiments");
+              expect(nearestNeighbours.experiments.length).toEqual(1);
+
+              const nearestNeighbour = nearestNeighbours.experiments[0];
+
+              expect(nearestNeighbour.id).toBeTruthy();
+              expect(nearestNeighbour.distance).toEqual(24);
+              expect(nearestNeighbour.results).toBeTruthy();
+              expect(nearestNeighbour.metadata).toBeTruthy();
+
+              expect(Object.keys(nearestNeighbour.results).length).toEqual(1);
+              expect(Object.keys(nearestNeighbour.metadata).length).toEqual(4);
+
+              done();
+            });
+        });
+      });
     });
   });
 

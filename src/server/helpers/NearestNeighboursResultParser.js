@@ -8,15 +8,13 @@ class NearestNeighboursResultParser extends ResultParser {
 
   parse() {
     const result = {
-      type: "distance",
+      type: "nearestNeighbours",
       subType: "Nearest neighbours",
       received: new Date()
     };
     if (this.namedResult.result) {
       const nearestNeighboursResult = this.namedResult.result;
-      result.nearestNeighbours = calculateNearestNeighbours(
-        nearestNeighboursResult
-      );
+      result.experiments = calculateNearestNeighbours(nearestNeighboursResult);
     }
 
     return result;
