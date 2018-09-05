@@ -48,6 +48,7 @@ const keycloak = AccountsHelper.keycloakInstance();
  *       id: 5b6434fc2656da268e7cac5f
  *       taskId: e986f350-970b-11e8-8b76-7d2b3faf02cf
  *       file: MDR.fastq.gz
+ *       type: predictor
  *       results:
  *         - type: predictor
  *           received: 2018-08-03T10:17:40.626Z

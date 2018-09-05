@@ -194,6 +194,7 @@ const results = async (req, res) => {
     );
     experimentEvent.emit("analysis-complete", {
       experiment: savedExperiment,
+      type: result.type,
       results: updatedResults
     });
     return res.jsend(savedExperiment);

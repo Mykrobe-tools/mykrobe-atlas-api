@@ -7,7 +7,7 @@ class AnalysisEventJSONTransformer {
    * The transformation engine
    */
   transform(o, options) {
-    const res = { id: options.id };
+    const res = { id: options.id, type: options.type };
     res.taskId = o.taskId;
     res.file = o.fileLocation;
     return res;

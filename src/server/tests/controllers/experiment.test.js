@@ -1853,8 +1853,8 @@ describe("## Experiment APIs", () => {
 
           expect(mockCallback.mock.calls[0].length).toEqual(1);
           const arg1 = mockCallback.mock.calls[0][0];
-
           expect(arg1.experiment.id).toEqual(id);
+          expect(arg1.type).toEqual("predictor");
           expect(arg1.results[0].externalId).toEqual(results[0].externalId);
           expect(arg1.results[0].files).toEqual(results[0].files);
           expect(arg1.results[0].genotypeModel).toEqual(

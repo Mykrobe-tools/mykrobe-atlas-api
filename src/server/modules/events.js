@@ -60,7 +60,8 @@ experimentEvent.on("analysis-complete", async payload => {
     const audit = await Audit.getBySample(payload.experiment.id);
     const data = new AnalysisCompleteJSONTransformer().transform(audit, {
       id: payload.experiment.id,
-      results: payload.results
+      results: payload.results,
+      type: payload.type
     });
     sendExperimentOwnerEvent(payload.experiment, data);
   } catch (e) {}

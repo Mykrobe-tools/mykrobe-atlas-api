@@ -1,3 +1,4 @@
+import path from "path";
 import ArrayJSONTransformer from "makeandship-api-common/lib/transformers/ArrayJSONTransformer";
 
 import AnalysisEventJSONTransformer from "./AnalysisEventJSONTransformer";
@@ -14,6 +15,7 @@ class AnalysisCompleteJSONTransformer extends AnalysisEventJSONTransformer {
   transform(o, options) {
     const res = super.transform(o, options);
     res.event = "Analysis complete";
+    res.file = path.basename(res.file);
 
     const results = options.results;
     if (results) {
