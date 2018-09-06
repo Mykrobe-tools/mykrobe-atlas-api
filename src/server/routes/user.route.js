@@ -204,7 +204,7 @@ router
    *             $ref: '#/definitions/thirdPartyUploadProgressExample'
    *           uploadCompleteExample:
    *             $ref: '#/definitions/uploadCompleteExample'
-   *           thirdPartyCompeleteExample:
+   *           thirdPartyCompleteExample:
    *             $ref: '#/definitions/thirdPartyUploadCompleteExample'
    *           analysisStartedExample:
    *             $ref: '#/definitions/analysisStartedExample'
