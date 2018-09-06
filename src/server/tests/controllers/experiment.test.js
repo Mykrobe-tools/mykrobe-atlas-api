@@ -822,7 +822,7 @@ describe("## Experiment APIs", () => {
             done();
           });
       });
-      it.only("should send the upload complete event to all subscribers", done => {
+      it("should send the upload complete event to all subscribers", done => {
         const mockCallback = jest.fn();
         experimentEvent.on("3rd-party-upload-complete", mockCallback);
         request(app)

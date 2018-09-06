@@ -45,6 +45,7 @@ const mockDevAnalysisApiCalls = () => {
 // mock third party calls
 const mockThirdPartyCalls = () => {
   nock("https://dl.dropboxusercontent.com")
+    .persist()
     .replyContentLength()
     .get("/1/view/1234")
     .reply(200, { chunk: "lorem ipsum" });
