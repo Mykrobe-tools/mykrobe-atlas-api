@@ -7,6 +7,8 @@ import UploadCompleteJSONTransformer from "../transformers/events/UploadComplete
 import AnalysisStartedJSONTransformer from "../transformers/events/AnalysisStartedJSONTransformer";
 import DistanceStartedJSONTransformer from "../transformers/events/DistanceStartedJSONTransformer";
 import AnalysisCompleteJSONTransformer from "../transformers/events/AnalysisCompleteJSONTransformer";
+import ThirdPartyUploadProgressJSONTransformer from "../transformers/events/ThirdPartyUploadProgressJSONTransformer";
+import ThirdPartyUploadCompleteJSONTransformer from "../transformers/events/ThirdPartyUploadCompleteJSONTransformer";
 
 const experimentEvent = new EventEmitter();
 
@@ -25,6 +27,26 @@ experimentEvent.on("upload-progress", (experiment, uploadStatus) => {
   const data = new UploadProgressJSONTransformer().transform(uploadStatus, {
     id: experiment.id
   });
+  sendExperimentOwnerEvent(experiment, data);
+});
+
+experimentEvent.on("3rd-party-upload-progress", (experiment, uploadStatus) => {
+  const data = new ThirdPartyUploadProgressJSONTransformer().transform(
+    uploadStatus,
+    {
+      id: experiment.id
+    }
+  );
+  sendExperimentOwnerEvent(experiment, data);
+});
+
+experimentEvent.on("3rd-party-upload-complete", (experiment, uploadStatus) => {
+  const data = new ThirdPartyUploadCompleteJSONTransformer().transform(
+    uploadStatus,
+    {
+      id: experiment.id
+    }
+  );
   sendExperimentOwnerEvent(experiment, data);
 });
 

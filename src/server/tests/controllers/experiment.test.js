@@ -792,6 +792,67 @@ describe("## Experiment APIs", () => {
             done();
           });
       });
+      it("should send the upload progress event to all subscribers", done => {
+        const mockCallback = jest.fn();
+        experimentEvent.on("3rd-party-upload-progress", mockCallback);
+        request(app)
+          .put(`/experiments/${id}/provider`)
+          .set("Authorization", `Bearer ${token}`)
+          .send({
+            provider: "dropbox",
+            name: "MDR.fastq.gz",
+            path: "https://dl.dropboxusercontent.com/1/view/1234"
+          })
+          .expect(httpStatus.OK)
+          .end(async (err, res) => {
+            expect(res.body.status).toEqual("success");
+            expect(res.body.data).toEqual("Download started from dropbox");
+
+            let updatedExperiment = await Experiment.get(id);
+            while (!updatedExperiment.file) {
+              updatedExperiment = await Experiment.get(id);
+            }
+            expect(mockCallback.mock.calls.length).toEqual(1);
+            const args = mockCallback.mock.calls[0];
+
+            expect(args[0].id).toEqual(id);
+            expect(args[1].provider).toEqual("dropbox");
+            expect(args[1].totalSize).toEqual(23);
+            expect(args[1].fileLocation).toEqual("/1/view/1234");
+            done();
+          });
+      });
+      it("should send the upload complete event to all subscribers", done => {
+        const mockCallback = jest.fn();
+        experimentEvent.on("3rd-party-upload-complete", mockCallback);
+        request(app)
+          .put(`/experiments/${id}/provider`)
+          .set("Authorization", `Bearer ${token}`)
+          .send({
+            provider: "dropbox",
+            name: "MDR.fastq.gz",
+            path: "https://dl.dropboxusercontent.com/1/view/1234"
+          })
+          .expect(httpStatus.OK)
+          .end(async (err, res) => {
+            expect(res.body.status).toEqual("success");
+            expect(res.body.data).toEqual("Download started from dropbox");
+
+            let updatedExperiment = await Experiment.get(id);
+            while (!updatedExperiment.file) {
+              updatedExperiment = await Experiment.get(id);
+            }
+            expect(mockCallback.mock.calls.length).toEqual(1);
+            const args = mockCallback.mock.calls[0];
+
+            expect(args[0].id).toEqual(id);
+            expect(args[1].provider).toEqual("dropbox");
+            expect(args[1].size).toEqual(23);
+            expect(args[1].totalSize).toEqual(23);
+            expect(args[1].fileLocation).toEqual("/1/view/1234");
+            done();
+          });
+      });
       it("should call the analysis api when download is done - dropbox", done => {
         request(app)
           .put(`/experiments/${id}/provider`)

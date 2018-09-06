@@ -19,7 +19,7 @@ class BoxDownloader {
       path,
       method: "GET"
     };
-    const downloader = new Downloader(this.destination, options);
+    const downloader = new Downloader(this.destination, this.data, options);
     downloader.download(done);
   }
 }
