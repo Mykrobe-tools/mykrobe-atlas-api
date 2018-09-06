@@ -22,7 +22,7 @@ class GoogledriveDownloader {
         Authorization: `Bearer ${this.data.accessToken}`
       }
     };
-    const downloader = new Downloader(this.destination, options);
+    const downloader = new Downloader(this.destination, this.data, options);
     downloader.download(done);
   }
 }

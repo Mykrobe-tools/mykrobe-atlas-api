@@ -217,10 +217,10 @@ const uploadFile = async (req, res) => {
     }/file`;
     try {
       await mkdirp(path);
-      const downloader = DownloadersFactory.create(
-        `${path}/${req.body.name}`,
-        req.body
-      );
+      const downloader = DownloadersFactory.create(`${path}/${req.body.name}`, {
+        experiment,
+        ...req.body
+      });
       downloader.download(async () => {
         await schedule("now", "call analysis api", {
           file: `${config.express.uploadsLocation}/experiments/${
