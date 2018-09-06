@@ -42,6 +42,14 @@ const mockDevAnalysisApiCalls = () => {
     });
 };
 
+// mock third party calls
+const mockThirdPartyCalls = () => {
+  nock("https://dl.dropboxusercontent.com")
+    .replyContentLength()
+    .get("/1/view/1234")
+    .reply(200, { chunk: "lorem ipsum" });
+};
+
 // mock elasticsearch calls
 const mockEsCalls = () => {
   ElasticsearchHelper.search = jest.fn(() => {
@@ -96,7 +104,8 @@ const mocks = Object.freeze({
   mockEsCalls,
   mockKeycloakCalls,
   mockDevAnalysisApiCalls,
-  mockDistanceApiCalls
+  mockDistanceApiCalls,
+  mockThirdPartyCalls
 });
 
 export default mocks;

@@ -5,7 +5,8 @@ import errorsDefinition from "../../config/errors-definition";
 import {
   mockAnalysisApiCalls,
   mockDistanceApiCalls,
-  mockKeycloakCalls
+  mockKeycloakCalls,
+  mockThirdPartyCalls
 } from "./mocks";
 
 require("../../express-jsend");
@@ -43,5 +44,6 @@ afterAll(async () => {
 mockAnalysisApiCalls();
 mockDistanceApiCalls();
 mockKeycloakCalls();
+mockThirdPartyCalls();
 
 export default { config, createApp };

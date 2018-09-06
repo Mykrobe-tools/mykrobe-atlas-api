@@ -21,6 +21,19 @@ const keycloak = AccountsHelper.keycloakInstance();
 /**
  * @swagger
  * definitions:
+ *   thirdPartyUploadProgressExample:
+ *     example:
+ *       id: 5b6434fc2656da268e7cac5f
+ *       provider: dropbox
+ *       complete: 69.15
+ *       size: 2080040
+ *       totalSize: 3007920
+ *       file: MDR.fastq.gz
+ *       event: Upload via 3rd party progress
+ */
+/**
+ * @swagger
+ * definitions:
  *   uploadCompleteExample:
  *     example:
  *       id: 5b6434fc2656da268e7cac5f
@@ -29,6 +42,19 @@ const keycloak = AccountsHelper.keycloakInstance();
  *       total: 207
  *       file: MDR.fastq.gz
  *       event: Upload complete
+ */
+/**
+ * @swagger
+ * definitions:
+ *   thirdPartyUploadCompleteExample:
+ *     example:
+ *       id: 5b6434fc2656da268e7cac5f
+ *       provider: dropbox
+ *       complete: 100
+ *       size: 3007920
+ *       totalSize: 3007920
+ *       file: MDR.fastq.gz
+ *       event: Upload via 3rd party complete
  */
 /**
  * @swagger
@@ -174,8 +200,12 @@ router
    *         examples:
    *           uploadProgressExample:
    *             $ref: '#/definitions/uploadProgressExample'
+   *           thirdPartyProgressExample:
+   *             $ref: '#/definitions/thirdPartyUploadProgressExample'
    *           uploadCompleteExample:
    *             $ref: '#/definitions/uploadCompleteExample'
+   *           thirdPartyCompeleteExample:
+   *             $ref: '#/definitions/thirdPartyUploadCompleteExample'
    *           analysisStartedExample:
    *             $ref: '#/definitions/analysisStartedExample'
    *           analysisCompleteExample:
