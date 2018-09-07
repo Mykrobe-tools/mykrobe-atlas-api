@@ -28,7 +28,7 @@ describe("## UserResult Functions", () => {
       resultId: "85e3447c-a4fa-4eb8-bace-3f4b67b97b96",
       type: "sequence",
       query: {
-        seq: "AFSHSYFGHJKIJKKFF",
+        seq: "GTCAGTCCGTTTGTTCTTGTGGCGAGTGT",
         threshold: 0.3
       },
       user
@@ -39,7 +39,9 @@ describe("## UserResult Functions", () => {
       "85e3447c-a4fa-4eb8-bace-3f4b67b97b96"
     );
     expect(savedUserResultData.type).toEqual("sequence");
-    expect(savedUserResultData.query.seq).toEqual("AFSHSYFGHJKIJKKFF");
+    expect(savedUserResultData.query.seq).toEqual(
+      "GTCAGTCCGTTTGTTCTTGTGGCGAGTGT"
+    );
     expect(savedUserResultData.query.threshold).toEqual(0.3);
     expect(savedUserResultData.user.firstname).toEqual("Thomas");
 
@@ -53,7 +55,7 @@ describe("## UserResult Functions", () => {
       "0f3b4f77-c815-4e2a-8373-2c23e829c07a"
     );
     expect(foundUserResult.type).toEqual("sequence");
-    expect(query.seq).toEqual("DSJHGFKJSELJEFJELJCLHFELFHESLJKJEF");
+    expect(query.seq).toEqual("GTCAGTCCGTTTGTTCTTGTGGCGAGTGT");
     expect(query.threshold).toEqual(0.5);
     expect(foundUserResult.user.firstname).toEqual("Thomas");
 
@@ -77,7 +79,7 @@ describe("## UserResult Functions", () => {
 
     expect(json.resultId).toEqual("0f3b4f77-c815-4e2a-8373-2c23e829c07a");
     expect(json.type).toEqual("sequence");
-    expect(json.query.seq).toEqual("DSJHGFKJSELJEFJELJCLHFELFHESLJKJEF");
+    expect(json.query.seq).toEqual("GTCAGTCCGTTTGTTCTTGTGGCGAGTGT");
     expect(json.query.threshold).toEqual(0.5);
     expect(json.user.firstname).toEqual("Thomas");
 

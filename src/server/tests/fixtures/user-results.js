@@ -14,7 +14,7 @@ export default {
       }
     },
     query: {
-      seq: "CGGTCAGTCCGTTTGTTCTTGTGGCGAGTGTTGCCGTTTTCTTG",
+      seq: "GTCAGTCCGTTTGTTCTTGTGGCGAGTGTAGTA",
       threshold: 0.9
     }
   },
@@ -72,7 +72,7 @@ export default {
     type: "sequence",
     resultId: "0f3b4f77-c815-4e2a-8373-2c23e829c07a",
     query: {
-      seq: "DSJHGFKJSELJEFJELJCLHFELFHESLJKJEF",
+      seq: "GTCAGTCCGTTTGTTCTTGTGGCGAGTGT",
       threshold: 0.5
     }
   }
