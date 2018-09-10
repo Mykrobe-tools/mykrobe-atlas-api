@@ -5,8 +5,10 @@ import { createApp } from "../setup";
 import User from "../../models/user.model";
 import Experiment from "../../models/experiment.model";
 import Organisation from "../../models/organisation.model";
+import Search from "../../models/search.model";
 import config from "../../../config/env/";
 import { experiment as experimentSchema } from "mykrobe-atlas-jsonschema";
+import SearchJSONTransformer from "../../transformers/SearchJSONTransformer";
 
 jest.mock("keycloak-admin-client");
 
@@ -38,6 +40,7 @@ beforeEach(async done => {
 
 afterEach(async done => {
   await User.remove({});
+  await Search.remove({});
   done();
 });
 
@@ -592,6 +595,85 @@ describe("## Experiment APIs", () => {
           );
           done();
         });
+    });
+    describe("when calling the search client", () => {
+      it("should return a search object for sequence search - threshold", done => {
+        request(app)
+          .get("/experiments/search?q=CAGTCCGTTTGTTCT")
+          .set("Authorization", `Bearer ${token}`)
+          .expect(httpStatus.OK)
+          .end((err, res) => {
+            expect(res.body.status).toEqual("success");
+            expect(res.body.data.type).toEqual("sequence");
+            expect(res.body.data.user.firstname).toEqual("David");
+            expect(res.body.data.query.threshold).toEqual(1);
+            expect(res.body.data.id).toBeTruthy();
+            done();
+          });
+      });
+      it("should return a search object for sequence search - no threshold", done => {
+        request(app)
+          .get("/experiments/search?q=CAGTCCGTTTGTTCT&threshold=0.8")
+          .set("Authorization", `Bearer ${token}`)
+          .expect(httpStatus.OK)
+          .end((err, res) => {
+            expect(res.body.status).toEqual("success");
+            expect(res.body.data.type).toEqual("sequence");
+            expect(res.body.data.user.firstname).toEqual("David");
+            expect(res.body.data.query.threshold).toEqual(0.8);
+            expect(res.body.data.id).toBeTruthy();
+            done();
+          });
+      });
+      it("should return a result_id for protein variant search", done => {
+        request(app)
+          .get("/experiments/search?q=rpoB_S450L")
+          .set("Authorization", `Bearer ${token}`)
+          .expect(httpStatus.OK)
+          .end((err, res) => {
+            expect(res.body.status).toEqual("success");
+            expect(res.body.data.type).toEqual("protein-variant");
+            expect(res.body.data.user.firstname).toEqual("David");
+            expect(res.body.data.query.gene).toEqual("rpoB");
+            expect(res.body.data.query.ref).toEqual("S");
+            expect(res.body.data.query.pos).toEqual(450);
+            expect(res.body.data.query.alt).toEqual("L");
+            expect(res.body.data.id).toBeTruthy();
+            done();
+          });
+      });
+      it("should save user-result in mongo", done => {
+        request(app)
+          .get("/experiments/search?q=CAGTCCGTTTGTTCT&threshold=0.8")
+          .set("Authorization", `Bearer ${token}`)
+          .expect(httpStatus.OK)
+          .end(async (err, res) => {
+            const searchId = res.body.data.id;
+            const search = await Search.get(searchId);
+            expect(search.type).toEqual("sequence");
+            const query = search.get("query");
+            expect(query.threshold).toEqual(0.8);
+            done();
+          });
+      });
+      it("should return carry on with normal search if invalid query", done => {
+        request(app)
+          .get("/experiments/search?q=insulin")
+          .set("Authorization", `Bearer ${token}`)
+          .expect(httpStatus.OK)
+          .end((err, res) => {
+            expect(res.body.status).toEqual("success");
+            const result = res.body.data.results[0];
+
+            expect(result.metadata.patient.diabetic).toEqual("Insulin");
+            expect(result.metadata.patient.age).toEqual(43);
+            expect(result.metadata.sample.labId).toEqual(
+              "d19637ed-e5b4-4ca7-8418-8713646a3359"
+            );
+
+            done();
+          });
+      });
     });
   });
 });

@@ -1,3 +1,6 @@
+import axios from "axios";
+import config from "../../config/env";
+
 /**
  * Regex constants
  */
@@ -30,15 +33,14 @@ const createQuery = (q, options) => {
  * @param {string} q
  * @param {*} param1
  */
-const sequenceQuery = (q, { threshold = 1, userId, resultId }) => {
+const sequenceQuery = (q, { threshold = 1, userId }) => {
   return {
     type: SEQUENCE,
     query: {
       seq: q,
-      threshold
+      threshold: Number(threshold)
     },
-    user_id: userId,
-    result_id: resultId
+    user_id: userId
   };
 };
 
@@ -47,23 +49,39 @@ const sequenceQuery = (q, { threshold = 1, userId, resultId }) => {
  * @param {string} q
  * @param {*} param1
  */
-const proteinVariantQuery = (q, { userId, resultId }) => {
+const proteinVariantQuery = (q, { userId }) => {
   const result = q.match(PROTEIN_VARIANT_REGEX);
   return {
     type: PROTEIN_VARIANT,
     query: {
       gene: result[1],
       ref: result[2],
-      pos: result[3],
+      pos: parseInt(result[3]),
       alt: result[4]
     },
-    user_id: userId,
-    result_id: resultId
+    user_id: userId
   };
 };
 
+/**
+ * Call the search endpoint
+ * @param {Object} query
+ */
+const callApi = async query => {
+  try {
+    const response = await axios.post(
+      `${config.services.analysisApiUrl}/search`,
+      query
+    );
+    return response.data;
+  } catch (e) {
+    throw e;
+  }
+};
+
 const bigsiSearch = Object.freeze({
-  createQuery
+  createQuery,
+  callApi
 });
 
 export default bigsiSearch;

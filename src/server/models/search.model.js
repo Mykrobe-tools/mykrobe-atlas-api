@@ -2,14 +2,13 @@ import mongoose from "mongoose";
 import errors from "errors";
 import schemaValidator from "mongoose-jsonschema-validator";
 import { userResult as userResultJsonSchema } from "mykrobe-atlas-jsonschema";
-import UserResultJSONTransformer from "../transformers/UserResultJSONTransformer";
+import SearchJSONTransformer from "../transformers/SearchJSONTransformer";
 
 /**
- * UserResult Schema
+ * SearchSchema Schema
  */
-const UserResultSchema = new mongoose.Schema(
+const SearchSchema = new mongoose.Schema(
   {
-    resultId: String,
     type: String,
     user: {
       type: mongoose.Schema.Types.ObjectId,
@@ -32,34 +31,34 @@ const UserResultSchema = new mongoose.Schema(
  * - virtuals
  * - plugins
  */
-UserResultSchema.plugin(schemaValidator, {
+SearchSchema.plugin(schemaValidator, {
   jsonschema: userResultJsonSchema,
-  modelName: "UserResult"
+  modelName: "Search"
 });
 
 /**
  * Methods
  */
-UserResultSchema.method({});
+SearchSchema.method({});
 
 /**
  * Statics
  */
-UserResultSchema.statics = {
+SearchSchema.statics = {
   /**
-   * Get user userResult
-   * @param {ObjectId} id - The objectId of userResult.
-   * @returns {Promise<userResult, APIError>}
+   * Get user search
+   * @param {ObjectId} id - The objectId of search.
+   * @returns {Promise<search, APIError>}
    */
   async get(id) {
     try {
-      const userResult = await this.findById(id)
+      const search = await this.findById(id)
         .populate("user")
         .exec();
-      if (userResult) {
-        return userResult;
+      if (search) {
+        return search;
       }
-      throw new errors.ObjectNotFound(`UserResult not found with id ${id}`);
+      throw new errors.ObjectNotFound(`Search not found with id ${id}`);
     } catch (e) {
       throw new errors.ObjectNotFound(e.message);
     }
@@ -69,13 +68,13 @@ UserResultSchema.statics = {
 /**
  * Json transformation with shared transformer
  */
-UserResultSchema.set("toJSON", {
+SearchSchema.set("toJSON", {
   transform(doc, ret) {
-    return new UserResultJSONTransformer().transform(ret);
+    return new SearchJSONTransformer().transform(ret);
   }
 });
 
 /**
- * @typedef UserResult
+ * @typedef SearchSchema
  */
-export default mongoose.model("UserResult", UserResultSchema);
+export default mongoose.model("Search", SearchSchema);

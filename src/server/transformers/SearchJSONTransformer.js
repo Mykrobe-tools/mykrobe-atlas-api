@@ -7,7 +7,7 @@ const BLACKLIST = ["__v"];
  * A class to transform json responses
  * @property response : the response Object from mongoose
  */
-class UserResultJSONTransformer extends ModelJSONTransformer {
+class SearchJSONTransformer extends ModelJSONTransformer {
   /**
    * The transformation engine
    */
@@ -18,4 +18,4 @@ class UserResultJSONTransformer extends ModelJSONTransformer {
   }
 }
 
-export default UserResultJSONTransformer;
+export default SearchJSONTransformer;

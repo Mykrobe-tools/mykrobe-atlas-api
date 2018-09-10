@@ -7,9 +7,7 @@ import config from "../../../config/env";
 const mockAnalysisApiCalls = () => {
   nock(config.services.analysisApiUrl)
     .persist()
-    .post("/analyses", function(body) {
-      return body.file.endsWith("333-08.json");
-    })
+    .post("/analyses", body => body.file.endsWith("333-08.json"))
     .reply(200, {
       result: "success",
       task_id: "1447d80f-ca79-40ac-bc5d-8a02933323c3"
@@ -17,9 +15,7 @@ const mockAnalysisApiCalls = () => {
 
   nock(config.services.analysisApiUrl)
     .persist()
-    .post("/analyses", function(body) {
-      return body.file.endsWith("333-09.json");
-    })
+    .post("/analyses", body => body.file.endsWith("333-09.json"))
     .reply(500, { result: "error" });
 };
 
@@ -31,6 +27,21 @@ const mockDistanceApiCalls = () => {
       result: "success",
       task_id: "3a9ba217-4ccb-4108-9c01-60525e2ca905"
     });
+};
+
+const mockSearchApiCalls = () => {
+  nock(config.services.analysisApiUrl)
+    .persist()
+    .post("/search", body => body.user_id !== "56c787ccc67fc16ccc1a5e92")
+    .reply(200, {
+      result: "success",
+      task_id: uuid.v1()
+    });
+
+  nock(config.services.analysisApiUrl)
+    .persist()
+    .post("/search", body => body.user_id === "56c787ccc67fc16ccc1a5e92")
+    .reply(500, { result: "error" });
 };
 
 const mockDevAnalysisApiCalls = () => {
@@ -106,7 +117,8 @@ const mocks = Object.freeze({
   mockKeycloakCalls,
   mockDevAnalysisApiCalls,
   mockDistanceApiCalls,
-  mockThirdPartyCalls
+  mockThirdPartyCalls,
+  mockSearchApiCalls
 });
 
 export default mocks;

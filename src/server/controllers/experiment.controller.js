@@ -12,6 +12,7 @@ import { util as jsonschemaUtil } from "makeandship-api-common/lib/modules/jsons
 
 import Experiment from "../models/experiment.model";
 import Organisation from "../models/organisation.model";
+import Search from "../models/search.model";
 
 import resumable from "../modules/resumable";
 import DownloadersFactory from "../helpers/DownloadersFactory";
@@ -27,6 +28,8 @@ import { experiment as experimentSchema } from "mykrobe-atlas-jsonschema";
 import ResultsParserFactory from "../helpers/ResultsParserFactory";
 import { experimentEvent } from "../modules/events";
 import ExperimentsHelper from "../helpers/ExperimentsHelper";
+
+import { createQuery, callApi } from "../modules/bigsi-search";
 
 const config = require("../../config/env");
 
@@ -363,6 +366,31 @@ const choices = async (req, res) => {
 const search = async (req, res) => {
   try {
     const query = JSON.parse(JSON.stringify(req.query));
+
+    // call search client
+    if (query.q) {
+      const searchQuery = createQuery(query.q, {
+        threshold: query.threshold,
+        userId: req.dbUser.id
+      });
+      if (searchQuery) {
+        try {
+          const search = new Search({
+            type: searchQuery.type,
+            user: req.dbUser,
+            query: searchQuery.query
+          });
+          const savedSearch = await search.save();
+          const searchResponse = await callApi({
+            result_id: savedSearch.id,
+            ...searchQuery
+          });
+          return res.jsend(savedSearch);
+        } catch (e) {
+          return res.jerror(e);
+        }
+      }
+    }
 
     // add wildcards if not already set
     if (query.q && !query.q.indexOf("*") > -1) {
