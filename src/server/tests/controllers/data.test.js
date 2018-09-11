@@ -91,11 +91,8 @@ describe("Random Data API", () => {
           expect(res.body.status).toEqual("success");
           const results = res.body.data[0].results;
           expect(results).toBeTruthy();
-          if (results.predictor) {
-            expect(results.predictor).toBeTruthy();
-          } else {
-            expect(results.distance).toBeTruthy();
-          }
+          const resultType = results.predictor || results.distance;
+          expect(resultType).toBeTruthy();
           done();
         });
     });
