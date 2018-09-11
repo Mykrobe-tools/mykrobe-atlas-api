@@ -26,7 +26,7 @@ describe("## Search Functions", () => {
   it("should save a new search with id", async done => {
     const searchData = new Search({
       type: "sequence",
-      query: {
+      bigsi: {
         seq: "GTCAGTCCGTTTGTTCTTGTGGCGAGTGT",
         threshold: 0.3
       },
@@ -36,20 +36,20 @@ describe("## Search Functions", () => {
 
     expect(savedSearchData.id).toBeTruthy();
     expect(savedSearchData.type).toEqual("sequence");
-    expect(savedSearchData.query.seq).toEqual("GTCAGTCCGTTTGTTCTTGTGGCGAGTGT");
-    expect(savedSearchData.query.threshold).toEqual(0.3);
+    expect(savedSearchData.bigsi.seq).toEqual("GTCAGTCCGTTTGTTCTTGTGGCGAGTGT");
+    expect(savedSearchData.bigsi.threshold).toEqual(0.3);
     expect(savedSearchData.user.firstname).toEqual("Thomas");
 
     done();
   });
   it("should fetch the search by id", async done => {
     const foundSearch = await Search.get(id);
-    const query = foundSearch.get("query");
+    const bigsi = foundSearch.get("bigsi");
 
     expect(foundSearch.id).toEqual(id);
     expect(foundSearch.type).toEqual("sequence");
-    expect(query.seq).toEqual("GTCAGTCCGTTTGTTCTTGTGGCGAGTGT");
-    expect(query.threshold).toEqual(0.5);
+    expect(bigsi.seq).toEqual("GTCAGTCCGTTTGTTCTTGTGGCGAGTGT");
+    expect(bigsi.threshold).toEqual(0.5);
     expect(foundSearch.user.firstname).toEqual("Thomas");
 
     done();
@@ -71,8 +71,8 @@ describe("## Search Functions", () => {
     const json = foundSearch.toJSON();
 
     expect(json.type).toEqual("sequence");
-    expect(json.query.seq).toEqual("GTCAGTCCGTTTGTTCTTGTGGCGAGTGT");
-    expect(json.query.threshold).toEqual(0.5);
+    expect(json.bigsi.seq).toEqual("GTCAGTCCGTTTGTTCTTGTGGCGAGTGT");
+    expect(json.bigsi.threshold).toEqual(0.5);
     expect(json.user.firstname).toEqual("Thomas");
 
     done();

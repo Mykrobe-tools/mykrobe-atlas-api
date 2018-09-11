@@ -27,9 +27,8 @@ import { experiment as experimentSchema } from "mykrobe-atlas-jsonschema";
 
 import ResultsParserFactory from "../helpers/ResultsParserFactory";
 import { experimentEvent } from "../modules/events";
-import ExperimentsHelper from "../helpers/ExperimentsHelper";
 
-import { createQuery, callApi } from "../modules/bigsi-search";
+import { isBigsiQuery, callBigsiApi, parseQuery } from "../modules/search";
 
 const config = require("../../config/env");
 
@@ -365,70 +364,68 @@ const choices = async (req, res) => {
  */
 const search = async (req, res) => {
   try {
-    const query = JSON.parse(JSON.stringify(req.query));
+    const clone = JSON.parse(JSON.stringify(req.query));
 
-    // call search client
-    if (query.q) {
-      const searchQuery = createQuery(query.q, {
-        threshold: query.threshold,
-        userId: req.dbUser.id
-      });
-      if (searchQuery) {
-        try {
-          const search = new Search({
-            type: searchQuery.type,
-            user: req.dbUser,
-            query: searchQuery.query
-          });
-          const savedSearch = await search.save();
-          const searchResponse = await callApi({
-            result_id: savedSearch.id,
-            ...searchQuery
-          });
-          return res.jsend(savedSearch);
-        } catch (e) {
-          return res.jerror(e);
+    const container = parseQuery(clone);
+
+    const bigsi = container.bigsi;
+    const query = container.query;
+
+    if (bigsi) {
+      try {
+        const search = new Search({
+          type: bigsi.type,
+          user: req.dbUser,
+          bigsi: bigsi,
+          search: query
+        });
+        const savedSearch = await search.save();
+
+        const searchResponse = await callBigsiApi({
+          result_id: savedSearch.id,
+          user_id: req.dbUser.id,
+          query: bigsi
+        });
+
+        if (searchResponse.task_id) {
+          savedSearch.taskId = searchResponse.task_id;
         }
+
+        return res.jsend(savedSearch);
+      } catch (e) {
+        return res.jerror(e);
       }
-    }
+    } else {
+      const resp = await ElasticsearchHelper.search(
+        config,
+        { ...query },
+        "experiment"
+      );
 
-    // add wildcards if not already set
-    if (query.q && !query.q.indexOf("*") > -1) {
-      query.q = `*${query.q}*`;
-    }
-
-    // only allow the whitelist of filters if set
-    const whitelist = ExperimentsHelper.getFiltersWhitelist();
-    if (whitelist) {
-      query.whitelist = whitelist;
-    }
-
-    const resp = await ElasticsearchHelper.search(
-      config,
-      { ...query },
-      "experiment"
-    );
-
-    // generate the core elastic search structure
-    const options = {
-      per: query.per || config.elasticsearch.resultsPerPage,
-      page: query.page || 1
-    };
-    const results = new SearchResultsJSONTransformer().transform(resp, options);
-
-    if (results) {
-      // augment with hits (project specific transformation)
-      results.results = new ExperimentsResultJSONTransformer().transform(
+      // generate the core elastic search structure
+      const options = {
+        per: query.per || config.elasticsearch.resultsPerPage,
+        page: query.page || 1
+      };
+      const results = new SearchResultsJSONTransformer().transform(
         resp,
-        {}
+        options
       );
-      // augment with the original search query
-      results.search = new SearchQueryJSONTransformer().transform(
-        req.query,
-        {}
-      );
+
+      if (results) {
+        // augment with hits (project specific transformation)
+        results.results = new ExperimentsResultJSONTransformer().transform(
+          resp,
+          {}
+        );
+        // augment with the original search query
+        results.search = new SearchQueryJSONTransformer().transform(
+          req.query,
+          {}
+        );
+      }
+      return res.jsend(results);
     }
-    return res.jsend(results);
   } catch (e) {
     return res.jerror(new errors.SearchMetadataValuesError(e.message));
   }

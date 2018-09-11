@@ -596,7 +596,7 @@ describe("## Experiment APIs", () => {
           done();
         });
     });
-    describe("when calling the search client", () => {
+    describe("when running bigsi searches", () => {
       it("should return a search object for sequence search - threshold", done => {
         request(app)
           .get("/experiments/search?q=CAGTCCGTTTGTTCT")
@@ -606,7 +606,7 @@ describe("## Experiment APIs", () => {
             expect(res.body.status).toEqual("success");
             expect(res.body.data.type).toEqual("sequence");
             expect(res.body.data.user.firstname).toEqual("David");
-            expect(res.body.data.query.threshold).toEqual(1);
+            expect(res.body.data.bigsi.threshold).toEqual(1);
             expect(res.body.data.id).toBeTruthy();
             done();
           });
@@ -620,7 +620,7 @@ describe("## Experiment APIs", () => {
             expect(res.body.status).toEqual("success");
             expect(res.body.data.type).toEqual("sequence");
             expect(res.body.data.user.firstname).toEqual("David");
-            expect(res.body.data.query.threshold).toEqual(0.8);
+            expect(res.body.data.bigsi.threshold).toEqual(0.8);
             expect(res.body.data.id).toBeTruthy();
             done();
           });
@@ -634,15 +634,15 @@ describe("## Experiment APIs", () => {
             expect(res.body.status).toEqual("success");
             expect(res.body.data.type).toEqual("protein-variant");
             expect(res.body.data.user.firstname).toEqual("David");
-            expect(res.body.data.query.gene).toEqual("rpoB");
-            expect(res.body.data.query.ref).toEqual("S");
-            expect(res.body.data.query.pos).toEqual(450);
-            expect(res.body.data.query.alt).toEqual("L");
+            expect(res.body.data.bigsi.gene).toEqual("rpoB");
+            expect(res.body.data.bigsi.ref).toEqual("S");
+            expect(res.body.data.bigsi.pos).toEqual(450);
+            expect(res.body.data.bigsi.alt).toEqual("L");
             expect(res.body.data.id).toBeTruthy();
             done();
           });
       });
-      it("should save user-result in mongo", done => {
+      it("should save search in mongo", done => {
         request(app)
           .get("/experiments/search?q=CAGTCCGTTTGTTCT&threshold=0.8")
           .set("Authorization", `Bearer ${token}`)
@@ -651,8 +651,8 @@ describe("## Experiment APIs", () => {
             const searchId = res.body.data.id;
             const search = await Search.get(searchId);
             expect(search.type).toEqual("sequence");
-            const query = search.get("query");
-            expect(query.threshold).toEqual(0.8);
+            const bigsi = search.get("bigsi");
+            expect(bigsi.threshold).toEqual(0.8);
             done();
           });
       });

@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import errors from "errors";
 import schemaValidator from "mongoose-jsonschema-validator";
-import { userResult as userResultJsonSchema } from "mykrobe-atlas-jsonschema";
+import { search as searchJsonSchema } from "mykrobe-atlas-jsonschema";
 import SearchJSONTransformer from "../transformers/SearchJSONTransformer";
 
 /**
@@ -32,7 +32,7 @@ const SearchSchema = new mongoose.Schema(
  * - plugins
  */
 SearchSchema.plugin(schemaValidator, {
-  jsonschema: userResultJsonSchema,
+  jsonschema: searchJsonSchema,
   modelName: "Search"
 });
 

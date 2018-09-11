@@ -12,7 +12,7 @@ export default {
         percent_kmers_found: 100
       }
     },
-    query: {
+    bigsi: {
       seq: "GTCAGTCCGTTTGTTCTTGTGGCGAGTGTAGTA",
       threshold: 0.9
     }
@@ -59,7 +59,7 @@ export default {
         }
       }
     },
-    query: {
+    bigsi: {
       ref: "S",
       alt: "L",
       pos: 450,
@@ -68,7 +68,7 @@ export default {
   },
   emptySequence: {
     type: "sequence",
-    query: {
+    bigsi: {
       seq: "GTCAGTCCGTTTGTTCTTGTGGCGAGTGT",
       threshold: 0.5
     }
