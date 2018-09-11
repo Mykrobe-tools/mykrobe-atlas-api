@@ -44,9 +44,10 @@ const mockSearchApiCalls = () => {
     .reply(500, { result: "error" });
 };
 
-const mockDevAnalysisApiCalls = () => {
+const mockDevApiCalls = () => {
   nock(config.services.analysisApiUrl)
-    .post("/analyses")
+    .persist()
+    .post(/\bsearch|\banalyses/g)
     .reply(200, {
       result: "success",
       task_id: uuid.v1()
@@ -115,7 +116,7 @@ const mocks = Object.freeze({
   mockAnalysisApiCalls,
   mockEsCalls,
   mockKeycloakCalls,
-  mockDevAnalysisApiCalls,
+  mockDevApiCalls,
   mockDistanceApiCalls,
   mockThirdPartyCalls,
   mockSearchApiCalls

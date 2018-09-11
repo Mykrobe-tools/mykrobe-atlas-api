@@ -3,6 +3,7 @@ import errors from "errors";
 import ArrayJSONTransformer from "makeandship-api-common/lib/transformers/ArrayJSONTransformer";
 import channels from "../modules/channels";
 import User from "../models/user.model";
+import Search from "../models/search.model";
 import UserJSONTransformer from "../transformers/UserJSONTransformer";
 import AccountsHelper from "../helpers/AccountsHelper";
 import MonqHelper from "../helpers/MonqHelper";
@@ -17,6 +18,19 @@ const load = async (req, res, next, id) => {
   try {
     const user = await User.get(id);
     req.dbUser = user;
+    return next();
+  } catch (e) {
+    return res.jerror(e);
+  }
+};
+
+/**
+ * Load searchResult and append to req.
+ */
+const loadSearchResult = async (req, res, next, id) => {
+  try {
+    const searchResult = await Search.get(id);
+    req.searchResult = searchResult;
     return next();
   } catch (e) {
     return res.jerror(e);
@@ -139,6 +153,25 @@ const events = async (req, res) => {
   channel.addClient(req, res);
 };
 
+/**
+ * Store search results
+ * @param {object} req
+ * @param {object} res
+ */
+const saveResults = async (req, res) => {
+  const { user, searchResult } = req;
+  if (!user.id.equals(searchResult.user && searchResult.user.id)) {
+    return res.jerror("User must be the owner of the search result");
+  }
+  try {
+    searchResult.set("result", req.body);
+    const savedSearchResult = await searchResult.save();
+    return res.jsend(savedSearchResult);
+  } catch (e) {
+    return res.jerror(e);
+  }
+};
+
 export default {
   load,
   get,
@@ -148,5 +181,7 @@ export default {
   remove,
   assignRole,
   loadCurrentUser,
-  events
+  events,
+  saveResults,
+  loadSearchResult
 };

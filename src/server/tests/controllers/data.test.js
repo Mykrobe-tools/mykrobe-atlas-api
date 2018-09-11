@@ -89,8 +89,13 @@ describe("Random Data API", () => {
         .expect(httpStatus.OK)
         .end(async (err, res) => {
           expect(res.body.status).toEqual("success");
-          expect(res.body.data[0].results).toBeTruthy();
-          expect(res.body.data[0].results.predictor).toBeTruthy();
+          const results = res.body.data[0].results;
+          expect(results).toBeTruthy();
+          if (results.predictor) {
+            expect(results.predictor).toBeTruthy();
+          } else {
+            expect(results.distance).toBeTruthy();
+          }
           done();
         });
     });

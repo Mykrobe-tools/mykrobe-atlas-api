@@ -3,10 +3,12 @@ import httpStatus from "http-status";
 import { createApp } from "../setup";
 import User from "../../models/user.model";
 import Organisation from "../../models/organisation.model";
+import Search from "../../models/search.model";
 
 const app = createApp();
 
 const users = require("../fixtures/users");
+const searches = require("../fixtures/searches");
 
 let savedUser = null;
 let token = null;
@@ -631,6 +633,106 @@ describe("## User APIs", () => {
           expect(res.body.status).toEqual("error");
           expect(res.body.message).toEqual(
             "User not found with id 56c787ccc67fc16ccc1a5e92"
+          );
+          done();
+        });
+    });
+  });
+
+  describe("# PUT /users/:id/results/:resultId", () => {
+    let proteinVariantSearchId = null;
+    let sequenceSearchId = null;
+
+    beforeEach(async done => {
+      const proteinVariantSearchData = new Search(searches.proteinVariant);
+      const sequenceSearchData = new Search(searches.sequence);
+      sequenceSearchData.user = savedUser;
+      const proteinVariantSearch = await proteinVariantSearchData.save();
+      const sequenceSearch = await sequenceSearchData.save();
+      proteinVariantSearchId = proteinVariantSearch.id;
+      sequenceSearchId = sequenceSearch.id;
+      done();
+    });
+    afterEach(async done => {
+      await Search.remove({});
+      done();
+    });
+    it("should save search result", done => {
+      request(app)
+        .put(`/users/${savedUser.id}/results/${sequenceSearchId}`)
+        .set("Authorization", `Bearer ${token}`)
+        .send({
+          ERR017683: {
+            percent_kmers_found: 100
+          },
+          ERR1149371: {
+            percent_kmers_found: 90
+          }
+        })
+        .expect(httpStatus.OK)
+        .end((err, res) => {
+          expect(res.body.status).toEqual("success");
+          expect(res.body.data.type).toEqual("sequence");
+          const result = res.body.data.result;
+          expect(result.ERR017683.percent_kmers_found).toEqual(100);
+          expect(result.ERR1149371.percent_kmers_found).toEqual(90);
+          const bigsi = res.body.data.bigsi;
+          expect(bigsi.seq).toEqual("GTCAGTCCGTTTGTTCTTGTGGCGAGTGTAGTA");
+          expect(bigsi.threshold).toEqual(0.9);
+          const owner = res.body.data.user;
+          expect(owner.firstname).toEqual("David");
+          done();
+        });
+    });
+    it("should be a protected route", done => {
+      request(app)
+        .put(`/users/${savedUser.id}/results/${sequenceSearchId}`)
+        .set("Authorization", "Bearer INVALID_TOKEN")
+        .expect(httpStatus.UNAUTHORIZED)
+        .end((err, res) => {
+          expect(res.body.status).toEqual("error");
+          expect(res.body.message).toEqual("Not Authorised");
+          done();
+        });
+    });
+    it("should throw an error if the result doesnt exist", done => {
+      request(app)
+        .put(`/users/${savedUser.id}/results/56c787ccc67fc16ccc1a5e92`)
+        .set("Authorization", `Bearer ${token}`)
+        .send({
+          ERR017683: {
+            percent_kmers_found: 100
+          },
+          ERR1149371: {
+            percent_kmers_found: 90
+          }
+        })
+        .expect(httpStatus.OK)
+        .end((err, res) => {
+          expect(res.body.status).toEqual("error");
+          expect(res.body.message).toEqual(
+            "Search not found with id 56c787ccc67fc16ccc1a5e92"
+          );
+          done();
+        });
+    });
+    it("should throw an error if the user is not the owner of the result", done => {
+      request(app)
+        .put(`/users/${savedUser.id}/results/${proteinVariantSearchId}`)
+        .set("Authorization", `Bearer ${token}`)
+        .send({
+          ERR017683: {
+            percent_kmers_found: 100
+          },
+          ERR1149371: {
+            percent_kmers_found: 90
+          }
+        })
+        .expect(httpStatus.OK)
+        .end((err, res) => {
+          expect(res.body.status).toEqual("error");
+          expect(res.body.data).toEqual(
+            "User must be the owner of the search result"
           );
           done();
         });

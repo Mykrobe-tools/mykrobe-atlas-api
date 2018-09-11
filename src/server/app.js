@@ -16,7 +16,7 @@ import routes from "./routes/index.route";
 import config from "../config/env";
 import APIError from "./helpers/APIError";
 import AccountsHelper from "./helpers/AccountsHelper";
-import { mockDevAnalysisApiCalls } from "./tests/mocks/index";
+import { mockDevApiCalls } from "./tests/mocks/index";
 
 const keycloak = AccountsHelper.keycloakInstance();
 
@@ -26,7 +26,7 @@ const createApp = (
   const app = express();
 
   if (config.env === "development") {
-    mockDevAnalysisApiCalls();
+    mockDevApiCalls();
     app.use(logger("dev"));
   }
 
