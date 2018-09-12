@@ -1,7 +1,7 @@
 import https from "https";
 import fs from "fs";
 import winston from "winston";
-import { experimentEvent } from "../modules/events";
+import { experimentEventEmitter } from "../modules/events";
 
 /**
  * A class to download large files from a url
@@ -23,7 +23,7 @@ class Downloader {
         .on("data", chunk => {
           file.write(chunk);
           downloaded += chunk.length;
-          experimentEvent.emit(
+          experimentEventEmitter.emit(
             "3rd-party-upload-progress",
             this.data.experiment,
             {
@@ -39,7 +39,7 @@ class Downloader {
             done();
           }
           file.end();
-          experimentEvent.emit(
+          experimentEventEmitter.emit(
             "3rd-party-upload-complete",
             this.data.experiment,
             {
