@@ -4,11 +4,13 @@ import { createApp } from "../setup";
 import User from "../../models/user.model";
 import Organisation from "../../models/organisation.model";
 import Search from "../../models/search.model";
+import Experiment from "../../models/experiment.model";
 
 const app = createApp();
 
 const users = require("../fixtures/users");
 const searches = require("../fixtures/searches");
+const experiments = require("../fixtures/experiments");
 
 let savedUser = null;
 let token = null;
@@ -728,6 +730,107 @@ describe("## User APIs", () => {
             percent_kmers_found: 90
           }
         })
+        .expect(httpStatus.OK)
+        .end((err, res) => {
+          expect(res.body.status).toEqual("error");
+          expect(res.body.data).toEqual(
+            "User must be the owner of the search result"
+          );
+          done();
+        });
+    });
+  });
+
+  describe("# GET /users/:id/results/:resultId", () => {
+    let sequenceSearchId = null;
+    let proteinVariantSearchId = null;
+
+    beforeEach(async done => {
+      const proteinVariantSearchData = new Search(searches.proteinVariant);
+      const proteinVariantSearch = await proteinVariantSearchData.save();
+
+      const experimentWithMetadataResults = new Experiment(
+        experiments.tbUploadMetadataResults
+      );
+      const savedExperimentWithMetadataResults = await experimentWithMetadataResults.save();
+      const sequenceSearchData = new Search(searches.emptySequence);
+      const result = {
+        type: "sequence",
+        result: {},
+        query: {
+          seq: "CAGTCCGTTTGTTCT",
+          threshold: 0.8
+        }
+      };
+      result.result[`${savedExperimentWithMetadataResults.id}`] = {
+        percent_kmers_found: 100
+      };
+      sequenceSearchData.user = savedUser;
+      sequenceSearchData.set("result", result);
+      const sequenceSearch = await sequenceSearchData.save();
+      sequenceSearchId = sequenceSearch.id;
+      proteinVariantSearchId = proteinVariantSearch.id;
+      done();
+    });
+    afterEach(async done => {
+      await Search.remove({});
+      done();
+    });
+    it("should return results with merged experiments", done => {
+      request(app)
+        .get(`/users/${savedUser.id}/results/${sequenceSearchId}`)
+        .set("Authorization", `Bearer ${token}`)
+        .expect(httpStatus.OK)
+        .end((err, res) => {
+          expect(res.body.status).toEqual("success");
+
+          const data = res.body.data;
+          expect(data.type).toEqual("sequence");
+          expect(data.bigsi).toBeTruthy();
+          expect(data.user).toBeTruthy();
+          expect(data.result).toBeTruthy();
+
+          const result = data.result;
+          expect(result.type).toEqual("sequence");
+          expect(result.experiments.length).toEqual(1);
+
+          const experiment = result.experiments[0];
+          expect(experiment.id).toBeTruthy();
+          expect(experiment.metadata).toBeTruthy();
+          expect(experiment.result).toBeTruthy();
+          expect(experiment.result.percent_kmers_found).toEqual(100);
+
+          done();
+        });
+    });
+    it("should be a protected route", done => {
+      request(app)
+        .get(`/users/${savedUser.id}/results/${sequenceSearchId}`)
+        .set("Authorization", "Bearer INVALID_TOKEN")
+        .expect(httpStatus.UNAUTHORIZED)
+        .end((err, res) => {
+          expect(res.body.status).toEqual("error");
+          expect(res.body.message).toEqual("Not Authorised");
+          done();
+        });
+    });
+    it("should throw an error if the result doesnt exist", done => {
+      request(app)
+        .get(`/users/${savedUser.id}/results/56c787ccc67fc16ccc1a5e92`)
+        .set("Authorization", `Bearer ${token}`)
+        .expect(httpStatus.OK)
+        .end((err, res) => {
+          expect(res.body.status).toEqual("error");
+          expect(res.body.message).toEqual(
+            "Search not found with id 56c787ccc67fc16ccc1a5e92"
+          );
+          done();
+        });
+    });
+    it("should throw an error if the user is not the owner of the result", done => {
+      request(app)
+        .get(`/users/${savedUser.id}/results/${proteinVariantSearchId}`)
+        .set("Authorization", `Bearer ${token}`)
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
