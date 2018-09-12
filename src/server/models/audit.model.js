@@ -5,10 +5,14 @@ import errors from "errors";
  * Audit Schema
  */
 const AuditSchema = new mongoose.Schema({
-  sampleId: String,
+  taskId: String,
+  experimentId: String,
+  searchId: String,
+  userId: String,
+  requestMethod: String,
+  requestUri: String,
   fileLocation: String,
   status: String,
-  taskId: String,
   type: String,
   attempt: Number
 });
@@ -23,12 +27,38 @@ AuditSchema.method({});
  */
 AuditSchema.statics = {
   /**
-   * Get audit by sampleId
-   * @param {String} sampleId - The id of experiment.
+   * Get audit by experimentId
+   * @param {String} experimentId - The id of experiment.
    * @returns {Promise<User, APIError>}
    */
-  async getBySample(sampleId) {
-    const audit = await this.findOne({ sampleId }).exec();
+  async getByExperimentId(experimentId) {
+    const audit = await this.findOne({ experimentId }).exec();
+    if (audit) {
+      return audit;
+    }
+    throw new errors.ObjectNotFound();
+  },
+
+  /**
+   * Get audit by userId
+   * @param {String} userId - The id of experiment.
+   * @returns {Promise<User, APIError>}
+   */
+  async getByUserId(userId) {
+    const audit = await this.findOne({ userId }).exec();
+    if (audit) {
+      return audit;
+    }
+    throw new errors.ObjectNotFound();
+  },
+
+  /**
+   * Get audit by searchId
+   * @param {String} searchId - The id of experiment.
+   * @returns {Promise<User, APIError>}
+   */
+  async getBySearchId(searchId) {
+    const audit = await this.findOne({ searchId }).exec();
     if (audit) {
       return audit;
     }

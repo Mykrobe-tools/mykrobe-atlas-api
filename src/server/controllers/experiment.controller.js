@@ -26,7 +26,7 @@ import { schedule } from "../modules/agenda";
 import { experiment as experimentSchema } from "mykrobe-atlas-jsonschema";
 
 import ResultsParserFactory from "../helpers/ResultsParserFactory";
-import { experimentEvent } from "../modules/events";
+import { experimentEventEmitter, userEventEmitter } from "../modules/events";
 
 import { isBigsiQuery, callBigsiApi, parseQuery } from "../modules/search";
 
@@ -194,7 +194,7 @@ const results = async (req, res) => {
       savedExperiment,
       "experiment"
     );
-    experimentEvent.emit("analysis-complete", {
+    experimentEventEmitter.emit("analysis-complete", {
       experiment: savedExperiment,
       type: result.type,
       results: updatedResults
@@ -254,9 +254,17 @@ const uploadFile = async (req, res) => {
     );
     const postUpload = await resumable.post(req);
     if (!postUpload.complete) {
-      experimentEvent.emit("upload-progress", req.experiment, postUpload);
+      experimentEventEmitter.emit(
+        "upload-progress",
+        req.experiment,
+        postUpload
+      );
     } else {
-      experimentEvent.emit("upload-complete", req.experiment, postUpload);
+      experimentEventEmitter.emit(
+        "upload-complete",
+        req.experiment,
+        postUpload
+      );
       return resumable.reassembleChunks(
         experiment.id,
         req.body.resumableFilename,
@@ -373,19 +381,21 @@ const search = async (req, res) => {
 
     if (bigsi) {
       try {
-        const search = new Search({
+        const searchData = {
           type: bigsi.type,
           user: req.dbUser,
           bigsi: bigsi,
           search: query
-        });
+        };
+        const search = new Search(searchData);
         const savedSearch = await search.save();
 
-        const searchResponse = await callBigsiApi({
-          result_id: savedSearch.id,
-          user_id: req.dbUser.id,
-          query: bigsi
-        });
+        searchData.searchId = savedSearch.id;
+
+        // call bigsi via agenda to support retries
+        await schedule("now", "call search api", searchData);
+
+        const searchResponse = await callBigsiApi();
 
         if (searchResponse.task_id) {
           savedSearch.taskId = searchResponse.task_id;

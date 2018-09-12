@@ -10,7 +10,7 @@ import MDR from "../../tests/fixtures/files/MDR_Results.json";
 import NEAREST_NEIGHBOURS from "../../tests/fixtures/files/NEAREST_NEIGHBOURS_Results.json";
 import results from "../../tests/fixtures/results";
 import { mockEsCalls } from "../mocks";
-import { experimentEvent } from "../../modules/events";
+import { experimentEventEmitter } from "../../modules/events";
 
 mockEsCalls();
 
@@ -585,7 +585,7 @@ describe("## Experiment APIs", () => {
     });
     it("should emit upload-complete event to all the subscribers", done => {
       const mockCallback = jest.fn();
-      experimentEvent.on("upload-complete", mockCallback);
+      experimentEventEmitter.on("upload-complete", mockCallback);
       request(app)
         .put(`/experiments/${id}/file`)
         .set("Authorization", `Bearer ${token}`)
@@ -794,7 +794,7 @@ describe("## Experiment APIs", () => {
       });
       it("should send the upload progress event to all subscribers", done => {
         const mockCallback = jest.fn();
-        experimentEvent.on("3rd-party-upload-progress", mockCallback);
+        experimentEventEmitter.on("3rd-party-upload-progress", mockCallback);
         request(app)
           .put(`/experiments/${id}/provider`)
           .set("Authorization", `Bearer ${token}`)
@@ -824,7 +824,7 @@ describe("## Experiment APIs", () => {
       });
       it("should send the upload complete event to all subscribers", done => {
         const mockCallback = jest.fn();
-        experimentEvent.on("3rd-party-upload-complete", mockCallback);
+        experimentEventEmitter.on("3rd-party-upload-complete", mockCallback);
         request(app)
           .put(`/experiments/${id}/provider`)
           .set("Authorization", `Bearer ${token}`)
@@ -1336,14 +1336,20 @@ describe("## Experiment APIs", () => {
           .attach("file", "src/server/tests/fixtures/files/333-08.json")
           .expect(httpStatus.OK)
           .end(async (err, res) => {
-            let audits = await Audit.find({ sampleId: id, type: "Predictor" });
+            let audits = await Audit.find({
+              experimentId: id,
+              type: "Predictor"
+            });
             while (audits.length === 0) {
-              audits = await Audit.find({ sampleId: id, type: "Predictor" });
+              audits = await Audit.find({
+                experimentId: id,
+                type: "Predictor"
+              });
             }
             const audit = audits[0];
             expect(res.body.status).toEqual("success");
             expect(res.body.data).toEqual("File uploaded and reassembled");
-            expect(audit.sampleId).toEqual(id);
+            expect(audit.experimentId).toEqual(id);
             expect(audit.fileLocation).toEqual(
               `${
                 config.express.uploadsLocation
@@ -1361,8 +1367,11 @@ describe("## Experiment APIs", () => {
       it("should emit the events to all subscribers", done => {
         const mockAnalysisCallback = jest.fn();
         const mockDistanceCallback = jest.fn();
-        experimentEvent.on("analysis-started", mockAnalysisCallback);
-        experimentEvent.on("distance-search-started", mockDistanceCallback);
+        experimentEventEmitter.on("analysis-started", mockAnalysisCallback);
+        experimentEventEmitter.on(
+          "distance-search-started",
+          mockDistanceCallback
+        );
         request(app)
           .put(`/experiments/${id}/file`)
           .set("Authorization", `Bearer ${token}`)
@@ -1379,14 +1388,14 @@ describe("## Experiment APIs", () => {
           .attach("file", "src/server/tests/fixtures/files/333-08.json")
           .expect(httpStatus.OK)
           .end(async (err, res) => {
-            let audits = await Audit.find({ sampleId: id });
+            let audits = await Audit.find({ experimentId: id });
             while (audits.length === 0) {
-              audits = await Audit.find({ sampleId: id });
+              audits = await Audit.find({ experimentId: id });
             }
             const audit = audits[0];
             expect(res.body.status).toEqual("success");
             expect(res.body.data).toEqual("File uploaded and reassembled");
-            expect(audit.sampleId).toEqual(id);
+            expect(audit.experimentId).toEqual(id);
             expect(audit.status).toEqual("Successful");
             expect(audit.attempt).toEqual(1);
 
@@ -1397,7 +1406,7 @@ describe("## Experiment APIs", () => {
             expect(mockAnalysisCallback.mock.calls[0].length).toEqual(1);
             const analysisArg = mockAnalysisCallback.mock.calls[0][0];
 
-            expect(analysisArg.sampleId).toEqual(id);
+            expect(analysisArg.experimentId).toEqual(id);
             expect(analysisArg.taskId).toEqual(
               "1447d80f-ca79-40ac-bc5d-8a02933323c3"
             );
@@ -1410,7 +1419,7 @@ describe("## Experiment APIs", () => {
             expect(mockDistanceCallback.mock.calls[0].length).toEqual(1);
             const distanceArg = mockDistanceCallback.mock.calls[0][0];
 
-            expect(distanceArg.sampleId).toBeTruthy();
+            expect(distanceArg.experimentId).toBeTruthy();
             expect(distanceArg.taskId).toEqual(
               "3a9ba217-4ccb-4108-9c01-60525e2ca905"
             );
@@ -1439,9 +1448,15 @@ describe("## Experiment APIs", () => {
             const jobs = mongo(config.db.uri, []).agendaJobs;
             expect(res.body.status).toEqual("success");
             expect(res.body.data).toEqual("File uploaded and reassembled");
-            let audits = await Audit.find({ sampleId: id, type: "Predictor" });
+            let audits = await Audit.find({
+              experimentId: id,
+              type: "Predictor"
+            });
             while (audits.length < 1) {
-              audits = await Audit.find({ sampleId: id, type: "Predictor" });
+              audits = await Audit.find({
+                experimentId: id,
+                type: "Predictor"
+              });
             }
             let foundJobs = await jobs.find({
               "data.sample_id": id,
@@ -1484,14 +1499,20 @@ describe("## Experiment APIs", () => {
             const jobs = mongo(config.db.uri, []).agendaJobs;
             expect(res.body.status).toEqual("success");
             expect(res.body.data).toEqual("File uploaded and reassembled");
-            let audits = await Audit.find({ sampleId: id, type: "Predictor" });
+            let audits = await Audit.find({
+              experimentId: id,
+              type: "Predictor"
+            });
             while (audits.length < 1) {
-              audits = await Audit.find({ sampleId: id, type: "Predictor" });
+              audits = await Audit.find({
+                experimentId: id,
+                type: "Predictor"
+              });
             }
             const audit = audits[0];
             expect(res.body.status).toEqual("success");
             expect(res.body.data).toEqual("File uploaded and reassembled");
-            expect(audit.sampleId).toEqual(id);
+            expect(audit.experimentId).toEqual(id);
             expect(audit.fileLocation).toEqual(
               `${
                 config.express.uploadsLocation
@@ -1520,14 +1541,20 @@ describe("## Experiment APIs", () => {
           .attach("file", "src/server/tests/fixtures/files/333-08.json")
           .expect(httpStatus.OK)
           .end(async (err, res) => {
-            let audits = await Audit.find({ sampleId: id, type: "Predictor" });
+            let audits = await Audit.find({
+              experimentId: id,
+              type: "Predictor"
+            });
             while (audits.length === 0) {
-              audits = await Audit.find({ sampleId: id, type: "Predictor" });
+              audits = await Audit.find({
+                experimentId: id,
+                type: "Predictor"
+              });
             }
             const audit = audits[0];
             expect(res.body.status).toEqual("success");
             expect(res.body.data).toEqual("File uploaded and reassembled");
-            expect(audit.sampleId).toEqual(id);
+            expect(audit.experimentId).toEqual(id);
             expect(audit.fileLocation).toEqual(
               `${
                 config.express.uploadsLocation
@@ -1623,14 +1650,17 @@ describe("## Experiment APIs", () => {
           .attach("file", "src/server/tests/fixtures/files/333-08.json")
           .expect(httpStatus.OK)
           .end(async (err, res) => {
-            let audits = await Audit.find({ sampleId: id, type: "Distance" });
+            let audits = await Audit.find({
+              experimentId: id,
+              type: "Distance"
+            });
             while (audits.length === 0) {
-              audits = await Audit.find({ sampleId: id, type: "Distance" });
+              audits = await Audit.find({ experimentId: id, type: "Distance" });
             }
             const audit = audits[0];
             expect(res.body.status).toEqual("success");
             expect(res.body.data).toEqual("File uploaded and reassembled");
-            expect(audit.sampleId).toEqual(id);
+            expect(audit.experimentId).toEqual(id);
             expect(audit.status).toEqual("Successful");
             expect(audit.attempt).toEqual(1);
             expect(audit.taskId).toEqual(
@@ -1657,14 +1687,17 @@ describe("## Experiment APIs", () => {
           .attach("file", "src/server/tests/fixtures/files/333-08.json")
           .expect(httpStatus.OK)
           .end(async (err, res) => {
-            let audits = await Audit.find({ sampleId: id, type: "Distance" });
+            let audits = await Audit.find({
+              experimentId: id,
+              type: "Distance"
+            });
             while (audits.length === 0) {
-              audits = await Audit.find({ sampleId: id, type: "Distance" });
+              audits = await Audit.find({ experimentId: id, type: "Distance" });
             }
             const audit = audits[0];
             expect(res.body.status).toEqual("success");
             expect(res.body.data).toEqual("File uploaded and reassembled");
-            expect(audit.sampleId).toEqual(id);
+            expect(audit.experimentId).toEqual(id);
             expect(audit.status).toEqual("Successful");
             expect(audit.attempt).toEqual(1);
             expect(audit.taskId).toEqual(
@@ -1898,7 +1931,7 @@ describe("## Experiment APIs", () => {
     });
     it("should emit analysis-complete event to all subscribers", done => {
       const mockCallback = jest.fn();
-      experimentEvent.on("analysis-complete", mockCallback);
+      experimentEventEmitter.on("analysis-complete", mockCallback);
       request(app)
         .post(`/experiments/${id}/results`)
         .send(MDR)

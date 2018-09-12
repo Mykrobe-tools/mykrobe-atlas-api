@@ -11,8 +11,10 @@ class AnalysisStartedJSONTransformer extends AnalysisEventJSONTransformer {
    */
   transform(o, options) {
     const res = super.transform(o, options);
+
     res.file = path.basename(res.file);
     res.event = "Analysis started";
+
     return res;
   }
 }
