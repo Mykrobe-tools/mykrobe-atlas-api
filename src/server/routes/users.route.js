@@ -379,7 +379,37 @@ router
    *         schema:
    *           $ref: '#/definitions/SearchResultResponse'
    */
-  .put(keycloak.connect.protect(), userController.saveResults);
+  .put(keycloak.connect.protect(), userController.saveResults)
+  /**
+   * @swagger
+   * /users/{id}/results/{resultId}:
+   *   get:
+   *     tags:
+   *       - Users
+   *     description: Read a search result
+   *     operationId: readSearchResult
+   *     produces:
+   *       - application/json
+   *     security:
+   *       - Bearer: []
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         type: string
+   *         description: The user id
+   *       - in: path
+   *         name: resultId
+   *         required: true
+   *         type: string
+   *         description: The result id
+   *     responses:
+   *       200:
+   *         description: Search Result data
+   *         schema:
+   *           $ref: '#/definitions/SearchResultResponse'
+   */
+  .get(keycloak.connect.protect(), userController.readResults);
 
 /** Load user when API with id route parameter is hit */
 router.param("id", userController.load);

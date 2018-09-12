@@ -4,7 +4,9 @@ import ArrayJSONTransformer from "makeandship-api-common/lib/transformers/ArrayJ
 import channels from "../modules/channels";
 import User from "../models/user.model";
 import Search from "../models/search.model";
+import Experiment from "../models/experiment.model";
 import UserJSONTransformer from "../transformers/UserJSONTransformer";
+import ExperimentJSONTransformer from "../transformers/ExperimentJSONTransformer";
 import AccountsHelper from "../helpers/AccountsHelper";
 import MonqHelper from "../helpers/MonqHelper";
 import config from "../../config/env";
@@ -172,6 +174,56 @@ const saveResults = async (req, res) => {
   }
 };
 
+/**
+ * Read search results
+ * @param {object} req
+ * @param {object} res
+ */
+const readResults = async (req, res) => {
+  const { user, searchResult } = req;
+  if (!user.id.equals(searchResult.user && searchResult.user.id)) {
+    return res.jerror("User must be the owner of the search result");
+  }
+  try {
+    const mergedExperiments = await mergeWithExperiments(
+      searchResult.get("result")
+    );
+    searchResult.set("result", mergedExperiments);
+    return res.jsend(searchResult);
+  } catch (e) {
+    return res.jerror(e);
+  }
+};
+
+/**
+ * Merge result with experiments
+ * @param {*} result
+ */
+const mergeWithExperiments = async result => {
+  const mergedExperiments = [];
+  const experimentIds = Object.keys(result.result);
+  const experiments = await Experiment.findByIds(experimentIds);
+  experimentIds.forEach(id => {
+    let mergedExperiment = {};
+    try {
+      const exp = experiments.filter(item => item.id === id);
+      mergedExperiment.id = exp[0].id;
+      mergedExperiment.metadata = exp[0].get("metadata");
+      mergedExperiment.result = result.result[id];
+    } catch (e) {}
+    mergedExperiments.push(mergedExperiment);
+  });
+  const transformedExperiments = new ArrayJSONTransformer().transform(
+    mergedExperiments,
+    {
+      transformer: ExperimentJSONTransformer
+    }
+  );
+  result.experiments = transformedExperiments;
+  delete result.result;
+  return result;
+};
+
 export default {
   load,
   get,
@@ -183,5 +235,6 @@ export default {
   loadCurrentUser,
   events,
   saveResults,
-  loadSearchResult
+  loadSearchResult,
+  readResults
 };
