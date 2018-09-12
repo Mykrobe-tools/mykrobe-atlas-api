@@ -1,5 +1,5 @@
 export default {
-  squence: {
+  sequence: {
     type: "sequence",
     result: {
       ERR017683: {
