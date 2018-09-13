@@ -56,6 +56,7 @@ const get = async (req, res) => {
   const experiment = req.experiment.toJSON();
   if (experiment.results && experiment.results.nearestNeighbours) {
     let nearestNeighbours = experiment.results.nearestNeighbours;
+
     experiment.results.nearestNeighbours = await inflateResult(
       nearestNeighbours
     );
@@ -200,22 +201,20 @@ const results = async (req, res) => {
 
     const audit = await Audit.getByExperimentId(savedExperiment.id);
 
-    const experimentTransformer = new ExperimentJSONTransformer();
-    const experimentJSON = experimentTransformer.transform(experiment);
-    console.log(`Experiment JSON: ${experimentJSON}`);
-
-    const auditTransformer = new AuditJSONTransformer();
-    const auditJSON = auditTransformer.transform(audit);
-    console.log(`Audit JSON: ${auditJSON}`);
+    const experimentJSON = new ExperimentJSONTransformer().transform(
+      experiment
+    );
+    const auditJSON = new AuditJSONTransformer().transform(audit);
 
     experimentEventEmitter.emit("analysis-complete", {
+      audit: auditJSON,
       experiment: experimentJSON,
-      type: result.type,
-      audit: auditJSON
+      type: result.type
     });
 
     return res.jsend(savedExperiment);
   } catch (e) {
+    console.log(e);
     return res.jerror(new errors.UpdateExperimentError(e.message));
   }
 };

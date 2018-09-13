@@ -861,11 +861,20 @@ describe("## Experiment APIs", () => {
             expect(mockCallback.mock.calls.length).toEqual(1);
             const args = mockCallback.mock.calls[0];
 
-            expect(args[0].id).toEqual(id);
-            expect(args[1].provider).toEqual("dropbox");
-            expect(args[1].size).toEqual(23);
-            expect(args[1].totalSize).toEqual(23);
-            expect(args[1].fileLocation).toEqual("/1/view/1234");
+            expect(args.length).toEqual(1);
+            const object = args[0];
+
+            expect(object).toHaveProperty("status");
+            expect(object).toHaveProperty("experiment");
+
+            const status = object.status;
+            const experiment = object.experiment;
+
+            expect(experiment.id).toEqual(id);
+            expect(status.provider).toEqual("dropbox");
+            expect(status.size).toEqual(23);
+            expect(status.totalSize).toEqual(23);
+            expect(status.fileLocation).toEqual("/1/view/1234");
             done();
           });
       });
@@ -1417,29 +1426,21 @@ describe("## Experiment APIs", () => {
 
             // Predictor
             expect(mockAnalysisCallback.mock.calls.length).toEqual(1);
-            const analysisCalls = mockAnalysisCallback.mock.calls;
+            const analysisCalls = mockAnalysisCallback.mock.calls[0];
 
-            expect(mockAnalysisCallback.mock.calls[0].length).toEqual(1);
-            const analysisArg = mockAnalysisCallback.mock.calls[0][0];
+            expect(analysisCalls.length).toEqual(1);
+            const analysisArgs = analysisCalls[0];
 
-            expect(analysisArg.experimentId).toEqual(id);
-            expect(analysisArg.taskId).toEqual(
+            expect(analysisArgs).toHaveProperty("experiment");
+            expect(analysisArgs).toHaveProperty("audit");
+
+            const analysisExperiment = analysisArgs.experiment;
+            const analysisAudit = analysisArgs.audit;
+
+            expect(analysisExperiment.id).toEqual(id);
+            expect(analysisAudit.taskId).toEqual(
               "1447d80f-ca79-40ac-bc5d-8a02933323c3"
             );
-
-            // Distance
-            /*
-            expect(mockDistanceCallback.mock.calls.length).toBeTruthy();
-            const distanceCalls = mockDistanceCallback.mock.calls;
-
-            expect(mockDistanceCallback.mock.calls[0].length).toEqual(1);
-            const distanceArg = mockDistanceCallback.mock.calls[0][0];
-
-            expect(distanceArg.experimentId).toBeTruthy();
-            expect(distanceArg.taskId).toEqual(
-              "3a9ba217-4ccb-4108-9c01-60525e2ca905"
-            );
-            */
 
             done();
           });
@@ -1963,7 +1964,7 @@ describe("## Experiment APIs", () => {
           done();
         });
     });
-    it.only("should emit analysis-complete event to all subscribers", done => {
+    it("should emit analysis-complete event to all subscribers", done => {
       const mockCallback = jest.fn();
       experimentEventEmitter.on("analysis-complete", mockCallback);
       request(app)
@@ -1991,24 +1992,29 @@ describe("## Experiment APIs", () => {
           const experiment = object.experiment;
           const type = object.type;
 
-          console.log(audit);
+          expect(experiment.id).toEqual(id);
+          expect(audit.experimentId).toEqual(id.toString());
+          expect(audit.taskId).toEqual("111-222-333");
+          expect(type).toEqual("predictor");
 
-          // expect(experiment.id).toEqual(id.toString());
-          // expect(audit.experimentId).toEqual(id.toString());
-          // expect(audit.taskId).toEqual("111-222-333");
-          // expect(type).toEqual("predictor");
+          expect(experiment).toHaveProperty("results");
+          expect(experiment.results).toHaveProperty("predictor");
 
-          // expect(experiment).toHaveProperty(results);
-          // expect(results).toHaveProperty("predictor");
+          const predictor = experiment.results.predictor;
 
-          // const predictor = results.predictor;
-          // const firstResult = results[0];
+          const experimentId = Object.keys(MDR.result).pop();
+          const result = MDR.result[experimentId];
 
-          // expect(predictor.externalId).toEqual(firstResult.externalId);
-          // expect(predictor.files).toEqual(firstResult.files);
-          // expect(predictor.genotypeModel).toEqual(firstResult.genotypeModel);
-          // expect(predictor.kmer).toEqual(firstResult.kmer);
-          // expect(predictor.phylogenetics).toEqual(firstResult.phylogenetics);
+          expect(predictor.externalId).toEqual(experimentId);
+          expect(predictor.files).toEqual(result.files);
+          expect(predictor.genotypeModel).toEqual(result.genotype_model);
+          expect(predictor.kmer).toEqual(result.kmer);
+          Object.keys(result.phylogenetics).forEach(key => {
+            expect(predictor.phylogenetics).toHaveProperty(key);
+            Object.keys(result.phylogenetics[key]).forEach(phyloKey => {
+              expect(predictor.phylogenetics[key]).toHaveProperty(phyloKey);
+            });
+          });
 
           done();
         });

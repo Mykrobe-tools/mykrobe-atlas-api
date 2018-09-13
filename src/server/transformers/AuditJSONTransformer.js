@@ -13,7 +13,7 @@ class AuditJSONTransformer extends ModelJSONTransformer {
    */
   transform(o) {
     let res = super.transform(o, {});
-    console.log("a");
+
     res = new BlacklistTransformer().transform(res, { blacklist: BLACKLIST });
 
     // mirror properties - no properties are boolean so truthy check is OK
@@ -29,12 +29,11 @@ class AuditJSONTransformer extends ModelJSONTransformer {
       "type",
       "attempt"
     ].forEach(key => {
-      console.log(`Processing: ${key}`);
       if (o[key]) {
         res[key] = o[key];
       }
     });
-    console.log(`transformed: ${res}`);
+
     return res;
   }
 }
