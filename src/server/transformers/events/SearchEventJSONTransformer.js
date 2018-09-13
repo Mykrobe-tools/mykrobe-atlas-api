@@ -14,10 +14,18 @@ class SearchEventJSONTransformer extends CLIEventJSONTransformer {
    */
   transform(o, options) {
     const res = super.transform(o, options);
-    if (options.search) {
-      const search = options.search;
+
+    const search = o.search;
+    if (search) {
       res.search = new SearchJSONTransformer().transform(search, {});
+      res.id = search.id;
     }
+
+    const type = o.type;
+    if (type) {
+      res.type = type;
+    }
+
     return res;
   }
 }

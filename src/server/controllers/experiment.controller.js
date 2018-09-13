@@ -10,6 +10,7 @@ import SearchQueryJSONTransformer from "makeandship-api-common/lib/modules/elast
 import ChoicesJSONTransformer from "makeandship-api-common/lib/modules/elasticsearch/transformers/ChoicesJSONTransformer";
 import { util as jsonschemaUtil } from "makeandship-api-common/lib/modules/jsonschema";
 
+import Audit from "../models/audit.model";
 import Experiment from "../models/experiment.model";
 import Organisation from "../models/organisation.model";
 import Search from "../models/search.model";
@@ -17,6 +18,7 @@ import Search from "../models/search.model";
 import resumable from "../modules/resumable";
 import DownloadersFactory from "../helpers/DownloadersFactory";
 
+import AuditJSONTransformer from "../transformers/AuditJSONTransformer";
 import ExperimentJSONTransformer from "../transformers/ExperimentJSONTransformer";
 import ExperimentsResultJSONTransformer from "../transformers/es/ExperimentsResultJSONTransformer";
 import ResultsJSONTransformer from "../transformers/ResultsJSONTransformer";
@@ -189,16 +191,29 @@ const results = async (req, res) => {
   experiment.set("results", updatedResults);
   try {
     const savedExperiment = await experiment.save();
+
     await ElasticsearchHelper.updateDocument(
       config,
       savedExperiment,
       "experiment"
     );
+
+    const audit = await Audit.getByExperimentId(savedExperiment.id);
+
+    const experimentTransformer = new ExperimentJSONTransformer();
+    const experimentJSON = experimentTransformer.transform(experiment);
+    console.log(`Experiment JSON: ${experimentJSON}`);
+
+    const auditTransformer = new AuditJSONTransformer();
+    const auditJSON = auditTransformer.transform(audit);
+    console.log(`Audit JSON: ${auditJSON}`);
+
     experimentEventEmitter.emit("analysis-complete", {
-      experiment: savedExperiment,
+      experiment: experimentJSON,
       type: result.type,
-      results: updatedResults
+      audit: auditJSON
     });
+
     return res.jsend(savedExperiment);
   } catch (e) {
     return res.jerror(new errors.UpdateExperimentError(e.message));
@@ -249,32 +264,37 @@ const uploadFile = async (req, res) => {
 
   // from local file
   try {
+    const experimentJson = new ExperimentJSONTransformer().transform(
+      req.experiment,
+      {}
+    );
+    const resumableFilename = req.body.resumableFilename;
+
     await resumable.setUploadDirectory(
       `${config.express.uploadDir}/experiments/${experiment.id}/file`
     );
     const postUpload = await resumable.post(req);
     if (!postUpload.complete) {
-      experimentEventEmitter.emit(
-        "upload-progress",
-        req.experiment,
-        postUpload
-      );
+      experimentEventEmitter.emit("upload-progress", {
+        experiment: experimentJson,
+        status: postUpload
+      });
     } else {
-      experimentEventEmitter.emit(
-        "upload-complete",
-        req.experiment,
-        postUpload
-      );
+      experimentEventEmitter.emit("upload-complete", {
+        experiment: experimentJson,
+        status: postUpload
+      });
       return resumable.reassembleChunks(
-        experiment.id,
-        req.body.resumableFilename,
+        experimentJson.id,
+        resumableFilename,
         async () => {
           await schedule("now", "call analysis api", {
             file: `${config.express.uploadsLocation}/experiments/${
-              experiment.id
-            }/file/${req.body.resumableFilename}`,
-            sample_id: experiment.id,
-            attempt: 0
+              experimentJson.id
+            }/file/${resumableFilename}`,
+            sample_id: experimentJson.id,
+            attempt: 0,
+            experiment: experimentJson
           });
           return res.jsend("File uploaded and reassembled");
         }
@@ -390,16 +410,11 @@ const search = async (req, res) => {
         const search = new Search(searchData);
         const savedSearch = await search.save();
 
-        searchData.searchId = savedSearch.id;
-
         // call bigsi via agenda to support retries
-        await schedule("now", "call search api", searchData);
-
-        const searchResponse = await callBigsiApi();
-
-        if (searchResponse.task_id) {
-          savedSearch.taskId = searchResponse.task_id;
-        }
+        await schedule("now", "call search api", {
+          search: savedSearch,
+          user: req.dbUser
+        });
 
         return res.jsend(savedSearch);
       } catch (e) {

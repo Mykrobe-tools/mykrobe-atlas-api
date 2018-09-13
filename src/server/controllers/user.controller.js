@@ -1,14 +1,21 @@
 import passwordHash from "password-hash";
 import errors from "errors";
 import ArrayJSONTransformer from "makeandship-api-common/lib/transformers/ArrayJSONTransformer";
+
+import { userEventEmitter } from "../modules/events";
 import channels from "../modules/channels";
-import User from "../models/user.model";
-import Search from "../models/search.model";
+
+import Audit from "../models/audit.model";
 import Experiment from "../models/experiment.model";
+import Search from "../models/search.model";
+import User from "../models/user.model";
+
 import UserJSONTransformer from "../transformers/UserJSONTransformer";
 import ExperimentJSONTransformer from "../transformers/ExperimentJSONTransformer";
+
 import AccountsHelper from "../helpers/AccountsHelper";
 import MonqHelper from "../helpers/MonqHelper";
+
 import config from "../../config/env";
 
 const keycloak = AccountsHelper.keycloakInstance();
@@ -166,8 +173,20 @@ const saveResults = async (req, res) => {
     return res.jerror("User must be the owner of the search result");
   }
   try {
-    searchResult.set("result", req.body);
+    const result = req.body;
+    searchResult.set("result", result);
     const savedSearchResult = await searchResult.save();
+
+    if (result && result.type) {
+      const audit = await Audit.getBySearchId(savedSearchResult.id);
+      const event = `${result.type}-complete`;
+      userEventEmitter.emit(event, {
+        user,
+        search: searchResult,
+        audit
+      });
+    }
+
     return res.jsend(savedSearchResult);
   } catch (e) {
     return res.jerror(e);

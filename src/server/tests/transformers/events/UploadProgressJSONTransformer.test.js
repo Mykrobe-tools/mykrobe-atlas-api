@@ -1,6 +1,6 @@
-import UploadProgressJSONTransformer from "../../transformers/events/UploadProgressJSONTransformer";
+import UploadProgressJSONTransformer from "../../../transformers/events/UploadProgressJSONTransformer";
 
-const data = {
+const status = {
   identifier: "217685411-MDRfastqgz",
   chunkNumber: "174",
   totalChunks: "207",
@@ -18,18 +18,25 @@ const data = {
   message: "Chunk 174 uploaded"
 };
 
+const experiment = {
+  id: "123"
+};
+
 describe("UploadProgressJSONTransformer", () => {
   describe("#transform", () => {
     it("should transform the analysis complete event", done => {
-      const json = new UploadProgressJSONTransformer().transform(data, {
-        id: "123"
-      });
+      const json = new UploadProgressJSONTransformer().transform(
+        {
+          status,
+          experiment
+        },
+        {}
+      );
 
       expect(json.id).toEqual("123");
       expect(json.complete).toEqual("84.06");
       expect(json.count).toEqual("174");
       expect(json.total).toEqual("207");
-      expect(json.file).toEqual("MDR.fastq.gz");
       expect(json.file).toEqual("MDR.fastq.gz");
       expect(json.event).toEqual("Upload progress");
 

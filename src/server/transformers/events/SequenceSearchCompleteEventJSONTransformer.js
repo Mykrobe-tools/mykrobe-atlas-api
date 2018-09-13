@@ -13,7 +13,9 @@ class SequenceSearchCompleteEventJSONTransformer extends SearchEventJSONTransfor
    */
   transform(o, options) {
     const res = super.transform(o, options);
+
     res.event = "Sequence search complete";
+
     return res;
   }
 }

@@ -1,6 +1,6 @@
-import UploadCompleteJSONTransformer from "../../transformers/events/UploadCompleteJSONTransformer";
+import UploadCompleteJSONTransformer from "../../../transformers/events/UploadCompleteJSONTransformer";
 
-const data = {
+const status = {
   identifier: "217685411-MDRfastqgz",
   chunkNumber: "207",
   totalChunks: "207",
@@ -18,12 +18,20 @@ const data = {
   message: "Chunk 207 uploaded"
 };
 
+const experiment = {
+  id: "123"
+};
+
 describe("UploadCompleteJSONTransformer", () => {
   describe("#transform", () => {
     it("should transform the analysis complete event", done => {
-      const json = new UploadCompleteJSONTransformer().transform(data, {
-        id: "123"
-      });
+      const json = new UploadCompleteJSONTransformer().transform(
+        {
+          status,
+          experiment
+        },
+        {}
+      );
 
       expect(json.id).toEqual("123");
       expect(json.complete).toEqual("100.00");

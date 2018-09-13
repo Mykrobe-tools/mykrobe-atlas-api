@@ -23,32 +23,38 @@ class Downloader {
         .on("data", chunk => {
           file.write(chunk);
           downloaded += chunk.length;
-          experimentEventEmitter.emit(
-            "3rd-party-upload-progress",
-            this.data.experiment,
-            {
-              provider: this.data.provider,
-              size: downloaded,
-              totalSize,
-              fileLocation: this.options.path
-            }
-          );
+
+          const experiment = this.data.experiment;
+          const status = {
+            provider: this.data.provider,
+            size: downloaded,
+            totalSize,
+            fileLocation: this.options.path
+          };
+
+          experimentEventEmitter.emit("3rd-party-upload-progress", {
+            experiment,
+            status
+          });
         })
         .on("end", () => {
           if (done) {
             done();
           }
           file.end();
-          experimentEventEmitter.emit(
-            "3rd-party-upload-complete",
-            this.data.experiment,
-            {
-              provider: this.data.provider,
-              size: totalSize,
-              totalSize,
-              fileLocation: this.options.path
-            }
-          );
+
+          const experiment = this.data.experiment;
+          const status = {
+            provider: this.data.provider,
+            size: totalSize,
+            totalSize,
+            fileLocation: this.options.path
+          };
+
+          experimentEventEmitter.emit("3rd-party-upload-complete", {
+            experiment,
+            status
+          });
         })
         .on("error", err => {
           winston.info(err.message);

@@ -1,7 +1,9 @@
 import EventEmitter from "events";
 import Experiment from "../models/experiment.model";
 import Audit from "../models/audit.model";
+
 import channels from "./channels";
+
 import UploadProgressJSONTransformer from "../transformers/events/UploadProgressJSONTransformer";
 import UploadCompleteJSONTransformer from "../transformers/events/UploadCompleteJSONTransformer";
 import AnalysisStartedJSONTransformer from "../transformers/events/AnalysisStartedJSONTransformer";
@@ -30,139 +32,174 @@ const sendExperimentOwnerEvent = (experiment, data, type) => {
   }
 };
 
-experimentEventEmitter.on("upload-progress", (experiment, uploadStatus) => {
-  const data = new UploadProgressJSONTransformer().transform(uploadStatus, {
-    id: experiment.id
-  });
-  sendExperimentOwnerEvent(experiment, data);
+experimentEventEmitter.on("upload-progress", payload => {
+  const { experiment, status } = payload;
+
+  if (experiment && status) {
+    const data = new UploadProgressJSONTransformer().transform(
+      { experiment, status },
+      {}
+    );
+    sendExperimentOwnerEvent(experiment, data);
+  }
 });
 
-experimentEventEmitter.on(
-  "3rd-party-upload-progress",
-  (experiment, uploadStatus) => {
+experimentEventEmitter.on("upload-complete", payload => {
+  const { experiment, status } = payload;
+
+  if (experiment && status) {
+    const data = new UploadCompleteJSONTransformer().transform(
+      { experiment, status },
+      {}
+    );
+    sendExperimentOwnerEvent(experiment, data);
+  }
+});
+
+experimentEventEmitter.on("3rd-party-upload-progress", payload => {
+  const { experiment, status } = payload;
+
+  if (experiment && status) {
     const data = new ThirdPartyUploadProgressJSONTransformer().transform(
-      uploadStatus,
-      {
-        id: experiment.id
-      }
+      { experiment, status },
+      {}
     );
     sendExperimentOwnerEvent(experiment, data);
   }
-);
+});
 
-experimentEventEmitter.on(
-  "3rd-party-upload-complete",
-  (experiment, uploadStatus) => {
+experimentEventEmitter.on("3rd-party-upload-complete", payload => {
+  const { experiment, status } = payload;
+
+  if (experiment && status) {
     const data = new ThirdPartyUploadCompleteJSONTransformer().transform(
-      uploadStatus,
-      {
-        id: experiment.id
-      }
+      { experiment, status },
+      {}
     );
     sendExperimentOwnerEvent(experiment, data);
   }
-);
-
-experimentEventEmitter.on("upload-complete", (experiment, uploadStatus) => {
-  const data = new UploadCompleteJSONTransformer().transform(uploadStatus, {
-    id: experiment.id
-  });
-  sendExperimentOwnerEvent(experiment, data);
 });
 
 experimentEventEmitter.on("analysis-started", async audit => {
   try {
-    const experiment = await Experiment.get(audit.experimentId);
-    const data = new AnalysisStartedJSONTransformer().transform(audit, {
-      id: experiment.id
-    });
-    sendExperimentOwnerEvent(experiment, data);
+    const { experiment, audit } = payload;
+
+    if (audit && experiment) {
+      const data = new AnalysisStartedJSONTransformer().transform(
+        { audit, experiment },
+        {}
+      );
+      sendExperimentOwnerEvent(experiment, data);
+    }
   } catch (e) {}
 });
 
 experimentEventEmitter.on("analysis-complete", async payload => {
   try {
-    const audit = await Audit.getByExperimentId(payload.experiment.id);
-    const data = new AnalysisCompleteJSONTransformer().transform(audit, {
-      id: payload.experiment.id,
-      results: payload.results,
-      type: payload.type
-    });
-    sendExperimentOwnerEvent(payload.experiment, data);
+    const { experiment, type, audit } = payload;
+
+    if (experiment && type && audit) {
+      const data = new AnalysisCompleteJSONTransformer().transform(
+        {
+          audit,
+          experiment,
+          type
+        },
+        {}
+      );
+      sendExperimentOwnerEvent(payload.experiment, data);
+    }
   } catch (e) {}
 });
 
-experimentEventEmitter.on("distance-search-started", async audit => {
+experimentEventEmitter.on("distance-search-started", async payload => {
   try {
-    const experiment = await Experiment.get(audit.sampleId);
-    const data = new DistanceStartedJSONTransformer().transform(audit, {
-      id: experiment.id
-    });
-    sendExperimentOwnerEvent(experiment, data);
+    const { experiment, audit } = payload;
+
+    if (audit && experiment) {
+      const data = new DistanceStartedJSONTransformer().transform(
+        {
+          audit,
+          experiment
+        },
+        {}
+      );
+      sendExperimentOwnerEvent(experiment, data);
+    }
   } catch (e) {}
 });
 
-userEventEmitter.on("sequence-search-started", async audit => {
+userEventEmitter.on("sequence-search-started", async payload => {
   try {
-    const searchId = audit.searchId;
-    const userId = audit.userId;
-    if (searchId && userId) {
-      const search = await Search.get(searchId);
+    const { audit, search, user } = payload;
 
-      const data = new SearchStartedJSONTransformer().transform(audit, {
-        search
-      });
+    if (audit && search && user) {
+      const data = new SearchStartedJSONTransformer().transform(
+        {
+          audit,
+          search,
+          user
+        },
+        {}
+      );
+      const userId = user.id;
       sendUserEvent(userId, data);
     }
   } catch (e) {}
 });
 
-userEventEmitter.on("sequence-search-complete", async audit => {
+userEventEmitter.on("sequence-search-complete", async payload => {
   try {
-    const searchId = audit.searchId;
-    const userId = audit.userId;
-    if (searchId && userId) {
-      const search = await Search.get(searchId);
+    const { audit, search, user } = payload;
 
-      const data = new SearchCompleteJSONTransformer().transform(audit, {
-        search
-      });
+    if (audit && search && user) {
+      const data = new SearchCompleteJSONTransformer().transform(
+        {
+          audit,
+          search,
+          user
+        },
+        {}
+      );
+      const userId = user.id;
       sendUserEvent(userId, data);
     }
   } catch (e) {}
 });
 
-userEventEmitter.on("protein-variant-search-started", async audit => {
+userEventEmitter.on("protein-variant-search-started", async payload => {
   try {
-    const searchId = audit.searchId;
-    const userId = audit.userId;
-    if (searchId && userId) {
-      const search = await Search.get(searchId);
+    const { experiment, audit, user } = payload;
 
+    if (audit && search && user) {
       const data = new ProteinVariantSearchStartedJSONTransformer().transform(
-        audit,
         {
-          search
-        }
+          audit,
+          search,
+          user
+        },
+        {}
       );
+      const userId = user.id;
       sendUserEvent(userId, data);
     }
   } catch (e) {}
 });
 
-userEventEmitter.on("protein-variant-search-complete", async audit => {
+userEventEmitter.on("dna-variant-search-complete", async audit => {
   try {
-    const searchId = audit.searchId;
-    const userId = audit.userId;
-    if (searchId && userId) {
-      const search = await Search.get(searchId);
+    const { experiment, audit, user } = payload;
 
-      const data = new ProteinVariantSearchCompleteJSONTransformer().transform(
-        audit,
+    if (audit && search && user) {
+      const data = new DnaVariantSearchStartedJSONTransformer().transform(
         {
-          search
-        }
+          audit,
+          search,
+          user
+        },
+        {}
       );
+      const userId = user.id;
       sendUserEvent(userId, data);
     }
   } catch (e) {}
