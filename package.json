@@ -63,7 +63,7 @@
     "http-status": "^1.1.0",
     "jsonwebtoken": "^8.2.1",
     "makeandship-api-common":
-      "git+ssh://git@bitbucket.org:makeandship/makeandship-api-common.git#feature/array-transformer",
+      "git+ssh://git@bitbucket.org:makeandship/makeandship-api-common.git#v0.0.12",
     "method-override": "^2.3.5",
     "mkdirp": "^0.5.1",
     "mkdirp-promise": "^5.0.1",
