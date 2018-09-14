@@ -4483,9 +4483,9 @@ make-iterator@^1.0.0:
     nodemailer-mock "^1.3.13"
     path "^0.12.7"
 
-"makeandship-api-common@git+ssh://git@bitbucket.org:makeandship/makeandship-api-common.git#v0.0.10":
+"makeandship-api-common@git+ssh://git@bitbucket.org:makeandship/makeandship-api-common.git#feature/array-transformer":
   version "1.0.0"
-  resolved "git+ssh://git@bitbucket.org:makeandship/makeandship-api-common.git#f47410f2925e4a9577bced4497d8f0c7b01f11ce"
+  resolved "git+ssh://git@bitbucket.org:makeandship/makeandship-api-common.git#05bacbabba5c1b7c668ee008d35c25b5d6a61c8b"
   dependencies:
     ajv "^6.5.0"
     axios "^0.18.0"
