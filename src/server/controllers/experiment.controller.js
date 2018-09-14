@@ -264,8 +264,7 @@ const uploadFile = async (req, res) => {
   // from local file
   try {
     const experimentJson = new ExperimentJSONTransformer().transform(
-      req.experiment,
-      {}
+      req.experiment
     );
     const resumableFilename = req.body.resumableFilename;
 

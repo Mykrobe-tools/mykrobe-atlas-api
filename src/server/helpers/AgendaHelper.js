@@ -1,5 +1,6 @@
 import axios from "axios";
 import Audit from "../models/audit.model";
+import AuditJSONTransformer from "../transformers/AuditJSONTransformer";
 import config from "../../config/env";
 import { experimentEventEmitter } from "../modules/events";
 
@@ -26,8 +27,10 @@ class AgendaHelper {
           requestUri: uri
         });
         const savedAudit = await audit.save();
+        const auditJson = new AuditJSONTransformer().transform(savedAudit);
+
         experimentEventEmitter.emit("analysis-started", {
-          audit: savedAudit,
+          audit: auditJson,
           experiment
         });
       }
@@ -71,8 +74,10 @@ class AgendaHelper {
         requestUri: uri
       });
       const savedAudit = await audit.save();
+      const auditJson = new AuditJSONTransformer().Transform(savedAudit);
+
       experimentEventEmitter.emit("distance-search-started", {
-        audit: savedAudit,
+        audit: auditJson,
         experiment
       });
       return done();
@@ -113,9 +118,10 @@ class AgendaHelper {
           requestUri: uri
         });
         const savedAudit = await audit.save();
+        const auditJson = new AuditJSONTransformer().Transform(savedAudit);
 
         experimentEventEmitter.emit(`${type}-started`, {
-          audit: savedAudit,
+          audit: auditJson,
           user,
           search
         });
