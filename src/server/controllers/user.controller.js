@@ -169,7 +169,14 @@ const events = async (req, res) => {
  */
 const saveResults = async (req, res) => {
   const { user, searchResult } = req;
-  if (!user.id.equals(searchResult.user && searchResult.user.id)) {
+  if (
+    !user ||
+    !searchResult ||
+    !searchResult.user ||
+    !user.id ||
+    !searchResult.user.id ||
+    searchResult.user.id !== user.id
+  ) {
     return res.jerror("User must be the owner of the search result");
   }
   try {

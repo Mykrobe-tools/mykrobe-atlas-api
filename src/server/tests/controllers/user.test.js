@@ -827,7 +827,7 @@ describe("## User APIs", () => {
           done();
         });
     });
-    it.only("should throw an error if the user is not the owner of the result", done => {
+    it("should throw an error if the user is not the owner of the result", done => {
       request(app)
         .get(`/users/${savedUser.id}/results/${proteinVariantSearchId}`)
         .set("Authorization", `Bearer ${token}`)
