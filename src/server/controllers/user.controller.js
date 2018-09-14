@@ -1,5 +1,8 @@
 import passwordHash from "password-hash";
 import errors from "errors";
+import flatten from "flat";
+
+import { ElasticsearchHelper } from "makeandship-api-common/lib/modules/elasticsearch/";
 import ArrayJSONTransformer from "makeandship-api-common/lib/transformers/ArrayJSONTransformer";
 
 import { userEventEmitter } from "../modules/events";
@@ -12,6 +15,7 @@ import User from "../models/user.model";
 
 import UserJSONTransformer from "../transformers/UserJSONTransformer";
 import ExperimentJSONTransformer from "../transformers/ExperimentJSONTransformer";
+import ExperimentsResultJSONTransformer from "../transformers/es/ExperimentsResultJSONTransformer";
 
 import AccountsHelper from "../helpers/AccountsHelper";
 import MonqHelper from "../helpers/MonqHelper";
@@ -219,9 +223,7 @@ const readResults = async (req, res) => {
     return res.jerror("User must be the owner of the search result");
   }
   try {
-    const mergedExperiments = await mergeWithExperiments(
-      searchResult.get("result")
-    );
+    const mergedExperiments = await mergeWithExperiments(searchResult);
     searchResult.set("result", mergedExperiments);
     return res.jsend(searchResult);
   } catch (e) {
@@ -233,28 +235,46 @@ const readResults = async (req, res) => {
  * Merge result with experiments
  * @param {*} result
  */
-const mergeWithExperiments = async result => {
+const mergeWithExperiments = async searchResult => {
   const mergedExperiments = [];
-  const experimentIds = Object.keys(result.result);
-  const experiments = await Experiment.findByIds(experimentIds);
+  const result = searchResult.get("result") || {};
+  const search = searchResult.get("search");
+  let experimentIds = [];
+  if (result.result) {
+    experimentIds = Object.keys(result.result);
+  }
+
+  // from ES
+  let query = { ids: experimentIds };
+  if (search && Object.keys(search).length > 0) {
+    Object.assign(query, flatten(search));
+  }
+
+  const resp = await ElasticsearchHelper.search(config, query, "experiment");
+
+  const experiments = new ExperimentsResultJSONTransformer().transform(
+    resp,
+    {}
+  );
+
+  // merge results
   experimentIds.forEach(id => {
     let mergedExperiment = {};
     try {
       const exp = experiments.filter(item => item.id === id);
-      mergedExperiment.id = exp[0].id;
-      mergedExperiment.metadata = exp[0].get("metadata");
-      mergedExperiment.result = result.result[id];
+      mergedExperiment = exp[0];
+      mergedExperiment.results = mergedExperiment.results || {};
+      mergedExperiment.results.bigsi = result.result[id];
     } catch (e) {}
-    mergedExperiments.push(mergedExperiment);
-  });
-  const transformedExperiments = new ArrayJSONTransformer().transform(
-    mergedExperiments,
-    {
-      transformer: ExperimentJSONTransformer
+    if (mergedExperiment) {
+      mergedExperiments.push(mergedExperiment);
     }
-  );
-  result.experiments = transformedExperiments;
+  });
+
+  result.experiments = mergedExperiments;
+
   delete result.result;
+
   return result;
 };
 
