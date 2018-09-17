@@ -13,6 +13,7 @@ import Experiment from "../models/experiment.model";
 import Search from "../models/search.model";
 import User from "../models/user.model";
 
+import AuditJSONTransformer from "../transformers/AuditJSONTransformer";
 import UserJSONTransformer from "../transformers/UserJSONTransformer";
 import ExperimentJSONTransformer from "../transformers/ExperimentJSONTransformer";
 import ExperimentsResultJSONTransformer from "../transformers/es/ExperimentsResultJSONTransformer";
@@ -20,7 +21,10 @@ import ExperimentsResultJSONTransformer from "../transformers/es/ExperimentsResu
 import AccountsHelper from "../helpers/AccountsHelper";
 import MonqHelper from "../helpers/MonqHelper";
 
+import ResultsParserFactory from "../helpers/ResultsParserFactory";
+
 import config from "../../config/env";
+import SearchJSONTransformer from "../transformers/SearchJSONTransformer";
 
 const keycloak = AccountsHelper.keycloakInstance();
 
@@ -172,7 +176,7 @@ const events = async (req, res) => {
  * @param {object} res
  */
 const saveResults = async (req, res) => {
-  const { user, searchResult } = req;
+  const { body, user, searchResult } = req;
 
   if (
     !user ||
@@ -185,16 +189,29 @@ const saveResults = async (req, res) => {
     return res.jerror("User must be the owner of the search result");
   }
   try {
-    const result = req.body;
+    const parser = await ResultsParserFactory.create(body);
+    if (!parser) {
+      return res.jerror(
+        new errors.UpdateExperimentError("Invalid result type.")
+      );
+    }
+    const result = parser.parse();
     searchResult.set("result", result);
+
     const savedSearchResult = await searchResult.save();
+
+    const searchJson = new SearchJSONTransformer().transform(savedSearchResult);
+    const userJson = new UserJSONTransformer().transform(user);
+
     if (result && result.type) {
-      const audit = await Audit.getBySearchId(savedSearchResult.id);
+      const audit = await Audit.getBySearchId(searchJson.id);
+      const auditJson = new AuditJSONTransformer().transform(audit);
+
       const event = `${result.type}-complete`;
       userEventEmitter.emit(event, {
-        user,
-        search: searchResult,
-        audit
+        user: userJson,
+        search: searchJson,
+        audit: auditJson
       });
     }
 

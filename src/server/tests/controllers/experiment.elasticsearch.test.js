@@ -689,11 +689,11 @@ describe("## Experiment APIs", () => {
     describe("when search is not provided", () => {
       let sequenceSearchId = null;
       beforeEach(async done => {
-        const sequenceSearchData = new Search(searches.emptySequence);
+        const sequenceSearchData = new Search(searches.searchOnly.sequence);
         const result = {
           type: "sequence",
           result: {},
-          bigsi: {
+          query: {
             seq: "CAGTCCGTTTGTTCT",
             threshold: 0.8
           }
@@ -745,11 +745,11 @@ describe("## Experiment APIs", () => {
     describe("when search is provided", () => {
       let sequenceSearchId = null;
       beforeEach(async done => {
-        const sequenceSearchData = new Search(searches.emptySequence);
+        const sequenceSearchData = new Search(searches.searchOnly.sequence);
         const result = {
           type: "sequence",
           result: {},
-          bigsi: {
+          query: {
             seq: "CAGTCCGTTTGTTCT",
             threshold: 0.8
           }
@@ -803,7 +803,7 @@ describe("## Experiment APIs", () => {
     describe("when results are not populated yet", () => {
       let sequenceSearchId = null;
       beforeEach(async done => {
-        const sequenceSearchData = new Search(searches.emptySequence);
+        const sequenceSearchData = new Search(searches.searchOnly.sequence);
         sequenceSearchData.user = savedUser;
         const sequenceSearch = await sequenceSearchData.save();
         sequenceSearchId = sequenceSearch.id;

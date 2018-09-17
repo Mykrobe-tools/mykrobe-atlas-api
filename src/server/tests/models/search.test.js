@@ -10,10 +10,12 @@ let id = null;
 
 beforeEach(async () => {
   const userData = new User(users.thomas);
-  const searchData = new Search(searches.emptySequence);
   user = await userData.save();
+
+  const searchData = new Search(searches.searchOnly.sequence);
   searchData.user = user;
   const search = await searchData.save();
+
   id = search.id;
 });
 
@@ -32,13 +34,19 @@ describe("## Search Functions", () => {
       },
       user
     });
-    const savedSearchData = await searchData.save();
+    try {
+      const savedSearchData = await searchData.save();
 
-    expect(savedSearchData.id).toBeTruthy();
-    expect(savedSearchData.type).toEqual("sequence");
-    expect(savedSearchData.bigsi.seq).toEqual("GTCAGTCCGTTTGTTCTTGTGGCGAGTGT");
-    expect(savedSearchData.bigsi.threshold).toEqual(0.3);
-    expect(savedSearchData.user.firstname).toEqual("Thomas");
+      expect(savedSearchData.id).toBeTruthy();
+      expect(savedSearchData.type).toEqual("sequence");
+      expect(savedSearchData.bigsi.seq).toEqual(
+        "GTCAGTCCGTTTGTTCTTGTGGCGAGTGT"
+      );
+      expect(savedSearchData.bigsi.threshold).toEqual(0.3);
+      expect(savedSearchData.user.firstname).toEqual("Thomas");
+    } catch (e) {
+      console.log(e);
+    }
 
     done();
   });
@@ -48,8 +56,8 @@ describe("## Search Functions", () => {
 
     expect(foundSearch.id).toEqual(id);
     expect(foundSearch.type).toEqual("sequence");
-    expect(bigsi.seq).toEqual("GTCAGTCCGTTTGTTCTTGTGGCGAGTGT");
-    expect(bigsi.threshold).toEqual(0.5);
+    expect(bigsi.seq).toEqual("GTCAGTCCGTTTGTTCTTGTGGCGAGTGTAGTA");
+    expect(bigsi.threshold).toEqual(0.9);
     expect(foundSearch.user.firstname).toEqual("Thomas");
 
     done();
@@ -71,8 +79,8 @@ describe("## Search Functions", () => {
     const json = foundSearch.toJSON();
 
     expect(json.type).toEqual("sequence");
-    expect(json.bigsi.seq).toEqual("GTCAGTCCGTTTGTTCTTGTGGCGAGTGT");
-    expect(json.bigsi.threshold).toEqual(0.5);
+    expect(json.bigsi.seq).toEqual("GTCAGTCCGTTTGTTCTTGTGGCGAGTGTAGTA");
+    expect(json.bigsi.threshold).toEqual(0.9);
     expect(json.user.firstname).toEqual("Thomas");
 
     done();
@@ -83,27 +91,16 @@ describe("## Search Functions", () => {
     expect(foundSearch.id).toEqual(id);
     expect(foundSearch.type).toEqual("sequence");
 
-    const result = {
-      ABCD1: {
-        percent_kmers_found: 34
-      },
-      ABCD2: {
-        percent_kmers_found: 99
-      },
-      ABCD3: {
-        percent_kmers_found: 89
-      }
-    };
-
-    foundSearch.set("result", result);
+    foundSearch.set("result", searches.results.sequence);
 
     const savedSearchData = await foundSearch.save();
 
     const foundSearchResult = savedSearchData.get("result");
+    const result = foundSearchResult.result;
 
-    expect(foundSearchResult.ABCD1.percent_kmers_found).toEqual(34);
-    expect(foundSearchResult.ABCD2.percent_kmers_found).toEqual(99);
-    expect(foundSearchResult.ABCD3.percent_kmers_found).toEqual(89);
+    expect(result.ERR017683.percent_kmers_found).toEqual(100);
+    expect(result.ERR1149371.percent_kmers_found).toEqual(90);
+    expect(result.ERR1163331.percent_kmers_found).toEqual(100);
 
     done();
   });

@@ -1,10 +1,14 @@
 import request from "supertest";
 import httpStatus from "http-status";
 import { createApp } from "../setup";
+
+import Audit from "../../models/audit.model";
 import User from "../../models/user.model";
 import Organisation from "../../models/organisation.model";
 import Search from "../../models/search.model";
 import Experiment from "../../models/experiment.model";
+
+import AuditJSONTransformer from "../../transformers/AuditJSONTransformer";
 
 const app = createApp();
 
@@ -646,98 +650,247 @@ describe("## User APIs", () => {
     let sequenceSearchId = null;
 
     beforeEach(async done => {
-      const proteinVariantSearchData = new Search(searches.proteinVariant);
-      const sequenceSearchData = new Search(searches.sequence);
-      sequenceSearchData.user = savedUser;
-      const proteinVariantSearch = await proteinVariantSearchData.save();
-      const sequenceSearch = await sequenceSearchData.save();
-      proteinVariantSearchId = proteinVariantSearch.id;
-      sequenceSearchId = sequenceSearch.id;
+      // sequence search with no results
+      const sequenceSearch = new Search(searches.searchOnly.sequence);
+      sequenceSearch.user = savedUser;
+      const savedSequenceSearch = await sequenceSearch.save();
+      sequenceSearchId = savedSequenceSearch.id;
+
+      // audit for the sequence search
+      const sequenceSearchAudit = new Audit({
+        searchId: sequenceSearchId,
+        attempts: 1,
+        status: "Success"
+      });
+      await sequenceSearchAudit.save();
+
+      // protein variant search with no results
+      const proteinVariantSearch = new Search(
+        searches.searchOnly.proteinVariant
+      );
+      proteinVariantSearch.user = savedUser;
+      const savedProteinVariantSearch = await proteinVariantSearch.save();
+      proteinVariantSearchId = savedProteinVariantSearch.id;
+
+      // audit for the protein variant search
+      const proteinSearchAudit = new Audit({
+        searchId: proteinVariantSearchId,
+        attempts: 1,
+        status: "Success"
+      });
+      await proteinSearchAudit.save();
+
       done();
     });
     afterEach(async done => {
       await Search.remove({});
       done();
     });
-    it("should save search result", done => {
-      request(app)
-        .put(`/users/${savedUser.id}/results/${sequenceSearchId}`)
-        .set("Authorization", `Bearer ${token}`)
-        .send({
-          ERR017683: {
-            percent_kmers_found: 100
-          },
-          ERR1149371: {
-            percent_kmers_found: 90
-          }
-        })
-        .expect(httpStatus.OK)
-        .end((err, res) => {
-          expect(res.body.status).toEqual("success");
-          expect(res.body.data.type).toEqual("sequence");
-          const result = res.body.data.result;
-          expect(result.ERR017683.percent_kmers_found).toEqual(100);
-          expect(result.ERR1149371.percent_kmers_found).toEqual(90);
-          const bigsi = res.body.data.bigsi;
-          expect(bigsi.seq).toEqual("GTCAGTCCGTTTGTTCTTGTGGCGAGTGTAGTA");
-          expect(bigsi.threshold).toEqual(0.9);
-          const owner = res.body.data.user;
-          expect(owner.firstname).toEqual("David");
-          done();
-        });
-    });
-    it("should be a protected route", done => {
-      request(app)
-        .put(`/users/${savedUser.id}/results/${sequenceSearchId}`)
-        .set("Authorization", "Bearer INVALID_TOKEN")
-        .expect(httpStatus.UNAUTHORIZED)
-        .end((err, res) => {
-          expect(res.body.status).toEqual("error");
-          expect(res.body.message).toEqual("Not Authorised");
-          done();
-        });
-    });
-    it("should throw an error if the result doesnt exist", done => {
-      request(app)
-        .put(`/users/${savedUser.id}/results/56c787ccc67fc16ccc1a5e92`)
-        .set("Authorization", `Bearer ${token}`)
-        .send({
-          ERR017683: {
-            percent_kmers_found: 100
-          },
-          ERR1149371: {
-            percent_kmers_found: 90
-          }
-        })
-        .expect(httpStatus.OK)
-        .end((err, res) => {
-          expect(res.body.status).toEqual("error");
-          expect(res.body.message).toEqual(
-            "Search not found with id 56c787ccc67fc16ccc1a5e92"
+    describe("when searching by sequence", () => {
+      it("should save search result", done => {
+        request(app)
+          .put(`/users/${savedUser.id}/results/${sequenceSearchId}`)
+          .set("Authorization", `Bearer ${token}`)
+          .send(searches.results.sequence)
+          .expect(httpStatus.OK)
+          .end((err, res) => {
+            expect(res.body).toHaveProperty("status", "success");
+            expect(res.body).toHaveProperty("data");
+
+            const data = res.body.data;
+
+            expect(data).toHaveProperty("type", "sequence");
+            expect(data).toHaveProperty("bigsi", {
+              seq: "GTCAGTCCGTTTGTTCTTGTGGCGAGTGTAGTA",
+              threshold: 0.9
+            });
+            expect(data).toHaveProperty("user");
+            expect(data.user).toHaveProperty("email", "admin@nhs.co.uk");
+
+            expect(data).toHaveProperty("result");
+            const container = data.result;
+            expect(container).toHaveProperty("result");
+            const result = container.result;
+
+            expect(Object.keys(result).length).toEqual(3);
+
+            expect(result.ERR017683.percent_kmers_found).toEqual(100);
+            expect(result.ERR1149371.percent_kmers_found).toEqual(90);
+
+            done();
+          });
+      });
+      it("should be a protected route", done => {
+        request(app)
+          .put(`/users/${savedUser.id}/results/${sequenceSearchId}`)
+          .set("Authorization", "Bearer INVALID_TOKEN")
+          .expect(httpStatus.UNAUTHORIZED)
+          .end((err, res) => {
+            expect(res.body.status).toEqual("error");
+            expect(res.body.message).toEqual("Not Authorised");
+            done();
+          });
+      });
+      it("should throw an error if the result doesnt exist", done => {
+        request(app)
+          .put(`/users/${savedUser.id}/results/56c787ccc67fc16ccc1a5e92`)
+          .set("Authorization", `Bearer ${token}`)
+          .send(searches.results.sequence)
+          .expect(httpStatus.OK)
+          .end((err, res) => {
+            expect(res.body.status).toEqual("error");
+            expect(res.body.message).toEqual(
+              "Search not found with id 56c787ccc67fc16ccc1a5e92"
+            );
+            done();
+          });
+      });
+      describe("when the search is owned by another user", () => {
+        let alternateUserId = null;
+        let alternateUserSequenceSearchId = null;
+
+        beforeEach(async done => {
+          const alternateUserData = {
+            firstname: "John",
+            lastname: "Smith",
+            password: "password",
+            phone: "094324783253",
+            email: "john@gmail.com"
+          };
+          const alternateUser = new User(alternateUserData);
+          const savedAlternateUser = await alternateUser.save();
+
+          // protein variant search with a different owner
+          const alternateSequenceSearch = new Search(
+            searches.searchOnly.sequence
           );
+          alternateSequenceSearch.user = savedAlternateUser;
+          const savedAlternateSequenceSearch = await alternateSequenceSearch.save();
+          alternateUserSequenceSearchId = savedAlternateSequenceSearch.id;
+
+          // audit for the protein variant search
+          const alternateSequenceSearchAudit = new Audit({
+            searchId: alternateUserSequenceSearchId,
+            attempts: 1,
+            status: "Success"
+          });
+          await alternateSequenceSearchAudit.save();
           done();
         });
+        afterEach(async done => {
+          await User.remove({ id: alternateUserId });
+          done();
+        });
+        it("should throw an error if the user is not the owner of the result", done => {
+          request(app)
+            .put(
+              `/users/${savedUser.id}/results/${alternateUserSequenceSearchId}`
+            )
+            .set("Authorization", `Bearer ${token}`)
+            .send(searches.results.sequence)
+            .expect(httpStatus.OK)
+            .end((err, res) => {
+              expect(res.body.status).toEqual("error");
+              expect(res.body.data).toEqual(
+                "User must be the owner of the search result"
+              );
+              done();
+            });
+        });
+      });
     });
-    it("should throw an error if the user is not the owner of the result", done => {
-      request(app)
-        .put(`/users/${savedUser.id}/results/${proteinVariantSearchId}`)
-        .set("Authorization", `Bearer ${token}`)
-        .send({
-          ERR017683: {
-            percent_kmers_found: 100
-          },
-          ERR1149371: {
-            percent_kmers_found: 90
-          }
-        })
-        .expect(httpStatus.OK)
-        .end((err, res) => {
-          expect(res.body.status).toEqual("error");
-          expect(res.body.data).toEqual(
-            "User must be the owner of the search result"
+    describe("when searching by protein variant", () => {
+      it("should store protein variant results", done => {
+        request(app)
+          .put(`/users/${savedUser.id}/results/${proteinVariantSearchId}`)
+          .set("Authorization", `Bearer ${token}`)
+          .send(searches.results.proteinVariant)
+          .expect(httpStatus.OK)
+          .end((err, res) => {
+            expect(res.body).toHaveProperty("status", "success");
+            expect(res.body).toHaveProperty("data");
+
+            const data = res.body.data;
+            expect(data).toHaveProperty("type", "protein-variant");
+            expect(data).toHaveProperty("bigsi", {
+              ref: "S",
+              alt: "L",
+              pos: 450,
+              gene: "rpoB"
+            });
+            expect(data).toHaveProperty("created");
+            expect(data).toHaveProperty("modified");
+            expect(data).toHaveProperty("user");
+            expect(data).toHaveProperty("id");
+
+            expect(data).toHaveProperty("result");
+            const container = data.result;
+            expect(container).toHaveProperty("received");
+
+            expect(container).toHaveProperty("result");
+            const result = container.result;
+            expect(Object.keys(result).length).toEqual(6);
+
+            done();
+          });
+      });
+
+      describe("when the search is owned by another user", () => {
+        let alternateUserId = null;
+        let alternateUserProteinVariantSearchId = null;
+
+        beforeEach(async done => {
+          const alternateUserData = {
+            firstname: "John",
+            lastname: "Smith",
+            password: "password",
+            phone: "094324783253",
+            email: "john@gmail.com"
+          };
+          const alternateUser = new User(alternateUserData);
+          const savedAlternateUser = await alternateUser.save();
+
+          // protein variant search with a different owner
+          const alternateProteinVariantSearch = new Search(
+            searches.searchOnly.proteinVariant
           );
+          alternateProteinVariantSearch.user = savedAlternateUser;
+          const savedAlternateProteinVariantSearch = await alternateProteinVariantSearch.save();
+          alternateUserProteinVariantSearchId =
+            savedAlternateProteinVariantSearch.id;
+
+          // audit for the protein variant search
+          const alternateProteinVariantSearchAudit = new Audit({
+            searchId: alternateUserProteinVariantSearchId,
+            attempts: 1,
+            status: "Success"
+          });
+          await alternateProteinVariantSearchAudit.save();
           done();
         });
+        afterEach(async done => {
+          await User.remove({ id: alternateUserId });
+          done();
+        });
+        it("should throw an error if the user is not the owner of the result", done => {
+          request(app)
+            .put(
+              `/users/${
+                savedUser.id
+              }/results/${alternateUserProteinVariantSearchId}`
+            )
+            .set("Authorization", `Bearer ${token}`)
+            .send(searches.results.proteinVariant)
+            .expect(httpStatus.OK)
+            .end((err, res) => {
+              expect(res.body.status).toEqual("error");
+              expect(res.body.data).toEqual(
+                "User must be the owner of the search result"
+              );
+              done();
+            });
+        });
+      });
     });
   });
 
@@ -746,19 +899,43 @@ describe("## User APIs", () => {
     let proteinVariantSearchId = null;
 
     beforeEach(async done => {
-      const proteinVariantSearchData = new Search(searches.proteinVariant);
-      const proteinVariantSearch = await proteinVariantSearchData.save();
-      const sequenceSearchData = new Search(searches.emptySequence);
-      sequenceSearchData.user = savedUser;
-      const sequenceSearch = await sequenceSearchData.save();
-      sequenceSearchId = sequenceSearch.id;
-      proteinVariantSearchId = proteinVariantSearch.id;
+      // sequence search with no results
+      const sequenceSearch = new Search(searches.searchOnly.sequence);
+      sequenceSearch.user = savedUser;
+      const savedSequenceSearch = await sequenceSearch.save();
+      sequenceSearchId = savedSequenceSearch.id;
+
+      // audit for the sequence search
+      const sequenceSearchAudit = new Audit({
+        searchId: sequenceSearchId,
+        attempts: 1,
+        status: "Success"
+      });
+      await sequenceSearchAudit.save();
+
+      // protein variant search with no results
+      const proteinVariantSearch = new Search(
+        searches.searchOnly.proteinVariant
+      );
+      proteinVariantSearch.user = savedUser;
+      const savedProteinVariantSearch = await proteinVariantSearch.save();
+      proteinVariantSearchId = savedProteinVariantSearch.id;
+
+      // audit for the protein variant search
+      const proteinSearchAudit = new Audit({
+        searchId: proteinVariantSearchId,
+        attempts: 1,
+        status: "Success"
+      });
+      await proteinSearchAudit.save();
+
       done();
     });
     afterEach(async done => {
       await Search.remove({});
       done();
     });
+
     it("should be a protected route", done => {
       request(app)
         .get(`/users/${savedUser.id}/results/${sequenceSearchId}`)
@@ -783,18 +960,57 @@ describe("## User APIs", () => {
           done();
         });
     });
-    it("should throw an error if the user is not the owner of the result", done => {
-      request(app)
-        .get(`/users/${savedUser.id}/results/${proteinVariantSearchId}`)
-        .set("Authorization", `Bearer ${token}`)
-        .expect(httpStatus.OK)
-        .end((err, res) => {
-          expect(res.body.status).toEqual("error");
-          expect(res.body.data).toEqual(
-            "User must be the owner of the search result"
-          );
-          done();
+    describe("when the search is owned by another user", () => {
+      let alternateUserId = null;
+      let alternateUserSequenceSearchId = null;
+
+      beforeEach(async done => {
+        const alternateUserData = {
+          firstname: "John",
+          lastname: "Smith",
+          password: "password",
+          phone: "094324783253",
+          email: "john@gmail.com"
+        };
+        const alternateUser = new User(alternateUserData);
+        const savedAlternateUser = await alternateUser.save();
+
+        // protein variant search with a different owner
+        const alternateSequenceSearch = new Search(
+          searches.searchOnly.sequence
+        );
+        alternateSequenceSearch.user = savedAlternateUser;
+        const savedAlternateSequenceSearch = await alternateSequenceSearch.save();
+        alternateUserSequenceSearchId = savedAlternateSequenceSearch.id;
+
+        // audit for the protein variant search
+        const alternateSequenceSearchAudit = new Audit({
+          searchId: alternateUserSequenceSearchId,
+          attempts: 1,
+          status: "Success"
         });
+        await alternateSequenceSearchAudit.save();
+        done();
+      });
+      afterEach(async done => {
+        await User.remove({ id: alternateUserId });
+        done();
+      });
+      it("should throw an error", done => {
+        request(app)
+          .get(
+            `/users/${savedUser.id}/results/${alternateUserSequenceSearchId}`
+          )
+          .set("Authorization", `Bearer ${token}`)
+          .expect(httpStatus.OK)
+          .end((err, res) => {
+            expect(res.body.status).toEqual("error");
+            expect(res.body.data).toEqual(
+              "User must be the owner of the search result"
+            );
+            done();
+          });
+      });
     });
   });
 });
