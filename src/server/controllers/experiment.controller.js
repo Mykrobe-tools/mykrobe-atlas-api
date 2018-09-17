@@ -19,6 +19,8 @@ import resumable from "../modules/resumable";
 import DownloadersFactory from "../helpers/DownloadersFactory";
 
 import AuditJSONTransformer from "../transformers/AuditJSONTransformer";
+import SearchJSONTransformer from "../transformers/SearchJSONTransformer";
+import UserJSONTransformer from "../transformers/UserJSONTransformer";
 import ExperimentJSONTransformer from "../transformers/ExperimentJSONTransformer";
 import ExperimentsResultJSONTransformer from "../transformers/es/ExperimentsResultJSONTransformer";
 import ResultsJSONTransformer from "../transformers/ResultsJSONTransformer";
@@ -408,10 +410,13 @@ const search = async (req, res) => {
         const search = new Search(searchData);
         const savedSearch = await search.save();
 
+        const searchJson = new SearchJSONTransformer().transform(savedSearch);
+        const userJson = new UserJSONTransformer().transform(req.dbUser);
+
         // call bigsi via agenda to support retries
         await schedule("now", "call search api", {
-          search: savedSearch,
-          user: req.dbUser
+          search: searchJson,
+          user: userJson
         });
 
         return res.jsend(savedSearch);

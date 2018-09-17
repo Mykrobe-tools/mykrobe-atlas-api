@@ -94,14 +94,15 @@ class AgendaHelper {
 
     if (data && search) {
       const uri = `${config.services.analysisApiUrl}/search`;
-      try {
-        const searchQuery = {
-          result_id: search.id,
-          user_id: user.id,
-          query: search.bigsi
-        };
-        const type = search.bigsi.type;
+      const searchQuery = {
+        result_id: search.id,
+        user_id: user.id,
+        query: search.bigsi
+      };
+      const type = search.bigsi && search.bigsi.type ? search.bigsi.type : null;
 
+      data.attempt = data.attempt ? data.attempt++ : 1;
+      try {
         const response = await axios.post(uri, searchQuery);
 
         const taskId =
@@ -113,7 +114,7 @@ class AgendaHelper {
           searchId: search.id,
           taskId,
           type,
-          attempt: 1,
+          attempt: data.attempt,
           requestMethod: "post",
           requestUri: uri
         });
@@ -128,19 +129,18 @@ class AgendaHelper {
 
         return done();
       } catch (e) {
-        // wait for a period of time and retry the distance search
-        data.attempt++;
         const audit = new Audit({
           status: "Failed",
-          userId: data.user.id,
-          searchId: data.searchId,
-          taskId: response.data && response.data.task_id,
-          type: searchQuery.bigsi.type,
+          userId: user.id,
+          searchId: search.id,
+          type,
           attempt: data.attempt,
           requestMethod: "post",
           requestUri: uri
         });
         await audit.save();
+
+        // wait for a period of time and retry the distance search
         await this.schedule(
           config.services.analysisApiBackOffPeriod,
           "call search api",

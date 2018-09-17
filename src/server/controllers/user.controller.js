@@ -173,6 +173,7 @@ const events = async (req, res) => {
  */
 const saveResults = async (req, res) => {
   const { user, searchResult } = req;
+  console.log("a");
   if (
     !user ||
     !searchResult ||
@@ -184,18 +185,24 @@ const saveResults = async (req, res) => {
     return res.jerror("User must be the owner of the search result");
   }
   try {
+    console.log("b");
     const result = req.body;
     searchResult.set("result", result);
     const savedSearchResult = await searchResult.save();
-
+    console.log("c");
     if (result && result.type) {
+      console.log("d");
+      console.log(`Search result id: ${savedSearchResult.id}`);
       const audit = await Audit.getBySearchId(savedSearchResult.id);
+      console.log("e");
       const event = `${result.type}-complete`;
+      console.log("f");
       userEventEmitter.emit(event, {
         user,
         search: searchResult,
         audit
       });
+      console.log("g");
     }
 
     return res.jsend(savedSearchResult);
