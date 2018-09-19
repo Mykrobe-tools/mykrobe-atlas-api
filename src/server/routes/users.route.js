@@ -123,15 +123,15 @@ router
    *           seq: CAGTCCGTTTGTTCT
    *           threshold: 0.9
    *         result:
-   *           ERR017683:
-   *             percent_kmers_found: 100
-   *           ERR1149371:
-   *             percent_kmers_found: 90
-   *           ERR1163331:
-   *             percent_kmers_found: 100
-   *           query:
-   *             seq: CAGTCCGTTTGTTCT
-   *             threshold: 0.9
+   *           type: sequence
+   *           received: 2018-09-19T09:17:14.565Z
+   *           result:
+   *             5b98dc2068650b0d588ff560:
+   *               percent_kmers_found: 100
+   *             5b98dc2068650b0d588ff55f:
+   *               percent_kmers_found: 90
+   *             5b98dc2068650b0d588ff55d:
+   *               percent_kmers_found: 100
    *         id: 588624076182796462cb133e
    */
 
@@ -367,12 +367,17 @@ router
    *         schema:
    *           type: object
    *           example:
-   *             ERR017683:
-   *               percent_kmers_found: 100
-   *             ERR1149371:
-   *               percent_kmers_found: 90
-   *             ERR1163331:
-   *               percent_kmers_found: 100
+   *             type: sequence
+   *             result:
+   *               5b98dc2068650b0d588ff560:
+   *                 percent_kmers_found: 100
+   *               5b98dc2068650b0d588ff55f:
+   *                 percent_kmers_found: 90
+   *               5b98dc2068650b0d588ff55d:
+   *                 percent_kmers_found: 100
+   *             query:
+   *               seq: CTTGTGGCGAGTGTTGC
+   *               threshold: 0.8
    *     responses:
    *       200:
    *         description: Search Result data

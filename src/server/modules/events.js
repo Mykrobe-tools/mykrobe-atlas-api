@@ -11,6 +11,7 @@ import DistanceStartedJSONTransformer from "../transformers/events/DistanceStart
 import AnalysisCompleteJSONTransformer from "../transformers/events/AnalysisCompleteJSONTransformer";
 import ThirdPartyUploadProgressJSONTransformer from "../transformers/events/ThirdPartyUploadProgressJSONTransformer";
 import ThirdPartyUploadCompleteJSONTransformer from "../transformers/events/ThirdPartyUploadCompleteJSONTransformer";
+import SequenceSearchCompleteEventJSONTransformer from "../transformers/events/SequenceSearchCompleteEventJSONTransformer";
 
 const experimentEventEmitter = new EventEmitter();
 const userEventEmitter = new EventEmitter();
@@ -153,7 +154,7 @@ userEventEmitter.on("sequence-search-complete", async payload => {
     const { audit, search, user } = payload;
 
     if (audit && search && user) {
-      const data = new SearchCompleteJSONTransformer().transform(
+      const data = new SequenceSearchCompleteEventJSONTransformer().transform(
         {
           audit,
           search,

@@ -207,7 +207,7 @@ const saveResults = async (req, res) => {
       const audit = await Audit.getBySearchId(searchJson.id);
       const auditJson = new AuditJSONTransformer().transform(audit);
 
-      const event = `${result.type}-complete`;
+      const event = `${result.type}-search-complete`;
       userEventEmitter.emit(event, {
         user: userJson,
         search: searchJson,

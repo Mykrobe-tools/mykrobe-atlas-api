@@ -1,4 +1,4 @@
-import SearchEventJSONTransformer from "../SearchEventJSONTransformer";
+import SearchEventJSONTransformer from "./SearchEventJSONTransformer";
 
 /**
  * A class to transform a sequence started payload
