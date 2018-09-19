@@ -3578,7 +3578,11 @@ router
    *       401:
    *         description: Failed authentication
    */
-  .get(keycloak.connect.protect(), experimentController.search);
+  .get(
+    keycloak.connect.protect(),
+    userController.loadCurrentUser,
+    experimentController.search
+  );
 
 router
   .route("/:id")

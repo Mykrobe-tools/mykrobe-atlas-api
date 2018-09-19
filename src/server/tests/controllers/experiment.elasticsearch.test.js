@@ -5,8 +5,10 @@ import { createApp } from "../setup";
 import User from "../../models/user.model";
 import Experiment from "../../models/experiment.model";
 import Organisation from "../../models/organisation.model";
+import Search from "../../models/search.model";
 import config from "../../../config/env/";
 import { experiment as experimentSchema } from "mykrobe-atlas-jsonschema";
+import SearchJSONTransformer from "../../transformers/SearchJSONTransformer";
 
 jest.mock("keycloak-admin-client");
 
@@ -18,15 +20,21 @@ let token = null;
 
 const experiments = require("../fixtures/experiments");
 const metadata = require("../fixtures/metadata");
+const searches = require("../fixtures/searches");
 
 const experimentWithMetadata = new Experiment(experiments.tbUploadMetadata);
 const experimentWithChineseMetadata = new Experiment(
   experiments.tbUploadMetadataChinese
 );
 
+let experimentId1,
+  experimentId2 = null;
+
+let savedUser = null;
+
 beforeEach(async done => {
   const userData = new User(users.admin);
-  await userData.save();
+  savedUser = await userData.save();
   request(app)
     .post("/auth/login")
     .send({ email: "admin@nhs.co.uk", password: "password" })
@@ -38,6 +46,7 @@ beforeEach(async done => {
 
 afterEach(async done => {
   await User.remove({});
+  await Search.remove({});
   done();
 });
 
@@ -45,8 +54,11 @@ beforeAll(async done => {
   await ElasticsearchHelper.deleteIndexIfExists(config);
   await ElasticsearchHelper.createIndex(config, experimentSchema, "experiment");
 
-  await experimentWithMetadata.save();
-  await experimentWithChineseMetadata.save();
+  const experiment1 = await experimentWithMetadata.save();
+  const experiment2 = await experimentWithChineseMetadata.save();
+
+  experimentId1 = experiment1.id;
+  experimentId2 = experiment2.id;
 
   // index to elasticsearch
   const experiments = await Experiment.list();
@@ -592,6 +604,231 @@ describe("## Experiment APIs", () => {
           );
           done();
         });
+    });
+    describe("when running bigsi searches", () => {
+      it("should return a search object for sequence search - threshold", done => {
+        request(app)
+          .get("/experiments/search?q=CAGTCCGTTTGTTCT")
+          .set("Authorization", `Bearer ${token}`)
+          .expect(httpStatus.OK)
+          .end((err, res) => {
+            expect(res.body.status).toEqual("success");
+            expect(res.body.data.type).toEqual("sequence");
+            expect(res.body.data.user.firstname).toEqual("David");
+            expect(res.body.data.bigsi.threshold).toEqual(1);
+            expect(res.body.data.id).toBeTruthy();
+            done();
+          });
+      });
+      it("should return a search object for sequence search - no threshold", done => {
+        request(app)
+          .get("/experiments/search?q=CAGTCCGTTTGTTCT&threshold=0.8")
+          .set("Authorization", `Bearer ${token}`)
+          .expect(httpStatus.OK)
+          .end((err, res) => {
+            expect(res.body.status).toEqual("success");
+            expect(res.body.data.type).toEqual("sequence");
+            expect(res.body.data.user.firstname).toEqual("David");
+            expect(res.body.data.bigsi.threshold).toEqual(0.8);
+            expect(res.body.data.id).toBeTruthy();
+            done();
+          });
+      });
+      it("should return a result_id for protein variant search", done => {
+        request(app)
+          .get("/experiments/search?q=rpoB_S450L")
+          .set("Authorization", `Bearer ${token}`)
+          .expect(httpStatus.OK)
+          .end((err, res) => {
+            expect(res.body.status).toEqual("success");
+            expect(res.body.data.type).toEqual("protein-variant");
+            expect(res.body.data.user.firstname).toEqual("David");
+            expect(res.body.data.bigsi.gene).toEqual("rpoB");
+            expect(res.body.data.bigsi.ref).toEqual("S");
+            expect(res.body.data.bigsi.pos).toEqual(450);
+            expect(res.body.data.bigsi.alt).toEqual("L");
+            expect(res.body.data.id).toBeTruthy();
+            done();
+          });
+      });
+      it("should save search in mongo", done => {
+        request(app)
+          .get("/experiments/search?q=CAGTCCGTTTGTTCT&threshold=0.8")
+          .set("Authorization", `Bearer ${token}`)
+          .expect(httpStatus.OK)
+          .end(async (err, res) => {
+            const searchId = res.body.data.id;
+            const search = await Search.get(searchId);
+            expect(search.type).toEqual("sequence");
+            const bigsi = search.get("bigsi");
+            expect(bigsi.threshold).toEqual(0.8);
+            done();
+          });
+      });
+      it("should return carry on with normal search if invalid query", done => {
+        request(app)
+          .get("/experiments/search?q=insulin")
+          .set("Authorization", `Bearer ${token}`)
+          .expect(httpStatus.OK)
+          .end((err, res) => {
+            expect(res.body.status).toEqual("success");
+            const result = res.body.data.results[0];
+
+            expect(result.metadata.patient.diabetic).toEqual("Insulin");
+            expect(result.metadata.patient.age).toEqual(43);
+            expect(result.metadata.sample.labId).toEqual(
+              "d19637ed-e5b4-4ca7-8418-8713646a3359"
+            );
+
+            done();
+          });
+      });
+    });
+  });
+  describe("# GET /users/:id/results/:resultId", () => {
+    describe("when search is not provided", () => {
+      let sequenceSearchId = null;
+      beforeEach(async done => {
+        const sequenceSearchData = new Search(searches.searchOnly.sequence);
+        const result = {
+          type: "sequence",
+          result: {},
+          query: {
+            seq: "CAGTCCGTTTGTTCT",
+            threshold: 0.8
+          }
+        };
+        result.result[`${experimentId1}`] = { percent_kmers_found: 100 };
+        result.result[`${experimentId2}`] = { percent_kmers_found: 90 };
+        sequenceSearchData.user = savedUser;
+        sequenceSearchData.set("result", result);
+        const sequenceSearch = await sequenceSearchData.save();
+        sequenceSearchId = sequenceSearch.id;
+        done();
+      });
+      it("should filter by experiments ids", done => {
+        request(app)
+          .get(`/users/${savedUser.id}/results/${sequenceSearchId}`)
+          .set("Authorization", `Bearer ${token}`)
+          .expect(httpStatus.OK)
+          .end((err, res) => {
+            expect(res.body.status).toEqual("success");
+
+            const data = res.body.data;
+            expect(data.type).toEqual("sequence");
+            expect(data.bigsi).toBeTruthy();
+            expect(data.user).toBeTruthy();
+            expect(data.result).toBeTruthy();
+
+            const result = data.result;
+            expect(result.type).toEqual("sequence");
+            expect(result.experiments.length).toEqual(2);
+
+            expect(result.experiments[0].id).toBeTruthy();
+            expect(result.experiments[0].metadata).toBeTruthy();
+            expect(result.experiments[0].results.bigsi).toBeTruthy();
+            expect(
+              result.experiments[0].results.bigsi.percent_kmers_found
+            ).toBeTruthy();
+
+            expect(result.experiments[1].id).toBeTruthy();
+            expect(result.experiments[1].metadata).toBeTruthy();
+            expect(result.experiments[1].results.bigsi).toBeTruthy();
+            expect(
+              result.experiments[1].results.bigsi.percent_kmers_found
+            ).toBeTruthy();
+
+            done();
+          });
+      });
+    });
+    describe("when search is provided", () => {
+      let sequenceSearchId = null;
+      beforeEach(async done => {
+        const sequenceSearchData = new Search(searches.searchOnly.sequence);
+        const result = {
+          type: "sequence",
+          result: {},
+          query: {
+            seq: "CAGTCCGTTTGTTCT",
+            threshold: 0.8
+          }
+        };
+        const searchCriteria = {
+          metadata: {
+            patient: {
+              smoker: "No"
+            }
+          }
+        };
+        result.result[`${experimentId1}`] = { percent_kmers_found: 100 };
+        result.result[`${experimentId2}`] = { percent_kmers_found: 90 };
+        sequenceSearchData.user = savedUser;
+        sequenceSearchData.set("result", result);
+        sequenceSearchData.set("search", searchCriteria);
+        const sequenceSearch = await sequenceSearchData.save();
+        sequenceSearchId = sequenceSearch.id;
+        done();
+      });
+      it("should filter by experiments ids and search", done => {
+        request(app)
+          .get(`/users/${savedUser.id}/results/${sequenceSearchId}`)
+          .set("Authorization", `Bearer ${token}`)
+          .expect(httpStatus.OK)
+          .end((err, res) => {
+            expect(res.body.status).toEqual("success");
+
+            const data = res.body.data;
+            expect(data.type).toEqual("sequence");
+            expect(data.bigsi).toBeTruthy();
+            expect(data.user).toBeTruthy();
+            expect(data.result).toBeTruthy();
+
+            const result = data.result;
+            expect(result.type).toEqual("sequence");
+            expect(result.experiments.length).toEqual(1);
+
+            expect(result.experiments[0].id).toBeTruthy();
+            expect(result.experiments[0].metadata).toBeTruthy();
+            expect(result.experiments[0].metadata.patient.smoker).toEqual("No");
+            expect(result.experiments[0].results.bigsi).toBeTruthy();
+            expect(
+              result.experiments[0].results.bigsi.percent_kmers_found
+            ).toEqual(90);
+
+            done();
+          });
+      });
+    });
+    describe("when results are not populated yet", () => {
+      let sequenceSearchId = null;
+      beforeEach(async done => {
+        const sequenceSearchData = new Search(searches.searchOnly.sequence);
+        sequenceSearchData.user = savedUser;
+        const sequenceSearch = await sequenceSearchData.save();
+        sequenceSearchId = sequenceSearch.id;
+        done();
+      });
+      it("should return empty experiments", done => {
+        request(app)
+          .get(`/users/${savedUser.id}/results/${sequenceSearchId}`)
+          .set("Authorization", `Bearer ${token}`)
+          .expect(httpStatus.OK)
+          .end((err, res) => {
+            expect(res.body.status).toEqual("success");
+
+            const data = res.body.data;
+            expect(data.type).toEqual("sequence");
+            expect(data.bigsi).toBeTruthy();
+            expect(data.user).toBeTruthy();
+            expect(data.result).toBeTruthy();
+
+            const result = data.result;
+            expect(result.experiments.length).toEqual(0);
+
+            done();
+          });
+      });
     });
   });
 });

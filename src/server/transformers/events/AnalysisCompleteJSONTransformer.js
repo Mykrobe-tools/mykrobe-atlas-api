@@ -14,6 +14,7 @@ class AnalysisCompleteJSONTransformer extends AnalysisEventJSONTransformer {
    */
   transform(o, options) {
     const res = super.transform(o, options);
+
     res.event = "Analysis complete";
     res.file = path.basename(res.file);
 

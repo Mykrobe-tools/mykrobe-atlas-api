@@ -1,8 +1,8 @@
-import UploadCompleteJSONTransformer from "../../transformers/events/UploadCompleteJSONTransformer";
+import UploadProgressJSONTransformer from "../../../transformers/events/UploadProgressJSONTransformer";
 
-const data = {
+const status = {
   identifier: "217685411-MDRfastqgz",
-  chunkNumber: "207",
+  chunkNumber: "174",
   totalChunks: "207",
   chunkSize: 1048576,
   totalSize: 217685411,
@@ -14,23 +14,31 @@ const data = {
     "/tmp/uploads/experiments/5b6323763d2e3416ee01ae69/file/resumable-217685411-MDRfastqgz.1",
   complete: false,
   verifiedTotalChunks: 207,
-  percentageComplete: 100,
-  message: "Chunk 207 uploaded"
+  percentageComplete: 84.0630917874396135,
+  message: "Chunk 174 uploaded"
 };
 
-describe("UploadCompleteJSONTransformer", () => {
+const experiment = {
+  id: "123"
+};
+
+describe("UploadProgressJSONTransformer", () => {
   describe("#transform", () => {
     it("should transform the analysis complete event", done => {
-      const json = new UploadCompleteJSONTransformer().transform(data, {
-        id: "123"
-      });
+      const json = new UploadProgressJSONTransformer().transform(
+        {
+          status,
+          experiment
+        },
+        {}
+      );
 
       expect(json.id).toEqual("123");
-      expect(json.complete).toEqual("100.00");
-      expect(json.count).toEqual("207");
+      expect(json.complete).toEqual("84.06");
+      expect(json.count).toEqual("174");
       expect(json.total).toEqual("207");
       expect(json.file).toEqual("MDR.fastq.gz");
-      expect(json.event).toEqual("Upload complete");
+      expect(json.event).toEqual("Upload progress");
 
       done();
     });

@@ -1,20 +1,25 @@
-import ThirdPartyUploadProgressJSONTransformer from "../../transformers/events/ThirdPartyUploadProgressJSONTransformer";
+import ThirdPartyUploadProgressJSONTransformer from "../../../transformers/events/ThirdPartyUploadProgressJSONTransformer";
 
-const data = {
+const status = {
   provider: "box",
   size: "1735976",
   totalSize: "3007920",
   fileLocation: "/path/to/file/MDR.fastq.gz"
 };
 
+const experiment = {
+  id: "123"
+};
+
 describe("ThirdPartyUploadProgressJSONTransformer", () => {
   describe("#transform", () => {
     it("should transform the 3rd party upload progress event", done => {
       const json = new ThirdPartyUploadProgressJSONTransformer().transform(
-        data,
         {
-          id: "123"
-        }
+          status,
+          experiment
+        },
+        {}
       );
 
       expect(json.id).toEqual("123");

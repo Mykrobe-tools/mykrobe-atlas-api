@@ -10,12 +10,17 @@ import SearchQueryJSONTransformer from "makeandship-api-common/lib/modules/elast
 import ChoicesJSONTransformer from "makeandship-api-common/lib/modules/elasticsearch/transformers/ChoicesJSONTransformer";
 import { util as jsonschemaUtil } from "makeandship-api-common/lib/modules/jsonschema";
 
+import Audit from "../models/audit.model";
 import Experiment from "../models/experiment.model";
 import Organisation from "../models/organisation.model";
+import Search from "../models/search.model";
 
 import resumable from "../modules/resumable";
 import DownloadersFactory from "../helpers/DownloadersFactory";
 
+import AuditJSONTransformer from "../transformers/AuditJSONTransformer";
+import SearchJSONTransformer from "../transformers/SearchJSONTransformer";
+import UserJSONTransformer from "../transformers/UserJSONTransformer";
 import ExperimentJSONTransformer from "../transformers/ExperimentJSONTransformer";
 import ExperimentsResultJSONTransformer from "../transformers/es/ExperimentsResultJSONTransformer";
 import ResultsJSONTransformer from "../transformers/ResultsJSONTransformer";
@@ -25,8 +30,9 @@ import { schedule } from "../modules/agenda";
 import { experiment as experimentSchema } from "mykrobe-atlas-jsonschema";
 
 import ResultsParserFactory from "../helpers/ResultsParserFactory";
-import { experimentEvent } from "../modules/events";
-import ExperimentsHelper from "../helpers/ExperimentsHelper";
+import { experimentEventEmitter, userEventEmitter } from "../modules/events";
+
+import { isBigsiQuery, callBigsiApi, parseQuery } from "../modules/search";
 
 const config = require("../../config/env");
 
@@ -52,6 +58,7 @@ const get = async (req, res) => {
   const experiment = req.experiment.toJSON();
   if (experiment.results && experiment.results.nearestNeighbours) {
     let nearestNeighbours = experiment.results.nearestNeighbours;
+
     experiment.results.nearestNeighbours = await inflateResult(
       nearestNeighbours
     );
@@ -187,18 +194,29 @@ const results = async (req, res) => {
   experiment.set("results", updatedResults);
   try {
     const savedExperiment = await experiment.save();
+
     await ElasticsearchHelper.updateDocument(
       config,
       savedExperiment,
       "experiment"
     );
-    experimentEvent.emit("analysis-complete", {
-      experiment: savedExperiment,
-      type: result.type,
-      results: updatedResults
+
+    const audit = await Audit.getByExperimentId(savedExperiment.id);
+
+    const experimentJSON = new ExperimentJSONTransformer().transform(
+      experiment
+    );
+    const auditJSON = new AuditJSONTransformer().transform(audit);
+
+    experimentEventEmitter.emit("analysis-complete", {
+      audit: auditJSON,
+      experiment: experimentJSON,
+      type: result.type
     });
+
     return res.jsend(savedExperiment);
   } catch (e) {
+    console.log(e);
     return res.jerror(new errors.UpdateExperimentError(e.message));
   }
 };
@@ -247,24 +265,36 @@ const uploadFile = async (req, res) => {
 
   // from local file
   try {
+    const experimentJson = new ExperimentJSONTransformer().transform(
+      req.experiment
+    );
+    const resumableFilename = req.body.resumableFilename;
+
     await resumable.setUploadDirectory(
       `${config.express.uploadDir}/experiments/${experiment.id}/file`
     );
     const postUpload = await resumable.post(req);
     if (!postUpload.complete) {
-      experimentEvent.emit("upload-progress", req.experiment, postUpload);
+      experimentEventEmitter.emit("upload-progress", {
+        experiment: experimentJson,
+        status: postUpload
+      });
     } else {
-      experimentEvent.emit("upload-complete", req.experiment, postUpload);
+      experimentEventEmitter.emit("upload-complete", {
+        experiment: experimentJson,
+        status: postUpload
+      });
       return resumable.reassembleChunks(
-        experiment.id,
-        req.body.resumableFilename,
+        experimentJson.id,
+        resumableFilename,
         async () => {
           await schedule("now", "call analysis api", {
             file: `${config.express.uploadsLocation}/experiments/${
-              experiment.id
-            }/file/${req.body.resumableFilename}`,
-            sample_id: experiment.id,
-            attempt: 0
+              experimentJson.id
+            }/file/${resumableFilename}`,
+            sample_id: experimentJson.id,
+            attempt: 0,
+            experiment: experimentJson
           });
           return res.jsend("File uploaded and reassembled");
         }
@@ -362,45 +392,68 @@ const choices = async (req, res) => {
  */
 const search = async (req, res) => {
   try {
-    const query = JSON.parse(JSON.stringify(req.query));
+    const clone = JSON.parse(JSON.stringify(req.query));
 
-    // add wildcards if not already set
-    if (query.q && !query.q.indexOf("*") > -1) {
-      query.q = `*${query.q}*`;
-    }
+    const container = parseQuery(clone);
 
-    // only allow the whitelist of filters if set
-    const whitelist = ExperimentsHelper.getFiltersWhitelist();
-    if (whitelist) {
-      query.whitelist = whitelist;
-    }
+    const bigsi = container.bigsi;
+    const query = container.query;
 
-    const resp = await ElasticsearchHelper.search(
-      config,
-      { ...query },
-      "experiment"
-    );
+    if (bigsi) {
+      try {
+        const searchData = {
+          type: bigsi.type,
+          user: req.dbUser,
+          bigsi: bigsi,
+          search: query
+        };
+        const search = new Search(searchData);
+        const savedSearch = await search.save();
 
-    // generate the core elastic search structure
-    const options = {
-      per: query.per || config.elasticsearch.resultsPerPage,
-      page: query.page || 1
-    };
-    const results = new SearchResultsJSONTransformer().transform(resp, options);
+        const searchJson = new SearchJSONTransformer().transform(savedSearch);
+        const userJson = new UserJSONTransformer().transform(req.dbUser);
 
-    if (results) {
-      // augment with hits (project specific transformation)
-      results.results = new ExperimentsResultJSONTransformer().transform(
+        // call bigsi via agenda to support retries
+        await schedule("now", "call search api", {
+          search: searchJson,
+          user: userJson
+        });
+
+        return res.jsend(savedSearch);
+      } catch (e) {
+        return res.jerror(e);
+      }
+    } else {
+      const resp = await ElasticsearchHelper.search(
+        config,
+        { ...query },
+        "experiment"
+      );
+
+      // generate the core elastic search structure
+      const options = {
+        per: query.per || config.elasticsearch.resultsPerPage,
+        page: query.page || 1
+      };
+      const results = new SearchResultsJSONTransformer().transform(
         resp,
-        {}
+        options
       );
-      // augment with the original search query
-      results.search = new SearchQueryJSONTransformer().transform(
-        req.query,
-        {}
-      );
+
+      if (results) {
+        // augment with hits (project specific transformation)
+        results.results = new ExperimentsResultJSONTransformer().transform(
+          resp,
+          {}
+        );
+        // augment with the original search query
+        results.search = new SearchQueryJSONTransformer().transform(
+          req.query,
+          {}
+        );
+      }
+      return res.jsend(results);
     }
-    return res.jsend(results);
   } catch (e) {
     return res.jerror(new errors.SearchMetadataValuesError(e.message));
   }

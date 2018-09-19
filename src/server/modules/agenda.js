@@ -18,6 +18,11 @@ agendaInstance.define(
   AgendaHelper.callDistanceApi.bind(agendaInstance)
 );
 
+agendaInstance.define(
+  "call search api",
+  AgendaHelper.callSearchApi.bind(agendaInstance)
+);
+
 agendaInstance.on("ready", () => {
   winston.info("agenda is ready and started.");
   agendaInstance.start();

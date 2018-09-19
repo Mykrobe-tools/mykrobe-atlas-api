@@ -9,15 +9,25 @@ class ThirdPartyUploadEventJSONTransformer {
    * The transformation engine
    */
   transform(o, options) {
-    const res = { id: options.id };
-    const totalSize = parseInt(o.totalSize);
-    const complete = o.size * 100 / totalSize;
+    const res = {};
 
-    res.provider = o.provider;
-    res.complete = complete.toFixed(2);
-    res.size = o.size;
-    res.totalSize = totalSize;
-    res.file = path.basename(o.fileLocation);
+    const { status, experiment } = o;
+
+    if (experiment) {
+      res.id = experiment.id;
+    }
+
+    if (status) {
+      const totalSize = parseInt(status.totalSize);
+      const complete = status.size * 100 / totalSize;
+
+      res.provider = status.provider;
+      res.complete = complete.toFixed(2);
+      res.size = status.size;
+      res.totalSize = totalSize;
+      res.file = path.basename(status.fileLocation);
+    }
+
     return res;
   }
 }

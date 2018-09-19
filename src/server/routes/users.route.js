@@ -72,6 +72,71 @@ router
 
   /**
    * @swagger
+   * definitions:
+   *   SearchResultResponse:
+   *     properties:
+   *       status:
+   *         type: string
+   *       data:
+   *         type: object
+   *         properties:
+   *           type:
+   *             type: string
+   *           user:
+   *             type: object
+   *             properties:
+   *               firstname:
+   *                 type: string
+   *               lastname:
+   *                 type: string
+   *               email:
+   *                 type: string
+   *               keycloakId:
+   *                 type: string
+   *               id:
+   *                 type: string
+   *           bigsi:
+   *             type: object
+   *             properties:
+   *               type:
+   *                 type: string
+   *               seq:
+   *                 type: string
+   *               threshold:
+   *                 type: number
+   *           result:
+   *             type: object
+   *           id:
+   *             type: string
+   *     example:
+   *       status: success
+   *       data:
+   *         type: sequence
+   *         user:
+   *           firstname: John
+   *           lastname: Doe
+   *           email: john@nhs.co.uk
+   *           keycloakId: 80405136-4a04-4df6-8b23-d16d97f7d99e
+   *           id: 5b8d19173470371d9e49811d
+   *         bigsi:
+   *           type: sequence
+   *           seq: CAGTCCGTTTGTTCT
+   *           threshold: 0.9
+   *         result:
+   *           type: sequence
+   *           received: 2018-09-19T09:17:14.565Z
+   *           result:
+   *             5b98dc2068650b0d588ff560:
+   *               percent_kmers_found: 100
+   *             5b98dc2068650b0d588ff55f:
+   *               percent_kmers_found: 90
+   *             5b98dc2068650b0d588ff55d:
+   *               percent_kmers_found: 100
+   *         id: 588624076182796462cb133e
+   */
+
+  /**
+   * @swagger
    * /users:
    *   get:
    *     tags:
@@ -271,7 +336,90 @@ router
     userController.assignRole
   );
 
+router
+  .route("/:id/results/:resultId")
+  /**
+   * @swagger
+   * /users/{id}/results/{resultId}:
+   *   put:
+   *     tags:
+   *       - Users
+   *     description: Save a search result
+   *     operationId: saveSearchResult
+   *     produces:
+   *       - application/json
+   *     security:
+   *       - Bearer: []
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         type: string
+   *         description: The user id
+   *       - in: path
+   *         name: resultId
+   *         required: true
+   *         type: string
+   *         description: The result id
+   *       - in: body
+   *         name: result
+   *         description: The result object
+   *         schema:
+   *           type: object
+   *           example:
+   *             type: sequence
+   *             result:
+   *               5b98dc2068650b0d588ff560:
+   *                 percent_kmers_found: 100
+   *               5b98dc2068650b0d588ff55f:
+   *                 percent_kmers_found: 90
+   *               5b98dc2068650b0d588ff55d:
+   *                 percent_kmers_found: 100
+   *             query:
+   *               seq: CTTGTGGCGAGTGTTGC
+   *               threshold: 0.8
+   *     responses:
+   *       200:
+   *         description: Search Result data
+   *         schema:
+   *           $ref: '#/definitions/SearchResultResponse'
+   */
+  .put(keycloak.connect.protect(), userController.saveResults)
+  /**
+   * @swagger
+   * /users/{id}/results/{resultId}:
+   *   get:
+   *     tags:
+   *       - Users
+   *     description: Read a search result
+   *     operationId: readSearchResult
+   *     produces:
+   *       - application/json
+   *     security:
+   *       - Bearer: []
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         type: string
+   *         description: The user id
+   *       - in: path
+   *         name: resultId
+   *         required: true
+   *         type: string
+   *         description: The result id
+   *     responses:
+   *       200:
+   *         description: Search Result data
+   *         schema:
+   *           $ref: '#/definitions/SearchResultResponse'
+   */
+  .get(keycloak.connect.protect(), userController.readResults);
+
 /** Load user when API with id route parameter is hit */
 router.param("id", userController.load);
+
+/** Load search result when API with resultId route parameter is hit */
+router.param("resultId", userController.loadSearchResult);
 
 export default router;

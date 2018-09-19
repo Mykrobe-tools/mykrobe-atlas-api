@@ -1,40 +1,50 @@
 import axios from "axios";
 import Audit from "../models/audit.model";
+import AuditJSONTransformer from "../transformers/AuditJSONTransformer";
 import config from "../../config/env";
-import { experimentEvent } from "../modules/events";
+import { experimentEventEmitter } from "../modules/events";
 
 class AgendaHelper {
   static async callAnalysisApi(job, done) {
     const data = job.attrs.data;
+    const experiment = data.experiment;
+
+    const uri = `${config.services.analysisApiUrl}/analyses`;
     try {
       if (data.attempt < config.services.analysisApiMaxRetries) {
-        const response = await axios.post(
-          `${config.services.analysisApiUrl}/analyses`,
-          {
-            file: data.file,
-            sample_id: data.sample_id
-          }
-        );
+        const response = await axios.post(uri, {
+          file: data.file,
+          sample_id: data.sample_id
+        });
         const audit = new Audit({
-          sampleId: data.sample_id,
+          experimentId: data.sample_id,
           fileLocation: data.file,
           status: "Successful",
           taskId: response.data && response.data.task_id,
           type: "Predictor",
-          attempt: data.attempt + 1
+          attempt: data.attempt + 1,
+          requestMethod: "post",
+          requestUri: uri
         });
         const savedAudit = await audit.save();
-        experimentEvent.emit("analysis-started", savedAudit);
+        const auditJson = new AuditJSONTransformer().transform(savedAudit);
+
+        experimentEventEmitter.emit("analysis-started", {
+          audit: auditJson,
+          experiment
+        });
       }
       return done();
     } catch (e) {
       data.attempt++;
       const audit = new Audit({
-        sampleId: data.sample_id,
+        experimentId: data.sample_id,
         fileLocation: data.file,
         status: "Failed",
         type: "Predictor",
-        attempt: data.attempt
+        attempt: data.attempt,
+        requestMethod: "post",
+        requestUri: uri
       });
       await audit.save();
       await this.schedule(
@@ -48,25 +58,96 @@ class AgendaHelper {
 
   static async callDistanceApi(job, done) {
     const data = job.attrs.data;
+    const experiment = data.experiment;
+    const uri = `${config.services.analysisApiUrl}/distance`;
     try {
-      const response = await axios.post(
-        `${config.services.analysisApiUrl}/distance`,
-        {
-          sample_id: data.sample_id
-        }
-      );
+      const response = await axios.post(uri, {
+        sample_id: data.sample_id
+      });
       const audit = new Audit({
-        sampleId: data.sample_id,
+        experimentId: experiment.id,
         status: "Successful",
         taskId: response.data && response.data.task_id,
         type: "Distance",
-        attempt: 1
+        attempt: 1,
+        requestMethod: "post",
+        requestUri: uri
       });
       const savedAudit = await audit.save();
-      experimentEvent.emit("distance-search-started", savedAudit);
+      const auditJson = new AuditJSONTransformer().Transform(savedAudit);
+
+      experimentEventEmitter.emit("distance-search-started", {
+        audit: auditJson,
+        experiment
+      });
       return done();
     } catch (e) {
       return done(e);
+    }
+  }
+
+  static async callSearchApi(job, done) {
+    const data = job.attrs.data;
+
+    const search = data.search;
+    const user = data.user;
+
+    if (data && search) {
+      const uri = `${config.services.analysisApiUrl}/search`;
+      const searchQuery = {
+        result_id: search.id,
+        user_id: user.id,
+        query: search.bigsi
+      };
+      const type = search.bigsi && search.bigsi.type ? search.bigsi.type : null;
+
+      data.attempt = data.attempt ? data.attempt++ : 1;
+      try {
+        const response = await axios.post(uri, searchQuery);
+
+        const taskId =
+          response.data && response.data.task_id ? response.data.task_id : null;
+
+        const audit = new Audit({
+          status: "Successful",
+          userId: user.id,
+          searchId: search.id,
+          taskId,
+          type,
+          attempt: data.attempt,
+          requestMethod: "post",
+          requestUri: uri
+        });
+        const savedAudit = await audit.save();
+        const auditJson = new AuditJSONTransformer().Transform(savedAudit);
+
+        experimentEventEmitter.emit(`${type}-started`, {
+          audit: auditJson,
+          user,
+          search
+        });
+
+        return done();
+      } catch (e) {
+        const audit = new Audit({
+          status: "Failed",
+          userId: user.id,
+          searchId: search.id,
+          type,
+          attempt: data.attempt,
+          requestMethod: "post",
+          requestUri: uri
+        });
+        await audit.save();
+
+        // wait for a period of time and retry the distance search
+        await this.schedule(
+          config.services.analysisApiBackOffPeriod,
+          "call search api",
+          data
+        );
+        return done(e);
+      }
     }
   }
 }
