@@ -6,6 +6,7 @@ import { config, createApp } from "../setup";
 import User from "../../models/user.model";
 import Experiment from "../../models/experiment.model";
 import Audit from "../../models/audit.model";
+import Tree from "../../models/tree.model";
 import MDR from "../../tests/fixtures/files/MDR_Results.json";
 import NEAREST_NEIGHBOURS from "../../tests/fixtures/files/NEAREST_NEIGHBOURS_Results.json";
 import results from "../../tests/fixtures/results";
@@ -21,6 +22,7 @@ const app = createApp();
 const mongo = require("promised-mongo").compatible();
 const users = require("../fixtures/users");
 const experiments = require("../fixtures/experiments");
+const trees = require("../fixtures/trees");
 
 let token = null;
 let id = null;
@@ -2163,6 +2165,97 @@ describe("## Experiment APIs", () => {
             done();
           });
       });
+    });
+  });
+
+  describe("# GET /experiments/tree", () => {
+    describe("when no tree in the db", () => {
+      it("should return the tree object and create one in mongo", done => {
+        beforeEach(async () => {
+          await Tree.remove({});
+        });
+        request(app)
+          .get("/experiments/tree")
+          .set("Authorization", `Bearer ${token}`)
+          .expect(httpStatus.OK)
+          .end(async (err, res) => {
+            expect(res.body.status).toEqual("success");
+            expect(res.body.data.result.result.tree).toEqual(
+              "00004012993414038108"
+            );
+            const fromCache = await Tree.get();
+            expect(fromCache).toBeTruthy();
+            done();
+          });
+      });
+    });
+    describe("when the tree is expired", () => {
+      beforeEach(async () => {
+        const treeData = new Tree(trees.expiredResult);
+        await treeData.save();
+      });
+      afterEach(async () => {
+        await Tree.remove({});
+      });
+      it("should return the new tree object and update the cache", done => {
+        request(app)
+          .get("/experiments/tree")
+          .set("Authorization", `Bearer ${token}`)
+          .expect(httpStatus.OK)
+          .end(async (err, res) => {
+            expect(res.body.status).toEqual("success");
+            expect(res.body.data.result.result.tree).toEqual(
+              "00004012993414038108"
+            );
+
+            const fromCache = await Tree.get();
+
+            expect(fromCache.result.result.tree).toEqual(
+              "00004012993414038108"
+            );
+            expect(fromCache.isExpired()).toEqual(false);
+
+            done();
+          });
+      });
+    });
+    describe("when the tree is not expired", () => {
+      beforeEach(async () => {
+        const treeData = new Tree(trees.activeResult);
+        treeData.expires.setMonth(treeData.expires.getMonth() + 1);
+        const tree = await treeData.save();
+      });
+      afterEach(async () => {
+        await Tree.remove({});
+      });
+      it("should the tree object from cache", done => {
+        request(app)
+          .get("/experiments/tree")
+          .set("Authorization", `Bearer ${token}`)
+          .expect(httpStatus.OK)
+          .end((err, res) => {
+            expect(res.body.status).toEqual("success");
+            expect(res.body.data.expires).toBeTruthy();
+            expect(res.body.data.result.result.tree).toEqual(
+              "((6792-05:0.00000092410001012564,3160-04:0.00000081736801752172)"
+            );
+            expect(res.body.data.result.result.version).toEqual("1.0");
+            expect(res.body.data.result.type).toEqual("tree");
+
+            done();
+          });
+      });
+    });
+    it("should be a protected route", done => {
+      request(app)
+        .get("/experiments/tree")
+        .set("Authorization", "Bearer INVALID_TOKEN")
+        .expect(httpStatus.UNAUTHORIZED)
+        .end((err, res) => {
+          expect(res.body.status).toEqual("error");
+          expect(res.body.message).toEqual("Not Authorised");
+          done();
+        });
     });
   });
 });

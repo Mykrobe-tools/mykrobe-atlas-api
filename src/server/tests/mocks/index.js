@@ -44,6 +44,19 @@ const mockSearchApiCalls = () => {
     .reply(500, { result: "error" });
 };
 
+const mockTreeApiCalls = () => {
+  nock(config.services.analysisApiUrl)
+    .persist()
+    .get("/tree/latest")
+    .reply(200, {
+      result: {
+        tree: "00004012993414038108",
+        version: "1.0"
+      },
+      type: "tree"
+    });
+};
+
 const mockDevApiCalls = () => {
   nock(config.services.analysisApiUrl)
     .persist()
@@ -52,6 +65,8 @@ const mockDevApiCalls = () => {
       result: "success",
       task_id: uuid.v1()
     });
+
+  mockTreeApiCalls();
 };
 
 // mock third party calls
@@ -119,7 +134,8 @@ const mocks = Object.freeze({
   mockDevApiCalls,
   mockDistanceApiCalls,
   mockThirdPartyCalls,
-  mockSearchApiCalls
+  mockSearchApiCalls,
+  mockTreeApiCalls
 });
 
 export default mocks;
