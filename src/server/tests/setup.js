@@ -7,7 +7,8 @@ import {
   mockDistanceApiCalls,
   mockKeycloakCalls,
   mockThirdPartyCalls,
-  mockSearchApiCalls
+  mockSearchApiCalls,
+  mockTreeApiCalls
 } from "./mocks";
 
 require("../../express-jsend");
@@ -45,6 +46,7 @@ afterAll(async () => {
 mockAnalysisApiCalls();
 mockDistanceApiCalls();
 mockSearchApiCalls();
+mockTreeApiCalls();
 mockKeycloakCalls();
 mockThirdPartyCalls();
 

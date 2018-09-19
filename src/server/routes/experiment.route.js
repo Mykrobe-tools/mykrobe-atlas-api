@@ -2605,6 +2605,210 @@ const keycloak = AccountsHelper.keycloakInstance();
  *             - key: China
  *               count: 27
  */
+/**
+ * @swagger
+ * definitions:
+ *   ExperimentsTreeResponse:
+ *     properties:
+ *       status:
+ *         type: string
+ *       data:
+ *         type: object
+ *         properties:
+ *           result:
+ *             type: object
+ *             properties:
+ *               result:
+ *                 type: object
+ *                 properties:
+ *                   tree:
+ *                     type: string
+ *                   version:
+ *                     type: string
+ *               type:
+ *                 type: string
+ *           expires:
+ *             type: string
+ *             format: date-time
+ *           id:
+ *             type: string
+ *
+ *     example:
+ *       status: success
+ *       data:
+ *         result:
+ *           result:
+ *             tree: (C00011434:0.0000466370637232255
+ *             version: 1.0
+ *           type: tree
+ *         expires: 2019-03-19T15:54:14.818Z
+ *         id: 5ba263168d6c3e1c69943595
+ */
+/**
+ * @swagger
+ * definitions:
+ *   ChoicesResponse:
+ *     properties:
+ *       status:
+ *         type: string
+ *       data:
+ *         type: object
+ *         properties:
+ *           field1:
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *               titles:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *               choices:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   properties:
+ *                     key:
+ *                       type: string
+ *                     count:
+ *                       type: integer
+ *           field2:
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *               titles:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *               choices:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   properties:
+ *                     key:
+ *                       type: string
+ *                     count:
+ *                       type: integer
+ *           field3:
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *               titles:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *               choices:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   properties:
+ *                     key:
+ *                       type: string
+ *                     count:
+ *                       type: integer
+ *           field4:
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *               titles:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *               choices:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   properties:
+ *                     key:
+ *                       type: string
+ *                     count:
+ *                       type: integer
+ *           field5:
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *               titles:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *               choices:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   properties:
+ *                     key:
+ *                       type: string
+ *                     count:
+ *                       type: integer
+ *           range1:
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *               titles:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *               min:
+ *                 type: integer
+ *               max:
+ *                 type: integer
+ *           range2:
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *               titles:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *               min:
+ *                 type: string
+ *               max:
+ *                 type: string
+ *     example:
+ *       status: success
+ *       data:
+ *         metadata.sample.collectionDate:
+ *           title: Collection date
+ *           titles:
+ *             - Meatadata
+ *               Sample
+ *               Collection date
+ *           min: 2018-04-03T14:03:00.036Z
+ *           max: 2018-05-03T12:09:57.322Z
+ *         metadata.patient.patientAge:
+ *           title: Age
+ *           titles:
+ *             - Meatadata
+ *               Patient
+ *               Age
+ *           min: 4
+ *           max: 63
+ *         metadata.patient.smoker:
+ *           title: Smoker
+ *           titles:
+ *             - Meatadata
+ *               Patient
+ *               Smoker
+ *           Yes: 57
+ *           No: 63
+ *         metadata.patient.countryOfBirth:
+ *           title: Country of birth
+ *           titles:
+ *             - Meatadata
+ *               Patient
+ *               Country of birth
+ *           choices:
+ *             - key: India
+ *               count: 12
+ *             - key: China
+ *               count: 27
+ */
 router
   .route("/")
   /**
@@ -3583,6 +3787,30 @@ router
     userController.loadCurrentUser,
     experimentController.search
   );
+
+router
+  .route("/tree")
+  /**
+   * @swagger
+   * /experiments/tree:
+   *   get:
+   *     tags:
+   *       - Experiments
+   *     description: Experiments tree
+   *     operationId: experimentsTree
+   *     produces:
+   *       - application/json
+   *     security:
+   *       - Bearer: []
+   *     responses:
+   *       200:
+   *         description: Experiments tree
+   *         schema:
+   *           $ref: '#/definitions/ExperimentsTreeResponse'
+   *       401:
+   *         description: Failed authentication
+   */
+  .get(keycloak.connect.protect(), experimentController.tree);
 
 router
   .route("/:id")

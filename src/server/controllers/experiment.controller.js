@@ -14,6 +14,7 @@ import Audit from "../models/audit.model";
 import Experiment from "../models/experiment.model";
 import Organisation from "../models/organisation.model";
 import Search from "../models/search.model";
+import Tree from "../models/tree.model";
 
 import resumable from "../modules/resumable";
 import DownloadersFactory from "../helpers/DownloadersFactory";
@@ -32,7 +33,12 @@ import { experiment as experimentSchema } from "mykrobe-atlas-jsonschema";
 import ResultsParserFactory from "../helpers/ResultsParserFactory";
 import { experimentEventEmitter, userEventEmitter } from "../modules/events";
 
-import { isBigsiQuery, callBigsiApi, parseQuery } from "../modules/search";
+import {
+  isBigsiQuery,
+  callBigsiApi,
+  parseQuery,
+  callTreeApi
+} from "../modules/search";
 
 const config = require("../../config/env");
 
@@ -499,6 +505,22 @@ const inflateResult = async result => {
   return result;
 };
 
+/**
+ * Retrieve experiments tree
+ * @param {object} req
+ * @param {object} res
+ */
+const tree = async (req, res) => {
+  let tree = await Tree.get();
+  if (tree && !tree.isExpired()) {
+    return res.jsend(tree);
+  }
+  const treeResult = await callTreeApi();
+  tree = tree || new Tree();
+  const savedTree = await tree.update(treeResult);
+  return res.jsend(savedTree);
+};
+
 export default {
   load,
   get,
@@ -514,5 +536,6 @@ export default {
   reindex,
   choices,
   search,
-  listResults
+  listResults,
+  tree
 };
