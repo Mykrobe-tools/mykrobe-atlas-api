@@ -2,7 +2,7 @@ import axios from "axios";
 import Audit from "../models/audit.model";
 import AuditJSONTransformer from "../transformers/AuditJSONTransformer";
 import config from "../../config/env";
-import { experimentEventEmitter } from "../modules/events";
+import { userEventEmitter, experimentEventEmitter } from "../modules/events";
 
 class AgendaHelper {
   static async callAnalysisApi(job, done) {
@@ -74,7 +74,7 @@ class AgendaHelper {
         requestUri: uri
       });
       const savedAudit = await audit.save();
-      const auditJson = new AuditJSONTransformer().Transform(savedAudit);
+      const auditJson = new AuditJSONTransformer().transform(savedAudit);
 
       experimentEventEmitter.emit("distance-search-started", {
         audit: auditJson,
@@ -118,10 +118,12 @@ class AgendaHelper {
           requestMethod: "post",
           requestUri: uri
         });
-        const savedAudit = await audit.save();
-        const auditJson = new AuditJSONTransformer().Transform(savedAudit);
 
-        experimentEventEmitter.emit(`${type}-started`, {
+        const savedAudit = await audit.save();
+        const auditJson = new AuditJSONTransformer().transform(savedAudit);
+
+        const event = `${type}-search-started`;
+        userEventEmitter.emit(event, {
           audit: auditJson,
           user,
           search
