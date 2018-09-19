@@ -11,7 +11,10 @@ import DistanceStartedJSONTransformer from "../transformers/events/DistanceStart
 import AnalysisCompleteJSONTransformer from "../transformers/events/AnalysisCompleteJSONTransformer";
 import ThirdPartyUploadProgressJSONTransformer from "../transformers/events/ThirdPartyUploadProgressJSONTransformer";
 import ThirdPartyUploadCompleteJSONTransformer from "../transformers/events/ThirdPartyUploadCompleteJSONTransformer";
+import SequenceSearchStartedEventJSONTransformer from "../transformers/events/SequenceSearchStartedEventJSONTransformer";
 import SequenceSearchCompleteEventJSONTransformer from "../transformers/events/SequenceSearchCompleteEventJSONTransformer";
+import ProteinVariantSearchStartedEventJSONTransformer from "../transformers/events/ProteinVariantSearchStartedEventJSONTransformer";
+import ProteinVariantSearchCompleteEventJSONTransformer from "../transformers/events/ProteinVariantSearchCompleteEventJSONTransformer";
 
 const experimentEventEmitter = new EventEmitter();
 const userEventEmitter = new EventEmitter();
@@ -135,7 +138,7 @@ userEventEmitter.on("sequence-search-started", async payload => {
     const { audit, search, user } = payload;
 
     if (audit && search && user) {
-      const data = new SearchStartedJSONTransformer().transform(
+      const data = new SequenceSearchStartedEventJSONTransformer().transform(
         {
           audit,
           search,
@@ -143,6 +146,7 @@ userEventEmitter.on("sequence-search-started", async payload => {
         },
         {}
       );
+
       const userId = user.id;
       sendUserEvent(userId, data);
     }
@@ -162,6 +166,7 @@ userEventEmitter.on("sequence-search-complete", async payload => {
         },
         {}
       );
+
       const userId = user.id;
       sendUserEvent(userId, data);
     }
@@ -170,10 +175,30 @@ userEventEmitter.on("sequence-search-complete", async payload => {
 
 userEventEmitter.on("protein-variant-search-started", async payload => {
   try {
-    const { experiment, audit, user } = payload;
+    const { search, audit, user } = payload;
 
     if (audit && search && user) {
-      const data = new ProteinVariantSearchStartedJSONTransformer().transform(
+      const data = new ProteinVariantSearchStartedEventJSONTransformer().transform(
+        {
+          audit,
+          search,
+          user
+        },
+        {}
+      );
+
+      const userId = user.id;
+      sendUserEvent(userId, data);
+    }
+  } catch (e) {}
+});
+
+userEventEmitter.on("protein-variant-search-complete", async payload => {
+  try {
+    const { search, audit, user } = payload;
+
+    if (audit && search && user) {
+      const data = new ProteinVariantSearchCompleteEventJSONTransformer().transform(
         {
           audit,
           search,

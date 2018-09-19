@@ -208,6 +208,7 @@ const saveResults = async (req, res) => {
       const auditJson = new AuditJSONTransformer().transform(audit);
 
       const event = `${result.type}-search-complete`;
+
       userEventEmitter.emit(event, {
         user: userJson,
         search: searchJson,
