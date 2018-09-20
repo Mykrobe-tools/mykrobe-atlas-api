@@ -2180,9 +2180,7 @@ describe("## Experiment APIs", () => {
           .expect(httpStatus.OK)
           .end(async (err, res) => {
             expect(res.body.status).toEqual("success");
-            expect(res.body.data.result.result.tree).toEqual(
-              "00004012993414038108"
-            );
+            expect(res.body.data.tree).toEqual("00004012993414038108");
             const fromCache = await Tree.get();
             expect(fromCache).toBeTruthy();
             done();
@@ -2204,15 +2202,11 @@ describe("## Experiment APIs", () => {
           .expect(httpStatus.OK)
           .end(async (err, res) => {
             expect(res.body.status).toEqual("success");
-            expect(res.body.data.result.result.tree).toEqual(
-              "00004012993414038108"
-            );
+            expect(res.body.data.tree).toEqual("00004012993414038108");
 
             const fromCache = await Tree.get();
 
-            expect(fromCache.result.result.tree).toEqual(
-              "00004012993414038108"
-            );
+            expect(fromCache.tree).toEqual("00004012993414038108");
             expect(fromCache.isExpired()).toEqual(false);
 
             done();
@@ -2236,11 +2230,11 @@ describe("## Experiment APIs", () => {
           .end((err, res) => {
             expect(res.body.status).toEqual("success");
             expect(res.body.data.expires).toBeTruthy();
-            expect(res.body.data.result.result.tree).toEqual(
+            expect(res.body.data.tree).toEqual(
               "((6792-05:0.00000092410001012564,3160-04:0.00000081736801752172)"
             );
-            expect(res.body.data.result.result.version).toEqual("1.0");
-            expect(res.body.data.result.type).toEqual("tree");
+            expect(res.body.data.version).toEqual("1.0");
+            expect(res.body.data.type).toEqual("newick");
 
             done();
           });
