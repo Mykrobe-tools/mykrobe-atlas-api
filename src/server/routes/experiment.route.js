@@ -2615,18 +2615,12 @@ const keycloak = AccountsHelper.keycloakInstance();
  *       data:
  *         type: object
  *         properties:
- *           result:
- *             type: object
- *             properties:
- *               result:
- *                 type: object
- *                 properties:
- *                   tree:
- *                     type: string
- *                   version:
- *                     type: string
- *               type:
- *                 type: string
+ *           type:
+ *             type: string
+ *           tree:
+ *             type: string
+ *           version:
+ *             type: string
  *           expires:
  *             type: string
  *             format: date-time
@@ -2636,11 +2630,9 @@ const keycloak = AccountsHelper.keycloakInstance();
  *     example:
  *       status: success
  *       data:
- *         result:
- *           result:
- *             tree: (C00011434:0.0000466370637232255
- *             version: 1.0
- *           type: tree
+ *         tree: (C00011434:0.0000466370637232255
+ *         version: "1.0"
+ *         type: newick
  *         expires: 2019-03-19T15:54:14.818Z
  *         id: 5ba263168d6c3e1c69943595
  */

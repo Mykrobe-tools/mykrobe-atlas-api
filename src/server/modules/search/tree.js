@@ -10,7 +10,7 @@ const callTreeApi = async () => {
     const response = await axios.get(
       `${config.services.analysisApiUrl}/tree/latest`
     );
-    return response.data;
+    return response.data && response.data.result;
   } catch (e) {
     throw e;
   }

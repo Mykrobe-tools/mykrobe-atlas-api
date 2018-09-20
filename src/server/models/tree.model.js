@@ -6,8 +6,13 @@ import config from "../../config/env";
  * Tree Schema
  */
 const TreeSchema = new mongoose.Schema({
-  expires: Date,
-  result: Object
+  tree: String,
+  type: {
+    type: String,
+    default: "newick"
+  },
+  version: String,
+  expires: Date
 });
 
 /**
@@ -21,7 +26,8 @@ TreeSchema.method({
   async update(result, expiresIn = config.services.treeResultsMonthsToLive) {
     const expires = new Date();
     expires.setMonth(expires.getMonth() + expiresIn);
-    this.set("result", result);
+    this.tree = result.tree;
+    this.version = result.version;
     this.expires = expires;
     return this.save();
   }

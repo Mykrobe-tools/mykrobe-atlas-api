@@ -17,26 +17,21 @@ describe("## Tree Functions", () => {
   it("should save a new tree", async done => {
     const treeData = new Tree({
       expires: new Date(),
-      result: {
-        result: {
-          tree: "(C00013131:0.00000384633470874880,10010-03:):0.0;0",
-          version: "1.0"
-        },
-        type: "tree"
-      }
+      tree: "(C00013131:0.00000384633470874880,10010-03:):0.0;0",
+      version: "1.0"
     });
     try {
       const savedTree = await treeData.save();
 
       expect(savedTree.id).toBeTruthy();
       expect(savedTree.expires).toBeTruthy();
-      expect(savedTree.result.result.tree).toEqual(
+      expect(savedTree.tree).toEqual(
         "(C00013131:0.00000384633470874880,10010-03:):0.0;0"
       );
-      expect(savedTree.result.result.version).toEqual("1.0");
-      expect(savedTree.result.type).toEqual("tree");
+      expect(savedTree.version).toEqual("1.0");
+      expect(savedTree.type).toEqual("newick");
     } catch (e) {
-      console.log(e);
+      console.log(e.message);
       fail();
     }
 
@@ -47,11 +42,11 @@ describe("## Tree Functions", () => {
 
     expect(foundTree.id).toBeTruthy();
     expect(foundTree.expires).toBeTruthy();
-    expect(foundTree.result.result.tree).toEqual(
+    expect(foundTree.tree).toEqual(
       "((6792-05:0.00000092410001012564,3160-04:0.00000081736801752172)"
     );
-    expect(foundTree.result.result.version).toEqual("1.0");
-    expect(foundTree.result.type).toEqual("tree");
+    expect(foundTree.version).toEqual("1.0");
+    expect(foundTree.type).toEqual("newick");
 
     done();
   });
@@ -68,11 +63,11 @@ describe("## Tree Functions", () => {
 
     expect(json.id).toBeTruthy();
     expect(json.expires).toBeTruthy();
-    expect(json.result.result.tree).toEqual(
+    expect(json.tree).toEqual(
       "((6792-05:0.00000092410001012564,3160-04:0.00000081736801752172)"
     );
-    expect(json.result.result.version).toEqual("1.0");
-    expect(json.result.type).toEqual("tree");
+    expect(json.version).toEqual("1.0");
+    expect(json.type).toEqual("newick");
 
     done();
   });
@@ -81,11 +76,8 @@ describe("## Tree Functions", () => {
 
     const updatedTree = await foundTree.update(
       {
-        result: {
-          tree: "abcdabcd",
-          version: "2.0"
-        },
-        type: "tree"
+        tree: "abcdabcd",
+        version: "2.0"
       },
       3
     );
@@ -99,9 +91,9 @@ describe("## Tree Functions", () => {
       newExpirationDate.getMonth()
     );
     expect(updatedTree.expires.getYear()).toEqual(newExpirationDate.getYear());
-    expect(updatedTree.result.result.tree).toEqual("abcdabcd");
-    expect(updatedTree.result.result.version).toEqual("2.0");
-    expect(updatedTree.result.type).toEqual("tree");
+    expect(updatedTree.tree).toEqual("abcdabcd");
+    expect(updatedTree.version).toEqual("2.0");
+    expect(updatedTree.type).toEqual("newick");
 
     done();
   });

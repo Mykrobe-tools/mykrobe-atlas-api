@@ -5,9 +5,8 @@ describe("tree", () => {
   describe("#callBigsiApi", () => {
     it("should return success with a result", async () => {
       const result = await callTreeApi();
-      expect(result.result.tree).toBeTruthy();
-      expect(result.result.version).toBeTruthy();
-      expect(result.type).toEqual("tree");
+      expect(result.tree).toBeTruthy();
+      expect(result.version).toBeTruthy();
     });
   });
 });
