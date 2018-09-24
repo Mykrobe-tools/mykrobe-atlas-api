@@ -645,7 +645,7 @@ describe("## User APIs", () => {
     });
   });
 
-  describe("# PUT /users/:id/results/:resultId", () => {
+  describe.skip("# PUT /users/:id/results/:resultId", () => {
     let proteinVariantSearchId = null;
     let sequenceSearchId = null;
 

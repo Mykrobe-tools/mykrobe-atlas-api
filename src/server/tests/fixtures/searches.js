@@ -16,7 +16,10 @@ export default {
       bigsi: {
         seq: "GTCAGTCCGTTTGTTCTTGTGGCGAGTGTAGTA",
         threshold: 0.9
-      }
+      },
+      status: "complete",
+      hash: "48f370a772c7496f6c9d2e6d92e920c87dd00a5d",
+      expires: new Date()
     },
     proteinVariant: {
       type: "protein-variant",
@@ -65,7 +68,9 @@ export default {
         alt: "L",
         pos: 450,
         gene: "rpoB"
-      }
+      },
+      status: "complete",
+      hash: "48f370a772c7496f6c9d2e6d92e920c87dd00a5c"
     },
     emptySequence: {
       type: "sequence",
@@ -81,7 +86,10 @@ export default {
       bigsi: {
         seq: "GTCAGTCCGTTTGTTCTTGTGGCGAGTGTAGTA",
         threshold: 0.9
-      }
+      },
+      status: "pending",
+      hash: "66b7d7e64871aa9fda1bdc8e88a28df797648d80",
+      expires: new Date()
     },
     proteinVariant: {
       type: "protein-variant",
@@ -91,6 +99,15 @@ export default {
         pos: 450,
         gene: "rpoB"
       }
+    },
+    expiredSearch: {
+      type: "sequence",
+      bigsi: {
+        seq: "GTCAGTCCGTTTGTTCTTGTGGCGAGTGTAGTA",
+        threshold: 0.9
+      },
+      status: "pending",
+      expires: "2018-09-18"
     }
   },
   results: {

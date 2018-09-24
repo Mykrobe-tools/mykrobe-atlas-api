@@ -685,7 +685,7 @@ describe("## Experiment APIs", () => {
       });
     });
   });
-  describe("# GET /users/:id/results/:resultId", () => {
+  describe.skip("# GET /users/:id/results/:resultId", () => {
     describe("when search is not provided", () => {
       let sequenceSearchId = null;
       beforeEach(async done => {
