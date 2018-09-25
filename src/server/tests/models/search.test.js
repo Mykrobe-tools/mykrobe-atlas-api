@@ -1,7 +1,9 @@
 import Search from "../../models/search.model";
+import User from "../../models/user.model";
 
 require("../setup");
 const searches = require("../fixtures/searches");
+const users = require("../fixtures/users");
 
 let id = null;
 
@@ -17,6 +19,7 @@ beforeEach(async () => {
 
 afterEach(async () => {
   await Search.remove({});
+  await User.remove({});
 });
 
 describe("## Search Functions", () => {
@@ -122,17 +125,12 @@ describe("## Search Functions", () => {
 
     done();
   });
-  it("should return an error if hash not found", async done => {
-    try {
-      await Search.findByHash("66b7d7e64871aa9fda1bdc8e88a28df797648");
-      fail();
-    } catch (e) {
-      expect(e.name).toEqual("ObjectNotFound");
-      expect(e.message).toEqual(
-        "Search not found with hash 66b7d7e64871aa9fda1bdc8e88a28df797648"
-      );
-      done();
-    }
+  it("should return an null if hash not found", async done => {
+    const search = await Search.findByHash(
+      "66b7d7e64871aa9fda1bdc8e88a28df797648"
+    );
+    expect(search).toBe(null);
+    done();
   });
   it("should claculate isExpired for active search", async done => {
     const foundSearch = await Search.get(id);
@@ -183,6 +181,44 @@ describe("## Search Functions", () => {
 
     const result = updatedSearch.get("result");
     expect(result.ERR017683.percent_kmers_found).toEqual(100);
+
+    done();
+  });
+  it("should add user to the users array", async done => {
+    const userData = new User(users.thomas);
+    const user = await userData.save();
+    const foundSearch = await Search.get(id);
+
+    await foundSearch.addUser(user);
+    expect(foundSearch.users.length).toEqual(1);
+    expect(foundSearch.users[0].id).toEqual(user.id);
+    done();
+  });
+  it("should not add duplicate users", async done => {
+    const userData = new User(users.thomas);
+    const user = await userData.save();
+    const foundSearch = await Search.get(id);
+
+    await foundSearch.addUser(user);
+    await foundSearch.addUser(user);
+    expect(foundSearch.users.length).toEqual(1);
+    expect(foundSearch.users[0].id).toEqual(user.id);
+    done();
+  });
+  it("should clear all the users", async done => {
+    const userData = new User(users.thomas);
+    const user = await userData.save();
+    const foundSearch = await Search.get(id);
+
+    await foundSearch.clearUsers();
+    expect(foundSearch.users.length).toEqual(0);
+    done();
+  });
+  it("should claculate isPending for a search", async done => {
+    const foundSearch = await Search.get(id);
+    const isPending = foundSearch.isPending();
+
+    expect(isPending).toBe(true);
 
     done();
   });

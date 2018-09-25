@@ -2,6 +2,7 @@ import errors from "errors";
 import httpStatus from "http-status";
 import mkdirp from "mkdirp-promise";
 import Promise from "bluebird";
+import hash from "object-hash";
 
 import { ElasticsearchHelper } from "makeandship-api-common/lib/modules/elasticsearch/";
 import ArrayJSONTransformer from "makeandship-api-common/lib/transformers/ArrayJSONTransformer";
@@ -406,28 +407,41 @@ const search = async (req, res) => {
     const query = container.query;
 
     if (bigsi) {
-      try {
-        const searchData = {
-          type: bigsi.type,
-          user: req.dbUser,
-          bigsi: bigsi,
-          search: query
-        };
-        const search = new Search(searchData);
-        const savedSearch = await search.save();
+      const searchData = {
+        type: bigsi.type,
+        bigsi: bigsi
+      };
+      const searchHash = hash(searchData);
+      const existingSearch = await Search.findByHash(searchHash);
+      if (
+        existingSearch &&
+        (!existingSearch.isExpired() || existingSearch.isPending())
+      ) {
+        return res.jsend(existingSearch);
+      } else {
+        try {
+          const search =
+            existingSearch || new Search({ hash: searchHash, ...searchData });
+          
+          if (!search.userExists()) {
+            // notify
+          }
 
-        const searchJson = new SearchJSONTransformer().transform(savedSearch);
-        const userJson = new UserJSONTransformer().transform(req.dbUser);
+          const savedSearch = await search.addUser(req.dbUser);
 
-        // call bigsi via agenda to support retries
-        await schedule("now", "call search api", {
-          search: searchJson,
-          user: userJson
-        });
+          const searchJson = new SearchJSONTransformer().transform(savedSearch);
+          const userJson = new UserJSONTransformer().transform(req.dbUser);
 
-        return res.jsend(savedSearch);
-      } catch (e) {
-        return res.jerror(e);
+          // call bigsi via agenda to support retries
+          await schedule("now", "call search api", {
+            search: searchJson,
+            user: userJson
+          });
+
+          return res.jsend(savedSearch);
+        } catch (e) {
+          return res.jerror(e);
+        }
       }
     } else {
       const resp = await ElasticsearchHelper.search(

@@ -5,14 +5,28 @@ import { search as searchJsonSchema } from "mykrobe-atlas-jsonschema";
 import SearchJSONTransformer from "../transformers/SearchJSONTransformer";
 import config from "../../config/env";
 
+const PENDING = "pending";
+
 /**
  * SearchSchema Schema
  */
 const SearchSchema = new mongoose.Schema(
   {
     type: String,
-    status: String,
-    expires: Date,
+    status: {
+      type: String,
+      default: PENDING
+    },
+    expires: {
+      type: Date,
+      default: new Date()
+    },
+    users: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User"
+      }
+    ],
     hash: String
   },
   {
@@ -52,6 +66,26 @@ SearchSchema.method({
     this.status = "complete";
     this.set("result", result);
     return this.save();
+  },
+
+  async addUser(user) {
+    if (!this.userExists(user)) {
+      this.users.push(user);
+      return this.save();
+    }
+  },
+
+  async clearUsers() {
+    this.users = [];
+    return this.save();
+  },
+
+  isPending() {
+    return this.status === PENDING;
+  },
+
+  userExists(uses) {
+    return this.users.find(element => element.id === user.id);
   }
 });
 
@@ -81,16 +115,8 @@ SearchSchema.statics = {
    * @param {ObjectId} id - The objectId of search.
    * @returns {Promise<search, APIError>}
    */
-  async findByHash(hash) {
-    try {
-      const search = await this.findOne({ hash }).exec();
-      if (search) {
-        return search;
-      }
-      throw new errors.ObjectNotFound(`Search not found with hash ${hash}`);
-    } catch (e) {
-      throw new errors.ObjectNotFound(e.message);
-    }
+  findByHash(hash) {
+    return this.findOne({ hash }).exec();
   }
 };
 
