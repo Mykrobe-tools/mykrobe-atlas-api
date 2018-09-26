@@ -614,7 +614,6 @@ describe("## Experiment APIs", () => {
           .end((err, res) => {
             expect(res.body.status).toEqual("success");
             expect(res.body.data.type).toEqual("sequence");
-            expect(res.body.data.user.firstname).toEqual("David");
             expect(res.body.data.bigsi.threshold).toEqual(1);
             expect(res.body.data.id).toBeTruthy();
             done();
@@ -628,7 +627,6 @@ describe("## Experiment APIs", () => {
           .end((err, res) => {
             expect(res.body.status).toEqual("success");
             expect(res.body.data.type).toEqual("sequence");
-            expect(res.body.data.user.firstname).toEqual("David");
             expect(res.body.data.bigsi.threshold).toEqual(0.8);
             expect(res.body.data.id).toBeTruthy();
             done();
@@ -642,7 +640,6 @@ describe("## Experiment APIs", () => {
           .end((err, res) => {
             expect(res.body.status).toEqual("success");
             expect(res.body.data.type).toEqual("protein-variant");
-            expect(res.body.data.user.firstname).toEqual("David");
             expect(res.body.data.bigsi.gene).toEqual("rpoB");
             expect(res.body.data.bigsi.ref).toEqual("S");
             expect(res.body.data.bigsi.pos).toEqual(450);
@@ -662,6 +659,37 @@ describe("## Experiment APIs", () => {
             expect(search.type).toEqual("sequence");
             const bigsi = search.get("bigsi");
             expect(bigsi.threshold).toEqual(0.8);
+            done();
+          });
+      });
+      it("should add the user to the list of users to be notified", done => {
+        request(app)
+          .get("/experiments/search?q=CAGTCCGTTTGTTCT")
+          .set("Authorization", `Bearer ${token}`)
+          .expect(httpStatus.OK)
+          .end((err, res) => {
+            expect(res.body.status).toEqual("success");
+            expect(res.body.data.type).toEqual("sequence");
+            expect(res.body.data.bigsi.threshold).toEqual(1);
+            expect(res.body.data.id).toBeTruthy();
+            expect(res.body.data.users.length).toEqual(1);
+            expect(res.body.data.users[0].firstname).toEqual("David");
+            done();
+          });
+      });
+      it("should set the status to pending", done => {
+        request(app)
+          .get("/experiments/search?q=CAGTCCGTTTGTTCT")
+          .set("Authorization", `Bearer ${token}`)
+          .expect(httpStatus.OK)
+          .end((err, res) => {
+            expect(res.body.status).toEqual("success");
+            expect(res.body.data.type).toEqual("sequence");
+            expect(res.body.data.bigsi.threshold).toEqual(1);
+            expect(res.body.data.id).toBeTruthy();
+            expect(res.body.data.users.length).toEqual(1);
+            expect(res.body.data.users[0].firstname).toEqual("David");
+            expect(res.body.data.status).toEqual("pending");
             done();
           });
       });
@@ -685,30 +713,35 @@ describe("## Experiment APIs", () => {
       });
     });
   });
-  describe.skip("# GET /users/:id/results/:resultId", () => {
-    describe("when search is not provided", () => {
-      let sequenceSearchId = null;
-      beforeEach(async done => {
-        const sequenceSearchData = new Search(searches.searchOnly.sequence);
-        const result = {
-          type: "sequence",
-          result: {},
-          query: {
-            seq: "CAGTCCGTTTGTTCT",
-            threshold: 0.8
-          }
-        };
-        result.result[`${experimentId1}`] = { percent_kmers_found: 100 };
-        result.result[`${experimentId2}`] = { percent_kmers_found: 90 };
-        sequenceSearchData.user = savedUser;
-        sequenceSearchData.set("result", result);
-        const sequenceSearch = await sequenceSearchData.save();
-        sequenceSearchId = sequenceSearch.id;
-        done();
-      });
+  describe("# GET /experiments/search", () => {
+    beforeEach(async done => {
+      const sequenceSearchData = new Search(searches.searchOnly.sequence);
+      const expires = new Date();
+      expires.setDate(expires.getDate() + 1);
+      const result = {
+        type: "sequence",
+        result: {},
+        query: {
+          seq: "CAGTCCGTTTGTTCT",
+          threshold: 0.8
+        }
+      };
+      result.result[`${experimentId1}`] = { percent_kmers_found: 100 };
+      result.result[`${experimentId2}`] = { percent_kmers_found: 90 };
+      sequenceSearchData.users.push(savedUser);
+      sequenceSearchData.set("result", result);
+      sequenceSearchData.status = "complete";
+
+      sequenceSearchData.expires = expires;
+      const sequenceSearch = await sequenceSearchData.save();
+      done();
+    });
+    describe("when no additional criteria provided", () => {
       it("should filter by experiments ids", done => {
         request(app)
-          .get(`/users/${savedUser.id}/results/${sequenceSearchId}`)
+          .get(
+            "/experiments/search?q=GTCAGTCCGTTTGTTCTTGTGGCGAGTGTAGTA&threshold=0.9"
+          )
           .set("Authorization", `Bearer ${token}`)
           .expect(httpStatus.OK)
           .end((err, res) => {
@@ -717,7 +750,7 @@ describe("## Experiment APIs", () => {
             const data = res.body.data;
             expect(data.type).toEqual("sequence");
             expect(data.bigsi).toBeTruthy();
-            expect(data.user).toBeTruthy();
+            expect(data.users).toBeTruthy();
             expect(data.result).toBeTruthy();
 
             const result = data.result;
@@ -742,37 +775,12 @@ describe("## Experiment APIs", () => {
           });
       });
     });
-    describe("when search is provided", () => {
-      let sequenceSearchId = null;
-      beforeEach(async done => {
-        const sequenceSearchData = new Search(searches.searchOnly.sequence);
-        const result = {
-          type: "sequence",
-          result: {},
-          query: {
-            seq: "CAGTCCGTTTGTTCT",
-            threshold: 0.8
-          }
-        };
-        const searchCriteria = {
-          metadata: {
-            patient: {
-              smoker: "No"
-            }
-          }
-        };
-        result.result[`${experimentId1}`] = { percent_kmers_found: 100 };
-        result.result[`${experimentId2}`] = { percent_kmers_found: 90 };
-        sequenceSearchData.user = savedUser;
-        sequenceSearchData.set("result", result);
-        sequenceSearchData.set("search", searchCriteria);
-        const sequenceSearch = await sequenceSearchData.save();
-        sequenceSearchId = sequenceSearch.id;
-        done();
-      });
-      it("should filter by experiments ids and search", done => {
+    describe("when additional criteria provided", () => {
+      it("should filter by experiments ids and search criteria", done => {
         request(app)
-          .get(`/users/${savedUser.id}/results/${sequenceSearchId}`)
+          .get(
+            "/experiments/search?q=GTCAGTCCGTTTGTTCTTGTGGCGAGTGTAGTA&threshold=0.9&metadata.patient.smoker=No"
+          )
           .set("Authorization", `Bearer ${token}`)
           .expect(httpStatus.OK)
           .end((err, res) => {
@@ -781,11 +789,12 @@ describe("## Experiment APIs", () => {
             const data = res.body.data;
             expect(data.type).toEqual("sequence");
             expect(data.bigsi).toBeTruthy();
-            expect(data.user).toBeTruthy();
+            expect(data.users).toBeTruthy();
             expect(data.result).toBeTruthy();
 
             const result = data.result;
             expect(result.type).toEqual("sequence");
+
             expect(result.experiments.length).toEqual(1);
 
             expect(result.experiments[0].id).toBeTruthy();
@@ -800,18 +809,12 @@ describe("## Experiment APIs", () => {
           });
       });
     });
-    describe("when results are not populated yet", () => {
-      let sequenceSearchId = null;
-      beforeEach(async done => {
-        const sequenceSearchData = new Search(searches.searchOnly.sequence);
-        sequenceSearchData.user = savedUser;
-        const sequenceSearch = await sequenceSearchData.save();
-        sequenceSearchId = sequenceSearch.id;
-        done();
-      });
+    describe("when no results", () => {
       it("should return empty experiments", done => {
         request(app)
-          .get(`/users/${savedUser.id}/results/${sequenceSearchId}`)
+          .get(
+            "/experiments/search?q=GTCAGTCCGTTTGTTCTTGTGGCGAGTGTAGTA&threshold=0.9&metadata.patient.smoker=Y"
+          )
           .set("Authorization", `Bearer ${token}`)
           .expect(httpStatus.OK)
           .end((err, res) => {
@@ -820,7 +823,7 @@ describe("## Experiment APIs", () => {
             const data = res.body.data;
             expect(data.type).toEqual("sequence");
             expect(data.bigsi).toBeTruthy();
-            expect(data.user).toBeTruthy();
+            expect(data.users).toBeTruthy();
             expect(data.result).toBeTruthy();
 
             const result = data.result;

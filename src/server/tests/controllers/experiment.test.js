@@ -2,16 +2,18 @@ import request from "supertest";
 import httpStatus from "http-status";
 import fs from "fs";
 import nock from "nock";
+import hash from "object-hash";
 import { config, createApp } from "../setup";
 import User from "../../models/user.model";
 import Experiment from "../../models/experiment.model";
 import Audit from "../../models/audit.model";
 import Tree from "../../models/tree.model";
+import Search from "../../models/search.model";
 import MDR from "../../tests/fixtures/files/MDR_Results.json";
 import NEAREST_NEIGHBOURS from "../../tests/fixtures/files/NEAREST_NEIGHBOURS_Results.json";
 import results from "../../tests/fixtures/results";
 import { mockEsCalls } from "../mocks";
-import { experimentEventEmitter } from "../../modules/events";
+import { experimentEventEmitter, userEventEmitter } from "../../modules/events";
 
 mockEsCalls();
 
@@ -23,12 +25,16 @@ const mongo = require("promised-mongo").compatible();
 const users = require("../fixtures/users");
 const experiments = require("../fixtures/experiments");
 const trees = require("../fixtures/trees");
+const searches = require("../fixtures/searches");
 
 let token = null;
 let id = null;
 
 const findJob = (jobs, id, name) =>
   jobs.findOne({ "data.sample_id": id, name }, (err, data) => data);
+
+const findJobBySearchId = (jobs, id, name) =>
+  jobs.findOne({ "data.search.id": id, name }, (err, data) => data);
 
 beforeEach(async done => {
   const userData = new User(users.admin);
@@ -55,6 +61,8 @@ afterEach(async done => {
   jest.restoreAllMocks();
   await User.remove({});
   await Experiment.remove({});
+  await Search.remove({});
+  await Audit.remove({});
   done();
 });
 
@@ -2250,6 +2258,259 @@ describe("## Experiment APIs", () => {
           expect(res.body.message).toEqual("Not Authorised");
           done();
         });
+    });
+  });
+
+  describe("# GET /experiments/search", () => {
+    describe("when calling a bigsi search", () => {
+      describe("when no search found in the cache", () => {
+        it("should create a new search with status pending", done => {
+          request(app)
+            .get("/experiments/search?q=rpoB_S450L")
+            .set("Authorization", `Bearer ${token}`)
+            .expect(httpStatus.OK)
+            .end(async (err, res) => {
+              expect(res.body.status).toEqual("success");
+              expect(res.body.data.status).toEqual("pending");
+              expect(res.body.data.type).toEqual("protein-variant");
+              done();
+            });
+        });
+        it("should add the user to the list of users", done => {
+          request(app)
+            .get("/experiments/search?q=rpoB_S450L")
+            .set("Authorization", `Bearer ${token}`)
+            .expect(httpStatus.OK)
+            .end(async (err, res) => {
+              expect(res.body.status).toEqual("success");
+              expect(res.body.data.users.length).toEqual(1);
+              expect(res.body.data.users[0].firstname).toEqual("David");
+              done();
+            });
+        });
+        it("should trigger the bigsi search", done => {
+          request(app)
+            .get("/experiments/search?q=rpoB_S450L")
+            .set("Authorization", `Bearer ${token}`)
+            .expect(httpStatus.OK)
+            .end(async (err, res) => {
+              const jobs = mongo(config.db.uri, []).agendaJobs;
+              expect(res.body.status).toEqual("success");
+              try {
+                let job = await findJobBySearchId(
+                  jobs,
+                  res.body.data.id,
+                  "call search api"
+                );
+                while (!job) {
+                  job = await findJobBySearchId(
+                    jobs,
+                    res.body.data.id,
+                    "call search api"
+                  );
+                }
+                expect(job.data.search.bigsi.type).toEqual("protein-variant");
+                expect(job.data.search.bigsi.gene).toEqual("rpoB");
+                expect(job.data.search.bigsi.ref).toEqual("S");
+                expect(job.data.search.bigsi.pos).toEqual(450);
+                expect(job.data.search.bigsi.alt).toEqual("L");
+                done();
+              } catch (e) {
+                fail(e.message);
+                done();
+              }
+            });
+        });
+        it("should create a valid hash", done => {
+          request(app)
+            .get("/experiments/search?q=rpoB_S450L")
+            .set("Authorization", `Bearer ${token}`)
+            .expect(httpStatus.OK)
+            .end(async (err, res) => {
+              expect(res.body.status).toEqual("success");
+              expect(res.body.data.hash).toEqual(
+                hash({
+                  type: "protein-variant",
+                  bigsi: {
+                    type: "protein-variant",
+                    gene: "rpoB",
+                    ref: "S",
+                    pos: 450,
+                    alt: "L"
+                  }
+                })
+              );
+              done();
+            });
+        });
+      });
+      describe("when a pending search found in the cache", () => {
+        let searchId = null;
+        beforeEach(async done => {
+          const searchData = new Search(searches.searchOnly.proteinVariant);
+          const savedSearch = await searchData.save();
+          searchId = savedSearch.id;
+          const auditData = new Audit({
+            status: "Successful",
+            searchId,
+            taskId: "123-456-789",
+            type: savedSearch.type,
+            attempt: 1,
+            requestMethod: "post"
+          });
+          await auditData.save();
+          done();
+        });
+        it("should add the user to the list of users to be notified", done => {
+          request(app)
+            .get("/experiments/search?q=rpoB_S450L")
+            .set("Authorization", `Bearer ${token}`)
+            .expect(httpStatus.OK)
+            .end(async (err, res) => {
+              expect(res.body.status).toEqual("success");
+              expect(res.body.data.id).toEqual(searchId);
+              expect(res.body.data.users.length).toEqual(1);
+              expect(res.body.data.users[0].firstname).toEqual("David");
+              done();
+            });
+        });
+        it("should notify the user", done => {
+          const mockCallback = jest.fn();
+          userEventEmitter.on("protein-variant-search-started", mockCallback);
+          request(app)
+            .get("/experiments/search?q=rpoB_S450L")
+            .set("Authorization", `Bearer ${token}`)
+            .expect(httpStatus.OK)
+            .end(async (err, res) => {
+              expect(res.body.status).toEqual("success");
+              expect(res.body.data.id).toEqual(searchId);
+              expect(mockCallback.mock.calls.length).toEqual(1);
+              const calls = mockCallback.mock.calls;
+
+              expect(mockCallback.mock.calls[0].length).toEqual(1);
+              const object = mockCallback.mock.calls[0][0];
+
+              expect(object.search.id).toEqual(searchId);
+              expect(object.user.firstname).toEqual("David");
+
+              done();
+            });
+        });
+      });
+      describe("when a results are available and not expired", () => {
+        let searchId = null;
+        beforeEach(async done => {
+          const searchData = new Search(searches.full.proteinVariant);
+          const expires = new Date();
+          expires.setDate(expires.getDate() + 1);
+          searchData.expires = expires;
+          const savedSearch = await searchData.save();
+          searchId = savedSearch.id;
+          const auditData = new Audit({
+            status: "Successful",
+            searchId,
+            taskId: "123-456-789",
+            type: savedSearch.type,
+            attempt: 1,
+            requestMethod: "post"
+          });
+          await auditData.save();
+          done();
+        });
+        it("should not add the user to the list of users", done => {
+          request(app)
+            .get("/experiments/search?q=rpoB_S450L")
+            .set("Authorization", `Bearer ${token}`)
+            .expect(httpStatus.OK)
+            .end(async (err, res) => {
+              expect(res.body.status).toEqual("success");
+              expect(res.body.data.id).toEqual(searchId);
+              expect(res.body.data.users.length).toEqual(0);
+              done();
+            });
+        });
+        it("should not notify the user", done => {
+          const mockCallback = jest.fn();
+          userEventEmitter.on("protein-variant-search-started", mockCallback);
+          request(app)
+            .get("/experiments/search?q=rpoB_S450L")
+            .set("Authorization", `Bearer ${token}`)
+            .expect(httpStatus.OK)
+            .end(async (err, res) => {
+              expect(res.body.status).toEqual("success");
+              expect(res.body.data.id).toEqual(searchId);
+              expect(mockCallback.mock.calls.length).toEqual(0);
+              done();
+            });
+        });
+      });
+      describe("when a results are expired", () => {
+        let searchId = null;
+        beforeEach(async done => {
+          const searchData = new Search(searches.full.proteinVariant);
+          const expires = new Date();
+          expires.setDate(expires.getDate() - 2);
+          searchData.expires = expires;
+          const savedSearch = await searchData.save();
+          searchId = savedSearch.id;
+          const auditData = new Audit({
+            status: "Successful",
+            searchId,
+            taskId: "123-456-789",
+            type: savedSearch.type,
+            attempt: 1,
+            requestMethod: "post"
+          });
+          await auditData.save();
+          done();
+        });
+        it("should add the user to the list of users to notify", done => {
+          request(app)
+            .get("/experiments/search?q=rpoB_S450L")
+            .set("Authorization", `Bearer ${token}`)
+            .expect(httpStatus.OK)
+            .end(async (err, res) => {
+              expect(res.body.status).toEqual("success");
+              expect(res.body.data.id).toEqual(searchId);
+              expect(res.body.data.users.length).toEqual(1);
+              expect(res.body.data.users[0].firstname).toEqual("David");
+              done();
+            });
+        });
+        it("should trigger the bigsi search", done => {
+          request(app)
+            .get("/experiments/search?q=rpoB_S450L")
+            .set("Authorization", `Bearer ${token}`)
+            .expect(httpStatus.OK)
+            .end(async (err, res) => {
+              const jobs = mongo(config.db.uri, []).agendaJobs;
+              expect(res.body.status).toEqual("success");
+              try {
+                let job = await findJobBySearchId(
+                  jobs,
+                  res.body.data.id,
+                  "call search api"
+                );
+                while (!job) {
+                  job = await findJobBySearchId(
+                    jobs,
+                    res.body.data.id,
+                    "call search api"
+                  );
+                }
+                expect(job.data.search.type).toEqual("protein-variant");
+                expect(job.data.search.bigsi.gene).toEqual("rpoB");
+                expect(job.data.search.bigsi.ref).toEqual("S");
+                expect(job.data.search.bigsi.pos).toEqual(450);
+                expect(job.data.search.bigsi.alt).toEqual("L");
+                done();
+              } catch (e) {
+                fail(e.message);
+                done();
+              }
+            });
+        });
+      });
     });
   });
 });

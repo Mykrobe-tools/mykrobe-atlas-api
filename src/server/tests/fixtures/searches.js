@@ -70,7 +70,7 @@ export default {
         gene: "rpoB"
       },
       status: "complete",
-      hash: "48f370a772c7496f6c9d2e6d92e920c87dd00a5c"
+      hash: "62b982cf54332c4ca2fbb9e670e6aad2ac0ab427"
     },
     emptySequence: {
       type: "sequence",
@@ -88,7 +88,7 @@ export default {
         threshold: 0.9
       },
       status: "pending",
-      hash: "66b7d7e64871aa9fda1bdc8e88a28df797648d80",
+      hash: "f13efe3c6fb77cac5fab23f8bd789050f3a52064",
       expires: new Date()
     },
     proteinVariant: {
@@ -98,7 +98,10 @@ export default {
         alt: "L",
         pos: 450,
         gene: "rpoB"
-      }
+      },
+      status: "pending",
+      hash: "62b982cf54332c4ca2fbb9e670e6aad2ac0ab427",
+      expires: new Date()
     },
     expiredSearch: {
       type: "sequence",

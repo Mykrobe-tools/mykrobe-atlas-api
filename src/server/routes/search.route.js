@@ -1,9 +1,7 @@
 import express from "express";
-import AccountsHelper from "../helpers/AccountsHelper";
 import searchController from "../controllers/search.controller";
 
 const router = express.Router();
-const keycloak = AccountsHelper.keycloakInstance();
 
 router
   .route("/:id/results")

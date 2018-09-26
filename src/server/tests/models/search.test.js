@@ -60,7 +60,7 @@ describe("## Search Functions", () => {
     expect(bigsi.threshold).toEqual(0.9);
     expect(foundSearch.status).toEqual("pending");
     expect(foundSearch.hash).toEqual(
-      "66b7d7e64871aa9fda1bdc8e88a28df797648d80"
+      "f13efe3c6fb77cac5fab23f8bd789050f3a52064"
     );
 
     done();
@@ -85,7 +85,7 @@ describe("## Search Functions", () => {
     expect(json.bigsi.seq).toEqual("GTCAGTCCGTTTGTTCTTGTGGCGAGTGTAGTA");
     expect(json.bigsi.threshold).toEqual(0.9);
     expect(json.status).toEqual("pending");
-    expect(json.hash).toEqual("66b7d7e64871aa9fda1bdc8e88a28df797648d80");
+    expect(json.hash).toEqual("f13efe3c6fb77cac5fab23f8bd789050f3a52064");
 
     done();
   });
@@ -110,7 +110,7 @@ describe("## Search Functions", () => {
   });
   it("should fetch the search by hash", async done => {
     const foundSearch = await Search.findByHash(
-      "66b7d7e64871aa9fda1bdc8e88a28df797648d80"
+      "f13efe3c6fb77cac5fab23f8bd789050f3a52064"
     );
     const bigsi = foundSearch.get("bigsi");
 
@@ -120,7 +120,7 @@ describe("## Search Functions", () => {
     expect(bigsi.threshold).toEqual(0.9);
     expect(foundSearch.status).toEqual("pending");
     expect(foundSearch.hash).toEqual(
-      "66b7d7e64871aa9fda1bdc8e88a28df797648d80"
+      "f13efe3c6fb77cac5fab23f8bd789050f3a52064"
     );
 
     done();
@@ -175,7 +175,7 @@ describe("## Search Functions", () => {
       newExpirationDate.getYear()
     );
     expect(updatedSearch.hash).toEqual(
-      "66b7d7e64871aa9fda1bdc8e88a28df797648d80"
+      "f13efe3c6fb77cac5fab23f8bd789050f3a52064"
     );
     expect(updatedSearch.status).toEqual("complete");
 
@@ -205,7 +205,7 @@ describe("## Search Functions", () => {
       newExpirationDate.getYear()
     );
     expect(updatedSearch.hash).toEqual(
-      "66b7d7e64871aa9fda1bdc8e88a28df797648d80"
+      "f13efe3c6fb77cac5fab23f8bd789050f3a52064"
     );
     expect(updatedSearch.status).toEqual("complete");
 
