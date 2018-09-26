@@ -1,4 +1,7 @@
 import hash from "object-hash";
+import flatten from "flat";
+
+import { ElasticsearchHelper } from "makeandship-api-common/lib/modules/elasticsearch/";
 
 import Search from "../models/search.model";
 import Audit from "../models/audit.model";
@@ -6,9 +9,12 @@ import Audit from "../models/audit.model";
 import AuditJSONTransformer from "../transformers/AuditJSONTransformer";
 import SearchJSONTransformer from "../transformers/SearchJSONTransformer";
 import UserJSONTransformer from "../transformers/UserJSONTransformer";
+import ExperimentsResultJSONTransformer from "../transformers/es/ExperimentsResultJSONTransformer";
 
 import { userEventEmitter } from "../modules/events";
 import { schedule } from "../modules/agenda";
+
+const config = require("../../config/env");
 
 // pending status
 const PENDING = "pending";
@@ -23,7 +29,7 @@ class BigsiSearchHelper {
    * @param {*} bigsi
    * @param {*} user
    */
-  static async search(bigsi, user) {
+  static async search(bigsi, query, user) {
     const searchData = {
       type: bigsi.type,
       bigsi: bigsi
@@ -31,7 +37,7 @@ class BigsiSearchHelper {
     const searchHash = hash(searchData);
     const search = await Search.findByHash(searchHash);
     if (search && (!search.isExpired() || search.isPending())) {
-      return this.searchFromCache(search, user);
+      return this.searchFromCache(search, query, user);
     } else {
       return this.searchFromRemote(search, user, searchHash, searchData);
     }
@@ -41,12 +47,16 @@ class BigsiSearchHelper {
    * The cache search engine
    * Return whatever we have in the cache
    * Notify a user if the search is pending and the user wasnt already notified
+   * If result is complete merge it with experiments
    * @param {*} search
    * @param {*} user
    */
-  static async searchFromCache(search, user) {
+  static async searchFromCache(search, query, user) {
     if (search.isPending() && !search.userExists(user)) {
       await this.addAndNotifyUser(search, user);
+    } else if (!search.isPending()) {
+      const mergedExperiments = await this.mergeWithExperiments(search, query);
+      search.set("result", mergedExperiments);
     }
     return search;
   }
@@ -102,6 +112,59 @@ class BigsiSearchHelper {
         search: searchJson
       });
     }
+  }
+
+  /**
+   * Merge results with experiments from elasticsearch
+   * Search experiments by id and filter by search query
+   * @param {*} search
+   * @param {*} query
+   */
+  static async mergeWithExperiments(search, query) {
+    const mergedExperiments = [];
+    const result = search.get("result") || {};
+
+    let experimentIds = [];
+    if (result.result) {
+      experimentIds = Object.keys(result.result);
+    }
+
+    // from ES
+    let searchQuery = { ids: experimentIds };
+    if (query && Object.keys(query).length > 0) {
+      Object.assign(searchQuery, flatten(query));
+    }
+
+    const resp = await ElasticsearchHelper.search(
+      config,
+      searchQuery,
+      "experiment"
+    );
+
+    const experiments = new ExperimentsResultJSONTransformer().transform(
+      resp,
+      {}
+    );
+
+    // merge results
+    experimentIds.forEach(id => {
+      let mergedExperiment = {};
+      try {
+        const exp = experiments.filter(item => item.id === id);
+        mergedExperiment = exp[0];
+        mergedExperiment.results = mergedExperiment.results || {};
+        mergedExperiment.results.bigsi = result.result[id];
+      } catch (e) {}
+      if (mergedExperiment) {
+        mergedExperiments.push(mergedExperiment);
+      }
+    });
+
+    result.experiments = mergedExperiments;
+
+    delete result.result;
+
+    return result;
   }
 }
 

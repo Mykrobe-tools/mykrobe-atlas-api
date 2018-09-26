@@ -407,7 +407,7 @@ const search = async (req, res) => {
     const query = container.query;
 
     if (bigsi) {
-      const search = await BigsiSearchHelper.search(bigsi, req.dbUser);
+      const search = await BigsiSearchHelper.search(bigsi, query, req.dbUser);
       return res.jsend(search);
     } else {
       const resp = await ElasticsearchHelper.search(
