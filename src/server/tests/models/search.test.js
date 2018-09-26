@@ -184,22 +184,41 @@ describe("## Search Functions", () => {
 
     done();
   });
+  it("should update the search from config when no param passed", async done => {
+    const foundSearch = await Search.get(id);
+
+    const updatedSearch = await foundSearch.saveResult({
+      ERR017683: {
+        percent_kmers_found: 100
+      }
+    });
+
+    var newExpirationDate = new Date();
+    newExpirationDate.setDate(newExpirationDate.getDate() + 7);
+
+    expect(updatedSearch.id).toEqual(foundSearch.id);
+    expect(updatedSearch.expires.getDay()).toEqual(newExpirationDate.getDay());
+    expect(updatedSearch.expires.getMonth()).toEqual(
+      newExpirationDate.getMonth()
+    );
+    expect(updatedSearch.expires.getYear()).toEqual(
+      newExpirationDate.getYear()
+    );
+    expect(updatedSearch.hash).toEqual(
+      "66b7d7e64871aa9fda1bdc8e88a28df797648d80"
+    );
+    expect(updatedSearch.status).toEqual("complete");
+
+    const result = updatedSearch.get("result");
+    expect(result.ERR017683.percent_kmers_found).toEqual(100);
+
+    done();
+  });
   it("should add user to the users array", async done => {
     const userData = new User(users.thomas);
     const user = await userData.save();
     const foundSearch = await Search.get(id);
 
-    await foundSearch.addUser(user);
-    expect(foundSearch.users.length).toEqual(1);
-    expect(foundSearch.users[0].id).toEqual(user.id);
-    done();
-  });
-  it("should not add duplicate users", async done => {
-    const userData = new User(users.thomas);
-    const user = await userData.save();
-    const foundSearch = await Search.get(id);
-
-    await foundSearch.addUser(user);
     await foundSearch.addUser(user);
     expect(foundSearch.users.length).toEqual(1);
     expect(foundSearch.users[0].id).toEqual(user.id);
@@ -220,6 +239,27 @@ describe("## Search Functions", () => {
 
     expect(isPending).toBe(true);
 
+    done();
+  });
+  it("should return truthy when the user exist in a search", async done => {
+    const userData = new User(users.thomas);
+    const user = await userData.save();
+    const foundSearch = await Search.get(id);
+
+    await foundSearch.addUser(user);
+    const userExists = foundSearch.userExists(user);
+
+    expect(userExists).toBeTruthy();
+    done();
+  });
+  it("should return falsy when the user doesnt exist in a search", async done => {
+    const userData = new User(users.thomas);
+    const user = await userData.save();
+    const foundSearch = await Search.get(id);
+
+    const userExists = foundSearch.userExists(user);
+
+    expect(userExists).toBeFalsy();
     done();
   });
 });

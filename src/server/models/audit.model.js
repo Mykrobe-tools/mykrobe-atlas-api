@@ -58,11 +58,7 @@ AuditSchema.statics = {
    * @returns {Promise<User, APIError>}
    */
   async getBySearchId(searchId) {
-    const audit = await this.findOne({ searchId }).exec();
-    if (audit) {
-      return audit;
-    }
-    throw new errors.ObjectNotFound();
+    return this.findOne({ searchId }).exec();
   }
 };
 

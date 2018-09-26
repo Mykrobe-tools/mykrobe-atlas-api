@@ -69,10 +69,8 @@ SearchSchema.method({
   },
 
   async addUser(user) {
-    if (!this.userExists(user)) {
-      this.users.push(user);
-      return this.save();
-    }
+    this.users.push(user);
+    return this.save();
   },
 
   async clearUsers() {
@@ -84,7 +82,7 @@ SearchSchema.method({
     return this.status === PENDING;
   },
 
-  userExists(uses) {
+  userExists(user) {
     return this.users.find(element => element.id === user.id);
   }
 });
@@ -100,7 +98,9 @@ SearchSchema.statics = {
    */
   async get(id) {
     try {
-      const search = await this.findById(id).exec();
+      const search = await this.findById(id)
+        .populate("users")
+        .exec();
       if (search) {
         return search;
       }
@@ -116,7 +116,9 @@ SearchSchema.statics = {
    * @returns {Promise<search, APIError>}
    */
   findByHash(hash) {
-    return this.findOne({ hash }).exec();
+    return this.findOne({ hash })
+      .populate("users")
+      .exec();
   }
 };
 

@@ -2,7 +2,6 @@ import errors from "errors";
 import httpStatus from "http-status";
 import mkdirp from "mkdirp-promise";
 import Promise from "bluebird";
-import hash from "object-hash";
 
 import { ElasticsearchHelper } from "makeandship-api-common/lib/modules/elasticsearch/";
 import ArrayJSONTransformer from "makeandship-api-common/lib/transformers/ArrayJSONTransformer";
@@ -19,6 +18,7 @@ import Tree from "../models/tree.model";
 
 import resumable from "../modules/resumable";
 import DownloadersFactory from "../helpers/DownloadersFactory";
+import BigsiSearchHelper from "../helpers/BigsiSearchHelper";
 
 import AuditJSONTransformer from "../transformers/AuditJSONTransformer";
 import SearchJSONTransformer from "../transformers/SearchJSONTransformer";
@@ -407,42 +407,8 @@ const search = async (req, res) => {
     const query = container.query;
 
     if (bigsi) {
-      const searchData = {
-        type: bigsi.type,
-        bigsi: bigsi
-      };
-      const searchHash = hash(searchData);
-      const existingSearch = await Search.findByHash(searchHash);
-      if (
-        existingSearch &&
-        (!existingSearch.isExpired() || existingSearch.isPending())
-      ) {
-        return res.jsend(existingSearch);
-      } else {
-        try {
-          const search =
-            existingSearch || new Search({ hash: searchHash, ...searchData });
-          
-          if (!search.userExists()) {
-            // notify
-          }
-
-          const savedSearch = await search.addUser(req.dbUser);
-
-          const searchJson = new SearchJSONTransformer().transform(savedSearch);
-          const userJson = new UserJSONTransformer().transform(req.dbUser);
-
-          // call bigsi via agenda to support retries
-          await schedule("now", "call search api", {
-            search: searchJson,
-            user: userJson
-          });
-
-          return res.jsend(savedSearch);
-        } catch (e) {
-          return res.jerror(e);
-        }
-      }
+      const search = await BigsiSearchHelper.search(bigsi, req.dbUser);
+      return res.jsend(search);
     } else {
       const resp = await ElasticsearchHelper.search(
         config,

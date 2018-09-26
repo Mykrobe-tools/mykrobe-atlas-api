@@ -5,8 +5,11 @@ import Audit from "../models/audit.model";
 
 import SearchJSONTransformer from "../transformers/SearchJSONTransformer";
 import AuditJSONTransformer from "../transformers/AuditJSONTransformer";
+import UserJSONTransformer from "../transformers/UserJSONTransformer";
 
 import ResultsParserFactory from "../helpers/ResultsParserFactory";
+
+import { userEventEmitter } from "../modules/events";
 
 /**
  * Load organisation and append to req.
@@ -38,21 +41,22 @@ const saveResult = async (req, res) => {
     const savedSearch = await search.saveResult(result);
 
     const searchJson = new SearchJSONTransformer().transform(savedSearch);
-    //const userJson = new UserJSONTransformer().transform(user);
 
     if (search && search.type) {
       const audit = await Audit.getBySearchId(searchJson.id);
       const auditJson = new AuditJSONTransformer().transform(audit);
 
-      /*
+      // notify all users and clear the list
       const event = `${result.type}-search-complete`;
-
-      userEventEmitter.emit(event, {
-        user: userJson,
-        search: searchJson,
-        audit: auditJson
+      search.users.forEach(user => {
+        const userJson = new UserJSONTransformer().transform(user);
+        userEventEmitter.emit(event, {
+          user: userJson,
+          search: searchJson,
+          audit: auditJson
+        });
       });
-      */
+      await savedSearch.clearUsers();
     }
 
     return res.jsend(savedSearch);
