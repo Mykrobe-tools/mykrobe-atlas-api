@@ -1,5 +1,6 @@
 import axios from "axios";
 import uuid from "uuid";
+import { ElasticsearchHelper } from "makeandship-api-common/lib/modules/elasticsearch";
 import Audit from "../models/audit.model";
 import Experiment from "../models/experiment.model";
 import AuditJSONTransformer from "../transformers/AuditJSONTransformer";
@@ -167,7 +168,12 @@ class AgendaHelper {
       const isolateId = data[experiment.id];
       newMetadata.sample.isolateId = isolateId;
       experiment.set("metadata", newMetadata);
-      await experiment.save();
+      const savedExperiment = await experiment.save();
+      await ElasticsearchHelper.updateDocument(
+        config,
+        savedExperiment,
+        "experiment"
+      );
     });
     return done();
   }
