@@ -16,9 +16,6 @@ import { schedule } from "../modules/agenda";
 
 const config = require("../../config/env");
 
-// pending status
-const PENDING = "pending";
-
 class BigsiSearchHelper {
   /**
    * The search engine
@@ -37,9 +34,9 @@ class BigsiSearchHelper {
     const searchHash = hash(searchData);
     const search = await Search.findByHash(searchHash);
     if (search && (!search.isExpired() || search.isPending())) {
-      return this.searchFromCache(search, query, user);
+      return this.returnCachedResults(search, query, user);
     } else {
-      return this.searchFromRemote(search, user, searchHash, searchData);
+      return this.triggerBigsiSearch(search, user, searchHash, searchData);
     }
   }
 
@@ -51,7 +48,7 @@ class BigsiSearchHelper {
    * @param {*} search
    * @param {*} user
    */
-  static async searchFromCache(search, query, user) {
+  static async returnCachedResults(search, query, user) {
     if (search.isPending() && !search.userExists(user)) {
       await this.addAndNotifyUser(search, user);
     } else if (!search.isPending()) {
@@ -71,11 +68,11 @@ class BigsiSearchHelper {
    * @param {*} searchHash
    * @param {*} searchData
    */
-  static async searchFromRemote(search, user, searchHash, searchData) {
+  static async triggerBigsiSearch(search, user, searchHash, searchData) {
     const newSearch = search || new Search({ hash: searchHash, ...searchData });
 
     // set status to pending and clear old result
-    newSearch.status = PENDING;
+    newSearch.status = Search.constants().PENDING;
     newSearch.set("result", {});
 
     const savedSearch = await newSearch.save();

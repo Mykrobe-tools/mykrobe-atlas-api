@@ -118,7 +118,7 @@ describe("Search API", () => {
 
             const data = res.body.data;
 
-            expect(data).toHaveProperty("status", "complete");
+            expect(data).toHaveProperty("status", Search.constants().COMPLETE);
 
             const foundSearch = await Search.get(sequenceSearchId);
             var newExpirationDate = new Date();
@@ -150,7 +150,7 @@ describe("Search API", () => {
 
             const data = res.body.data;
 
-            expect(data).toHaveProperty("status", "complete");
+            expect(data).toHaveProperty("status", Search.constants().COMPLETE);
 
             expect(mockCallback.mock.calls.length).toEqual(1);
             const calls = mockCallback.mock.calls;

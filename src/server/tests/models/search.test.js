@@ -30,7 +30,7 @@ describe("## Search Functions", () => {
         seq: "GTCAGTCCGTTTGTTCTTGTGGCGAGTGT",
         threshold: 0.3
       },
-      status: "pending",
+      status: Search.constants().PENDING,
       hash: "2312edsdcasqwr12e"
     });
     try {
@@ -42,7 +42,7 @@ describe("## Search Functions", () => {
         "GTCAGTCCGTTTGTTCTTGTGGCGAGTGT"
       );
       expect(savedSearchData.bigsi.threshold).toEqual(0.3);
-      expect(savedSearchData.status).toEqual("pending");
+      expect(savedSearchData.status).toEqual(Search.constants().PENDING);
       expect(savedSearchData.hash).toEqual("2312edsdcasqwr12e");
       done();
     } catch (e) {
@@ -58,7 +58,7 @@ describe("## Search Functions", () => {
     expect(foundSearch.type).toEqual("sequence");
     expect(bigsi.seq).toEqual("GTCAGTCCGTTTGTTCTTGTGGCGAGTGTAGTA");
     expect(bigsi.threshold).toEqual(0.9);
-    expect(foundSearch.status).toEqual("pending");
+    expect(foundSearch.status).toEqual(Search.constants().PENDING);
     expect(foundSearch.hash).toEqual(
       "f13efe3c6fb77cac5fab23f8bd789050f3a52064"
     );
@@ -84,7 +84,7 @@ describe("## Search Functions", () => {
     expect(json.type).toEqual("sequence");
     expect(json.bigsi.seq).toEqual("GTCAGTCCGTTTGTTCTTGTGGCGAGTGTAGTA");
     expect(json.bigsi.threshold).toEqual(0.9);
-    expect(json.status).toEqual("pending");
+    expect(json.status).toEqual(Search.constants().PENDING);
     expect(json.hash).toEqual("f13efe3c6fb77cac5fab23f8bd789050f3a52064");
 
     done();
@@ -118,7 +118,7 @@ describe("## Search Functions", () => {
     expect(foundSearch.type).toEqual("sequence");
     expect(bigsi.seq).toEqual("GTCAGTCCGTTTGTTCTTGTGGCGAGTGTAGTA");
     expect(bigsi.threshold).toEqual(0.9);
-    expect(foundSearch.status).toEqual("pending");
+    expect(foundSearch.status).toEqual(Search.constants().PENDING);
     expect(foundSearch.hash).toEqual(
       "f13efe3c6fb77cac5fab23f8bd789050f3a52064"
     );
@@ -160,11 +160,11 @@ describe("## Search Functions", () => {
           percent_kmers_found: 100
         }
       },
-      3
+      72
     );
 
     var newExpirationDate = new Date();
-    newExpirationDate.setDate(newExpirationDate.getDate() + 3);
+    newExpirationDate.setHours(newExpirationDate.getHours() + 72);
 
     expect(updatedSearch.id).toEqual(foundSearch.id);
     expect(updatedSearch.expires.getDay()).toEqual(newExpirationDate.getDay());
@@ -177,7 +177,7 @@ describe("## Search Functions", () => {
     expect(updatedSearch.hash).toEqual(
       "f13efe3c6fb77cac5fab23f8bd789050f3a52064"
     );
-    expect(updatedSearch.status).toEqual("complete");
+    expect(updatedSearch.status).toEqual(Search.constants().COMPLETE);
 
     const result = updatedSearch.get("result");
     expect(result.ERR017683.percent_kmers_found).toEqual(100);
@@ -207,7 +207,7 @@ describe("## Search Functions", () => {
     expect(updatedSearch.hash).toEqual(
       "f13efe3c6fb77cac5fab23f8bd789050f3a52064"
     );
-    expect(updatedSearch.status).toEqual("complete");
+    expect(updatedSearch.status).toEqual(Search.constants().COMPLETE);
 
     const result = updatedSearch.get("result");
     expect(result.ERR017683.percent_kmers_found).toEqual(100);

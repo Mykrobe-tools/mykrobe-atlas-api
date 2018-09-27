@@ -79,11 +79,11 @@ describe("## Tree Functions", () => {
         tree: "abcdabcd",
         version: "2.0"
       },
-      3
+      2160
     );
 
     var newExpirationDate = new Date();
-    newExpirationDate.setMonth(newExpirationDate.getMonth() + 3);
+    newExpirationDate.setHours(newExpirationDate.getHours() + 2160);
 
     expect(updatedTree.id).toEqual(foundTree.id);
     expect(updatedTree.expires.getDay()).toEqual(newExpirationDate.getDay());

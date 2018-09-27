@@ -5,7 +5,9 @@ import { search as searchJsonSchema } from "mykrobe-atlas-jsonschema";
 import SearchJSONTransformer from "../transformers/SearchJSONTransformer";
 import config from "../../config/env";
 
+// constants
 const PENDING = "pending";
+const COMPLETE = "complete";
 
 /**
  * SearchSchema Schema
@@ -59,11 +61,11 @@ SearchSchema.method({
     return this.expires < new Date();
   },
 
-  async saveResult(result, expiresIn = config.services.bigsiResultsDaysToLive) {
+  async saveResult(result, expiresIn = config.services.bigsiResultsTTL) {
     const expires = new Date();
-    expires.setDate(expires.getDate() + expiresIn);
+    expires.setHours(expires.getHours() + expiresIn);
     this.expires = expires;
-    this.status = "complete";
+    this.status = COMPLETE;
     this.set("result", result);
     return this.save();
   },
@@ -119,6 +121,10 @@ SearchSchema.statics = {
     return this.findOne({ hash })
       .populate("users")
       .exec();
+  },
+
+  constants() {
+    return { PENDING, COMPLETE };
   }
 };
 

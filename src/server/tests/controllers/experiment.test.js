@@ -2271,7 +2271,7 @@ describe("## Experiment APIs", () => {
             .expect(httpStatus.OK)
             .end(async (err, res) => {
               expect(res.body.status).toEqual("success");
-              expect(res.body.data.status).toEqual("pending");
+              expect(res.body.data.status).toEqual(Search.constants().PENDING);
               expect(res.body.data.type).toEqual("protein-variant");
               done();
             });

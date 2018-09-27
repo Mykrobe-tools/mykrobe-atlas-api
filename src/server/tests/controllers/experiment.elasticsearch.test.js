@@ -689,7 +689,7 @@ describe("## Experiment APIs", () => {
             expect(res.body.data.id).toBeTruthy();
             expect(res.body.data.users.length).toEqual(1);
             expect(res.body.data.users[0].firstname).toEqual("David");
-            expect(res.body.data.status).toEqual("pending");
+            expect(res.body.data.status).toEqual(Search.constants().PENDING);
             done();
           });
       });
@@ -730,7 +730,7 @@ describe("## Experiment APIs", () => {
       result.result[`${experimentId2}`] = { percent_kmers_found: 90 };
       sequenceSearchData.users.push(savedUser);
       sequenceSearchData.set("result", result);
-      sequenceSearchData.status = "complete";
+      sequenceSearchData.status = Search.constants().COMPLETE;
 
       sequenceSearchData.expires = expires;
       const sequenceSearch = await sequenceSearchData.save();
