@@ -1,7 +1,6 @@
 import request from "supertest";
 import httpStatus from "http-status";
 import fs from "fs";
-import nock from "nock";
 import { config, createApp } from "../setup";
 import User from "../../models/user.model";
 import Experiment from "../../models/experiment.model";
@@ -29,6 +28,9 @@ let id = null;
 
 const findJob = (jobs, id, name) =>
   jobs.findOne({ "data.sample_id": id, name }, (err, data) => data);
+
+const findJobByName = (jobs, name) =>
+  jobs.findOne({ name }, (err, data) => data);
 
 beforeEach(async done => {
   const userData = new User(users.admin);
@@ -2248,6 +2250,22 @@ describe("## Experiment APIs", () => {
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
           expect(res.body.message).toEqual("Not Authorised");
+          done();
+        });
+    });
+  });
+  describe("#refresh isolateId", () => {
+    it("should schedule a daily job", async done => {
+      request(app)
+        .get("/experiments")
+        .set("Authorization", `Bearer ${token}`)
+        .expect(httpStatus.OK)
+        .end(async (err, res) => {
+          const jobs = mongo(config.db.uri, []).agendaJobs;
+          const job = await findJobByName(jobs, "refresh isolateId");
+          expect(job.name).toEqual("refresh isolateId");
+          expect(job.nextRunAt).toBeTruthy();
+          expect(job.repeatInterval).toEqual("0 0 * * *");
           done();
         });
     });

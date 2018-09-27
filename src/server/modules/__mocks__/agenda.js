@@ -18,9 +18,15 @@ const schedule = (when, job, params) => {
     AgendaHelper.callDistanceApi.bind(agendaInstance)
   );
 
-  agendaInstance.on("ready", () => {
+  agendaInstance.define(
+    "refresh isolateId",
+    AgendaHelper.refreshIsolateId.bind(agendaInstance)
+  );
+
+  agendaInstance.on("ready", async () => {
     winston.info("agenda is ready and started.");
-    agendaInstance.start();
+    await agendaInstance.start();
+    await agendaInstance.every("0 0 * * *", "refresh isolateId");
     agendaInstance.schedule(when, job, params);
   });
 

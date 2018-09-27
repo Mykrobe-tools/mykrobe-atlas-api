@@ -57,6 +57,20 @@ const mockTreeApiCalls = () => {
     });
 };
 
+const mockIsolateIdMappingCalls = () => {
+  nock(config.services.analysisApiUrl)
+    .persist()
+    .get("/mapping")
+    .reply(200, [
+      {
+        "5bab4fcdf892541000b41f0c": uuid.v1()
+      },
+      {
+        "5bab4fcdf892541000b41f0b": uuid.v1()
+      }
+    ]);
+};
+
 const mockDevApiCalls = () => {
   nock(config.services.analysisApiUrl)
     .persist()
@@ -67,6 +81,7 @@ const mockDevApiCalls = () => {
     });
 
   mockTreeApiCalls();
+  mockIsolateIdMappingCalls();
 };
 
 // mock third party calls
@@ -135,7 +150,8 @@ const mocks = Object.freeze({
   mockDistanceApiCalls,
   mockThirdPartyCalls,
   mockSearchApiCalls,
-  mockTreeApiCalls
+  mockTreeApiCalls,
+  mockIsolateIdMappingCalls
 });
 
 export default mocks;

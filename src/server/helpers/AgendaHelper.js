@@ -1,5 +1,7 @@
 import axios from "axios";
+import uuid from "uuid";
 import Audit from "../models/audit.model";
+import Experiment from "../models/experiment.model";
 import AuditJSONTransformer from "../transformers/AuditJSONTransformer";
 import config from "../../config/env";
 import { userEventEmitter, experimentEventEmitter } from "../modules/events";
@@ -151,6 +153,32 @@ class AgendaHelper {
         return done(e);
       }
     }
+  }
+
+  static async refreshIsolateId(job, done) {
+    const uri = `${config.services.analysisApiUrl}/mapping`;
+    const response = await axios.get(uri);
+    const data = await this.getIsolateIdMapping(); //response.data;
+    const ids = Object.keys(data);
+    const experiments = await Experiment.findByIds(ids);
+    experiments.forEach(async experiment => {
+      const metadata = experiment.get("metadata");
+      const newMetadata = JSON.parse(JSON.stringify(metadata)); // deep clone
+      const isolateId = data[experiment.id];
+      newMetadata.sample.isolateId = isolateId;
+      experiment.set("metadata", newMetadata);
+      await experiment.save();
+    });
+    return done();
+  }
+
+  static async getIsolateIdMapping() {
+    const data = {};
+    const experiments = await Experiment.list();
+    experiments.forEach(experiment => {
+      data[experiment.id] = uuid.v1();
+    });
+    return data;
   }
 }
 
