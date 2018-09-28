@@ -42,19 +42,6 @@ const load = async (req, res, next, id) => {
 };
 
 /**
- * Load searchResult and append to req.
- */
-const loadSearchResult = async (req, res, next, id) => {
-  try {
-    const searchResult = await Search.get(id);
-    req.searchResult = searchResult;
-    return next();
-  } catch (e) {
-    return res.jerror(e);
-  }
-};
-
-/**
  * Load current user and append to req.
  */
 const loadCurrentUser = (req, res, next) => load(req, res, next, req.user.id);
@@ -170,132 +157,6 @@ const events = async (req, res) => {
   channel.addClient(req, res);
 };
 
-/**
- * Store search results
- * @param {object} req
- * @param {object} res
- */
-const saveResults = async (req, res) => {
-  const { body, user, searchResult } = req;
-
-  if (
-    !user ||
-    !searchResult ||
-    !searchResult.user ||
-    !user.id ||
-    !searchResult.user.id ||
-    searchResult.user.id !== user.id
-  ) {
-    return res.jerror("User must be the owner of the search result");
-  }
-  try {
-    const parser = await ResultsParserFactory.create(body);
-    if (!parser) {
-      return res.jerror(
-        new errors.UpdateExperimentError("Invalid result type.")
-      );
-    }
-    const result = parser.parse();
-    searchResult.set("result", result);
-
-    const savedSearchResult = await searchResult.save();
-
-    const searchJson = new SearchJSONTransformer().transform(savedSearchResult);
-    const userJson = new UserJSONTransformer().transform(user);
-
-    if (result && result.type) {
-      const audit = await Audit.getBySearchId(searchJson.id);
-      const auditJson = new AuditJSONTransformer().transform(audit);
-
-      const event = `${result.type}-search-complete`;
-
-      userEventEmitter.emit(event, {
-        user: userJson,
-        search: searchJson,
-        audit: auditJson
-      });
-    }
-
-    return res.jsend(savedSearchResult);
-  } catch (e) {
-    return res.jerror(e);
-  }
-};
-
-/**
- * Read search results
- * @param {object} req
- * @param {object} res
- */
-const readResults = async (req, res) => {
-  const { user, searchResult } = req;
-
-  if (
-    !user ||
-    !searchResult ||
-    !searchResult.user ||
-    !user.id ||
-    !searchResult.user.id ||
-    searchResult.user.id !== user.id
-  ) {
-    return res.jerror("User must be the owner of the search result");
-  }
-  try {
-    const mergedExperiments = await mergeWithExperiments(searchResult);
-    searchResult.set("result", mergedExperiments);
-    return res.jsend(searchResult);
-  } catch (e) {
-    return res.jerror(e);
-  }
-};
-
-/**
- * Merge result with experiments
- * @param {*} result
- */
-const mergeWithExperiments = async searchResult => {
-  const mergedExperiments = [];
-  const result = searchResult.get("result") || {};
-  const search = searchResult.get("search");
-  let experimentIds = [];
-  if (result.result) {
-    experimentIds = Object.keys(result.result);
-  }
-
-  // from ES
-  let query = { ids: experimentIds };
-  if (search && Object.keys(search).length > 0) {
-    Object.assign(query, flatten(search));
-  }
-
-  const resp = await ElasticsearchHelper.search(config, query, "experiment");
-
-  const experiments = new ExperimentsResultJSONTransformer().transform(
-    resp,
-    {}
-  );
-
-  // merge results
-  experimentIds.forEach(id => {
-    let mergedExperiment = {};
-    try {
-      const exp = experiments.filter(item => item.id === id);
-      mergedExperiment = exp[0];
-      mergedExperiment.results = mergedExperiment.results || {};
-      mergedExperiment.results.bigsi = result.result[id];
-    } catch (e) {}
-    if (mergedExperiment) {
-      mergedExperiments.push(mergedExperiment);
-    }
-  });
-
-  result.experiments = mergedExperiments;
-
-  delete result.result;
-
-  return result;
-};
-
 export default {
   load,
   get,
@@ -305,8 +166,5 @@ export default {
   remove,
   assignRole,
   loadCurrentUser,
-  events,
-  saveResults,
-  loadSearchResult,
-  readResults
+  events
 };

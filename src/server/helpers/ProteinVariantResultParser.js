@@ -12,6 +12,7 @@ class ProteinVariantResultParser extends ResultParser {
     };
     if (this.namedResult && this.namedResult.result) {
       const container = this.namedResult.result;
+      delete container.query;
       // single mutation only
       const mutation = Object.keys(container).pop();
       if (mutation) {
