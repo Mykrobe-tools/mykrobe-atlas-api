@@ -465,10 +465,13 @@ const inflateResult = async result => {
   const enhancedExperiments = [];
   if (result.experiments && Array.isArray(result.experiments)) {
     const ids = result.experiments.map(experiment => experiment.id);
-    const experiments = await Experiment.findByIds(ids);
+    const experiments = await Experiment.findByIsolateIds(ids);
     result.experiments.forEach(experiment => {
       try {
-        const exp = experiments.filter(item => item.id === experiment.id);
+        const exp = experiments.filter(item => {
+          const metadata = item.get("metadata");
+          return metadata.sample.isolateId === experiment.id;
+        });
         experiment.results = exp[0].get("results");
         experiment.metadata = exp[0].get("metadata");
       } catch (e) {}
