@@ -3,6 +3,11 @@ import errors from "errors";
 import schemaValidator from "mongoose-jsonschema-validator";
 import { search as searchJsonSchema } from "mykrobe-atlas-jsonschema";
 import SearchJSONTransformer from "../transformers/SearchJSONTransformer";
+import config from "../../config/env";
+
+// constants
+const PENDING = "pending";
+const COMPLETE = "complete";
 
 /**
  * SearchSchema Schema
@@ -10,10 +15,21 @@ import SearchJSONTransformer from "../transformers/SearchJSONTransformer";
 const SearchSchema = new mongoose.Schema(
   {
     type: String,
-    user: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User"
-    }
+    status: {
+      type: String,
+      default: PENDING
+    },
+    expires: {
+      type: Date,
+      default: new Date()
+    },
+    users: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User"
+      }
+    ],
+    hash: String
   },
   {
     strict: false,
@@ -31,6 +47,7 @@ const SearchSchema = new mongoose.Schema(
  * - virtuals
  * - plugins
  */
+
 SearchSchema.plugin(schemaValidator, {
   jsonschema: searchJsonSchema,
   modelName: "Search"
@@ -39,21 +56,52 @@ SearchSchema.plugin(schemaValidator, {
 /**
  * Methods
  */
-SearchSchema.method({});
+SearchSchema.method({
+  isExpired() {
+    return this.expires < new Date();
+  },
+
+  async saveResult(result, expiresIn = config.services.bigsiResultsTTL) {
+    const expires = new Date();
+    expires.setHours(expires.getHours() + expiresIn);
+    this.expires = expires;
+    this.status = COMPLETE;
+    this.set("result", result);
+    return this.save();
+  },
+
+  async addUser(user) {
+    this.users.push(user);
+    return this.save();
+  },
+
+  async clearUsers() {
+    this.users = [];
+    return this.save();
+  },
+
+  isPending() {
+    return this.status === PENDING;
+  },
+
+  userExists(user) {
+    return this.users.find(element => element.id === user.id);
+  }
+});
 
 /**
  * Statics
  */
 SearchSchema.statics = {
   /**
-   * Get user search
+   * Get search by id
    * @param {ObjectId} id - The objectId of search.
    * @returns {Promise<search, APIError>}
    */
   async get(id) {
     try {
       const search = await this.findById(id)
-        .populate("user")
+        .populate("users")
         .exec();
       if (search) {
         return search;
@@ -62,6 +110,21 @@ SearchSchema.statics = {
     } catch (e) {
       throw new errors.ObjectNotFound(e.message);
     }
+  },
+
+  /**
+   * Get search by hash
+   * @param {ObjectId} id - The objectId of search.
+   * @returns {Promise<search, APIError>}
+   */
+  findByHash(hash) {
+    return this.findOne({ hash })
+      .populate("users")
+      .exec();
+  },
+
+  constants() {
+    return { PENDING, COMPLETE };
   }
 };
 

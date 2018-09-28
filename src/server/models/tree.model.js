@@ -23,9 +23,9 @@ TreeSchema.method({
     return this.expires < new Date();
   },
 
-  async update(result, expiresIn = config.services.treeResultsMonthsToLive) {
+  async update(result, expiresIn = config.services.treeResultsTTL) {
     const expires = new Date();
-    expires.setMonth(expires.getMonth() + expiresIn);
+    expires.setHours(expires.getHours() + expiresIn);
     this.tree = result.tree;
     this.version = result.version;
     this.expires = expires;

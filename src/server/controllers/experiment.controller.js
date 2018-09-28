@@ -18,6 +18,7 @@ import Tree from "../models/tree.model";
 
 import resumable from "../modules/resumable";
 import DownloadersFactory from "../helpers/DownloadersFactory";
+import BigsiSearchHelper from "../helpers/BigsiSearchHelper";
 
 import AuditJSONTransformer from "../transformers/AuditJSONTransformer";
 import SearchJSONTransformer from "../transformers/SearchJSONTransformer";
@@ -406,29 +407,8 @@ const search = async (req, res) => {
     const query = container.query;
 
     if (bigsi) {
-      try {
-        const searchData = {
-          type: bigsi.type,
-          user: req.dbUser,
-          bigsi: bigsi,
-          search: query
-        };
-        const search = new Search(searchData);
-        const savedSearch = await search.save();
-
-        const searchJson = new SearchJSONTransformer().transform(savedSearch);
-        const userJson = new UserJSONTransformer().transform(req.dbUser);
-
-        // call bigsi via agenda to support retries
-        await schedule("now", "call search api", {
-          search: searchJson,
-          user: userJson
-        });
-
-        return res.jsend(savedSearch);
-      } catch (e) {
-        return res.jerror(e);
-      }
+      const search = await BigsiSearchHelper.search(bigsi, query, req.dbUser);
+      return res.jsend(search);
     } else {
       const resp = await ElasticsearchHelper.search(
         config,
