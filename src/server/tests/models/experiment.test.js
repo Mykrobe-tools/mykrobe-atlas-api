@@ -5,11 +5,12 @@ require("../setup");
 const experiments = require("../fixtures/experiments");
 
 let id = null;
+let savedExperiment = null;
 
 beforeEach(async done => {
   const experimentData = new Experiment(experiments.tbUploadMetadata);
-  const experiment = await experimentData.save();
-  id = experiment.id;
+  savedExperiment = await experimentData.save();
+  id = savedExperiment.id;
   done();
 });
 
@@ -86,6 +87,49 @@ describe("## Experiment Functions", () => {
     expect(patient.siteId).toEqual("a2a910e3-25ef-475c-bdf9-f6fe215d949f");
     expect(patient.genderAtBirth).toEqual("Male");
     expect(patient.countryOfBirth).toEqual("India");
+    done();
+  });
+  it("should find experiments by ids", async done => {
+    const ids = [id];
+    const experiments = await Experiment.findByIds(ids);
+
+    const experiment = experiments[0];
+
+    const metadata = experiment.get("metadata");
+    expect(metadata).toHaveProperty("patient");
+    expect(metadata).toHaveProperty("sample");
+    expect(metadata).toHaveProperty("genotyping");
+    expect(metadata).toHaveProperty("phenotyping");
+
+    const patient = metadata.patient;
+    expect(patient.patientId).toEqual("eff2fa6a-9d79-41ab-a307-b620cedf7293");
+    expect(patient.siteId).toEqual("a2a910e3-25ef-475c-bdf9-f6fe215d949f");
+    expect(patient.genderAtBirth).toEqual("Male");
+    expect(patient.countryOfBirth).toEqual("India");
+
+    done();
+  });
+
+  it("should find experiments by isolateIds", async done => {
+    const savedMetadata = savedExperiment.get("metadata");
+    const isolateIds = [savedMetadata.sample.isolateId];
+
+    const experiments = await Experiment.findByIsolateIds(isolateIds);
+
+    const experiment = experiments[0];
+
+    const metadata = experiment.get("metadata");
+    expect(metadata).toHaveProperty("patient");
+    expect(metadata).toHaveProperty("sample");
+    expect(metadata).toHaveProperty("genotyping");
+    expect(metadata).toHaveProperty("phenotyping");
+
+    const patient = metadata.patient;
+    expect(patient.patientId).toEqual("eff2fa6a-9d79-41ab-a307-b620cedf7293");
+    expect(patient.siteId).toEqual("a2a910e3-25ef-475c-bdf9-f6fe215d949f");
+    expect(patient.genderAtBirth).toEqual("Male");
+    expect(patient.countryOfBirth).toEqual("India");
+
     done();
   });
 });

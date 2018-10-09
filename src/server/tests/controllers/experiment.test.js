@@ -326,6 +326,10 @@ describe("## Experiment APIs", () => {
             experiments.tbUploadMetadataResults
           );
           const savedExperimentWithMetadataResults = await experimentWithMetadataResults.save();
+          const savedMetadata = savedExperimentWithMetadataResults.get(
+            "metadata"
+          );
+
           const experiment = await Experiment.get(id);
           const experimentResults = [];
           experimentResults.push({
@@ -333,7 +337,7 @@ describe("## Experiment APIs", () => {
             subType: "Nearest neighbours",
             experiments: [
               {
-                id: savedExperimentWithMetadataResults.id,
+                id: savedMetadata.sample.isolateId,
                 distance: 24
               }
             ]

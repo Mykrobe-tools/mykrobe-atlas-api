@@ -27,8 +27,8 @@ const experimentWithChineseMetadata = new Experiment(
   experiments.tbUploadMetadataChinese
 );
 
-let experimentId1,
-  experimentId2 = null;
+let isolateId1,
+  isolateId2 = null;
 
 let savedUser = null;
 
@@ -57,8 +57,11 @@ beforeAll(async done => {
   const experiment1 = await experimentWithMetadata.save();
   const experiment2 = await experimentWithChineseMetadata.save();
 
-  experimentId1 = experiment1.id;
-  experimentId2 = experiment2.id;
+  const metadata1 = experiment1.get("metadata");
+  const metadata2 = experiment2.get("metadata");
+
+  isolateId1 = metadata1.sample.isolateId;
+  isolateId2 = metadata2.sample.isolateId;
 
   // index to elasticsearch
   const experiments = await Experiment.list();
@@ -737,8 +740,8 @@ describe("## Experiment APIs", () => {
           threshold: 0.8
         }
       };
-      result.result[`${experimentId1}`] = { percent_kmers_found: 100 };
-      result.result[`${experimentId2}`] = { percent_kmers_found: 90 };
+      result.result[`${isolateId1}`] = { percent_kmers_found: 100 };
+      result.result[`${isolateId2}`] = { percent_kmers_found: 90 };
       sequenceSearchData.users.push(savedUser);
       sequenceSearchData.set("result", result);
       sequenceSearchData.status = Search.constants().COMPLETE;
@@ -759,6 +762,7 @@ describe("## Experiment APIs", () => {
             expect(res.body.status).toEqual("success");
 
             const data = res.body.data;
+
             expect(data.type).toEqual("sequence");
             expect(data.bigsi).toBeTruthy();
             expect(data.users).toBeTruthy();

@@ -121,13 +121,13 @@ class BigsiSearchHelper {
     const mergedExperiments = [];
     const result = search.get("result") || {};
 
-    let experimentIds = [];
+    let isolateIds = [];
     if (result.result) {
-      experimentIds = Object.keys(result.result);
+      isolateIds = Object.keys(result.result);
     }
 
     // from ES
-    let searchQuery = { ids: experimentIds };
+    let searchQuery = { "metadata.sample.isolateId": isolateIds };
     if (query && Object.keys(query).length > 0) {
       Object.assign(searchQuery, flatten(query));
     }
@@ -144,13 +144,16 @@ class BigsiSearchHelper {
     );
 
     // merge results
-    experimentIds.forEach(id => {
+    isolateIds.forEach(isolateId => {
       let mergedExperiment = {};
       try {
-        const exp = experiments.filter(item => item.id === id);
+        const exp = experiments.filter(
+          item => item.metadata.sample.isolateId === isolateId
+        );
+
         mergedExperiment = exp[0];
         mergedExperiment.results = mergedExperiment.results || {};
-        mergedExperiment.results.bigsi = result.result[id];
+        mergedExperiment.results.bigsi = result.result[isolateId];
       } catch (e) {}
       if (mergedExperiment) {
         mergedExperiments.push(mergedExperiment);
