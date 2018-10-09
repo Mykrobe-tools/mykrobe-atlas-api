@@ -17,10 +17,10 @@ class AgendaHelper {
       if (data.attempt < config.services.analysisApiMaxRetries) {
         const response = await axios.post(uri, {
           file: data.file,
-          sample_id: data.sample_id
+          experiment_id: data.experiment_id
         });
         const audit = new Audit({
-          experimentId: data.sample_id,
+          experimentId: data.experiment_id,
           fileLocation: data.file,
           status: "Successful",
           taskId: response.data && response.data.task_id,
@@ -41,7 +41,7 @@ class AgendaHelper {
     } catch (e) {
       data.attempt++;
       const audit = new Audit({
-        experimentId: data.sample_id,
+        experimentId: data.experiment_id,
         fileLocation: data.file,
         status: "Failed",
         type: "Predictor",
@@ -65,7 +65,7 @@ class AgendaHelper {
     const uri = `${config.services.analysisApiUrl}/distance`;
     try {
       const response = await axios.post(uri, {
-        sample_id: data.sample_id
+        experiment_id: data.experiment_id
       });
       const audit = new Audit({
         experimentId: experiment.id,

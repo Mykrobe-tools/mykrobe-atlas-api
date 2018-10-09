@@ -30,7 +30,7 @@ let token = null;
 let id = null;
 
 const findJob = (jobs, id, name) =>
-  jobs.findOne({ "data.sample_id": id, name }, (err, data) => data);
+  jobs.findOne({ "data.experiment_id": id, name }, (err, data) => data);
 
 const findJobByName = (jobs, name) =>
   jobs.findOne({ name }, (err, data) => data);
@@ -918,7 +918,7 @@ describe("## Experiment APIs", () => {
                   config.express.uploadsLocation
                 }/experiments/${id}/file/333-08.json`
               );
-              expect(job.data.sample_id).toEqual(id);
+              expect(job.data.experiment_id).toEqual(id);
               expect(job.data.attempt).toEqual(0);
               done();
             } catch (e) {
@@ -946,7 +946,7 @@ describe("## Experiment APIs", () => {
               while (!job) {
                 job = await findJob(jobs, id, "call distance api");
               }
-              expect(job.data.sample_id).toEqual(id);
+              expect(job.data.experiment_id).toEqual(id);
               done();
             } catch (e) {
               fail(e.message);
@@ -1014,7 +1014,7 @@ describe("## Experiment APIs", () => {
                   config.express.uploadsLocation
                 }/experiments/${id}/file/333-08.json`
               );
-              expect(job.data.sample_id).toEqual(id);
+              expect(job.data.experiment_id).toEqual(id);
               expect(job.data.attempt).toEqual(0);
               done();
             } catch (e) {
@@ -1042,7 +1042,7 @@ describe("## Experiment APIs", () => {
               while (!job) {
                 job = await findJob(jobs, id, "call distance api");
               }
-              expect(job.data.sample_id).toEqual(id);
+              expect(job.data.experiment_id).toEqual(id);
               done();
             } catch (e) {
               fail(e.message);
@@ -1112,7 +1112,7 @@ describe("## Experiment APIs", () => {
                   config.express.uploadsLocation
                 }/experiments/${id}/file/333-08.json`
               );
-              expect(job.data.sample_id).toEqual(id);
+              expect(job.data.experiment_id).toEqual(id);
               expect(job.data.attempt).toEqual(0);
               done();
             } catch (e) {
@@ -1141,7 +1141,7 @@ describe("## Experiment APIs", () => {
               while (!job) {
                 job = await findJob(jobs, id, "call distance api");
               }
-              expect(job.data.sample_id).toEqual(id);
+              expect(job.data.experiment_id).toEqual(id);
               done();
             } catch (e) {
               fail(e.message);
@@ -1229,7 +1229,7 @@ describe("## Experiment APIs", () => {
                   config.express.uploadsLocation
                 }/experiments/${id}/file/333-08.json`
               );
-              expect(job.data.sample_id).toEqual(id);
+              expect(job.data.experiment_id).toEqual(id);
               expect(job.data.attempt).toEqual(0);
               done();
             } catch (e) {
@@ -1257,7 +1257,7 @@ describe("## Experiment APIs", () => {
               while (!job) {
                 job = await findJob(jobs, id, "call distance api");
               }
-              expect(job.data.sample_id).toEqual(id);
+              expect(job.data.experiment_id).toEqual(id);
               done();
             } catch (e) {
               fail(e.message);
@@ -1317,7 +1317,7 @@ describe("## Experiment APIs", () => {
                   config.express.uploadsLocation
                 }/experiments/${id}/file/333-08.json`
               );
-              expect(job.data.sample_id).toEqual(id);
+              expect(job.data.experiment_id).toEqual(id);
               expect(job.data.attempt).toEqual(0);
               done();
             } catch (e) {
@@ -1356,7 +1356,7 @@ describe("## Experiment APIs", () => {
                 config.express.uploadsLocation
               }/experiments/${id}/file/333-08.json`
             );
-            expect(job.data.sample_id).toEqual(id);
+            expect(job.data.experiment_id).toEqual(id);
             done();
           });
       });
@@ -1492,12 +1492,12 @@ describe("## Experiment APIs", () => {
               });
             }
             let foundJobs = await jobs.find({
-              "data.sample_id": id,
+              "data.experiment_id": id,
               name: "call analysis api"
             });
             while (foundJobs.length < 2) {
               foundJobs = await jobs.find({
-                "data.sample_id": id,
+                "data.experiment_id": id,
                 name: "call analysis api"
               });
             }
@@ -1508,7 +1508,7 @@ describe("## Experiment APIs", () => {
                 config.express.uploadsLocation
               }/experiments/${id}/file/333-09.json`
             );
-            expect(foundJobs[0].data.sample_id).toEqual(id);
+            expect(foundJobs[0].data.experiment_id).toEqual(id);
             done();
           });
       });
@@ -1629,7 +1629,7 @@ describe("## Experiment APIs", () => {
               while (!job) {
                 job = await findJob(jobs, id, "call distance api");
               }
-              expect(job.data.sample_id).toEqual(id);
+              expect(job.data.experiment_id).toEqual(id);
               done();
             } catch (e) {
               fail(e.message);
@@ -1662,7 +1662,7 @@ describe("## Experiment APIs", () => {
               job = await findJob(jobs, id, "call distance api");
             }
             expect(job.name).toEqual("call distance api");
-            expect(job.data.sample_id).toEqual(id);
+            expect(job.data.experiment_id).toEqual(id);
             done();
           });
       });
