@@ -257,7 +257,7 @@ const uploadFile = async (req, res) => {
           file: `${config.express.uploadsLocation}/experiments/${
             experiment.id
           }/file/${req.body.name}`,
-          sample_id: experiment.id,
+          experiment_id: experiment.id,
           attempt: 0
         });
       });
@@ -305,7 +305,7 @@ const uploadFile = async (req, res) => {
             file: `${config.express.uploadsLocation}/experiments/${
               experimentJson.id
             }/file/${resumableFilename}`,
-            sample_id: experimentJson.id,
+            experiment_id: experimentJson.id,
             attempt: 0,
             experiment: experimentJson
           });
