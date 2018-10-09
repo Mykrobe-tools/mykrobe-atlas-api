@@ -43,6 +43,12 @@ import {
 
 const config = require("../../config/env");
 
+// sort whitelist
+const sortWhiteList = ElasticsearchHelper.getSortWhitelist(
+  experimentSchema,
+  "experiment"
+);
+
 /**
  * Load experiment and append to req.
  */
@@ -412,7 +418,7 @@ const search = async (req, res) => {
     } else {
       const resp = await ElasticsearchHelper.search(
         config,
-        { ...query },
+        { whitelist: sortWhiteList, ...query },
         "experiment"
       );
 

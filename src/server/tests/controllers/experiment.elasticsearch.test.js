@@ -608,6 +608,17 @@ describe("## Experiment APIs", () => {
           done();
         });
     });
+    it("should only sort by whitelisted fields", done => {
+      request(app)
+        .get("/experiments/search?sort=invalid.field")
+        .set("Authorization", `Bearer ${token}`)
+        .expect(httpStatus.OK)
+        .end((err, res) => {
+          expect(res.body.status).toEqual("success");
+          expect(res.body.data.results.length).toEqual(2);
+          done();
+        });
+    });
     describe("when running bigsi searches", () => {
       it("should return a search object for sequence search - threshold", done => {
         request(app)

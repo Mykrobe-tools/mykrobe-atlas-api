@@ -8,7 +8,8 @@ import {
   mockKeycloakCalls,
   mockThirdPartyCalls,
   mockSearchApiCalls,
-  mockTreeApiCalls
+  mockTreeApiCalls,
+  mockIsolateIdMappingCalls
 } from "./mocks";
 
 require("../../express-jsend");
@@ -49,5 +50,6 @@ mockSearchApiCalls();
 mockTreeApiCalls();
 mockKeycloakCalls();
 mockThirdPartyCalls();
+mockIsolateIdMappingCalls();
 
 export default { config, createApp };
