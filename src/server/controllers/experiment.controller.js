@@ -19,7 +19,7 @@ import Tree from "../models/tree.model";
 import resumable from "../modules/resumable";
 import DownloadersFactory from "../helpers/DownloadersFactory";
 import BigsiSearchHelper from "../helpers/BigsiSearchHelper";
-import ExperimentHelper from "../helpers/ExperimentHelper";
+import ExperimentsHelper from "../helpers/ExperimentsHelper";
 
 import AuditJSONTransformer from "../transformers/AuditJSONTransformer";
 import SearchJSONTransformer from "../transformers/SearchJSONTransformer";
@@ -517,8 +517,8 @@ const tree = async (req, res) => {
  * @param {object} res
  */
 const upload = async (req, res) => {
-  const data = await ExperimentHelper.load(req.file.path, "UTF-8");
-  return res.jsend(JSON.parse(data));
+  const data = await ExperimentsHelper.load(req.file.path, "UTF-8");
+  return res.jsend(data);
 };
 
 export default {
