@@ -3425,6 +3425,38 @@ router
     ),
     userController.loadCurrentUser,
     experimentController.create
+  )
+  /**
+   * @swagger
+   * /experiments:
+   *   put:
+   *     tags:
+   *       - Experiments
+   *     description: Upload experiments
+   *     operationId: experimentsUpload
+   *     produces:
+   *       - application/json
+   *     security:
+   *       - Bearer: []
+   *     parameters:
+   *       - in: formData
+   *         name: file
+   *         description: The file to upload
+   *         type: string
+   *         format: text
+   *         required: true
+   *     responses:
+   *       200:
+   *         description: Experiments list
+   *         schema:
+   *           $ref: '#/definitions/ListExperimentsResponse'
+   *       401:
+   *         description: Failed authentication
+   */
+  .put(
+    keycloak.connect.protect(),
+    upload.single("file"),
+    experimentController.upload
   );
 router
   .route("/choices")
