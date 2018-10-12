@@ -1,5 +1,64 @@
 import objectMapper from "object-mapper";
 
+const phylogenetics = {
+  Delhi: {
+    complex: "Mycobacterium_tuberculosis_complex",
+    "sub-complex": "subMycobacterium_tuberculosis_complex",
+    species: "Mycobacterium_tuberculosis",
+    "sub-species": "Delhi_Central_Asia"
+  },
+  Beijing: {
+    complex: "Mycobacterium_tuberculosis_complex",
+    "sub-complex": "subMycobacterium_tuberculosis_complex",
+    species: "Mycobacterium_tuberculosis",
+    "sub-species": "Beijing_East_Asia"
+  },
+  EAI: {
+    complex: "Mycobacterium_tuberculosis_complex",
+    "sub-complex": "subMycobacterium_tuberculosis_complex",
+    species: "Mycobacterium_tuberculosis",
+    "sub-species": "East_Africa_Indian_ocean"
+  },
+  "West African 2": {
+    complex: "Mycobacterium_tuberculosis_complex",
+    "sub-complex": "subMycobacterium_tuberculosis_complex",
+    species: "Mycobacterium_africanum",
+    "sub-species": "West_Africa"
+  },
+  "M. bovis": {
+    complex: "Mycobacterium_tuberculosis_complex",
+    "sub-complex": "subMycobacterium_tuberculosis_complex",
+    species: "Mycobacterium_bovis"
+  },
+  Cameroon: {
+    complex: "Mycobacterium_tuberculosis_complex",
+    "sub-complex": "subMycobacterium_tuberculosis_complex",
+    species: "Mycobacterium_africanum"
+  },
+  "West African 1b": {
+    complex: "Mycobacterium_tuberculosis_complex",
+    "sub-complex": "subMycobacterium_tuberculosis_complex",
+    species: "Mycobacterium_africanum",
+    "sub-species": "West_Africa"
+  },
+  BCG: {
+    complex: "Mycobacterium_tuberculosis_complex",
+    "sub-complex": "subMycobacterium_tuberculosis_complex",
+    species: "Mycobacterium_bovis",
+    "sub-species": "Mycobacterium_bovis_subsp_bcg"
+  },
+  "M. caprae": {
+    complex: "Mycobacterium_tuberculosis_complex",
+    "sub-complex": "subMycobacterium_tuberculosis_complex",
+    species: "Mycobacterium_microti"
+  },
+  "M. microti": {
+    complex: "Mycobacterium_tuberculosis_complex",
+    "sub-complex": "subMycobacterium_tuberculosis_complex",
+    species: "Mycobacterium_caprae"
+  }
+};
+
 const matadataMap = {
   "0": "file",
   "1": "metadata.sample.cityIsolate",
@@ -38,17 +97,18 @@ const mapSusceptibility = (src, key, drugName) => {
   return objectMapper(src, susceptibilityMap);
 };
 
-const phylogeneticsMap = {
-  "3": [
-    {
-      key: "name",
-      transform: value => "lineage"
-    },
-    {
-      key: "result",
-      transform: value => value
-    }
-  ]
+const mapPhylogenetics = key => {
+  const phylogeneticsMap = phylogenetics[key];
+  if (phylogeneticsMap) {
+    const result = [];
+    Object.keys(phylogeneticsMap).forEach(phylogeneticsKey => {
+      result.push({
+        type: phylogeneticsKey,
+        result: phylogeneticsMap[phylogeneticsKey]
+      });
+    });
+    return result;
+  }
 };
 
 const transformSusceptibility = value => {
@@ -66,8 +126,7 @@ const transformSusceptibility = value => {
 const transform = src => {
   const metadata = objectMapper(src, matadataMap);
   const susceptibility = [];
-  const phylogenetics = [];
-  phylogenetics.push(objectMapper(src, phylogeneticsMap));
+  const phylogenetics = mapPhylogenetics(src[3]);
   susceptibility.push(mapSusceptibility(src, "9", "Isoniazid"));
   susceptibility.push(mapSusceptibility(src, "10", "Rifampicin"));
   susceptibility.push(mapSusceptibility(src, "11", "Ethambutol"));

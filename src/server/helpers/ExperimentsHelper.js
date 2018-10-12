@@ -32,7 +32,7 @@ class ExperimentsHelper {
       json.forEach(sample => {
         // mapping here
       });
-      const a = Object.assign({}, json[0]);
+      const a = Object.assign({}, json[1]);
       data = mapper.transform(a);
     }
     return data;
