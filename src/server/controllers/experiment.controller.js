@@ -517,7 +517,7 @@ const tree = async (req, res) => {
  * @param {object} res
  */
 const upload = async (req, res) => {
-  const data = await ExperimentsHelper.load(req.file.path, "UTF-8");
+  const data = await ExperimentsHelper.load(req.file.path, "UTF-8", req.dbUser);
   return res.jsend(data);
 };
 

@@ -97,6 +97,16 @@ ExperimentSchema.statics = {
    */
   async findByIsolateIds(ids) {
     return this.find({ "metadata.sample.isolateId": { $in: ids } }).exec();
+  },
+
+  /**
+   * Find experiments by isolateId
+   * @returns {Promise<Experiment>}
+   */
+  async findByIsolateId(isolateId) {
+    return this.findOne({ "metadata.sample.isolateId": isolateId })
+      .populate("owner")
+      .exec();
   }
 };
 
