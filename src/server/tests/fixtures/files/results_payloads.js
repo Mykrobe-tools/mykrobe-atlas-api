@@ -33,13 +33,13 @@ export default {
           }
         },
         phylogenetics: {
-          phylo_group: {
+          complex: {
             Mycobacterium_tuberculosis_complex: {
               percent_coverage: 99.722,
               median_depth: 122
             }
           },
-          sub_complex: {
+          "sub-complex": {
             Unknown: {
               percent_coverage: -1,
               median_depth: -1
@@ -51,7 +51,7 @@ export default {
               median_depth: 116
             }
           },
-          lineage: {
+          "sub-species": {
             European_American: {
               percent_coverage: 100.0,
               median_depth: 117
@@ -101,13 +101,13 @@ export default {
           }
         },
         phylogenetics: {
-          phylo_group: {
+          complex: {
             Mycobacterium_tuberculosis_complex: {
               percent_coverage: 99.722,
               median_depth: 122
             }
           },
-          sub_complex: {
+          "sub-complex": {
             Unknown: {
               percent_coverage: -1,
               median_depth: -1
@@ -119,7 +119,7 @@ export default {
               median_depth: 116
             }
           },
-          lineage: {
+          "sub-species": {
             European_American: {
               percent_coverage: 100.0,
               median_depth: 117
@@ -169,13 +169,13 @@ export default {
           }
         },
         phylogenetics: {
-          phylo_group: {
+          complex: {
             Mycobacterium_tuberculosis_complex: {
               percent_coverage: 99.722,
               median_depth: 122
             }
           },
-          sub_complex: {
+          "sub-complex": {
             Unknown: {
               percent_coverage: -1,
               median_depth: -1
@@ -187,7 +187,7 @@ export default {
               median_depth: 116
             }
           },
-          lineage: {
+          "sub-species": {
             European_American: {
               percent_coverage: 100.0,
               median_depth: 117
@@ -237,13 +237,13 @@ export default {
           }
         },
         phylogenetics: {
-          phylo_group: {
+          complex: {
             Mycobacterium_tuberculosis_complex: {
               percent_coverage: 99.722,
               median_depth: 122
             }
           },
-          sub_complex: {
+          "sub-complex": {
             Unknown: {
               percent_coverage: -1,
               median_depth: -1
@@ -255,7 +255,7 @@ export default {
               median_depth: 116
             }
           },
-          lineage: {
+          "sub-species": {
             European_American: {
               percent_coverage: 100.0,
               median_depth: 117
@@ -305,13 +305,13 @@ export default {
           }
         },
         phylogenetics: {
-          phylo_group: {
+          complex: {
             Mycobacterium_tuberculosis_complex: {
               percent_coverage: 99.722,
               median_depth: 122
             }
           },
-          sub_complex: {
+          "sub-complex": {
             Unknown: {
               percent_coverage: -1,
               median_depth: -1
@@ -323,7 +323,7 @@ export default {
               median_depth: 116
             }
           },
-          lineage: {
+          "sub-species": {
             European_American: {
               percent_coverage: 100.0,
               median_depth: 117
@@ -373,13 +373,13 @@ export default {
           }
         },
         phylogenetics: {
-          phylo_group: {
+          complex: {
             Mycobacterium_tuberculosis_complex: {
               percent_coverage: 99.722,
               median_depth: 122
             }
           },
-          sub_complex: {
+          "sub-complex": {
             Unknown: {
               percent_coverage: -1,
               median_depth: -1
@@ -391,7 +391,7 @@ export default {
               median_depth: 116
             }
           },
-          lineage: {
+          "sub-species": {
             European_American: {
               percent_coverage: 100.0,
               median_depth: 117

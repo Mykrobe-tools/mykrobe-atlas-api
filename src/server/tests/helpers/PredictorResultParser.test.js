@@ -94,17 +94,17 @@ describe("PredictorResultParser", () => {
         mappedResults[item.type] = item;
       });
 
-      expect(mappedResults["phylo_group"].type).toEqual("phylo_group");
-      expect(mappedResults["phylo_group"].result).toEqual(
+      expect(mappedResults["complex"].type).toEqual("complex");
+      expect(mappedResults["complex"].result).toEqual(
         "Mycobacterium_tuberculosis_complex"
       );
-      expect(mappedResults["phylo_group"].percentCoverage).toEqual(99.722);
-      expect(mappedResults["phylo_group"].medianDepth).toEqual(122);
+      expect(mappedResults["complex"].percentCoverage).toEqual(99.722);
+      expect(mappedResults["complex"].medianDepth).toEqual(122);
 
-      expect(mappedResults["sub_complex"].type).toEqual("sub_complex");
-      expect(mappedResults["sub_complex"].result).toEqual("Unknown");
-      expect(mappedResults["sub_complex"].percentCoverage).toEqual(-1);
-      expect(mappedResults["sub_complex"].medianDepth).toEqual(-1);
+      expect(mappedResults["sub-complex"].type).toEqual("sub-complex");
+      expect(mappedResults["sub-complex"].result).toEqual("Unknown");
+      expect(mappedResults["sub-complex"].percentCoverage).toEqual(-1);
+      expect(mappedResults["sub-complex"].medianDepth).toEqual(-1);
 
       expect(mappedResults["species"].type).toEqual("species");
       expect(mappedResults["species"].result).toEqual(
@@ -113,10 +113,10 @@ describe("PredictorResultParser", () => {
       expect(mappedResults["species"].percentCoverage).toEqual(98.199);
       expect(mappedResults["species"].medianDepth).toEqual(116);
 
-      expect(mappedResults["lineage"].type).toEqual("lineage");
-      expect(mappedResults["lineage"].result).toEqual("European_American");
-      expect(mappedResults["lineage"].percentCoverage).toEqual(100);
-      expect(mappedResults["lineage"].medianDepth).toEqual(117);
+      expect(mappedResults["sub-species"].type).toEqual("sub-species");
+      expect(mappedResults["sub-species"].result).toEqual("European_American");
+      expect(mappedResults["sub-species"].percentCoverage).toEqual(100);
+      expect(mappedResults["sub-species"].medianDepth).toEqual(117);
 
       done();
     });

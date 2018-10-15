@@ -2537,16 +2537,59 @@ describe("## Experiment APIs", () => {
     });
   });
 
-  describe.skip("# PUT /experiments", () => {
+  describe("# PUT /experiments", () => {
     it("should load experiments from a file", done => {
       request(app)
         .put("/experiments")
         .set("Authorization", `Bearer ${token}`)
-        //.attach("file", "src/server/tests/fixtures/files/data.json")
+        .attach("file", "src/server/tests/fixtures/files/data.json")
         .expect(httpStatus.OK)
         .end((err, res) => {
-          console.log(JSON.stringify(res.body));
+          expect(res.body.status).toEqual("success");
+          expect(res.body.data.loaded).toEqual(2);
+          expect(res.body.data.failures).toEqual(1);
           done();
+        });
+    });
+    it("should only load valid experiments", done => {
+      request(app)
+        .put("/experiments")
+        .set("Authorization", `Bearer ${token}`)
+        .attach("file", "src/server/tests/fixtures/files/data.json")
+        .expect(httpStatus.OK)
+        .end(async (err, res) => {
+          expect(res.body.status).toEqual("success");
+          const total = await Experiment.count();
+          expect(total).toEqual(3);
+          done();
+        });
+    });
+    it("should be a protected route", done => {
+      request(app)
+        .put("/experiments")
+        .set("Authorization", "Bearer INVALID")
+        .attach("file", "src/server/tests/fixtures/files/data.json")
+        .expect(httpStatus.UNAUTHORIZED)
+        .end((err, res) => {
+          expect(res.body.status).toEqual("error");
+          expect(res.body.message).toEqual("Not Authorised");
+          done();
+        });
+    });
+    it("should set the owner for each experiment", done => {
+      request(app)
+        .put("/experiments")
+        .set("Authorization", `Bearer ${token}`)
+        .attach("file", "src/server/tests/fixtures/files/data.json")
+        .expect(httpStatus.OK)
+        .end(async (err, res) => {
+          expect(res.body.status).toEqual("success");
+          const experiments = await Experiment.list();
+          experiments.forEach(experiment => {
+            expect(experiment.owner.firstname).toEqual("David");
+            expect(experiment.owner.lastname).toEqual("Robin");
+            done();
+          });
         });
     });
   });

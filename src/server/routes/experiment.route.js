@@ -780,11 +780,11 @@ const keycloak = AccountsHelper.keycloakInstance();
  *               Rifampicin:
  *                 prediction: R
  *             phylogenetics:
- *               phylo_group:
+ *               complex:
  *                 Mycobacterium_tuberculosis_complex:
  *                   percent_coverage: 99.722
  *                   median_depth: 122
- *               sub_complex:
+ *               sub-complex:
  *                 Unknown:
  *                   percent_coverage: -1
  *                   median_depth: -1
@@ -792,7 +792,7 @@ const keycloak = AccountsHelper.keycloakInstance();
  *                 Mycobacterium_tuberculosis:
  *                   percent_coverage: 98.199
  *                   median_depth: 116
- *               lineage:
+ *               sub-species:
  *                 European_American:
  *                   percent_coverage: 100.0
  *                   median_depth: 117
@@ -1573,11 +1573,11 @@ const keycloak = AccountsHelper.keycloakInstance();
  *                 Rifampicin:
  *                   prediction: R
  *               phylogenetics:
- *                 phylo_group:
+ *                 complex:
  *                   Mycobacterium_tuberculosis_complex:
  *                     percent_coverage: 99.722
  *                     median_depth: 122
- *                 sub_complex:
+ *                 sub-complex:
  *                   Unknown:
  *                     percent_coverage: -1
  *                     median_depth: -1
@@ -1585,7 +1585,7 @@ const keycloak = AccountsHelper.keycloakInstance();
  *                   Mycobacterium_tuberculosis:
  *                     percent_coverage: 98.199
  *                     median_depth: 116
- *                 lineage:
+ *                 sub-species:
  *                   European_American:
  *                     percent_coverage: 100.0
  *                     median_depth: 117
@@ -1600,6 +1600,26 @@ const keycloak = AccountsHelper.keycloakInstance();
  *               mdr: true
  *               xdr: false
  *               tdr: false
+ */
+/**
+ * @swagger
+ * definitions:
+ *   LoadExperimentsResponse:
+ *     properties:
+ *       status:
+ *         type: string
+ *       data:
+ *         type: object
+ *         properties:
+ *           loaded:
+ *             type: integer
+ *           failures:
+ *             type: integer
+ *     example:
+ *       status: success
+ *       data:
+ *         loaded: 3787
+ *         failures: 23
  */
 /**
  * @swagger
@@ -1638,11 +1658,11 @@ const keycloak = AccountsHelper.keycloakInstance();
  *           Rifampicin:
  *             prediction: R
  *         phylogenetics:
- *           phylo_group:
+ *           complex:
  *             Mycobacterium_tuberculosis_complex:
  *               percent_coverage: 99.722
  *               median_depth: 122
- *           sub_complex:
+ *           sub-complex:
  *             Unknown:
  *               percent_coverage: -1
  *               median_depth: -1
@@ -1650,7 +1670,7 @@ const keycloak = AccountsHelper.keycloakInstance();
  *             Mycobacterium_tuberculosis:
  *               percent_coverage: 98.199
  *               median_depth: 116
- *           lineage:
+ *           sub-species:
  *             European_American:
  *               percent_coverage: 100.0
  *               median_depth: 117
@@ -3447,9 +3467,9 @@ router
    *         required: true
    *     responses:
    *       200:
-   *         description: Experiments list
+   *         description: Load Experiments
    *         schema:
-   *           $ref: '#/definitions/ListExperimentsResponse'
+   *           $ref: '#/definitions/LoadExperimentsResponse'
    *       401:
    *         description: Failed authentication
    */

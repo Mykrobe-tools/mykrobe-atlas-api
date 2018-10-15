@@ -1,18 +1,18 @@
 export default {
-  phylo_group: {
+  complex: {
     Non_tuberculosis_mycobacterium_complex: {
-      sub_complex: {
+      "sub-complex": {
         Mycobacterium_chelonae_abscessus_complex: {
           species: {
             Mycobacterium_chelonae: {
-              lineage: {
+              "sub-species": {
                 Mycobacterium_chelonae_subsp_chelonae: {},
                 Mycobacterium_chelonae_subsp_abscessum: {},
                 Mycobacterium_chelonae_chemovar_niacinogenes: {}
               }
             },
             Mycobacterium_abscessus: {
-              lineage: {
+              "sub-species": {
                 Mycobacterium_abscessus_subsp_bolletii: {},
                 Mycobacterium_abscessus_subsp_massiliense: {}
               }
@@ -22,493 +22,493 @@ export default {
         Mycobacterium_avium_complex: {
           species: {
             Mycobacterium_intracellulare: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_avium: {
-              lineage: {
+              "sub-species": {
                 Mycobacterium_avium_subsp_avium: {},
                 Mycobacterium_avium_subsp_paratuberculosis: {},
                 Mycobacterium_avium_subsp_silvaticum: {}
               }
             },
             Mycobacterium_chimaera: {
-              lineage: {}
+              "sub-species": {}
             }
           }
         },
         subNon_tuberculosis_mycobacterium_complex: {
           species: {
             Mycobacterium_aichiense: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_novum: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_nonchromogenicum: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_arupense: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_neolactis: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_setense: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_hackensackense: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_aubagnense: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_phlei: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_canariasense: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_senegalense: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_pulveris: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_bohemicum: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_runyonii: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_europaeum: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_doricum: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_pallens: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_chitae: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_minnesotense: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_agri: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_suricattae: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_neworleansense: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_leprae: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_obuense: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_duvalii: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_selandiae: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_florentinum: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_cosmeticum: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_vaccae: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_monacense: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_chimaera: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_gilvum: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_peregrinum: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_mantenii: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_lentiflavum: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_terrae: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_yunnanensis: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_pyrenivorans: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_flavescens: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_angelicum: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_triplex: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_boenickei: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_poriferae: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_asiaticum: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_farcinogenes: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_mucogenicum: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_xenopi: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_vanbaalenii: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_heidelbergense: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_smegmatis: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_wolinskyi: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_austroafricanum: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_rhodesiae: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_aurum: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_paraffinicum: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_septicum: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_parascrofulaceum: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_arosiense: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_confluentis: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_phage: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_bouchedurhonense: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_frederiksbergense: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_vulneris: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_gallinarum: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_hafniae: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_seoulense: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_malmoense: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_holsaticum: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_llatzerense: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_yongonense: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_novocastrense: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_riyadhense: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_acapulcensis: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_brunense: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_bacteremicum: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_palustre: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_sphagni: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_koreense: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_intermedium: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_scrofulaceum: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_ulcerans: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_fluoranthenivorans: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_shinjukuense: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_neglectum: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_psychrotolerans: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_paraseoulense: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_algericum: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_simiae: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_gordonae: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_interjectum: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_paraterrae: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_szulgae: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_marinum: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_parafortuitum: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_saskatchewanense: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_szulgai: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_litorale: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_murale: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_celatum: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_colombiense: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_timonense: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_aromaticivorans: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_kansasii: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_senuense: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_mageritense: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_hiberniae: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_madagascariense: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_gadium: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_immunogenum: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_aemonae: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_kyorinense: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_thermoresistibile: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_kumamotonense: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_rutilum: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_brumae: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_pinnipedii: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_conceptionense: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_shimoidei: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_alvei: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_insubricum: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_heraklionense: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_heckeshornense: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_chlorophenolicum: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_goodii: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_kubicae: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_diernhoferi: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_chubuense: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_petroleophilum: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_fortuitum: {
-              lineage: {
+              "sub-species": {
                 Mycobacterium_fortuitum_subsp_acetamidolyticum: {}
               }
             },
             Mycobacterium_hassiacum: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_phocaicum: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_hodleri: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_crocinum: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_lacus: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_rufum: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_moriokaense: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_genavense: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_neoaurum: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_sherrisii: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_elephantis: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_porcinum: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_manitobense: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_genevense: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_houstonense: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_fallax: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_haemophilum: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_branderi: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_marseillense: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_brisbanense: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_hippocampi: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_montefiorense: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_tusciae: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_nebraskense: {
-              lineage: {}
+              "sub-species": {}
             }
           }
         }
       }
     },
     Mycobacterium_tuberculosis_complex: {
-      sub_complex: {
+      "sub-complex": {
         subMycobacterium_tuberculosis_complex: {
           species: {
             Mycobacterium_tuberculosis: {
-              lineage: {
+              "sub-species": {
                 Mycobacterium_tuberculosis_subsp_canettii: {},
                 European_American: {},
                 Delhi_Central_Asia: {},
@@ -517,22 +517,22 @@ export default {
               }
             },
             Mycobacterium_africanum: {
-              lineage: {
+              "sub-species": {
                 West_Africa: {},
                 Ethiopian: {}
               }
             },
             Mycobacterium_microti: {
-              lineage: {}
+              "sub-species": {}
             },
             Mycobacterium_bovis: {
-              lineage: {
+              "sub-species": {
                 Mycobacterium_bovis_subsp_bcg: {},
                 Mycobacterium_bovis_subsp_caprae: {}
               }
             },
             Mycobacterium_caprae: {
-              lineage: {}
+              "sub-species": {}
             }
           }
         }
