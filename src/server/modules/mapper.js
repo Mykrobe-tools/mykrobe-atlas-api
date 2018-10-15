@@ -63,7 +63,7 @@ const matadataMap = {
   "0": "file",
   "1": "metadata.sample.cityIsolate",
   "2": "metadata.sample.countryIsolate",
-  "4": "metadata.sample.isolateId",
+  //"4": "metadata.sample.isolateId",
   "5": {
     key: "metadata.phenotyping.isoniazid.susceptibility",
     transform: value => transformSusceptibility(value)
@@ -91,7 +91,7 @@ const mapSusceptibility = (src, key, drugName) => {
     },
     {
       key: "prediction",
-      transform: value => value
+      transform: value => transformPrediction(value)
     }
   ];
   return objectMapper(src, susceptibilityMap);
@@ -123,6 +123,12 @@ const transformSusceptibility = value => {
   }
 };
 
+const transformPrediction = value => {
+  if (["R", "S"].includes(value)) {
+    return value;
+  }
+};
+
 const transform = src => {
   const metadata = objectMapper(src, matadataMap);
   const susceptibility = [];
@@ -134,7 +140,7 @@ const transform = src => {
   const results = [
     {
       type: "predictor",
-      analysed: new Date(),
+      analysed: new Date().toISOString(),
       susceptibility,
       phylogenetics
     }

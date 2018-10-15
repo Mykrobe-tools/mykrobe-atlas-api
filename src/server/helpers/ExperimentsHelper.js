@@ -1,6 +1,9 @@
 import fs from "fs";
 import util from "util";
+import errors from "errors";
 import { ElasticsearchHelper } from "makeandship-api-common/lib/modules/elasticsearch/";
+import { util as jsonschemaUtil } from "makeandship-api-common/lib/modules/jsonschema";
+import { experiment as experimentJsonSchema } from "mykrobe-atlas-jsonschema";
 import Experiment from "../models/experiment.model";
 import mapper from "../modules/mapper";
 import config from "../../config/env";
@@ -28,51 +31,31 @@ class ExperimentsHelper {
    * @param {*} encoding
    */
   static async load(path, encoding, owner) {
+    let loaded = 0;
+    let failures = 0;
     const samples = await readFileAsync(path, "UTF-8");
     const json = JSON.parse(samples);
-    let transformedSample;
+    const validSamples = [];
     if (json && Array.isArray(json)) {
-      json.forEach(sample => {
-        // mapping here
-      });
-      const sampleJson = Object.assign({}, json[1]);
-      transformedSample = mapper.transform(sampleJson);
+      for (let i in json) {
+        const sampleJson = Object.assign({}, json[i]);
+        const transformedSample = mapper.transform(sampleJson);
+        const valid = jsonschemaUtil.isValid(
+          transformedSample,
+          experimentJsonSchema
+        );
+        if (valid) {
+          transformedSample.owner = owner;
+          validSamples.push(transformedSample);
+          loaded = loaded + 1;
+        } else {
+          failures = failures + 1;
+        }
+      }
     }
-    try {
-      const savedSample = await this.saveSample(transformedSample, owner);
-      return savedSample;
-    } catch (e) {
-      return e;
-    }
-  }
-
-  static async saveSample(sample, owner) {
-    const existing = await Experiment.findByIsolateId(
-      sample.metadata.isolateId
-    );
-    const isOwner = existing && existing.owner.id === owner.id;
-    if (existing && isOwner) {
-      Object.keys(sample).forEach(key => {
-        existing.set(key, sample[key]);
-      });
-      const savedExperiment = await existing.save();
-      await ElasticsearchHelper.updateDocument(
-        config,
-        savedExperiment,
-        "experiment"
-      );
-      return savedExperiment;
-    } else if (!existing) {
-      const experiment = new Experiment(sample);
-      experiment.owner = owner;
-      const savedExperiment = await experiment.save();
-      await ElasticsearchHelper.indexDocument(
-        config,
-        savedExperiment,
-        "experiment"
-      );
-      return savedExperiment;
-    }
+    const experiments = await Experiment.insertMany(validSamples);
+    await ElasticsearchHelper.indexDocuments(config, experiments, "experiment");
+    return { loaded, failures };
   }
 }
 

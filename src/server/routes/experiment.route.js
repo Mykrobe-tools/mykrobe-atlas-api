@@ -3456,6 +3456,7 @@ router
   .put(
     keycloak.connect.protect(),
     upload.single("file"),
+    userController.loadCurrentUser,
     experimentController.upload
   );
 router

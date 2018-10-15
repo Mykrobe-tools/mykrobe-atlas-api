@@ -2536,4 +2536,18 @@ describe("## Experiment APIs", () => {
       });
     });
   });
+
+  describe.skip("# PUT /experiments", () => {
+    it("should load experiments from a file", done => {
+      request(app)
+        .put("/experiments")
+        .set("Authorization", `Bearer ${token}`)
+        //.attach("file", "src/server/tests/fixtures/files/data.json")
+        .expect(httpStatus.OK)
+        .end((err, res) => {
+          console.log(JSON.stringify(res.body));
+          done();
+        });
+    });
+  });
 });
