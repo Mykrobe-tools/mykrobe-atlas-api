@@ -1,4 +1,13 @@
-import winston from "winston";
-import axios from "axios";
-require("./sms-worker");
-require("./email-worker");
+import { initialise as initialiseSmsWorker } from "./sms-worker";
+import { initialise as initialiseEmailWorker } from "./email-worker";
+
+const initialise = () => {
+  initialiseSmsWorker();
+  initialiseEmailWorker();
+};
+
+const workers = Object.freeze({
+  initialise
+});
+
+export default workers;

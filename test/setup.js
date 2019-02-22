@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import MongodbMemoryServer from "mongodb-memory-server";
-import config from "../../config/env";
-import errorsDefinition from "../../config/errors-definition";
+import config from "../src/config/env";
+import errorsDefinition from "../src/config/errors-definition";
 import {
   mockAnalysisApiCalls,
   mockDistanceApiCalls,
@@ -11,10 +11,11 @@ import {
   mockTreeApiCalls,
   mockIsolateIdMappingCalls
 } from "./mocks";
+import { initialise as initialiseWorkers } from "../src/workers";
 
-require("../../express-jsend");
-jest.mock("../modules/agenda");
-const createApp = require("../../server/app");
+require("../src/express-jsend");
+jest.mock("../src/server/modules/agenda");
+const createApp = require("../src/server/app");
 
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 60000;
 let mongoServer;
@@ -36,7 +37,7 @@ beforeAll(async () => {
     if (err) console.error(err);
   });
   config.db.uri = mongoUri;
-  require("../../workers");
+  initialiseWorkers();
 });
 
 afterAll(async () => {

@@ -1,7 +1,7 @@
 import nock from "nock";
 import uuid from "uuid";
 import { ElasticsearchHelper } from "makeandship-api-common/lib/modules/elasticsearch/";
-import config from "../../../config/env";
+import config from "../../src/config/env";
 
 // mock keycloak rest calls
 const mockAnalysisApiCalls = () => {
@@ -133,9 +133,7 @@ const mockKeycloakCalls = () => {
   nock(adminSettings.baseUrl)
     .persist()
     .post(`/realms/${realm}/${tokenUrl}`, function(body) {
-      return (
-        body.username && body.username !== "admin@nhs.co.uk" && body.password
-      );
+      return body.username && body.username !== "admin@nhs.co.uk" && body.password;
     })
     .replyWithFile(200, __dirname + "/replies/other-auth.json", {
       "Content-Type": "application/json"

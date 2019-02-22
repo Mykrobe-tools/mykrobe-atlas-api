@@ -49,6 +49,7 @@ node_modules
 
 # jest
 jest
+test-report.html
 
 # api doc
 doc

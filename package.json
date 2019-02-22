@@ -6,9 +6,9 @@
   "main": "src/index.js",
   "private": true,
   "engines": {
-    "node": ">=4.6.0",
-    "npm": ">=2.15.9",
-    "yarn": ">=0.17.9"
+    "node": "8.12.0",
+    "npm": ">=6",
+    "yarn": ">=1"
   },
   "scripts": {
     "precommit": "yarn prettier && yarn test",
@@ -16,19 +16,13 @@
     "build": "gulp",
     "prettier": "prettier --find-config-path --write 'src/**/*.js'",
     "prettier-watch": "onchange 'src/**/*.js' -- prettier --write {{changed}}",
-    "test": "jest src/server/tests/**/*.test.js --coverage --verbose --colors",
-    "test-single": "jest --coverage --verbose --colors",
-    "test:watch": "jest --watch",
+    "test": "jest -c jest.config.js",
+    "test:unit": "jest -c jest.config.unit.js",
+    "test:integration": "jest -c jest.config.unit.js",
+    "test:verbose": "jest -c jest.config.js --coverage --verbose --colors",
+    "test:watch": "jest -c jest.config.js  --watch",
     "compile": "rm -rf dist && babel src --out-dir dist --source-maps",
     "postinstall": "cd node_modules/makeandship-api-common && yarn && yarn build"
-  },
-  "jest": {
-    "testPathIgnorePatterns": [
-      "dist/server",
-      "src/config"
-    ],
-    "collectCoverage": false,
-    "testEnvironment": "node"
   },
   "keywords": [
     "express",
@@ -109,7 +103,9 @@
     "gulp-util": "^3.0.7",
     "husky": "^0.14.3",
     "jest": "^22.4.3",
+    "jest-html-reporter": "^2.4.4",
     "mongodb-memory-server": "^1.7.4",
+    "prettier": "^1.16.4",
     "promised-mongo": "^1.2.0",
     "rimraf": "^2.6.2",
     "rmfr": "^2.0.0",
