@@ -3417,12 +3417,7 @@ router
    */
   .post(
     keycloak.connect.protect(),
-    jsonschema.schemaValidation(
-      schemas["experiment"],
-      errors,
-      "CreateExperimentError",
-      "all"
-    ),
+    jsonschema.schemaValidation(schemas["experiment"], errors, "CreateExperimentError", "all"),
     userController.loadCurrentUser,
     experimentController.create
   );
@@ -3609,11 +3604,7 @@ router
    *       401:
    *         description: Failed authentication
    */
-  .get(
-    keycloak.connect.protect(),
-    userController.loadCurrentUser,
-    experimentController.search
-  );
+  .get(keycloak.connect.protect(), userController.loadCurrentUser, experimentController.search);
 
 router
   .route("/tree")
@@ -3939,11 +3930,7 @@ router
    *         schema:
    *           $ref: '#/definitions/BasicResponse'
    */
-  .put(
-    keycloak.connect.protect(),
-    upload.single("file"),
-    experimentController.uploadFile
-  )
+  .put(keycloak.connect.protect(), upload.single("file"), experimentController.uploadFile)
   /**
    * @swagger
    * /experiments/{id}/file:
@@ -4015,11 +4002,7 @@ router
    */
   .put(
     keycloak.connect.protect(),
-    jsonschema.schemaValidation(
-      schemas["uploadExperiment"],
-      errors,
-      "UploadExperimentError"
-    ),
+    jsonschema.schemaValidation(schemas["uploadExperiment"], errors, "UploadExperimentError"),
     upload.single("file"),
     experimentController.uploadFile
   );

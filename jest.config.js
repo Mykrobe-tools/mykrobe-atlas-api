@@ -1,5 +1,5 @@
 module.exports = {
-  testRegex: "(/test/models/user.model.test).[jt]sx?$",
+  testRegex: "(/test/models/search.model.test).[jt]sx?$",
   collectCoverage: false,
   testEnvironment: "node",
   reporters: [

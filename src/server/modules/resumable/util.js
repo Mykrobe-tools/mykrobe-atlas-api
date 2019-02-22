@@ -14,18 +14,12 @@ const setUploadDirectory = uploadDir => {
 };
 
 const initialise = fields => {
-  const identifier = fields.resumableIdentifier
-    ? cleanIdentifier(fields.resumableIdentifier)
-    : "";
+  const identifier = fields.resumableIdentifier ? cleanIdentifier(fields.resumableIdentifier) : "";
   const chunkNumber = fields.resumableChunkNumber || 0;
   const totalChunks = fields.resumableTotalChunks || 0;
   const chunkFilename = getChunkFilename(chunkNumber, identifier);
-  const chunkSize = fields.resumableChunkSize
-    ? parseInt(fields.resumableChunkSize, 10)
-    : 0;
-  const totalSize = fields.resumableTotalSize
-    ? parseInt(fields.resumableTotalSize, 10)
-    : 0;
+  const chunkSize = fields.resumableChunkSize ? parseInt(fields.resumableChunkSize, 10) : 0;
+  const totalSize = fields.resumableTotalSize ? parseInt(fields.resumableTotalSize, 10) : 0;
   const filename = fields.resumableFilename || "";
   const originalFilename = fields.resumableOriginalFilename || "";
   const type = fields.resumableType || "";
@@ -60,17 +54,14 @@ const setVerifiedTotalChunks = status => {
 
 const setComplete = status => {
   if (status && status.verifiedTotalChunks && status.identifier) {
-    status.complete = isUploadComplete(
-      status.verifiedTotalChunks,
-      status.identifier
-    );
+    status.complete = isUploadComplete(status.verifiedTotalChunks, status.identifier);
   }
 };
 
 const setPercentageComplete = status => {
   // percentage complete for valid number of and total chunks
   if (status && status.chunkNumber && status.totalChunks) {
-    status.percentageComplete = status.chunkNumber / status.totalChunks * 100;
+    status.percentageComplete = (status.chunkNumber / status.totalChunks) * 100;
   }
 };
 
@@ -125,7 +116,7 @@ const validateRequest = (status, fileSize) => {
     if (
       numberOfChunks > 1 &&
       chunkNumber === numberOfChunks &&
-      fileSize !== totalSize % chunkSize + chunkSize
+      fileSize !== (totalSize % chunkSize) + chunkSize
     ) {
       validation.valid = false;
       validation.message = "Incorrect final chunk size";

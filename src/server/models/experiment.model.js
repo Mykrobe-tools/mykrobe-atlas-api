@@ -57,12 +57,7 @@ ExperimentSchema.statics = {
   async get(id) {
     try {
       const experiment = await this.findById(id)
-        .populate([
-          "organisation",
-          "owner",
-          "-results.variantCalls",
-          "-results.sequenceCalls"
-        ])
+        .populate(["organisation", "owner", "-results.variantCalls", "-results.sequenceCalls"])
         .exec();
       if (experiment) {
         return experiment;

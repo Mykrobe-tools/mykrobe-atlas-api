@@ -14,9 +14,7 @@ class ExperimentResultsPerTypeJSONTransformer {
     if (res && res.length) {
       res.forEach(result => {
         if (response[result.type]) {
-          if (
-            new Date(result.analysed) > new Date(response[result.type].analysed)
-          ) {
+          if (new Date(result.analysed) > new Date(response[result.type].analysed)) {
             response[result.type] = result;
           }
         } else {
@@ -27,10 +25,7 @@ class ExperimentResultsPerTypeJSONTransformer {
 
       // transform the latest result
       Object.keys(response).forEach(type => {
-        response[type] = new ResultsJSONTransformer().transform(
-          response[type],
-          {}
-        );
+        response[type] = new ResultsJSONTransformer().transform(response[type], {});
       });
     }
 

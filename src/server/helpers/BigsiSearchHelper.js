@@ -132,24 +132,15 @@ class BigsiSearchHelper {
       Object.assign(searchQuery, flatten(query));
     }
 
-    const resp = await ElasticsearchHelper.search(
-      config,
-      searchQuery,
-      "experiment"
-    );
+    const resp = await ElasticsearchHelper.search(config, searchQuery, "experiment");
 
-    const experiments = new ExperimentsResultJSONTransformer().transform(
-      resp,
-      {}
-    );
+    const experiments = new ExperimentsResultJSONTransformer().transform(resp, {});
 
     // merge results
     isolateIds.forEach(isolateId => {
       let mergedExperiment = {};
       try {
-        const exp = experiments.filter(
-          item => item.metadata.sample.isolateId === isolateId
-        );
+        const exp = experiments.filter(item => item.metadata.sample.isolateId === isolateId);
 
         mergedExperiment = exp[0];
         mergedExperiment.results = mergedExperiment.results || {};

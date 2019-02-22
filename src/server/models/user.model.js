@@ -95,9 +95,7 @@ UserSchema.statics = {
     if (user) {
       return user;
     }
-    throw new errors.ObjectNotFound(
-      "No registered user with the given criteria"
-    );
+    throw new errors.ObjectNotFound("No registered user with the given criteria");
   },
 
   /**

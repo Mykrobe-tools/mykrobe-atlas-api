@@ -158,10 +158,7 @@ const keycloak = AccountsHelper.keycloakInstance();
  */
 router
   .route("/login")
-  .post(
-    jsonschema.schemaValidation(schemas["login"], errors, "LoginError"),
-    authController.login
-  );
+  .post(jsonschema.schemaValidation(schemas["login"], errors, "LoginError"), authController.login);
 
 /**
  * @swagger
@@ -210,9 +207,7 @@ router
  *       401:
  *         description: Failed authentication
  */
-router
-  .route("/random-number")
-  .get(keycloak.connect.protect(), authController.getRandomNumber);
+router.route("/random-number").get(keycloak.connect.protect(), authController.getRandomNumber);
 /**
  * @swagger
  * /auth/forgot:
@@ -249,11 +244,7 @@ router
 router
   .route("/forgot")
   .post(
-    jsonschema.schemaValidation(
-      schemas["forgotPassword"],
-      errors,
-      "ForgotPasswordError"
-    ),
+    jsonschema.schemaValidation(schemas["forgotPassword"], errors, "ForgotPasswordError"),
     authController.forgot
   );
 
@@ -337,11 +328,7 @@ router
 router
   .route("/refresh")
   .post(
-    jsonschema.schemaValidation(
-      schemas["refreshToken"],
-      errors,
-      "RefreshTokenError"
-    ),
+    jsonschema.schemaValidation(schemas["refreshToken"], errors, "RefreshTokenError"),
     authController.refresh
   );
 

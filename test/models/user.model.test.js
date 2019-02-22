@@ -1,5 +1,5 @@
 import User from "../../src/server/models/user.model";
-import Setup from "../setup";
+import setup from "../setup";
 
 const users = require("../fixtures/users");
 

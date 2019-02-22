@@ -2,13 +2,7 @@ import ModelJSONTransformer from "makeandship-api-common/lib/transformers/ModelJ
 import BlacklistTransformer from "makeandship-api-common/lib/transformers/BlacklistJSONTransformer";
 import OrganisationJSONTransformer from "./OrganisationJSONTransformer";
 
-const BLACKLIST = [
-  "__v",
-  "password",
-  "verificationToken",
-  "resetPasswordToken",
-  "valid"
-];
+const BLACKLIST = ["__v", "password", "verificationToken", "resetPasswordToken", "valid"];
 
 /**
  * A class to transform json responses
@@ -22,9 +16,7 @@ class UserJSONTransformer extends ModelJSONTransformer {
     let res = super.transform(o, {});
     res = new BlacklistTransformer().transform(res, { blacklist: BLACKLIST });
     if (res.organisation) {
-      res.organisation = new OrganisationJSONTransformer().transform(
-        res.organisation
-      );
+      res.organisation = new OrganisationJSONTransformer().transform(res.organisation);
     }
     return res;
   }

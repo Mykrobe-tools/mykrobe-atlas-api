@@ -64,9 +64,7 @@ const forgot = async (req, res) => {
         user.keycloakId = keycloakId;
         const savedUser = await user.save();
       } else {
-        return res.jerror(
-          new errors.UpdateUserError(`Unable to find user with email ${email}`)
-        );
+        return res.jerror(new errors.UpdateUserError(`Unable to find user with email ${email}`));
       }
     } else {
       keycloakId = user.keycloakId;
@@ -93,9 +91,7 @@ const resend = async (req, res) => {
         user.keycloakId = keycloakId;
         const savedUser = await user.save();
       } else {
-        return res.jerror(
-          new errors.UpdateUserError(`Unable to find user with email ${email}`)
-        );
+        return res.jerror(new errors.UpdateUserError(`Unable to find user with email ${email}`));
       }
     } else {
       keycloakId = user.keycloakId;

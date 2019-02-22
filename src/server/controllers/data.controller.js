@@ -87,13 +87,7 @@ const generatePhylogenetics = (
         percentCoverage: getRandomPercentage(),
         medianDepth: _.sample([-1, 0, 40, 100, 116, 117, 122])
       });
-      generatePhylogenetics(
-        schema,
-        property,
-        data,
-        choices[type][result],
-        phylogeneticsArray
-      );
+      generatePhylogenetics(schema, property, data, choices[type][result], phylogeneticsArray);
     });
   }
   return phylogeneticsArray;

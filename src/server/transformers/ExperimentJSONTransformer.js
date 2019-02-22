@@ -29,10 +29,7 @@ class ExperimentJSONTransformer extends ModelJSONTransformer {
     }
 
     if (res.results) {
-      res.results = new ExperimentResultsPerTypeJSONTransformer().transform(
-        res.results,
-        {}
-      );
+      res.results = new ExperimentResultsPerTypeJSONTransformer().transform(res.results, {});
     }
     return res;
   }

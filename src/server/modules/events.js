@@ -40,10 +40,7 @@ experimentEventEmitter.on("upload-progress", payload => {
   const { experiment, status } = payload;
 
   if (experiment && status) {
-    const data = new UploadProgressJSONTransformer().transform(
-      { experiment, status },
-      {}
-    );
+    const data = new UploadProgressJSONTransformer().transform({ experiment, status }, {});
     sendExperimentOwnerEvent(experiment, data);
   }
 });
@@ -52,10 +49,7 @@ experimentEventEmitter.on("upload-complete", payload => {
   const { experiment, status } = payload;
 
   if (experiment && status) {
-    const data = new UploadCompleteJSONTransformer().transform(
-      { experiment, status },
-      {}
-    );
+    const data = new UploadCompleteJSONTransformer().transform({ experiment, status }, {});
     sendExperimentOwnerEvent(experiment, data);
   }
 });
@@ -89,10 +83,7 @@ experimentEventEmitter.on("analysis-started", async audit => {
     const { experiment, audit } = payload;
 
     if (audit && experiment) {
-      const data = new AnalysisStartedJSONTransformer().transform(
-        { audit, experiment },
-        {}
-      );
+      const data = new AnalysisStartedJSONTransformer().transform({ audit, experiment }, {});
       sendExperimentOwnerEvent(experiment, data);
     }
   } catch (e) {}

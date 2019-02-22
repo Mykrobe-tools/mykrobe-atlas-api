@@ -83,10 +83,8 @@ const update = async (req, res) => {
   const user = req.dbUser;
   user.firstname = req.body.firstname || user.firstname;
   user.lastname = req.body.lastname || user.lastname;
-  user.phone =
-    typeof req.body.phone === "undefined" ? user.phone : req.body.phone;
-  user.email =
-    typeof req.body.email === "undefined" ? user.email : req.body.email;
+  user.phone = typeof req.body.phone === "undefined" ? user.phone : req.body.phone;
+  user.email = typeof req.body.email === "undefined" ? user.email : req.body.email;
 
   try {
     const savedUser = await user.save({ lean: true });
