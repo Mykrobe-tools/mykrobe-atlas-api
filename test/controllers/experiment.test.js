@@ -32,8 +32,7 @@ let id = null;
 const findJob = (jobs, id, name) =>
   jobs.findOne({ "data.experiment_id": id, name }, (err, data) => data);
 
-const findJobByName = (jobs, name) =>
-  jobs.findOne({ name }, (err, data) => data);
+const findJobByName = (jobs, name) => jobs.findOne({ name }, (err, data) => data);
 
 const findJobBySearchId = (jobs, id, name) =>
   jobs.findOne({ "data.search.id": id, name }, (err, data) => data);
@@ -174,9 +173,7 @@ describe("## Experiment APIs", () => {
         .set("Authorization", `Bearer ${token}`)
         .expect(httpStatus.NOT_FOUND)
         .end((err, res) => {
-          expect(res.body.message).toEqual(
-            "Experiment not found with id 56c787ccc67fc16ccc1a5e92"
-          );
+          expect(res.body.message).toEqual("Experiment not found with id 56c787ccc67fc16ccc1a5e92");
           done();
         });
     });
@@ -322,13 +319,9 @@ describe("## Experiment APIs", () => {
       });
       describe("when using nearest neighbours results", () => {
         beforeEach(async done => {
-          const experimentWithMetadataResults = new Experiment(
-            experiments.tbUploadMetadataResults
-          );
+          const experimentWithMetadataResults = new Experiment(experiments.tbUploadMetadataResults);
           const savedExperimentWithMetadataResults = await experimentWithMetadataResults.save();
-          const savedMetadata = savedExperimentWithMetadataResults.get(
-            "metadata"
-          );
+          const savedMetadata = savedExperimentWithMetadataResults.get("metadata");
 
           const experiment = await Experiment.get(id);
           const experimentResults = [];
@@ -408,7 +401,7 @@ describe("## Experiment APIs", () => {
       beforeEach(async done => {
         request(app)
           .post("/auth/login")
-          .send({ email: "thomas@nhs.co.uk", password: "password" })
+          .send({ email: "thomas.carlos@nhs.net", password: "password" })
           .end(async (err, res) => {
             thomasToken = res.body.data.access_token;
             done();
@@ -422,9 +415,7 @@ describe("## Experiment APIs", () => {
           .expect(httpStatus.UNAUTHORIZED)
           .end((err, res) => {
             expect(res.body.status).toEqual("error");
-            expect(res.body.message).toEqual(
-              "Only the owner can edit this experiment"
-            );
+            expect(res.body.message).toEqual("Only the owner can edit this experiment");
             done();
           });
       });
@@ -465,9 +456,7 @@ describe("## Experiment APIs", () => {
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
-          expect(res.body.message).toEqual(
-            "Experiment not found with id 589dcdd38d71fee259dc4e00"
-          );
+          expect(res.body.message).toEqual("Experiment not found with id 589dcdd38d71fee259dc4e00");
           done();
         });
     });
@@ -476,7 +465,7 @@ describe("## Experiment APIs", () => {
       beforeEach(async done => {
         request(app)
           .post("/auth/login")
-          .send({ email: "thomas@nhs.co.uk", password: "password" })
+          .send({ email: "thomas.carlos@nhs.net", password: "password" })
           .end(async (err, res) => {
             thomasToken = res.body.data.access_token;
             done();
@@ -489,9 +478,7 @@ describe("## Experiment APIs", () => {
           .expect(httpStatus.UNAUTHORIZED)
           .end((err, res) => {
             expect(res.body.status).toEqual("error");
-            expect(res.body.message).toEqual(
-              "Only the owner can edit this experiment"
-            );
+            expect(res.body.message).toEqual("Only the owner can edit this experiment");
             done();
           });
       });
@@ -499,11 +486,8 @@ describe("## Experiment APIs", () => {
   });
   describe("# PUT /experiments/:id/metadata", () => {
     it("should update experiment metadata", done => {
-      const updatedMetadata = JSON.parse(
-        JSON.stringify(experiments.tbUploadMetadata.metadata)
-      );
-      updatedMetadata.patient.patientId =
-        "7e89a3b3-8d7e-4120-87c5-741fb4ddeb8c";
+      const updatedMetadata = JSON.parse(JSON.stringify(experiments.tbUploadMetadata.metadata));
+      updatedMetadata.patient.patientId = "7e89a3b3-8d7e-4120-87c5-741fb4ddeb8c";
       updatedMetadata.patient.bmi = 31.2;
       updatedMetadata.patient.smoker = "No";
       updatedMetadata.sample.labId = "7e89a3b3-8d7e-4120-87c5-741fb4ddeb8c";
@@ -519,18 +503,12 @@ describe("## Experiment APIs", () => {
           expect(res.body.status).toEqual("success");
           const metadataSaved = res.body.data.metadata;
 
-          expect(metadataSaved.patient.patientId).toEqual(
-            "7e89a3b3-8d7e-4120-87c5-741fb4ddeb8c"
-          );
+          expect(metadataSaved.patient.patientId).toEqual("7e89a3b3-8d7e-4120-87c5-741fb4ddeb8c");
           expect(metadataSaved.patient.bmi).toEqual(31.2);
           expect(metadataSaved.patient.smoker).toEqual("No");
-          expect(metadataSaved.sample.labId).toEqual(
-            "7e89a3b3-8d7e-4120-87c5-741fb4ddeb8c"
-          );
+          expect(metadataSaved.sample.labId).toEqual("7e89a3b3-8d7e-4120-87c5-741fb4ddeb8c");
           expect(metadataSaved.genotyping.wgsPlatform).toEqual("HiSeq");
-          expect(
-            metadataSaved.phenotyping.phenotypeInformationOtherDrugs
-          ).toEqual("Yes");
+          expect(metadataSaved.phenotyping.phenotypeInformationOtherDrugs).toEqual("Yes");
 
           done();
         });
@@ -543,9 +521,7 @@ describe("## Experiment APIs", () => {
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
-          expect(res.body.message).toEqual(
-            "Experiment not found with id 589dcdd38d71fee259dc4e00"
-          );
+          expect(res.body.message).toEqual("Experiment not found with id 589dcdd38d71fee259dc4e00");
           done();
         });
     });
@@ -590,9 +566,7 @@ describe("## Experiment APIs", () => {
         .attach("file", "src/server/tests/fixtures/files/333-08.json")
         .expect(httpStatus.OK)
         .end((err, res) => {
-          const filePath = `${
-            config.express.uploadDir
-          }/experiments/${id}/file/333-08.json`;
+          const filePath = `${config.express.uploadDir}/experiments/${id}/file/333-08.json`;
           expect(res.body.status).toEqual("success");
           expect(res.body.data).toEqual("File uploaded and reassembled");
           expect(fs.existsSync(filePath)).toEqual(true);
@@ -618,9 +592,7 @@ describe("## Experiment APIs", () => {
         .attach("file", "src/server/tests/fixtures/files/333-08.json")
         .expect(httpStatus.OK)
         .end((err, res) => {
-          const filePath = `${
-            config.express.uploadDir
-          }/experiments/${id}/file/333-08.json`;
+          const filePath = `${config.express.uploadDir}/experiments/${id}/file/333-08.json`;
           expect(res.body.status).toEqual("success");
           expect(res.body.data).toEqual("File uploaded and reassembled");
           expect(fs.existsSync(filePath)).toEqual(true);
@@ -662,9 +634,7 @@ describe("## Experiment APIs", () => {
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
-          expect(res.body.message).toEqual(
-            "Experiment not found with id 589dcdd38d71fee259dc4e00"
-          );
+          expect(res.body.message).toEqual("Experiment not found with id 589dcdd38d71fee259dc4e00");
           done();
         });
     });
@@ -733,9 +703,7 @@ describe("## Experiment APIs", () => {
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
           expect(res.body.data.complete).toEqual(false);
-          expect(res.body.data.message).toEqual(
-            "Incorrect individual chunk size"
-          );
+          expect(res.body.data.message).toEqual("Incorrect individual chunk size");
           done();
         });
     });
@@ -914,9 +882,7 @@ describe("## Experiment APIs", () => {
                 job = await findJob(jobs, id, "call analysis api");
               }
               expect(job.data.file).toEqual(
-                `${
-                  config.express.uploadsLocation
-                }/experiments/${id}/file/333-08.json`
+                `${config.express.uploadsLocation}/experiments/${id}/file/333-08.json`
               );
               expect(job.data.experiment_id).toEqual(id);
               expect(job.data.attempt).toEqual(0);
@@ -965,9 +931,7 @@ describe("## Experiment APIs", () => {
           })
           .expect(httpStatus.OK)
           .end((err, res) => {
-            const filePath = `${
-              config.express.uploadDir
-            }/experiments/${id}/file/fake.json`;
+            const filePath = `${config.express.uploadDir}/experiments/${id}/file/fake.json`;
             expect(res.body.status).toEqual("success");
             expect(res.body.data).toEqual("Download started from dropbox");
             expect(fs.existsSync(filePath)).toEqual(true);
@@ -1010,9 +974,7 @@ describe("## Experiment APIs", () => {
                 job = await findJob(jobs, id, "call analysis api");
               }
               expect(job.data.file).toEqual(
-                `${
-                  config.express.uploadsLocation
-                }/experiments/${id}/file/333-08.json`
+                `${config.express.uploadsLocation}/experiments/${id}/file/333-08.json`
               );
               expect(job.data.experiment_id).toEqual(id);
               expect(job.data.attempt).toEqual(0);
@@ -1061,9 +1023,7 @@ describe("## Experiment APIs", () => {
           })
           .expect(httpStatus.OK)
           .end((err, res) => {
-            const filePath = `${
-              config.express.uploadDir
-            }/experiments/${id}/file/fake.json`;
+            const filePath = `${config.express.uploadDir}/experiments/${id}/file/fake.json`;
             expect(res.body.status).toEqual("success");
             expect(res.body.data).toEqual("Download started from box");
             expect(fs.existsSync(filePath)).toEqual(true);
@@ -1108,9 +1068,7 @@ describe("## Experiment APIs", () => {
                 job = await findJob(jobs, id, "call analysis api");
               }
               expect(job.data.file).toEqual(
-                `${
-                  config.express.uploadsLocation
-                }/experiments/${id}/file/333-08.json`
+                `${config.express.uploadsLocation}/experiments/${id}/file/333-08.json`
               );
               expect(job.data.experiment_id).toEqual(id);
               expect(job.data.attempt).toEqual(0);
@@ -1180,9 +1138,7 @@ describe("## Experiment APIs", () => {
           })
           .expect(httpStatus.OK)
           .end((err, res) => {
-            const filePath = `${
-              config.express.uploadDir
-            }/experiments/${id}/file/fake.json`;
+            const filePath = `${config.express.uploadDir}/experiments/${id}/file/fake.json`;
             expect(res.body.status).toEqual("success");
             expect(res.body.data).toEqual("Download started from googleDrive");
             expect(fs.existsSync(filePath)).toEqual(true);
@@ -1225,9 +1181,7 @@ describe("## Experiment APIs", () => {
                 job = await findJob(jobs, id, "call analysis api");
               }
               expect(job.data.file).toEqual(
-                `${
-                  config.express.uploadsLocation
-                }/experiments/${id}/file/333-08.json`
+                `${config.express.uploadsLocation}/experiments/${id}/file/333-08.json`
               );
               expect(job.data.experiment_id).toEqual(id);
               expect(job.data.attempt).toEqual(0);
@@ -1276,9 +1230,7 @@ describe("## Experiment APIs", () => {
           })
           .expect(httpStatus.OK)
           .end((err, res) => {
-            const filePath = `${
-              config.express.uploadDir
-            }/experiments/${id}/file/fake.json`;
+            const filePath = `${config.express.uploadDir}/experiments/${id}/file/fake.json`;
             expect(res.body.status).toEqual("success");
             expect(res.body.data).toEqual("Download started from oneDrive");
             expect(fs.existsSync(filePath)).toEqual(true);
@@ -1313,9 +1265,7 @@ describe("## Experiment APIs", () => {
                 job = await findJob(jobs, id, "call analysis api");
               }
               expect(job.data.file).toEqual(
-                `${
-                  config.express.uploadsLocation
-                }/experiments/${id}/file/333-08.json`
+                `${config.express.uploadsLocation}/experiments/${id}/file/333-08.json`
               );
               expect(job.data.experiment_id).toEqual(id);
               expect(job.data.attempt).toEqual(0);
@@ -1352,9 +1302,7 @@ describe("## Experiment APIs", () => {
             }
             expect(job.name).toEqual("call analysis api");
             expect(job.data.file).toEqual(
-              `${
-                config.express.uploadsLocation
-              }/experiments/${id}/file/333-08.json`
+              `${config.express.uploadsLocation}/experiments/${id}/file/333-08.json`
             );
             expect(job.data.experiment_id).toEqual(id);
             done();
@@ -1392,15 +1340,11 @@ describe("## Experiment APIs", () => {
             expect(res.body.data).toEqual("File uploaded and reassembled");
             expect(audit.experimentId).toEqual(id);
             expect(audit.fileLocation).toEqual(
-              `${
-                config.express.uploadsLocation
-              }/experiments/${id}/file/333-08.json`
+              `${config.express.uploadsLocation}/experiments/${id}/file/333-08.json`
             );
             expect(audit.status).toEqual("Successful");
             expect(audit.attempt).toEqual(1);
-            expect(audit.taskId).toEqual(
-              "1447d80f-ca79-40ac-bc5d-8a02933323c3"
-            );
+            expect(audit.taskId).toEqual("1447d80f-ca79-40ac-bc5d-8a02933323c3");
             expect(audit.type).toEqual("Predictor");
             done();
           });
@@ -1409,10 +1353,7 @@ describe("## Experiment APIs", () => {
         const mockAnalysisCallback = jest.fn();
         const mockDistanceCallback = jest.fn();
         experimentEventEmitter.on("analysis-started", mockAnalysisCallback);
-        experimentEventEmitter.on(
-          "distance-search-started",
-          mockDistanceCallback
-        );
+        experimentEventEmitter.on("distance-search-started", mockDistanceCallback);
         request(app)
           .put(`/experiments/${id}/file`)
           .set("Authorization", `Bearer ${token}`)
@@ -1454,9 +1395,7 @@ describe("## Experiment APIs", () => {
             const analysisAudit = analysisArgs.audit;
 
             expect(analysisExperiment.id).toEqual(id);
-            expect(analysisAudit.taskId).toEqual(
-              "1447d80f-ca79-40ac-bc5d-8a02933323c3"
-            );
+            expect(analysisAudit.taskId).toEqual("1447d80f-ca79-40ac-bc5d-8a02933323c3");
 
             done();
           });
@@ -1504,9 +1443,7 @@ describe("## Experiment APIs", () => {
 
             expect(foundJobs.length).toEqual(2);
             expect(foundJobs[0].data.file).toEqual(
-              `${
-                config.express.uploadsLocation
-              }/experiments/${id}/file/333-09.json`
+              `${config.express.uploadsLocation}/experiments/${id}/file/333-09.json`
             );
             expect(foundJobs[0].data.experiment_id).toEqual(id);
             done();
@@ -1547,9 +1484,7 @@ describe("## Experiment APIs", () => {
             expect(res.body.data).toEqual("File uploaded and reassembled");
             expect(audit.experimentId).toEqual(id);
             expect(audit.fileLocation).toEqual(
-              `${
-                config.express.uploadsLocation
-              }/experiments/${id}/file/333-09.json`
+              `${config.express.uploadsLocation}/experiments/${id}/file/333-09.json`
             );
             expect(audit.status).toEqual("Failed");
             expect(audit.attempt).toEqual(1);
@@ -1589,15 +1524,11 @@ describe("## Experiment APIs", () => {
             expect(res.body.data).toEqual("File uploaded and reassembled");
             expect(audit.experimentId).toEqual(id);
             expect(audit.fileLocation).toEqual(
-              `${
-                config.express.uploadsLocation
-              }/experiments/${id}/file/333-08.json`
+              `${config.express.uploadsLocation}/experiments/${id}/file/333-08.json`
             );
             expect(audit.status).toEqual("Successful");
             expect(audit.attempt).toEqual(1);
-            expect(audit.taskId).toEqual(
-              "1447d80f-ca79-40ac-bc5d-8a02933323c3"
-            );
+            expect(audit.taskId).toEqual("1447d80f-ca79-40ac-bc5d-8a02933323c3");
             expect(audit.type).toEqual("Predictor");
             done();
           });
@@ -1696,9 +1627,7 @@ describe("## Experiment APIs", () => {
             expect(audit.experimentId).toEqual(id);
             expect(audit.status).toEqual("Successful");
             expect(audit.attempt).toEqual(1);
-            expect(audit.taskId).toEqual(
-              "3a9ba217-4ccb-4108-9c01-60525e2ca905"
-            );
+            expect(audit.taskId).toEqual("3a9ba217-4ccb-4108-9c01-60525e2ca905");
             expect(audit.type).toEqual("Distance");
             done();
           });
@@ -1733,9 +1662,7 @@ describe("## Experiment APIs", () => {
             expect(audit.experimentId).toEqual(id);
             expect(audit.status).toEqual("Successful");
             expect(audit.attempt).toEqual(1);
-            expect(audit.taskId).toEqual(
-              "3a9ba217-4ccb-4108-9c01-60525e2ca905"
-            );
+            expect(audit.taskId).toEqual("3a9ba217-4ccb-4108-9c01-60525e2ca905");
             expect(audit.type).toEqual("Distance");
             done();
           });
@@ -2320,17 +2247,9 @@ describe("## Experiment APIs", () => {
               const jobs = mongo(config.db.uri, []).agendaJobs;
               expect(res.body.status).toEqual("success");
               try {
-                let job = await findJobBySearchId(
-                  jobs,
-                  res.body.data.id,
-                  "call search api"
-                );
+                let job = await findJobBySearchId(jobs, res.body.data.id, "call search api");
                 while (!job) {
-                  job = await findJobBySearchId(
-                    jobs,
-                    res.body.data.id,
-                    "call search api"
-                  );
+                  job = await findJobBySearchId(jobs, res.body.data.id, "call search api");
                 }
                 expect(job.data.search.bigsi.type).toEqual("protein-variant");
                 expect(job.data.search.bigsi.gene).toEqual("rpoB");
@@ -2509,17 +2428,9 @@ describe("## Experiment APIs", () => {
               const jobs = mongo(config.db.uri, []).agendaJobs;
               expect(res.body.status).toEqual("success");
               try {
-                let job = await findJobBySearchId(
-                  jobs,
-                  res.body.data.id,
-                  "call search api"
-                );
+                let job = await findJobBySearchId(jobs, res.body.data.id, "call search api");
                 while (!job) {
-                  job = await findJobBySearchId(
-                    jobs,
-                    res.body.data.id,
-                    "call search api"
-                  );
+                  job = await findJobBySearchId(jobs, res.body.data.id, "call search api");
                 }
                 expect(job.data.search.type).toEqual("protein-variant");
                 expect(job.data.search.bigsi.gene).toEqual("rpoB");

@@ -46,7 +46,7 @@ describe("User", () => {
           await userData.save();
         } catch (e) {
           expect(e.message).toEqual(
-            "User validation failed: email: thomas@nhs.co.uk has already been registered"
+            "User validation failed: email: thomas.carlos@nhs.net has already been registered"
           );
           done();
         }
@@ -90,7 +90,7 @@ describe("User", () => {
   describe("#getByEmail", () => {
     describe("when the email exists", () => {
       it("should return the user", async done => {
-        const user = await User.getByEmail("thomas@nhs.co.uk");
+        const user = await User.getByEmail("thomas.carlos@nhs.net");
         expect(user.firstname).toEqual("Thomas");
         expect(user.lastname).toEqual("Carlos");
         done();

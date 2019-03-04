@@ -13,7 +13,7 @@ export default {
     lastname: "Carlos",
     role: "Carer",
     phone: "07737929442",
-    email: "thomas@nhs.co.uk"
+    email: "thomas.carlos@nhs.net"
   },
   neil: {
     firstname: "Neil",
@@ -45,7 +45,7 @@ export default {
       lastname: "Walter",
       role: "Carer",
       phone: "083231292248",
-      email: "thomas@nhs.co.uk"
+      email: "thomas.carlos@nhs.net"
     },
     duplicatePhone: {
       firstname: "Sean",

@@ -83,7 +83,12 @@ ExperimentSchema.statics = {
    * @returns {Promise<Experiment[]>}
    */
   async findByIds(ids) {
-    return this.find({ _id: { $in: ids } }).exec();
+    const validIds = ids
+      ? ids.filter(id => {
+          return mongoose.Types.ObjectId.isValid(id);
+        })
+      : [];
+    return this.find({ _id: { $in: validIds } }).exec();
   },
 
   /**
