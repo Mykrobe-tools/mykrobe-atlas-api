@@ -17,7 +17,7 @@ describe("Util", () => {
   describe("#initialise", () => {
     beforeEach(async done => {
       const directory = path.resolve(__dirname, "../../tmp");
-      setUploadDirectory(directory);
+      await setUploadDirectory(directory);
 
       done();
     });
@@ -294,14 +294,66 @@ describe("Util", () => {
   describe("#validateChecksum", () => {
     describe("when the file exists", () => {
       describe("when the checksum matches", () => {
-        it.only("should be valid", () => {
-          const directory = path.resolve(__dirname, "../../fixtures/file");
-          console.log(directory);
+        it("should be valid", () => {
+          const directory = path.resolve(__dirname, "../../fixtures/files");
+          const filepath = path.join(directory, "lipsum.txt");
+
+          const valid = validateChecksum(filepath, "ffb8f2cb3493f035fe5a0107ea1e3db4");
+          expect(valid).toEqual(true);
+        });
+      });
+      describe("when the checksum does not match", () => {
+        it("should be invalid", () => {
+          const directory = path.resolve(__dirname, "../../fixtures/files");
+          const filepath = path.join(directory, "lipsum.txt");
+
+          const valid = validateChecksum(filepath, "ffb8f2cb3493f035fe5a0107ea1e3d");
+          expect(valid).toEqual(false);
+        });
+      });
+    });
+    describe("when the file does not exist", () => {
+      it("should be invalid", () => {
+        const directory = path.resolve(__dirname, "../../fixtures/files");
+        const filepath = path.join(directory, "nofile.txt");
+
+        const valid = validateChecksum(filepath, "ffb8f2cb3493f035fe5a0107ea1e3db4");
+        expect(valid).toEqual(false);
+      });
+    });
+  });
+  describe("#isUploadComplete", () => {
+    describe("with valid data", () => {
+      describe("when there is a single chunk", () => {
+        describe("when the upload is complete", () => {
+          beforeEach(async done => {
+            const directory = path.resolve(__dirname, "../../fixtures/files/parts");
+            await setUploadDirectory(directory);
+
+            done();
+          });
+          it("should return true", () => {
+            const valid = isUploadComplete(1, "single-lipsum.txt");
+            expect(valid).toEqual(true);
+          });
+        });
+      });
+      describe("when there are multiple chunks", () => {
+        describe("when the upload is complete", () => {
+          it("should return true", () => {
+            const valid = isUploadComplete(2, "multiple-lipsum.txt");
+            expect(valid).toEqual(true);
+          });
+        });
+        describe("when the upload is not complete", () => {
+          it("should return false", () => {
+            const valid = isUploadComplete(3, "multiple-lipsum.txt");
+            expect(valid).toEqual(false);
+          });
         });
       });
     });
   });
-  describe("#isUploadComplete", () => {});
   describe("#setComplete", () => {});
   describe("#setUploadDirectory", () => {});
   describe("#getChunkFilename", () => {});

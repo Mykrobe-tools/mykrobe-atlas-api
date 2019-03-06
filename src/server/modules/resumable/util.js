@@ -134,6 +134,9 @@ const validateRequest = (status, fileSize) => {
 };
 
 const validateChecksum = (filename, checksum) => {
+  if (!fs.existsSync(filename)) {
+    return false;
+  }
   const fileData = fs.readFileSync(filename);
   const generatedChecksum = crypto
     .createHash("md5")
