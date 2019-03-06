@@ -65,7 +65,7 @@ const setPercentageComplete = status => {
   }
 };
 
-const cleanIdentifier = identifier => identifier.replace(/^0-9A-Za-z_-/gim, "");
+const cleanIdentifier = identifier => identifier.replace(/[^0-9A-Za-z_-]/gim, "");
 
 const getChunkFilename = (chunkNumber, identifier) => {
   identifier = cleanIdentifier(identifier);
