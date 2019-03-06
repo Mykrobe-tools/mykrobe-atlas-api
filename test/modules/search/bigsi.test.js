@@ -2,23 +2,23 @@ import {
   isBigsiQuery,
   extractBigsiQuery,
   callBigsiApi
-} from "../../../modules/search/bigsi";
+} from "../../../src/server/modules/search/bigsi";
+
 import setup from "../../setup";
 
 describe("bigsi", () => {
   describe("#extractBigsiQuery", () => {
     describe("when q contains any combination ACGT and threshold was passed", () => {
       it("should create sequence query with the threshold passed", () => {
-        const query = {
+        const search = {
           q: "CGGTCAGTCCGTTTGTTCTTGTGGCGAGTGTTGCCGTTTTCTTG",
           threshold: 0.9
         };
-        const result = extractBigsiQuery(query);
-        expect(result.type).toEqual("sequence");
-        expect(result.query.seq).toEqual(
-          "CGGTCAGTCCGTTTGTTCTTGTGGCGAGTGTTGCCGTTTTCTTG"
-        );
-        expect(result.query.threshold).toEqual(0.9);
+
+        const result = extractBigsiQuery(search);
+        expect(result).toHaveProperty("type", "sequence");
+        expect(result).toHaveProperty("seq", "CGGTCAGTCCGTTTGTTCTTGTGGCGAGTGTTGCCGTTTTCTTG");
+        expect(result).toHaveProperty("threshold", 0.9);
       });
       it("should remove the free text search from the underlying query", () => {
         const query = {
@@ -45,11 +45,9 @@ describe("bigsi", () => {
           q: "CGGTCAGTCCGTTTGTTCTTGTGGCGAGTGTTGCCGTTTTCTTG"
         };
         const result = extractBigsiQuery(query);
-        expect(result.type).toEqual("sequence");
-        expect(result.query.seq).toEqual(
-          "CGGTCAGTCCGTTTGTTCTTGTGGCGAGTGTTGCCGTTTTCTTG"
-        );
-        expect(result.query.threshold).toEqual(1);
+        expect(result).toHaveProperty("type", "sequence");
+        expect(result).toHaveProperty("seq", "CGGTCAGTCCGTTTGTTCTTGTGGCGAGTGTTGCCGTTTTCTTG");
+        expect(result).toHaveProperty("threshold", 1);
       });
       it("should remove the free text search from the underlying query", () => {
         const query = {
@@ -68,10 +66,10 @@ describe("bigsi", () => {
         const result = extractBigsiQuery(query);
 
         expect(result.type).toEqual("protein-variant");
-        expect(result.query.ref).toEqual("S");
-        expect(result.query.alt).toEqual("L");
-        expect(result.query.pos).toEqual(450);
-        expect(result.query.gene).toEqual("rpoB");
+        expect(result.ref).toEqual("S");
+        expect(result.alt).toEqual("L");
+        expect(result.pos).toEqual(450);
+        expect(result.gene).toEqual("rpoB");
       });
 
       it("should remove the free-text query from the underlying search", () => {
