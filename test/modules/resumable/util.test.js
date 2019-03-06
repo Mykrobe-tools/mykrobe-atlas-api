@@ -356,32 +356,39 @@ describe("Util", () => {
   });
   describe("#setComplete", () => {
     describe("with valid data", () => {
+      beforeEach(async done => {
+        const directory = path.resolve(__dirname, "../../fixtures/files/parts");
+        await setUploadDirectory(directory);
+
+        done();
+      });
       describe("when there is a single chunk", () => {
         describe("when the upload is complete", () => {
-          beforeEach(async done => {
-            const directory = path.resolve(__dirname, "../../fixtures/files/parts");
-            await setUploadDirectory(directory);
-
-            done();
-          });
-          it.only("should return true", () => {
+          it("should return true", () => {
             const fields = uploads.valid.singleChunkWithFilePart;
             const status = initialise(fields);
-            const statusWithComplete = setComplete(status);
 
-            expect(statusWithComplete).toHaveProperty("status", true);
+            setComplete(status);
+
+            expect(status).toHaveProperty("complete", true);
           });
         });
       });
       describe("when there are multiple chunks", () => {
         describe("when the upload is complete", () => {
           it("should return true", () => {
+            const fields = uploads.valid.multipleChunksChunkWithAllFileParts;
+            const status = initialise(fields);
+
             const valid = isUploadComplete(2, "multiple-lipsum.txt");
             expect(valid).toEqual(true);
           });
         });
         describe("when the upload is not complete", () => {
           it("should return false", () => {
+            const fields = uploads.valid.multipleChunksChunkWithSomeFileParts;
+            const status = initialise(fields);
+
             const valid = isUploadComplete(3, "multiple-lipsum.txt");
             expect(valid).toEqual(false);
           });
