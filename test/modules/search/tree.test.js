@@ -1,8 +1,9 @@
-import { callTreeApi } from "../../../modules/search/tree";
+import { callTreeApi } from "../../../src/server/modules/search/tree";
+
 import setup from "../../setup";
 
 describe("tree", () => {
-  describe("#callBigsiApi", () => {
+  describe("#callTreeApi", () => {
     it("should return success with a result", async () => {
       const result = await callTreeApi();
       expect(result.tree).toBeTruthy();

@@ -1,4 +1,5 @@
 import Tree from "../../src/server/models/tree.model";
+
 import setup from "../setup";
 
 import trees from "../fixtures/trees";
