@@ -114,7 +114,7 @@ describe("Resumable", () => {
   });
 
   describe("#reassembleChunksToFile", async () => {
-    it.skip("should reassemble a complete file", async () => {
+    it("should reassemble a complete file", async () => {
       const directory = path.resolve(__dirname, "../../fixtures/files/parts/");
       const reassemblePath = path.resolve(directory, "RIF_monoresistantfast.q.gz");
 
