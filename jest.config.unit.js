@@ -1,5 +1,5 @@
 module.exports = {
-  testRegex: "(/test/modules/resumable/index.test).[jt]sx?$",
+  testRegex: "(/test/modules/resumable/util.test).[jt]sx?$",
   collectCoverage: false,
   testEnvironment: "node",
   reporters: [
