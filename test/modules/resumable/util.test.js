@@ -397,12 +397,13 @@ describe("Util", () => {
     });
   });
   describe("#getChunkFilename", () => {
-    it("should generate a filename", () => {
+    it("should generate a filename", async done => {
       const directory = path.resolve(__dirname, "../../fixtures/files/parts");
       await setUploadDirectory(directory);
 
       const filename = getChunkFilename(2, "single-lipsumtxt");
-      expect(filename).toMatch(//);
+      expect(filename).toMatch(/resumable-single-lipsumtxt.2/);
+      done();
     });
   });
 });
