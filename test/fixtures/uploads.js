@@ -47,6 +47,42 @@ export default {
       resumableRelativePath: "333-08.json",
       resumableTotalChunks: 1,
       checksum: "4f36e4cbfc9dfc37559e13bd3a309d55"
+    },
+    singleChunkWithFilePart: {
+      resumableChunkNumber: 1,
+      resumableChunkSize: 1048576,
+      resumableCurrentChunkSize: 251726,
+      resumableTotalSize: 251726,
+      resumableType: "application/json",
+      resumableIdentifier: "lipsum-singletxt",
+      resumableFilename: "lipsum-single.txt",
+      resumableRelativePath: "lipsum-single.txt",
+      resumableTotalChunks: 1,
+      checksum: "4f36e4cbfc9dfc37559e13bd3a309d55"
+    },
+    multipleChunksChunkWithAllFileParts: {
+      resumableChunkNumber: 1,
+      resumableChunkSize: 1048576,
+      resumableCurrentChunkSize: 1048576,
+      resumableTotalSize: 7871146,
+      resumableType: "application/json",
+      resumableIdentifier: "lipsum-multipletxt",
+      resumableFilename: "lipsum-multiple.txt",
+      resumableRelativePath: "lipsum-multiple.txt",
+      resumableTotalChunks: 2,
+      checksum: "4f36e4cbfc9dfc37559e13bd3a309d55"
+    },
+    multipleChunksChunkWithSomeFileParts: {
+      resumableChunkNumber: 1,
+      resumableChunkSize: 1048576,
+      resumableCurrentChunkSize: 1048576,
+      resumableTotalSize: 7871146,
+      resumableType: "application/json",
+      resumableIdentifier: "lipsum-multipletxt",
+      resumableFilename: "lipsum-multiple.txt",
+      resumableRelativePath: "lipsum-multiple.txt",
+      resumableTotalChunks: 3,
+      checksum: "4f36e4cbfc9dfc37559e13bd3a309d55"
     }
   },
   invalid: {

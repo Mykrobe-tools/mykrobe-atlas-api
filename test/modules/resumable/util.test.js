@@ -354,7 +354,41 @@ describe("Util", () => {
       });
     });
   });
-  describe("#setComplete", () => {});
+  describe("#setComplete", () => {
+    describe("with valid data", () => {
+      describe("when there is a single chunk", () => {
+        describe("when the upload is complete", () => {
+          beforeEach(async done => {
+            const directory = path.resolve(__dirname, "../../fixtures/files/parts");
+            await setUploadDirectory(directory);
+
+            done();
+          });
+          it.only("should return true", () => {
+            const fields = uploads.valid.singleChunkWithFilePart;
+            const status = initialise(fields);
+            const statusWithComplete = setComplete(status);
+
+            expect(statusWithComplete).toHaveProperty("status", true);
+          });
+        });
+      });
+      describe("when there are multiple chunks", () => {
+        describe("when the upload is complete", () => {
+          it("should return true", () => {
+            const valid = isUploadComplete(2, "multiple-lipsum.txt");
+            expect(valid).toEqual(true);
+          });
+        });
+        describe("when the upload is not complete", () => {
+          it("should return false", () => {
+            const valid = isUploadComplete(3, "multiple-lipsum.txt");
+            expect(valid).toEqual(false);
+          });
+        });
+      });
+    });
+  });
   describe("#setUploadDirectory", () => {});
   describe("#getChunkFilename", () => {});
 });
