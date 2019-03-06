@@ -5,6 +5,7 @@ import mkdirp from "mkdirp-promise";
 import config from "../../../config/env";
 
 const maxFileSize = config.express.uploadMaxFileSize;
+
 let uploadDirectory;
 
 // set local upload directory
@@ -112,7 +113,7 @@ const validateRequest = (status, fileSize) => {
       validation.message = "Incorrect chunk size";
       return validation;
     }
-    // Validation: The chunks in the POST is the last one, and the fil is not the correct size
+    // Validation: The chunks in the POST is the last one, and the file is not the correct size
     if (
       numberOfChunks > 1 &&
       chunkNumber === numberOfChunks &&
