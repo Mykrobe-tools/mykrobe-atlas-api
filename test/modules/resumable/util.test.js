@@ -396,6 +396,13 @@ describe("Util", () => {
       });
     });
   });
-  describe("#setUploadDirectory", () => {});
-  describe("#getChunkFilename", () => {});
+  describe("#getChunkFilename", () => {
+    it("should generate a filename", () => {
+      const directory = path.resolve(__dirname, "../../fixtures/files/parts");
+      await setUploadDirectory(directory);
+
+      const filename = getChunkFilename(2, "single-lipsumtxt");
+      expect(filename).toMatch(//);
+    });
+  });
 });
