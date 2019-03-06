@@ -116,18 +116,16 @@ describe("Resumable", () => {
   describe("#reassembleChunksToFile", async () => {
     it("should reassemble a complete file", async () => {
       const directory = path.resolve(__dirname, "../../fixtures/files/parts/");
-      const reassemblePath = path.resolve(directory, "RIF_monoresistantfast.q.gz");
+      const reassemblePath = path.resolve(directory, "lipsum.txt");
 
       const savedPath = await reassembleChunksToFile(directory, reassemblePath, false);
 
       const checksumResponse = await spawn("md5", [savedPath]);
       const checksum = checksumResponse.toString().trim();
 
-      expect(checksum).toEqual(`MD5 (${savedPath}) = 6a5d8ad9ff173f02d773de59da23669e`);
-      console.log(checksum);
-      await rmfr(savedPath);
+      expect(checksum).toEqual(`MD5 (${savedPath}) = ffb8f2cb3493f035fe5a0107ea1e3db4`);
 
-      // rm ~/makeandship/mykrobe-atlas-api/src/server/tests/fixtures/files/parts/RIF_monoresistantfast.q.gz
+      await rmfr(savedPath);
     }, 20000);
   });
 });
