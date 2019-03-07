@@ -1,4 +1,4 @@
-import UploadCompleteJSONTransformer from "../../../transformers/events/UploadCompleteJSONTransformer";
+import UploadCompleteJSONTransformer from "../../../src/server/transformers/events/UploadCompleteJSONTransformer";
 
 const status = {
   identifier: "217685411-MDRfastqgz",

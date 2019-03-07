@@ -1,4 +1,4 @@
-import UploadProgressJSONTransformer from "../../../transformers/events/UploadProgressJSONTransformer";
+import UploadProgressJSONTransformer from "../../../src/server/transformers/events/UploadProgressJSONTransformer";
 
 const status = {
   identifier: "217685411-MDRfastqgz",

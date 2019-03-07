@@ -1,4 +1,4 @@
-import ThirdPartyUploadProgressJSONTransformer from "../../../transformers/events/ThirdPartyUploadProgressJSONTransformer";
+import ThirdPartyUploadProgressJSONTransformer from "../../../src/server/transformers/events/ThirdPartyUploadProgressJSONTransformer";
 
 const status = {
   provider: "box",

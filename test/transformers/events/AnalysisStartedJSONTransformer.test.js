@@ -1,9 +1,8 @@
-import AnalysisStartedJSONTransformer from "../../../transformers/events/AnalysisStartedJSONTransformer";
+import AnalysisStartedJSONTransformer from "../../../src/server/transformers/events/AnalysisStartedJSONTransformer";
 
 const data = {
   taskId: "e986f350-970b-11e8-8b76-7d2b3faf02cf",
-  fileLocation:
-    "/atlas/uploads/experiments/5b6433e4fde486245d5f0f94/file/MDR.fastq.gz",
+  fileLocation: "/atlas/uploads/experiments/5b6433e4fde486245d5f0f94/file/MDR.fastq.gz",
   experimentId: "5b6433e4fde486245d5f0f94"
 };
 

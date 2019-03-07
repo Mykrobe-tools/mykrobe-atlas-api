@@ -1,4 +1,5 @@
-import ResultsJSONTransformer from "../../transformers/ResultsJSONTransformer";
+import ResultsJSONTransformer from "../../src/server/transformers/ResultsJSONTransformer";
+
 import results from "../fixtures/results";
 
 describe("ResultsJSONTransformer", () => {

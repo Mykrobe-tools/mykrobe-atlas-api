@@ -1,4 +1,4 @@
-import ExperimentsResultJSONTransformer from "../../transformers/es/ExperimentsResultJSONTransformer";
+import ExperimentsResultJSONTransformer from "../../src/server/transformers/es/ExperimentsResultJSONTransformer";
 
 describe("ExperimentsResultJSONTransformer", () => {
   it("should transform data from elasticsearch", async () => {
@@ -262,10 +262,7 @@ describe("ExperimentsResultJSONTransformer", () => {
       }
     };
 
-    const transformed = new ExperimentsResultJSONTransformer().transform(
-      results,
-      {}
-    );
+    const transformed = new ExperimentsResultJSONTransformer().transform(results, {});
     expect(transformed.length).toEqual(2);
     transformed.forEach(result => {
       expect(result).toHaveProperty("metadata");
@@ -291,10 +288,7 @@ describe("ExperimentsResultJSONTransformer", () => {
         hits: []
       }
     };
-    const transformed = new ExperimentsResultJSONTransformer().transform(
-      results,
-      {}
-    );
+    const transformed = new ExperimentsResultJSONTransformer().transform(results, {});
 
     expect(transformed.length).toEqual(0);
   });

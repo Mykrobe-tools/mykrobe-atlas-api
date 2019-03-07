@@ -1,4 +1,4 @@
-import AnalysisCompleteJSONTransformer from "../../../transformers/events/AnalysisCompleteJSONTransformer";
+import AnalysisCompleteJSONTransformer from "../../../src/server/transformers/events/AnalysisCompleteJSONTransformer";
 
 const data = {
   taskId: "e986f350-970b-11e8-8b76-7d2b3faf02cf",

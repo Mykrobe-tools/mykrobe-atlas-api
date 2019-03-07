@@ -1,4 +1,4 @@
-import SequenceSearchStartedEventJSONTransformer from "../../../transformers/events/SequenceSearchStartedEventJSONTransformer";
+import SequenceSearchStartedEventJSONTransformer from "../../../src/server/transformers/events/SequenceSearchStartedEventJSONTransformer";
 
 const search = {
   id: "e986f350-970b-11e8-8b76-7d2b3faf02aa",
