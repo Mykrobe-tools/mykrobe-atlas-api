@@ -1,5 +1,5 @@
 module.exports = {
-  testRegex: "(/test/modules/resumable/util.test).[jt]sx?$",
+  testRegex: "(/test/(models|modules)/.*?test).[jt]sx?$",
   collectCoverage: false,
   testEnvironment: "node",
   reporters: [
@@ -12,7 +12,3 @@ module.exports = {
     ]
   ]
 };
-/*
-  testRegex: "(/test/models/.*?(test|spec))\\.[jt]sx?$",
-  testRegex: "(/test/(models|helpers)/.*?test).[jt]sx?$"
-*/

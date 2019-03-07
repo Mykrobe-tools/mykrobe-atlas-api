@@ -1,5 +1,5 @@
 module.exports = {
-  testRegex: "(/test/--controllers--/**/*.test).[jt]sx?$",
+  testRegex: "(/test/(controllers|helpers)/.*?test).[jt]sx?$",
   collectCoverage: false,
   testEnvironment: "node",
   reporters: [

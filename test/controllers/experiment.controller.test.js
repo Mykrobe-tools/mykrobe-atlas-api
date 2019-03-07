@@ -2,17 +2,21 @@ import request from "supertest";
 import httpStatus from "http-status";
 import fs from "fs";
 import hash from "object-hash";
+
 import { config, createApp } from "../setup";
-import User from "../../models/user.model";
-import Experiment from "../../models/experiment.model";
-import Audit from "../../models/audit.model";
-import Tree from "../../models/tree.model";
-import Search from "../../models/search.model";
-import MDR from "../../tests/fixtures/files/MDR_Results.json";
-import NEAREST_NEIGHBOURS from "../../tests/fixtures/files/NEAREST_NEIGHBOURS_Results.json";
-import results from "../../tests/fixtures/results";
+
+import User from "../../src/server/models/user.model";
+import Experiment from "../../src/server/models/experiment.model";
+import Audit from "../../src/server/models/audit.model";
+import Tree from "../../src/server/models/tree.model";
+import Search from "../../src/server/models/search.model";
+
+import { experimentEventEmitter, userEventEmitter } from "../../src/server/modules/events";
+
+import MDR from "../fixtures/files/MDR_Results.json";
+import NEAREST_NEIGHBOURS from "../fixtures/files/NEAREST_NEIGHBOURS_Results.json";
+import results from "../fixtures/results";
 import { mockEsCalls } from "../mocks";
-import { experimentEventEmitter, userEventEmitter } from "../../modules/events";
 
 mockEsCalls();
 
@@ -67,7 +71,7 @@ afterEach(async done => {
   done();
 });
 
-describe("## Experiment APIs", () => {
+describe("ExperimentController", () => {
   describe("# POST /experiments", () => {
     it("should create a new experiment", done => {
       request(app)
@@ -541,7 +545,7 @@ describe("## Experiment APIs", () => {
         .field("resumableRelativePath", "333-08.json")
         .field("resumableTotalChunks", 1)
         .field("checksum", "4f36e4cbfc9dfc37559e13bd3a309d50")
-        .attach("file", "src/server/tests/fixtures/files/333-08.json")
+        .attach("file", "test/fixtures/files/333-08.json")
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("success");
@@ -563,7 +567,7 @@ describe("## Experiment APIs", () => {
         .field("resumableRelativePath", "333-08.json")
         .field("resumableTotalChunks", 1)
         .field("checksum", "4f36e4cbfc9dfc37559e13bd3a309d50")
-        .attach("file", "src/server/tests/fixtures/files/333-08.json")
+        .attach("file", "test/fixtures/files/333-08.json")
         .expect(httpStatus.OK)
         .end((err, res) => {
           const filePath = `${config.express.uploadDir}/experiments/${id}/file/333-08.json`;
@@ -589,7 +593,7 @@ describe("## Experiment APIs", () => {
         .field("resumableRelativePath", "333-08.json")
         .field("resumableTotalChunks", 1)
         .field("checksum", "4f36e4cbfc9dfc37559e13bd3a309d50")
-        .attach("file", "src/server/tests/fixtures/files/333-08.json")
+        .attach("file", "test/fixtures/files/333-08.json")
         .expect(httpStatus.OK)
         .end((err, res) => {
           const filePath = `${config.express.uploadDir}/experiments/${id}/file/333-08.json`;
@@ -630,7 +634,7 @@ describe("## Experiment APIs", () => {
         .field("resumableRelativePath", "333-08.json")
         .field("resumableTotalChunks", 1)
         .field("checksum", "4f36e4cbfc9dfc37559e13bd3a309d50")
-        .attach("file", "src/server/tests/fixtures/files/333-08.json")
+        .attach("file", "test/fixtures/files/333-08.json")
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
@@ -673,7 +677,7 @@ describe("## Experiment APIs", () => {
         .field("resumableRelativePath", "333-08.json")
         .field("resumableTotalChunks", 1)
         .field("checksum", "4f36e4cbfc9dfc37559e13bd3a309d55")
-        .attach("file", "src/server/tests/fixtures/files/333-08.json")
+        .attach("file", "test/fixtures/files/333-08.json")
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
@@ -698,7 +702,7 @@ describe("## Experiment APIs", () => {
         .field("resumableRelativePath", "333-08.json")
         .field("resumableTotalChunks", 1)
         .field("checksum", "4f36e4cbfc9dfc37559e13bd3a309d50")
-        .attach("file", "src/server/tests/fixtures/files/333-08.json")
+        .attach("file", "test/fixtures/files/333-08.json")
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
@@ -1253,7 +1257,7 @@ describe("## Experiment APIs", () => {
           .field("resumableRelativePath", "333-08.json")
           .field("resumableTotalChunks", 1)
           .field("checksum", "4f36e4cbfc9dfc37559e13bd3a309d50")
-          .attach("file", "src/server/tests/fixtures/files/333-08.json")
+          .attach("file", "test/fixtures/files/333-08.json")
           .expect(httpStatus.OK)
           .end(async (err, res) => {
             const jobs = mongo(config.db.uri, []).agendaJobs;
@@ -1290,7 +1294,7 @@ describe("## Experiment APIs", () => {
           .field("resumableRelativePath", "333-08.json")
           .field("resumableTotalChunks", 1)
           .field("checksum", "4f36e4cbfc9dfc37559e13bd3a309d50")
-          .attach("file", "src/server/tests/fixtures/files/333-08.json")
+          .attach("file", "test/fixtures/files/333-08.json")
           .expect(httpStatus.OK)
           .end(async (err, res) => {
             const jobs = mongo(config.db.uri, []).agendaJobs;
@@ -1322,7 +1326,7 @@ describe("## Experiment APIs", () => {
           .field("resumableRelativePath", "333-08.json")
           .field("resumableTotalChunks", 1)
           .field("checksum", "4f36e4cbfc9dfc37559e13bd3a309d50")
-          .attach("file", "src/server/tests/fixtures/files/333-08.json")
+          .attach("file", "test/fixtures/files/333-08.json")
           .expect(httpStatus.OK)
           .end(async (err, res) => {
             let audits = await Audit.find({
@@ -1367,7 +1371,7 @@ describe("## Experiment APIs", () => {
           .field("resumableRelativePath", "333-08.json")
           .field("resumableTotalChunks", 1)
           .field("checksum", "4f36e4cbfc9dfc37559e13bd3a309d50")
-          .attach("file", "src/server/tests/fixtures/files/333-08.json")
+          .attach("file", "test/fixtures/files/333-08.json")
           .expect(httpStatus.OK)
           .end(async (err, res) => {
             let audits = await Audit.find({ experimentId: id });
@@ -1414,7 +1418,7 @@ describe("## Experiment APIs", () => {
           .field("resumableRelativePath", "333-09.json")
           .field("resumableTotalChunks", 1)
           .field("checksum", "4f36e4cbfc9dfc37559e13bd3a309d50")
-          .attach("file", "src/server/tests/fixtures/files/333-09.json")
+          .attach("file", "test/fixtures/files/333-09.json")
           .expect(httpStatus.OK)
           .end(async (err, res) => {
             const jobs = mongo(config.db.uri, []).agendaJobs;
@@ -1463,7 +1467,7 @@ describe("## Experiment APIs", () => {
           .field("resumableRelativePath", "333-09.json")
           .field("resumableTotalChunks", 1)
           .field("checksum", "4f36e4cbfc9dfc37559e13bd3a309d50")
-          .attach("file", "src/server/tests/fixtures/files/333-09.json")
+          .attach("file", "test/fixtures/files/333-09.json")
           .expect(httpStatus.OK)
           .end(async (err, res) => {
             const jobs = mongo(config.db.uri, []).agendaJobs;
@@ -1506,7 +1510,7 @@ describe("## Experiment APIs", () => {
           .field("resumableRelativePath", "333-08.json")
           .field("resumableTotalChunks", 1)
           .field("checksum", "4f36e4cbfc9dfc37559e13bd3a309d50")
-          .attach("file", "src/server/tests/fixtures/files/333-08.json")
+          .attach("file", "test/fixtures/files/333-08.json")
           .expect(httpStatus.OK)
           .end(async (err, res) => {
             let audits = await Audit.find({
@@ -1549,7 +1553,7 @@ describe("## Experiment APIs", () => {
           .field("resumableRelativePath", "333-08.json")
           .field("resumableTotalChunks", 1)
           .field("checksum", "4f36e4cbfc9dfc37559e13bd3a309d50")
-          .attach("file", "src/server/tests/fixtures/files/333-08.json")
+          .attach("file", "test/fixtures/files/333-08.json")
           .expect(httpStatus.OK)
           .end(async (err, res) => {
             const jobs = mongo(config.db.uri, []).agendaJobs;
@@ -1582,7 +1586,7 @@ describe("## Experiment APIs", () => {
           .field("resumableRelativePath", "333-08.json")
           .field("resumableTotalChunks", 1)
           .field("checksum", "4f36e4cbfc9dfc37559e13bd3a309d50")
-          .attach("file", "src/server/tests/fixtures/files/333-08.json")
+          .attach("file", "test/fixtures/files/333-08.json")
           .expect(httpStatus.OK)
           .end(async (err, res) => {
             const jobs = mongo(config.db.uri, []).agendaJobs;
@@ -1611,7 +1615,7 @@ describe("## Experiment APIs", () => {
           .field("resumableRelativePath", "333-08.json")
           .field("resumableTotalChunks", 1)
           .field("checksum", "4f36e4cbfc9dfc37559e13bd3a309d50")
-          .attach("file", "src/server/tests/fixtures/files/333-08.json")
+          .attach("file", "test/fixtures/files/333-08.json")
           .expect(httpStatus.OK)
           .end(async (err, res) => {
             let audits = await Audit.find({
@@ -1646,7 +1650,7 @@ describe("## Experiment APIs", () => {
           .field("resumableRelativePath", "333-08.json")
           .field("resumableTotalChunks", 1)
           .field("checksum", "4f36e4cbfc9dfc37559e13bd3a309d50")
-          .attach("file", "src/server/tests/fixtures/files/333-08.json")
+          .attach("file", "test/fixtures/files/333-08.json")
           .expect(httpStatus.OK)
           .end(async (err, res) => {
             let audits = await Audit.find({
@@ -1720,7 +1724,7 @@ describe("## Experiment APIs", () => {
         .field("resumableRelativePath", "333-08.json")
         .field("resumableTotalChunks", 1)
         .field("checksum", "4f36e4cbfc9dfc37559e13bd3a309d50")
-        .attach("file", "src/server/tests/fixtures/files/333-08.json")
+        .attach("file", "test/fixtures/files/333-08.json")
         .expect(httpStatus.OK)
         .end(() => {
           request(app)
