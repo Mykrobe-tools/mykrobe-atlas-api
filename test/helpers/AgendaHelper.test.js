@@ -1,14 +1,18 @@
 import request from "supertest";
+
 import { experiment as experimentSchema } from "mykrobe-atlas-jsonschema";
 import { ElasticsearchHelper } from "makeandship-api-common/lib/modules/elasticsearch";
-import Experiment from "../../models/experiment.model";
-import AgendaHelper from "../../helpers/AgendaHelper";
+
 import { config, createApp } from "../setup";
 
-const app = createApp();
+import Experiment from "../../src/server/models/experiment.model";
 
-const experiments = require("../fixtures/experiments");
-const users = require("../fixtures/users");
+import AgendaHelper from "../../src/server/helpers/AgendaHelper";
+
+import experiments from "../fixtures/experiments";
+import users from "../fixtures/users";
+
+const app = createApp();
 
 let id = null;
 let isolateId = null;
@@ -46,19 +50,11 @@ describe("AgendaHelper ", () => {
   describe("#refresh elasticsearch", () => {
     beforeEach(async done => {
       await ElasticsearchHelper.deleteIndexIfExists(config);
-      await ElasticsearchHelper.createIndex(
-        config,
-        experimentSchema,
-        "experiment"
-      );
+      await ElasticsearchHelper.createIndex(config, experimentSchema, "experiment");
 
       // index to elasticsearch
       const experiments = await Experiment.list();
-      await ElasticsearchHelper.indexDocuments(
-        config,
-        experiments,
-        "experiment"
-      );
+      await ElasticsearchHelper.indexDocuments(config, experiments, "experiment");
 
       let data = await ElasticsearchHelper.search(config, {}, "experiment");
       while (data.hits.total < 1) {

@@ -1,4 +1,4 @@
-import NearestNeighboursResultParser from "../../helpers/NearestNeighboursResultParser";
+import NearestNeighboursResultParser from "../../src/server/helpers/NearestNeighboursResultParser";
 import NEAREST_NEIGHBOURS from "../fixtures/files/NEAREST_NEIGHBOURS_Results.json";
 
 describe("NearestNeighboursResultParser", () => {

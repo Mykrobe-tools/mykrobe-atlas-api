@@ -1,12 +1,14 @@
 import request from "supertest";
 import httpStatus from "http-status";
 import swaggerParser from "swagger-parser";
-import User from "../../models/user.model";
+
 import { createApp } from "../setup";
 
-const app = createApp();
+import User from "../../src/server/models/user.model";
 
-const users = require("../fixtures/users");
+import users from "../fixtures/users";
+
+const app = createApp();
 
 beforeEach(async () => {
   const userData = new User(users.admin);
@@ -17,7 +19,7 @@ afterEach(async () => {
   await User.remove({});
 });
 
-describe("## Misc", () => {
+describe("Misc", () => {
   describe("# GET /health-check", () => {
     it("should return OK", done => {
       request(app)
@@ -70,49 +72,7 @@ describe("## Misc", () => {
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
           expect(res.body.code).toEqual(10005);
-          expect(res.body.data.errors[""].message).toEqual(
-            "should have required property 'email'"
-          );
-          done();
-        });
-    });
-  });
-
-  describe("when serving swagger docs", () => {
-    it("should serve a valid json", async done => {
-      request(app)
-        .get("/swagger.json")
-        .expect(httpStatus.OK)
-        .end((err, res) => {
-          expect(res.body.info.title).toEqual("Atlas API");
-          expect(res.body.swagger).toEqual("2.0");
-          done();
-        });
-    });
-
-    it("should be valid against the swagger spec", async done => {
-      request(app)
-        .get("/swagger.json")
-        .expect(httpStatus.OK)
-        .end(async (err, res) => {
-          const body = res.body;
-
-          try {
-            const spec = await swaggerParser.validate(body);
-            done();
-          } catch (e) {
-            fail(e);
-            done();
-          }
-        });
-    });
-
-    it("should return a success response", async done => {
-      request(app)
-        .get("/swagger.json")
-        .expect(httpStatus.OK)
-        .end((err, res) => {
-          expect(res.status).toEqual(200);
+          expect(res.body.data.errors[""].message).toEqual("should have required property 'email'");
           done();
         });
     });

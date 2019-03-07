@@ -1,12 +1,10 @@
-import ProteinVariantResultParser from "../../helpers/ProteinVariantResultParser";
+import ProteinVariantResultParser from "../../src/server/helpers/ProteinVariantResultParser";
 import searches from "../fixtures/searches";
 
 describe("ProteinVariantResultParser", () => {
   describe("#parse", () => {
     it("should parse a result", done => {
-      const parser = new ProteinVariantResultParser(
-        searches.results.proteinVariant
-      );
+      const parser = new ProteinVariantResultParser(searches.results.proteinVariant);
       const result = parser.parse();
 
       expect(result).toHaveProperty("type", "protein-variant");

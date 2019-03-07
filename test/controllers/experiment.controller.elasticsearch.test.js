@@ -1,31 +1,29 @@
 import request from "supertest";
 import httpStatus from "http-status";
+
 import { ElasticsearchHelper } from "makeandship-api-common/lib/modules/elasticsearch";
-import { createApp } from "../setup";
-import User from "../../models/user.model";
-import Experiment from "../../models/experiment.model";
-import Organisation from "../../models/organisation.model";
-import Search from "../../models/search.model";
-import config from "../../../config/env/";
 import { experiment as experimentSchema } from "mykrobe-atlas-jsonschema";
-import SearchJSONTransformer from "../../transformers/SearchJSONTransformer";
+
+import { createApp } from "../setup";
+
+import User from "../../src/server/models/user.model";
+import Experiment from "../../src/server/models/experiment.model";
+import Search from "../../src/server/models/search.model";
+
+import config from "../../src/config/env/";
+
+import users from "../fixtures/users";
+import experiments from "../fixtures/experiments";
+import searches from "../fixtures/searches";
 
 jest.mock("keycloak-admin-client");
 
 const app = createApp();
 
-const users = require("../fixtures/users");
-
 let token = null;
 
-const experiments = require("../fixtures/experiments");
-const metadata = require("../fixtures/metadata");
-const searches = require("../fixtures/searches");
-
 const experimentWithMetadata = new Experiment(experiments.tbUploadMetadata);
-const experimentWithChineseMetadata = new Experiment(
-  experiments.tbUploadMetadataChinese
-);
+const experimentWithChineseMetadata = new Experiment(experiments.tbUploadMetadataChinese);
 
 let isolateId1,
   isolateId2 = null;
@@ -51,7 +49,9 @@ afterEach(async done => {
 });
 
 beforeAll(async done => {
+  console.log(`begin`);
   await ElasticsearchHelper.deleteIndexIfExists(config);
+  console.log("index deleted");
   await ElasticsearchHelper.createIndex(config, experimentSchema, "experiment");
 
   const experiment1 = await experimentWithMetadata.save();
@@ -66,14 +66,16 @@ beforeAll(async done => {
   // index to elasticsearch
   const experiments = await Experiment.list();
   await ElasticsearchHelper.indexDocuments(config, experiments, "experiment");
-
+  console.log("indexed experiments");
   let data = await ElasticsearchHelper.search(config, {}, "experiment");
+  console.log(`check: ${data.hits.total}`);
   while (data.hits.total < 2) {
     data = await ElasticsearchHelper.search(config, {}, "experiment");
+    console.log(`check: ${data.hits.total}`);
   }
 
   done();
-});
+}, 60000);
 
 afterAll(async done => {
   await ElasticsearchHelper.deleteIndexIfExists(config);
@@ -82,9 +84,9 @@ afterAll(async done => {
   done();
 });
 
-describe("## Experiment APIs", () => {
+describe("ExperimentController > Elasticsearch", () => {
   describe("# GET /experiments/choices", () => {
-    it("should return choices and counts for enums", done => {
+    it.only("should return choices and counts for enums", done => {
       request(app)
         .get("/experiments/choices")
         .set("Authorization", `Bearer ${token}`)
@@ -125,12 +127,8 @@ describe("## Experiment APIs", () => {
           expect(res.body.status).toEqual("success");
           const data = res.body.data;
 
-          expect(data["metadata.sample.dateArrived"].min).toEqual(
-            "2017-11-05T00:00:00.000Z"
-          );
-          expect(data["metadata.sample.dateArrived"].max).toEqual(
-            "2018-09-01T00:00:00.000Z"
-          );
+          expect(data["metadata.sample.dateArrived"].min).toEqual("2017-11-05T00:00:00.000Z");
+          expect(data["metadata.sample.dateArrived"].max).toEqual("2018-09-01T00:00:00.000Z");
           done();
         });
     });
@@ -143,23 +141,18 @@ describe("## Experiment APIs", () => {
           expect(res.body.status).toEqual("success");
           const data = res.body.data;
 
-          expect(
-            data["metadata.phenotyping.gatifloxacin.method"].title
-          ).toEqual("Method");
-          expect(
-            data["metadata.phenotyping.phenotypeInformationFirstLineDrugs"]
-              .title
-          ).toEqual("Phenotype Information First Line Drugs");
-          expect(
-            data["metadata.treatment.outsideStandardPhaseAmikacin.stop"].title
-          ).toEqual("Date stopped");
-          expect(data["metadata.patient.diabetic"].title).toEqual("Diabetic");
-          expect(
-            data["metadata.phenotyping.pretothionamide.susceptibility"].title
-          ).toEqual("Susceptible");
-          expect(data["metadata.outcome.whoOutcomeCategory"].title).toEqual(
-            "WHO Outcome Category"
+          expect(data["metadata.phenotyping.gatifloxacin.method"].title).toEqual("Method");
+          expect(data["metadata.phenotyping.phenotypeInformationFirstLineDrugs"].title).toEqual(
+            "Phenotype Information First Line Drugs"
           );
+          expect(data["metadata.treatment.outsideStandardPhaseAmikacin.stop"].title).toEqual(
+            "Date stopped"
+          );
+          expect(data["metadata.patient.diabetic"].title).toEqual("Diabetic");
+          expect(data["metadata.phenotyping.pretothionamide.susceptibility"].title).toEqual(
+            "Susceptible"
+          );
+          expect(data["metadata.outcome.whoOutcomeCategory"].title).toEqual("WHO Outcome Category");
           expect(data["metadata.genotyping.hainAm"].title).toEqual("HAIN AM");
 
           done();
@@ -174,28 +167,29 @@ describe("## Experiment APIs", () => {
           expect(res.body.status).toEqual("success");
           const data = res.body.data;
 
-          expect(
-            data["metadata.phenotyping.gatifloxacin.method"].titles
-          ).toEqual(["Metadata", "Phenotyping", "Gatifloxacin", "Method"]);
-          expect(
-            data["metadata.phenotyping.phenotypeInformationFirstLineDrugs"]
-              .titles
-          ).toEqual([
+          expect(data["metadata.phenotyping.gatifloxacin.method"].titles).toEqual([
+            "Metadata",
+            "Phenotyping",
+            "Gatifloxacin",
+            "Method"
+          ]);
+          expect(data["metadata.phenotyping.phenotypeInformationFirstLineDrugs"].titles).toEqual([
             "Metadata",
             "Phenotyping",
             "Phenotype Information First Line Drugs"
           ]);
-          expect(
-            data["metadata.treatment.outsideStandardPhaseAmikacin.stop"].titles
-          ).toEqual(["Metadata", "Treatment", "Amikacin", "Date stopped"]);
+          expect(data["metadata.treatment.outsideStandardPhaseAmikacin.stop"].titles).toEqual([
+            "Metadata",
+            "Treatment",
+            "Amikacin",
+            "Date stopped"
+          ]);
           expect(data["metadata.patient.diabetic"].titles).toEqual([
             "Metadata",
             "Patient",
             "Diabetic"
           ]);
-          expect(
-            data["metadata.phenotyping.pretothionamide.susceptibility"].titles
-          ).toEqual([
+          expect(data["metadata.phenotyping.pretothionamide.susceptibility"].titles).toEqual([
             "Metadata",
             "Phenotyping",
             "Pretothionamide",
@@ -244,9 +238,7 @@ describe("## Experiment APIs", () => {
     });
     it("should filter the choices", done => {
       request(app)
-        .get(
-          "/experiments/choices?metadata.patient.patientId=9bd049c5-7407-4129-a973-17291ccdd2cc"
-        )
+        .get("/experiments/choices?metadata.patient.patientId=9bd049c5-7407-4129-a973-17291ccdd2cc")
         .set("Authorization", `Bearer ${token}`)
         .expect(httpStatus.OK)
         .end((err, res) => {
@@ -257,12 +249,8 @@ describe("## Experiment APIs", () => {
           expect(data["metadata.patient.age"].max).toEqual(32);
           expect(data["metadata.patient.bmi"].min).toEqual(33.1);
           expect(data["metadata.patient.bmi"].max).toEqual(33.1);
-          expect(data["metadata.sample.dateArrived"].min).toEqual(
-            "2017-11-05T00:00:00.000Z"
-          );
-          expect(data["metadata.sample.dateArrived"].max).toEqual(
-            "2017-11-05T00:00:00.000Z"
-          );
+          expect(data["metadata.sample.dateArrived"].min).toEqual("2017-11-05T00:00:00.000Z");
+          expect(data["metadata.sample.dateArrived"].max).toEqual("2017-11-05T00:00:00.000Z");
 
           done();
         });
@@ -280,12 +268,8 @@ describe("## Experiment APIs", () => {
           expect(data["metadata.patient.age"].max).toEqual(43);
           expect(data["metadata.patient.bmi"].min).toEqual(25.3);
           expect(data["metadata.patient.bmi"].max).toEqual(33.1);
-          expect(data["metadata.sample.dateArrived"].min).toEqual(
-            "2017-11-05T00:00:00.000Z"
-          );
-          expect(data["metadata.sample.dateArrived"].max).toEqual(
-            "2018-09-01T00:00:00.000Z"
-          );
+          expect(data["metadata.sample.dateArrived"].min).toEqual("2017-11-05T00:00:00.000Z");
+          expect(data["metadata.sample.dateArrived"].max).toEqual("2018-09-01T00:00:00.000Z");
 
           done();
         });
@@ -303,12 +287,8 @@ describe("## Experiment APIs", () => {
           expect(data["metadata.patient.age"].max).toEqual(32);
           expect(data["metadata.patient.bmi"].min).toEqual(33.1);
           expect(data["metadata.patient.bmi"].max).toEqual(33.1);
-          expect(data["metadata.sample.dateArrived"].min).toEqual(
-            "2017-11-05T00:00:00.000Z"
-          );
-          expect(data["metadata.sample.dateArrived"].max).toEqual(
-            "2017-11-05T00:00:00.000Z"
-          );
+          expect(data["metadata.sample.dateArrived"].min).toEqual("2017-11-05T00:00:00.000Z");
+          expect(data["metadata.sample.dateArrived"].max).toEqual("2017-11-05T00:00:00.000Z");
 
           done();
         });
@@ -322,17 +302,11 @@ describe("## Experiment APIs", () => {
           expect(res.body.status).toEqual("success");
 
           const data = res.body.data;
-          expect(data["metadata.patient.diabetic"].choices[0].key).toEqual(
-            "Insulin"
-          );
-          expect(data["metadata.genotyping.genexpert"].choices[0].key).toEqual(
-            "Not tested"
-          );
+          expect(data["metadata.patient.diabetic"].choices[0].key).toEqual("Insulin");
+          expect(data["metadata.genotyping.genexpert"].choices[0].key).toEqual("Not tested");
           expect(data["metadata.patient.age"].max).toEqual(43);
           expect(data["metadata.patient.bmi"].min).toEqual(25.3);
-          expect(data["metadata.sample.dateArrived"].min).toEqual(
-            "2018-09-01T00:00:00.000Z"
-          );
+          expect(data["metadata.sample.dateArrived"].min).toEqual("2018-09-01T00:00:00.000Z");
 
           done();
         });
@@ -346,17 +320,11 @@ describe("## Experiment APIs", () => {
           expect(res.body.status).toEqual("success");
 
           const data = res.body.data;
-          expect(data["metadata.patient.diabetic"].choices[0].key).toEqual(
-            "Insulin"
-          );
-          expect(data["metadata.genotyping.genexpert"].choices[0].key).toEqual(
-            "Not tested"
-          );
+          expect(data["metadata.patient.diabetic"].choices[0].key).toEqual("Insulin");
+          expect(data["metadata.genotyping.genexpert"].choices[0].key).toEqual("Not tested");
           expect(data["metadata.patient.age"].max).toEqual(43);
           expect(data["metadata.patient.bmi"].min).toEqual(25.3);
-          expect(data["metadata.sample.dateArrived"].min).toEqual(
-            "2018-09-01T00:00:00.000Z"
-          );
+          expect(data["metadata.sample.dateArrived"].min).toEqual("2018-09-01T00:00:00.000Z");
 
           done();
         });
@@ -374,12 +342,8 @@ describe("## Experiment APIs", () => {
           expect(data["metadata.patient.age"].max).toEqual(32);
           expect(data["metadata.patient.bmi"].min).toEqual(33.1);
           expect(data["metadata.patient.bmi"].max).toEqual(33.1);
-          expect(data["metadata.sample.dateArrived"].min).toEqual(
-            "2017-11-05T00:00:00.000Z"
-          );
-          expect(data["metadata.sample.dateArrived"].max).toEqual(
-            "2017-11-05T00:00:00.000Z"
-          );
+          expect(data["metadata.sample.dateArrived"].min).toEqual("2017-11-05T00:00:00.000Z");
+          expect(data["metadata.sample.dateArrived"].max).toEqual("2017-11-05T00:00:00.000Z");
 
           done();
         });
@@ -423,9 +387,7 @@ describe("## Experiment APIs", () => {
     });
     it("should filter by metadata fields", done => {
       request(app)
-        .get(
-          "/experiments/search?metadata.patient.smoker=Yes&metadata.patient.imprisoned=No"
-        )
+        .get("/experiments/search?metadata.patient.smoker=Yes&metadata.patient.imprisoned=No")
         .set("Authorization", `Bearer ${token}`)
         .expect(httpStatus.OK)
         .end((err, res) => {
@@ -477,9 +439,7 @@ describe("## Experiment APIs", () => {
 
           expect(result.metadata.patient.diabetic).toEqual("Insulin");
           expect(result.metadata.patient.age).toEqual(43);
-          expect(result.metadata.sample.labId).toEqual(
-            "d19637ed-e5b4-4ca7-8418-8713646a3359"
-          );
+          expect(result.metadata.sample.labId).toEqual("d19637ed-e5b4-4ca7-8418-8713646a3359");
 
           done();
         });
@@ -495,9 +455,7 @@ describe("## Experiment APIs", () => {
 
           expect(result.metadata.patient.diabetic).toEqual("Insulin");
           expect(result.metadata.patient.age).toEqual(43);
-          expect(result.metadata.sample.labId).toEqual(
-            "d19637ed-e5b4-4ca7-8418-8713646a3359"
-          );
+          expect(result.metadata.sample.labId).toEqual("d19637ed-e5b4-4ca7-8418-8713646a3359");
 
           done();
         });
@@ -521,9 +479,7 @@ describe("## Experiment APIs", () => {
     });
     it("should include a summary", done => {
       request(app)
-        .get(
-          "/experiments/search?metadata.patient.smoker=Yes&metadata.patient.imprisoned=No"
-        )
+        .get("/experiments/search?metadata.patient.smoker=Yes&metadata.patient.imprisoned=No")
         .set("Authorization", `Bearer ${token}`)
         .expect(httpStatus.OK)
         .end((err, res) => {
@@ -593,9 +549,7 @@ describe("## Experiment APIs", () => {
     });
     it("should control the page value", done => {
       request(app)
-        .get(
-          "/experiments/search?metadata.smoker=No&metadata.imprisoned=Yes&per=10&page=0"
-        )
+        .get("/experiments/search?metadata.smoker=No&metadata.imprisoned=Yes&per=10&page=0")
         .set("Authorization", `Bearer ${token}`)
         .expect(httpStatus.OK)
         .end((err, res) => {
@@ -718,9 +672,7 @@ describe("## Experiment APIs", () => {
 
             expect(result.metadata.patient.diabetic).toEqual("Insulin");
             expect(result.metadata.patient.age).toEqual(43);
-            expect(result.metadata.sample.labId).toEqual(
-              "d19637ed-e5b4-4ca7-8418-8713646a3359"
-            );
+            expect(result.metadata.sample.labId).toEqual("d19637ed-e5b4-4ca7-8418-8713646a3359");
 
             done();
           });
@@ -753,9 +705,7 @@ describe("## Experiment APIs", () => {
     describe("when no additional criteria provided", () => {
       it("should filter by experiments ids", done => {
         request(app)
-          .get(
-            "/experiments/search?q=GTCAGTCCGTTTGTTCTTGTGGCGAGTGTAGTA&threshold=0.9"
-          )
+          .get("/experiments/search?q=GTCAGTCCGTTTGTTCTTGTGGCGAGTGTAGTA&threshold=0.9")
           .set("Authorization", `Bearer ${token}`)
           .expect(httpStatus.OK)
           .end((err, res) => {
@@ -775,16 +725,12 @@ describe("## Experiment APIs", () => {
             expect(result.experiments[0].id).toBeTruthy();
             expect(result.experiments[0].metadata).toBeTruthy();
             expect(result.experiments[0].results.bigsi).toBeTruthy();
-            expect(
-              result.experiments[0].results.bigsi.percent_kmers_found
-            ).toBeTruthy();
+            expect(result.experiments[0].results.bigsi.percent_kmers_found).toBeTruthy();
 
             expect(result.experiments[1].id).toBeTruthy();
             expect(result.experiments[1].metadata).toBeTruthy();
             expect(result.experiments[1].results.bigsi).toBeTruthy();
-            expect(
-              result.experiments[1].results.bigsi.percent_kmers_found
-            ).toBeTruthy();
+            expect(result.experiments[1].results.bigsi.percent_kmers_found).toBeTruthy();
 
             done();
           });
@@ -816,9 +762,7 @@ describe("## Experiment APIs", () => {
             expect(result.experiments[0].metadata).toBeTruthy();
             expect(result.experiments[0].metadata.patient.smoker).toEqual("No");
             expect(result.experiments[0].results.bigsi).toBeTruthy();
-            expect(
-              result.experiments[0].results.bigsi.percent_kmers_found
-            ).toEqual(90);
+            expect(result.experiments[0].results.bigsi.percent_kmers_found).toEqual(90);
 
             done();
           });

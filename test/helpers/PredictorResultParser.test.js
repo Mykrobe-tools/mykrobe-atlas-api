@@ -1,4 +1,4 @@
-import PredictorResultParser from "../../helpers/PredictorResultParser";
+import PredictorResultParser from "../../src/server/helpers/PredictorResultParser";
 import MDR from "../fixtures/files/MDR_Results.json";
 import {
   SUSCEPTIBLE_ALL,
@@ -95,9 +95,7 @@ describe("PredictorResultParser", () => {
       });
 
       expect(mappedResults["phylo_group"].type).toEqual("phylo_group");
-      expect(mappedResults["phylo_group"].result).toEqual(
-        "Mycobacterium_tuberculosis_complex"
-      );
+      expect(mappedResults["phylo_group"].result).toEqual("Mycobacterium_tuberculosis_complex");
       expect(mappedResults["phylo_group"].percentCoverage).toEqual(99.722);
       expect(mappedResults["phylo_group"].medianDepth).toEqual(122);
 
@@ -107,9 +105,7 @@ describe("PredictorResultParser", () => {
       expect(mappedResults["sub_complex"].medianDepth).toEqual(-1);
 
       expect(mappedResults["species"].type).toEqual("species");
-      expect(mappedResults["species"].result).toEqual(
-        "Mycobacterium_tuberculosis"
-      );
+      expect(mappedResults["species"].result).toEqual("Mycobacterium_tuberculosis");
       expect(mappedResults["species"].percentCoverage).toEqual(98.199);
       expect(mappedResults["species"].medianDepth).toEqual(116);
 
@@ -176,9 +172,7 @@ describe("PredictorResultParser", () => {
       });
       describe("when resistant to multiple drugs", () => {
         it("should set resistance and mdr to true and other indicators to false", done => {
-          const parser = new PredictorResultParser(
-            MULTIPLE_FIRST_CLASS_RESISTANCE
-          );
+          const parser = new PredictorResultParser(MULTIPLE_FIRST_CLASS_RESISTANCE);
           const result = parser.parse();
 
           expect(result).toHaveProperty("r");
