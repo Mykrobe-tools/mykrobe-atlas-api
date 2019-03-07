@@ -90,11 +90,19 @@ describe("DataController", () => {
         .send({ total: 1 })
         .expect(httpStatus.OK)
         .end(async (err, res) => {
-          expect(res.body.status).toEqual("success");
-          const results = res.body.data[0].results;
+          const body = res.body;
+          expect(body).toHaveProperty("status", "success");
+          expect(body).toHaveProperty("data");
+
+          const data = body.data;
+          expect(data.length).toBeTruthy();
+          const first = data[0];
+          expect(first).toHaveProperty("results");
+          const results = first.results;
+          console.log(`results: ${JSON.stringify(data, null, 2)}`);
           expect(results).toBeTruthy();
-          const resultType = results.predictor || results.distance;
-          expect(resultType).toBeTruthy();
+          expect(results.predictor || results.distance).toBeTruthy();
+
           done();
         });
     });
