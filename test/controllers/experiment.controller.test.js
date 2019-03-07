@@ -56,7 +56,6 @@ beforeEach(async done => {
       const savedExperiment = await experimentData.save();
 
       id = savedExperiment.id;
-      console.log(`beforeEach complete`);
       done();
     });
 });
@@ -69,12 +68,6 @@ afterEach(async done => {
   await Experiment.remove({});
   await Search.remove({});
   await Audit.remove({});
-  console.log(`afterEach complete`);
-  done();
-});
-
-afterAll(async done => {
-  console.log('all done');
   done();
 });
 
@@ -98,7 +91,6 @@ describe("ExperimentController", () => {
           expect(metadata).not.toHaveProperty("treatment");
           expect(metadata).not.toHaveProperty("outcome");
 
-          console.log("a");
           done();
         });
     });
@@ -123,7 +115,7 @@ describe("ExperimentController", () => {
 
           expect(res.body.data).not.toHaveProperty("field1");
           expect(res.body.data).not.toHaveProperty("field2");
-          console.log("b");
+
           done();
         });
     });
@@ -138,7 +130,7 @@ describe("ExperimentController", () => {
           expect(res.body.status).toEqual("success");
           expect(res.body.data.owner.firstname).toEqual("David");
           expect(res.body.data.owner.lastname).toEqual("Robin");
-          console.log("c");
+
           done();
         });
     });
@@ -161,7 +153,7 @@ describe("ExperimentController", () => {
           expect(metadata).toHaveProperty("phenotyping");
           expect(metadata).not.toHaveProperty("treatment");
           expect(metadata).not.toHaveProperty("outcome");
-          console.log("d");
+
           done();
         });
     });
@@ -177,7 +169,7 @@ describe("ExperimentController", () => {
           expect(owner.firstname).toEqual("David");
           expect(owner.lastname).toEqual("Robin");
           expect(owner.email).toEqual("admin@nhs.co.uk");
-          console.log("e");
+
           done();
         });
     });
@@ -2431,7 +2423,7 @@ describe("ExperimentController", () => {
               expect(res.body.data.id).toEqual(searchId);
               expect(res.body.data.users.length).toEqual(1);
               expect(res.body.data.users[0].firstname).toEqual("David");
-              console.log('f')
+
               done();
             });
         });
@@ -2453,7 +2445,7 @@ describe("ExperimentController", () => {
                 expect(job.data.search.bigsi.ref).toEqual("S");
                 expect(job.data.search.bigsi.pos).toEqual(450);
                 expect(job.data.search.bigsi.alt).toEqual("L");
-                console.log("g");
+
                 done();
               } catch (e) {
                 fail(e.message);

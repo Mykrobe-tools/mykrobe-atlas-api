@@ -113,7 +113,7 @@ describe("Resumable", () => {
     });
   });
 
-  describe("#reassembleChunksToFile", async () => {
+  describe("#reassembleChunksToFile", () => {
     it("should reassemble a complete file", async () => {
       const directory = path.resolve(__dirname, "../../fixtures/files/parts/");
       const reassemblePath = path.resolve(directory, "lipsum.txt");
