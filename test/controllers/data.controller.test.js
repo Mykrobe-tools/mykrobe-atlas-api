@@ -1,10 +1,12 @@
 import request from "supertest";
 import httpStatus from "http-status";
 import faker from "faker";
-import User from "../../models/user.model";
-import Experiment from "../../models/experiment.model";
+
 import { createApp } from "../setup";
 import { mockEsCalls } from "../mocks";
+
+import User from "../../src/server/models/user.model";
+import Experiment from "../../src/server/models/experiment.model";
 
 mockEsCalls();
 
@@ -22,7 +24,7 @@ afterEach(async done => {
   done();
 });
 
-describe("Random Data API", () => {
+describe("DataController", () => {
   describe("POST /data/create", () => {
     it("should return a successful response", done => {
       request(app)

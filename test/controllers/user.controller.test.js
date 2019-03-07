@@ -1,20 +1,17 @@
 import request from "supertest";
 import httpStatus from "http-status";
+
 import { createApp } from "../setup";
 
-import Audit from "../../models/audit.model";
-import User from "../../models/user.model";
-import Organisation from "../../models/organisation.model";
-import Search from "../../models/search.model";
-import Experiment from "../../models/experiment.model";
+import Audit from "../../src/server/models/audit.model";
+import User from "../../src/server/models/user.model";
+import Organisation from "../../src/server/models/organisation.model";
+import Search from "../../src/server/models/search.model";
 
-import AuditJSONTransformer from "../../transformers/AuditJSONTransformer";
+import users from "../fixtures/users";
+import searches from "../fixtures/searches";
 
 const app = createApp();
-
-const users = require("../fixtures/users");
-const searches = require("../fixtures/searches");
-const experiments = require("../fixtures/experiments");
 
 let savedUser = null;
 let token = null;
@@ -38,7 +35,7 @@ afterEach(async done => {
   done();
 });
 
-describe("## User APIs", () => {
+describe("UserController", () => {
   const user = {
     firstname: "David",
     lastname: "Robin",
@@ -76,9 +73,7 @@ describe("## User APIs", () => {
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
           expect(res.body.code).toEqual(10005);
-          expect(res.body.data.errors[""].message).toEqual(
-            "should have required property 'email'"
-          );
+          expect(res.body.data.errors[""].message).toEqual("should have required property 'email'");
           done();
         });
     });
@@ -140,9 +135,7 @@ describe("## User APIs", () => {
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
           expect(res.body.code).toEqual(10005);
-          expect(res.body.data.errors.email.message).toEqual(
-            'should match format "email"'
-          );
+          expect(res.body.data.errors.email.message).toEqual('should match format "email"');
           done();
         });
     });
@@ -206,9 +199,7 @@ describe("## User APIs", () => {
         .get("/users/56c787ccc67fc16ccc1a5e92")
         .expect(httpStatus.NOT_FOUND)
         .end((err, res) => {
-          expect(res.body.message).toEqual(
-            "User not found with id 56c787ccc67fc16ccc1a5e92"
-          );
+          expect(res.body.message).toEqual("User not found with id 56c787ccc67fc16ccc1a5e92");
           done();
         });
     });
@@ -344,9 +335,7 @@ describe("## User APIs", () => {
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
-          expect(res.body.message).toEqual(
-            "User not found with id 589dcdd38d71fee259dc4e00"
-          );
+          expect(res.body.message).toEqual("User not found with id 589dcdd38d71fee259dc4e00");
           done();
         });
     });
@@ -403,9 +392,7 @@ describe("## User APIs", () => {
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
           expect(res.body.code).toEqual("ValidationError");
-          expect(res.body.data.errors.email.message).toEqual(
-            'should match format "email"'
-          );
+          expect(res.body.data.errors.email.message).toEqual('should match format "email"');
           done();
         });
     });
@@ -460,9 +447,7 @@ describe("## User APIs", () => {
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("success");
-          expect(res.body.data).toEqual(
-            "Email sent successfully to admin@nhs.co.uk"
-          );
+          expect(res.body.data).toEqual("Email sent successfully to admin@nhs.co.uk");
           done();
         });
     });
@@ -475,9 +460,7 @@ describe("## User APIs", () => {
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
           expect(res.body.message).toEqual("Failed to reset the password.");
-          expect(res.body.data.errors[""].message).toEqual(
-            "should have required property 'email'"
-          );
+          expect(res.body.data.errors[""].message).toEqual("should have required property 'email'");
           done();
         });
     });
@@ -492,9 +475,7 @@ describe("## User APIs", () => {
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
           expect(res.body.message).toEqual("Failed to reset the password.");
-          expect(res.body.data.errors.email.message).toEqual(
-            'should match format "email"'
-          );
+          expect(res.body.data.errors.email.message).toEqual('should match format "email"');
           done();
         });
     });
@@ -507,9 +488,7 @@ describe("## User APIs", () => {
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
           expect(res.body.code).toEqual(10006);
-          expect(res.body.message).toEqual(
-            "The object requested was not found."
-          );
+          expect(res.body.message).toEqual("The object requested was not found.");
           done();
         });
     });
@@ -524,9 +503,7 @@ describe("## User APIs", () => {
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("success");
-          expect(res.body.data).toEqual(
-            "Email sent successfully to admin@nhs.co.uk"
-          );
+          expect(res.body.data).toEqual("Email sent successfully to admin@nhs.co.uk");
           done();
         });
     });
@@ -537,12 +514,8 @@ describe("## User APIs", () => {
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
-          expect(res.body.message).toEqual(
-            "Failed to resend the notification."
-          );
-          expect(res.body.data.errors[""].message).toEqual(
-            "should have required property 'email'"
-          );
+          expect(res.body.message).toEqual("Failed to resend the notification.");
+          expect(res.body.data.errors[""].message).toEqual("should have required property 'email'");
           done();
         });
     });
@@ -553,12 +526,8 @@ describe("## User APIs", () => {
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
-          expect(res.body.message).toEqual(
-            "Failed to resend the notification."
-          );
-          expect(res.body.data.errors.email.message).toEqual(
-            'should match format "email"'
-          );
+          expect(res.body.message).toEqual("Failed to resend the notification.");
+          expect(res.body.data.errors.email.message).toEqual('should match format "email"');
           done();
         });
     });
@@ -569,9 +538,7 @@ describe("## User APIs", () => {
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("success");
-          expect(res.body.data).toEqual(
-            "Email sent successfully to admin@nhs.co.uk"
-          );
+          expect(res.body.data).toEqual("Email sent successfully to admin@nhs.co.uk");
           done();
         });
     });
@@ -583,9 +550,7 @@ describe("## User APIs", () => {
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
-          expect(res.body.message).toEqual(
-            "The object requested was not found."
-          );
+          expect(res.body.message).toEqual("The object requested was not found.");
           done();
         });
     });
@@ -624,9 +589,7 @@ describe("## User APIs", () => {
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
-          expect(res.body.message).toEqual(
-            "You are not allowed to perform this action."
-          );
+          expect(res.body.message).toEqual("You are not allowed to perform this action.");
           done();
         });
     });
@@ -637,9 +600,7 @@ describe("## User APIs", () => {
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
-          expect(res.body.message).toEqual(
-            "User not found with id 56c787ccc67fc16ccc1a5e92"
-          );
+          expect(res.body.message).toEqual("User not found with id 56c787ccc67fc16ccc1a5e92");
           done();
         });
     });
@@ -665,9 +626,7 @@ describe("## User APIs", () => {
       await sequenceSearchAudit.save();
 
       // protein variant search with no results
-      const proteinVariantSearch = new Search(
-        searches.searchOnly.proteinVariant
-      );
+      const proteinVariantSearch = new Search(searches.searchOnly.proteinVariant);
       proteinVariantSearch.user = savedUser;
       const savedProteinVariantSearch = await proteinVariantSearch.save();
       proteinVariantSearchId = savedProteinVariantSearch.id;
@@ -739,9 +698,7 @@ describe("## User APIs", () => {
           .expect(httpStatus.OK)
           .end((err, res) => {
             expect(res.body.status).toEqual("error");
-            expect(res.body.message).toEqual(
-              "Search not found with id 56c787ccc67fc16ccc1a5e92"
-            );
+            expect(res.body.message).toEqual("Search not found with id 56c787ccc67fc16ccc1a5e92");
             done();
           });
       });
@@ -761,9 +718,7 @@ describe("## User APIs", () => {
           const savedAlternateUser = await alternateUser.save();
 
           // protein variant search with a different owner
-          const alternateSequenceSearch = new Search(
-            searches.searchOnly.sequence
-          );
+          const alternateSequenceSearch = new Search(searches.searchOnly.sequence);
           alternateSequenceSearch.user = savedAlternateUser;
           const savedAlternateSequenceSearch = await alternateSequenceSearch.save();
           alternateUserSequenceSearchId = savedAlternateSequenceSearch.id;
@@ -783,17 +738,13 @@ describe("## User APIs", () => {
         });
         it("should throw an error if the user is not the owner of the result", done => {
           request(app)
-            .put(
-              `/users/${savedUser.id}/results/${alternateUserSequenceSearchId}`
-            )
+            .put(`/users/${savedUser.id}/results/${alternateUserSequenceSearchId}`)
             .set("Authorization", `Bearer ${token}`)
             .send(searches.results.sequence)
             .expect(httpStatus.OK)
             .end((err, res) => {
               expect(res.body.status).toEqual("error");
-              expect(res.body.data).toEqual(
-                "User must be the owner of the search result"
-              );
+              expect(res.body.data).toEqual("User must be the owner of the search result");
               done();
             });
         });
@@ -851,13 +802,10 @@ describe("## User APIs", () => {
           const savedAlternateUser = await alternateUser.save();
 
           // protein variant search with a different owner
-          const alternateProteinVariantSearch = new Search(
-            searches.searchOnly.proteinVariant
-          );
+          const alternateProteinVariantSearch = new Search(searches.searchOnly.proteinVariant);
           alternateProteinVariantSearch.user = savedAlternateUser;
           const savedAlternateProteinVariantSearch = await alternateProteinVariantSearch.save();
-          alternateUserProteinVariantSearchId =
-            savedAlternateProteinVariantSearch.id;
+          alternateUserProteinVariantSearchId = savedAlternateProteinVariantSearch.id;
 
           // audit for the protein variant search
           const alternateProteinVariantSearchAudit = new Audit({
@@ -874,19 +822,13 @@ describe("## User APIs", () => {
         });
         it("should throw an error if the user is not the owner of the result", done => {
           request(app)
-            .put(
-              `/users/${
-                savedUser.id
-              }/results/${alternateUserProteinVariantSearchId}`
-            )
+            .put(`/users/${savedUser.id}/results/${alternateUserProteinVariantSearchId}`)
             .set("Authorization", `Bearer ${token}`)
             .send(searches.results.proteinVariant)
             .expect(httpStatus.OK)
             .end((err, res) => {
               expect(res.body.status).toEqual("error");
-              expect(res.body.data).toEqual(
-                "User must be the owner of the search result"
-              );
+              expect(res.body.data).toEqual("User must be the owner of the search result");
               done();
             });
         });
@@ -914,9 +856,7 @@ describe("## User APIs", () => {
       await sequenceSearchAudit.save();
 
       // protein variant search with no results
-      const proteinVariantSearch = new Search(
-        searches.searchOnly.proteinVariant
-      );
+      const proteinVariantSearch = new Search(searches.searchOnly.proteinVariant);
       proteinVariantSearch.user = savedUser;
       const savedProteinVariantSearch = await proteinVariantSearch.save();
       proteinVariantSearchId = savedProteinVariantSearch.id;
@@ -954,9 +894,7 @@ describe("## User APIs", () => {
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
-          expect(res.body.message).toEqual(
-            "Search not found with id 56c787ccc67fc16ccc1a5e92"
-          );
+          expect(res.body.message).toEqual("Search not found with id 56c787ccc67fc16ccc1a5e92");
           done();
         });
     });
@@ -976,9 +914,7 @@ describe("## User APIs", () => {
         const savedAlternateUser = await alternateUser.save();
 
         // protein variant search with a different owner
-        const alternateSequenceSearch = new Search(
-          searches.searchOnly.sequence
-        );
+        const alternateSequenceSearch = new Search(searches.searchOnly.sequence);
         alternateSequenceSearch.user = savedAlternateUser;
         const savedAlternateSequenceSearch = await alternateSequenceSearch.save();
         alternateUserSequenceSearchId = savedAlternateSequenceSearch.id;
@@ -998,16 +934,12 @@ describe("## User APIs", () => {
       });
       it("should throw an error", done => {
         request(app)
-          .get(
-            `/users/${savedUser.id}/results/${alternateUserSequenceSearchId}`
-          )
+          .get(`/users/${savedUser.id}/results/${alternateUserSequenceSearchId}`)
           .set("Authorization", `Bearer ${token}`)
           .expect(httpStatus.OK)
           .end((err, res) => {
             expect(res.body.status).toEqual("error");
-            expect(res.body.data).toEqual(
-              "User must be the owner of the search result"
-            );
+            expect(res.body.data).toEqual("User must be the owner of the search result");
             done();
           });
       });

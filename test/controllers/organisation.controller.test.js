@@ -1,8 +1,10 @@
 import request from "supertest";
 import httpStatus from "http-status";
+
 import { createApp } from "../setup";
-import User from "../../models/user.model";
-import Organisation from "../../models/organisation.model";
+
+import User from "../../src/server/models/user.model";
+import Organisation from "../../src/server/models/organisation.model";
 
 jest.mock("keycloak-admin-client");
 
@@ -35,7 +37,7 @@ afterEach(async done => {
   done();
 });
 
-describe("## Organisation APIs", () => {
+describe("OrganisationController", () => {
   describe("# POST /organisations", () => {
     it("should create a new organisation", done => {
       request(app)
@@ -169,9 +171,7 @@ describe("## Organisation APIs", () => {
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("success");
-          expect(res.body.data).toEqual(
-            "Organisation was successfully deleted."
-          );
+          expect(res.body.data).toEqual("Organisation was successfully deleted.");
           done();
         });
     });

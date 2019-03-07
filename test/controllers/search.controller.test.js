@@ -1,15 +1,18 @@
 import request from "supertest";
 import httpStatus from "http-status";
-import User from "../../models/user.model";
-import Search from "../../models/search.model";
-import Audit from "../../models/audit.model";
-import { userEventEmitter } from "../../modules/events";
+
 import { createApp } from "../setup";
+
+import User from "../../src/server/models/user.model";
+import Search from "../../src/server/models/search.model";
+import Audit from "../../src/server/models/audit.model";
+
+import { userEventEmitter } from "../../src/server/modules/events";
 
 const app = createApp();
 
-const searches = require("../fixtures/searches");
-const users = require("../fixtures/users");
+import searches from "../fixtures/searches";
+import users from "../fixtures/users";
 
 let token = "123";
 
@@ -19,6 +22,7 @@ let sequenceSearchId = null;
 beforeEach(async done => {
   const userData = new User(users.admin);
   const savedUser = await userData.save();
+
   // sequence search with no results
   const sequenceSearch = new Search(searches.searchOnly.sequence);
   sequenceSearch.users.push(savedUser);
@@ -55,7 +59,7 @@ afterEach(async done => {
   done();
 });
 
-describe("Search API", () => {
+describe("SearchController", () => {
   describe("# PUT /searches/:id/results", () => {
     describe("when searching by sequence", () => {
       it("should save search result", done => {
@@ -124,15 +128,9 @@ describe("Search API", () => {
             var newExpirationDate = new Date();
             newExpirationDate.setDate(newExpirationDate.getDate() + 7);
 
-            expect(foundSearch.expires.getDay()).toEqual(
-              newExpirationDate.getDay()
-            );
-            expect(foundSearch.expires.getMonth()).toEqual(
-              newExpirationDate.getMonth()
-            );
-            expect(foundSearch.expires.getYear()).toEqual(
-              newExpirationDate.getYear()
-            );
+            expect(foundSearch.expires.getDay()).toEqual(newExpirationDate.getDay());
+            expect(foundSearch.expires.getMonth()).toEqual(newExpirationDate.getMonth());
+            expect(foundSearch.expires.getYear()).toEqual(newExpirationDate.getYear());
 
             done();
           });
@@ -171,9 +169,7 @@ describe("Search API", () => {
           .expect(httpStatus.OK)
           .end((err, res) => {
             expect(res.body.status).toEqual("error");
-            expect(res.body.message).toEqual(
-              "Search not found with id 56c787ccc67fc16ccc1a5e92"
-            );
+            expect(res.body.message).toEqual("Search not found with id 56c787ccc67fc16ccc1a5e92");
             done();
           });
       });
