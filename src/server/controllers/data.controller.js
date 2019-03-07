@@ -1,3 +1,4 @@
+import fs from "fs";
 import _ from "lodash";
 import * as schemas from "mykrobe-atlas-jsonschema";
 import Randomizer from "makeandship-api-common/lib/modules/schema-faker/Randomizer";

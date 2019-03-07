@@ -99,9 +99,14 @@ describe("DataController", () => {
           const first = data[0];
           expect(first).toHaveProperty("results");
           const results = first.results;
-          console.log(`results: ${JSON.stringify(data, null, 2)}`);
-          expect(results).toBeTruthy();
-          expect(results.predictor || results.distance).toBeTruthy();
+
+          const keys = Object.keys(results);
+
+          const hasPredictor = keys.includes("predictor");
+          const hasDistance = keys.includes("distance");
+          const hasNearestNeighbours = keys.includes("nearestNeighbours");
+
+          expect(hasPredictor || hasDistance || hasNearestNeighbours).toEqual(true);
 
           done();
         });
