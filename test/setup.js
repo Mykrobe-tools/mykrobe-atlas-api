@@ -22,7 +22,8 @@ let mongoServer;
 
 errorsDefinition.create();
 
-beforeAll(async () => {
+beforeAll(async done => {
+  console.log(`beforeAll`);
   mongoServer = new MongodbMemoryServer({
     instance: {
       dbName: "atlas-test"
@@ -32,17 +33,26 @@ beforeAll(async () => {
       ssl: true
     }
   });
+  console.log(`beforeAll: server created`);
   const mongoUri = await mongoServer.getConnectionString();
+  console.log(`beforeAll: mongoUri: ${mongoUri}`);
   await mongoose.connect(mongoUri, {}, err => {
     if (err) console.error(err);
   });
   config.db.uri = mongoUri;
+  console.log(`beforeAll: config.db.uri: ${config.db.uri}`);
   initialiseWorkers();
+  console.log(`beforeAll: initialiseWorkers complete`);
+  done();
 });
 
 afterAll(async () => {
+  console.log(`disconnecting ...`);
   await mongoose.disconnect();
+  console.log(`disconnected`);
+  console.log(`stopping ...`);
   await mongoServer.stop();
+  console.log(`stopped`);
 });
 
 mockAnalysisApiCalls();

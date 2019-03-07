@@ -15,7 +15,7 @@ const schedule = (when, job, params) => {
   agendaInstance.define("refresh isolateId", AgendaHelper.refreshIsolateId.bind(agendaInstance));
 
   agendaInstance.on("ready", async () => {
-    winston.info("agenda is ready and started.");
+    winston.info("mock agenda is ready and started.");
     await agendaInstance.start();
     await agendaInstance.every("0 0 * * *", "refresh isolateId");
     agendaInstance.schedule(when, job, params);

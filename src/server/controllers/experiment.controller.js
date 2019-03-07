@@ -12,8 +12,6 @@ import { util as jsonschemaUtil } from "makeandship-api-common/lib/modules/jsons
 
 import Audit from "../models/audit.model";
 import Experiment from "../models/experiment.model";
-import Organisation from "../models/organisation.model";
-import Search from "../models/search.model";
 import Tree from "../models/tree.model";
 
 import resumable from "../modules/resumable";
@@ -21,8 +19,6 @@ import DownloadersFactory from "../helpers/DownloadersFactory";
 import BigsiSearchHelper from "../helpers/BigsiSearchHelper";
 
 import AuditJSONTransformer from "../transformers/AuditJSONTransformer";
-import SearchJSONTransformer from "../transformers/SearchJSONTransformer";
-import UserJSONTransformer from "../transformers/UserJSONTransformer";
 import ExperimentJSONTransformer from "../transformers/ExperimentJSONTransformer";
 import ExperimentsResultJSONTransformer from "../transformers/es/ExperimentsResultJSONTransformer";
 import ResultsJSONTransformer from "../transformers/ResultsJSONTransformer";
