@@ -1,6 +1,8 @@
 {
   "presets": ["@babel/preset-env"],
-  "plugins": ["@babel/plugin-transform-runtime", "add-module-exports"],
-  "sourceMaps": true,
-  "retainLines": true
+  "plugins": ["@babel/plugin-transform-runtime"],
+  "ignore": [
+    "test",
+    "node_modules"
+  ]
 }

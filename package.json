@@ -12,8 +12,9 @@
   },
   "scripts": {
     "precommit": "yarn prettier && yarn test",
-    "start": "gulp serve",
-    "build": "gulp",
+    "serve": "node dist/index.js",
+    "start": "yarn build && yarn serve",
+    "build": "babel src --out-dir dist",
     "prettier": "prettier --find-config-path --write 'src/**/*.js'",
     "prettier-watch": "onchange 'src/**/*.js' -- prettier --write {{changed}}",
     "test:version": "jest --version",
