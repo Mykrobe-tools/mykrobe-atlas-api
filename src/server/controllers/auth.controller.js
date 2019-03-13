@@ -9,7 +9,6 @@ import APIError from "../helpers/APIError";
 import AccountsHelper from "../helpers/AccountsHelper";
 
 import config from "../../config/env";
-import MonqHelper from "../helpers/MonqHelper";
 
 const keycloak = AccountsHelper.keycloakInstance();
 

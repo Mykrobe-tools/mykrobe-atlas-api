@@ -19,7 +19,6 @@ import ExperimentJSONTransformer from "../transformers/ExperimentJSONTransformer
 import ExperimentsResultJSONTransformer from "../transformers/es/ExperimentsResultJSONTransformer";
 
 import AccountsHelper from "../helpers/AccountsHelper";
-import MonqHelper from "../helpers/MonqHelper";
 
 import ResultsParserFactory from "../helpers/ResultsParserFactory";
 

@@ -11,7 +11,6 @@ import {
   mockTreeApiCalls,
   mockIsolateIdMappingCalls
 } from "./mocks";
-import { initialise as initialiseWorkers } from "../src/workers";
 
 require("../src/express-jsend");
 jest.mock("../src/server/modules/agenda");
@@ -36,15 +35,10 @@ beforeAll(async done => {
   await mongoose.connect(mongoUri, {}, err => {
     if (err) console.error(err);
   });
+
   config.db.uri = mongoUri;
-  initialiseWorkers();
 
   done();
-});
-
-afterAll(async () => {
-  await mongoose.disconnect();
-  await mongoServer.stop();
 });
 
 mockAnalysisApiCalls();
