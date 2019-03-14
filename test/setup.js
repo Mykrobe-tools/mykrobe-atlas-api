@@ -30,7 +30,8 @@ beforeAll(async done => {
     },
     binary: {
       version: "3.6.1",
-      ssl: true
+      ssl: true,
+      downloadDir: "./tmp/mongo"
     }
   });
   const mongoUri = await mongoServer.getConnectionString();
