@@ -9,6 +9,7 @@ db:
   command: --smallfiles --auth --replSet "rs0"
 atlas-api:
   build: ..
+  image: mthomsit/atlas-api:0.0.1
   dockerfile: ./deploy/Dockerfile
   container_name: atlas-api
   volumes:

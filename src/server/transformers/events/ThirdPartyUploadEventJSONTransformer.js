@@ -19,7 +19,7 @@ class ThirdPartyUploadEventJSONTransformer {
 
     if (status) {
       const totalSize = parseInt(status.totalSize);
-      const complete = status.size * 100 / totalSize;
+      const complete = (status.size * 100) / totalSize;
 
       res.provider = status.provider;
       res.complete = complete.toFixed(2);
