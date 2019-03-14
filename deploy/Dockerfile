@@ -71,8 +71,7 @@ RUN cat /root/.ssh/atlas-jsonschema-readonly > /etc/ssh/id_rsa && \
     yarn
 
 # build and compile the source
-RUN yarn global add gulp
-RUN gulp
+RUN yarn build
 
 # trim to production dependencies post build
 RUN cp -rf /app/node_modules/makeandship-api-common /tmp

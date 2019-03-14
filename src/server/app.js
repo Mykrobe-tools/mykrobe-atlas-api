@@ -16,7 +16,7 @@ import routes from "./routes/index.route";
 import config from "../config/env";
 import APIError from "./helpers/APIError";
 import AccountsHelper from "./helpers/AccountsHelper";
-import { mockDevApiCalls } from "../../test/mocks/index";
+import { stubDevApis } from "../external";
 
 const keycloak = AccountsHelper.keycloakInstance();
 
@@ -24,7 +24,7 @@ const createApp = ({ rateLimitReset, rateLimitMax, limit } = config.express) => 
   const app = express();
 
   if (config.env === "development") {
-    mockDevApiCalls();
+    stubDevApis();
     app.use(logger("dev"));
   }
 

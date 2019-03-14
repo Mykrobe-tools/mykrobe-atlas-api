@@ -3,14 +3,16 @@ import MongodbMemoryServer from "mongodb-memory-server";
 import config from "../src/config/env";
 import errorsDefinition from "../src/config/errors-definition";
 import {
-  mockAnalysisApiCalls,
-  mockDistanceApiCalls,
   mockKeycloakCalls,
-  mockThirdPartyCalls,
-  mockSearchApiCalls,
-  mockTreeApiCalls,
-  mockIsolateIdMappingCalls
+  mockThirdPartyCalls
 } from "./mocks";
+import {
+  stubTreeApi,
+  stubIsolateIdMapping,
+  stubAnalysisApi,
+  stubDistanceApi,
+  stubSearchApi
+} from "../src/external"
 
 require("../src/express-jsend");
 jest.mock("../src/server/modules/agenda");
@@ -41,12 +43,16 @@ beforeAll(async done => {
   done();
 });
 
-mockAnalysisApiCalls();
-mockDistanceApiCalls();
-mockSearchApiCalls();
-mockTreeApiCalls();
+// stubs
+stubTreeApi();
+stubIsolateIdMapping();
+stubAnalysisApi();
+stubDistanceApi();
+stubSearchApi();
+
+// mocks
 mockKeycloakCalls();
 mockThirdPartyCalls();
-mockIsolateIdMappingCalls();
+
 
 export default { config, createApp };
