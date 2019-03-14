@@ -62,7 +62,7 @@ const setComplete = status => {
 const setPercentageComplete = status => {
   // percentage complete for valid number of and total chunks
   if (status && status.chunkNumber && status.totalChunks) {
-    status.percentageComplete = (status.chunkNumber / status.totalChunks) * 100;
+    status.percentageComplete = status.chunkNumber / status.totalChunks * 100;
   }
 };
 
@@ -117,7 +117,7 @@ const validateRequest = (status, fileSize) => {
     if (
       numberOfChunks > 1 &&
       chunkNumber === numberOfChunks &&
-      fileSize !== (totalSize % chunkSize) + chunkSize
+      fileSize !== totalSize % chunkSize + chunkSize
     ) {
       validation.valid = false;
       validation.message = "Incorrect final chunk size";

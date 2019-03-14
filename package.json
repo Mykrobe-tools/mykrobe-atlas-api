@@ -39,6 +39,7 @@
     "jest"
   ],
   "dependencies": {
+    "@babel/runtime": "^7.3.4",
     "agenda": "^1.0.3",
     "await-spawn": "^2.1.1",
     "axios": "^0.18.0",
@@ -89,7 +90,6 @@
     "@babel/polyfill": "^7.2.5",
     "@babel/preset-env": "^7.3.4",
     "@babel/register": "^7.0.0",
-    "@babel/runtime": "^7.3.4",
     "babel-plugin-add-module-exports": "^1.0.0",
     "del": "^3.0.0",
     "gulp": "^3.9.1",
