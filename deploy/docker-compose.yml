@@ -12,7 +12,7 @@ atlas-api:
   container_name: atlas-api
   volumes:
     - /home/ubuntu/data/apidoc:/app/doc
-    - {{UPLOADS_LOCATION}}:/app/uploads
+    - $UPLOADS_LOCATION:/app/uploads
   restart: always
   ports:
     - 3001:3000
@@ -20,16 +20,16 @@ atlas-api:
     - NODE_ENV=production
     - MONGO_USER=admin
     - MONGO_PASSWORD=5HKCO4SDkTfy
-    - AWS_ACCESS_KEY={{AWS_ACCESS_KEY}}
-    - AWS_SECRET_KEY={{AWS_SECRET_KEY}}
-    - AWS_REGION={{AWS_REGION}}
-    - ATLAS_APP={{ATLAS_APP}}
-    - ES_CLUSTER_URL={{ES_CLUSTER_URL}}
-    - ES_INDEX_NAME={{ES_INDEX_NAME}}
-    - KEYCLOAK_REDIRECT_URI={{KEYCLOAK_REDIRECT_URI}}
-    - ANALYSIS_API={{ANALYSIS_API}}
-    - API_HOST={{API_HOST}}
-    - UPLOADS_LOCATION={{UPLOADS_LOCATION}}
+    - AWS_ACCESS_KEY=$AWS_ACCESS_KEY
+    - AWS_SECRET_KEY=$AWS_SECRET_KEY
+    - AWS_REGION=$AWS_REGION
+    - ATLAS_APP=$ATLAS_APP
+    - ES_CLUSTER_URL=$ES_CLUSTER_URL
+    - ES_INDEX_NAME=$ES_INDEX_NAME
+    - KEYCLOAK_REDIRECT_URI=$KEYCLOAK_REDIRECT_URI
+    - ANALYSIS_API=$ANALYSIS_API
+    - API_HOST=$API_HOST
+    - UPLOADS_LOCATION=$UPLOADS_LOCATION
   links:
     - db
 swagger-ui:
@@ -39,4 +39,4 @@ swagger-ui:
     - 9090:8080
   restart: always
   environment:
-    - API_URL={{SWAGGER_API_URL}}
+    - API_URL=$SWAGGER_API_URL

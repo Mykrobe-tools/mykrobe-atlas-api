@@ -7,5 +7,9 @@ cd /var/go/releases/server/$CURRENT_VERSION
 
 
 # build the target container
-subber deploy/docker-compose.yml
+# build the image
+cd /var/go/releases/$CURRENT_VERSION/deploy
+envsubst < docker-compose.yml > docker-compose.yml.replace
+mv docker-compose.yml.replace docker-compose.yml
+
 

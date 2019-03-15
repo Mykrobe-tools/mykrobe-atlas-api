@@ -8,7 +8,6 @@ docker images -q --filter "dangling=true" | xargs --no-run-if-empty docker rmi
 cd /var/go/releases/server/$CURRENT_VERSION/deploy
 
 # run docker-compose up
-subber docker-compose.yml
 docker-compose up -d
 
 # clean containers down
