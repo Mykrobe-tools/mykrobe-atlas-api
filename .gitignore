@@ -50,6 +50,7 @@ node_modules
 # jest
 jest
 test-report.html
+reports
 
 # api doc
 doc

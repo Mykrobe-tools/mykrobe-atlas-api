@@ -11,7 +11,8 @@ module.exports = {
     [
       "./node_modules/jest-html-reporter",
       {
-        pageTitle: "Test Report"
+        pageTitle: "Test Report",
+        outputPath: "./reports/integration-test-report.html"
       }
     ]
   ]

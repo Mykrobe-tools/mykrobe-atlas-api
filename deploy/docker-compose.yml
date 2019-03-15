@@ -8,7 +8,8 @@ db:
   restart: always
   command: --smallfiles --auth --replSet "rs0"
 atlas-api:
-  image: mthomsit/atlas-api
+  build: ..
+  dockerfile: ./deploy/Dockerfile
   container_name: atlas-api
   volumes:
     - /home/ubuntu/data/apidoc:/app/doc
