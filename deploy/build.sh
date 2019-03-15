@@ -20,7 +20,7 @@ mv deploy/docker-compose.yml.replace deploy/docker-compose.yml
 docker-compose -f deploy/docker-compose.yml build
 
 # push to the registry
-docker tag deploy-atlas-api mthomsit/atlas-api:latest
+docker tag deploy_atlas-api mthomsit/atlas-api:latest
 docker push mthomsit/atlas-api:latest
 
 # build is done remove the ssh keys
