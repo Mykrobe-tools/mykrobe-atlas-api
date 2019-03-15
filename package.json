@@ -19,7 +19,7 @@
     "prettier-watch": "onchange 'src/**/*.js' -- prettier --write {{changed}}",
     "test:version": "jest --version",
     "test": "yarn test:unit && yarn test:integration",
-    "test:unit": "jest --verbose --colors -c jest.config.unit.js",
+    "test:unit": "jest --verbose --colors --detectOpenHandles --forceExit -c jest.config.unit.js",
     "test:integration": "jest --verbose --colors --detectOpenHandles -c jest.config.integration.js",
     "test:verbose": "jest -c jest.config.js --coverage --verbose --colors",
     "test:watch": "jest -c jest.config.js  --watch",
