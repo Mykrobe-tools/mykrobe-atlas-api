@@ -16,9 +16,6 @@ import { experimentEventEmitter, userEventEmitter } from "../../src/server/modul
 import MDR from "../fixtures/files/MDR_Results.json";
 import NEAREST_NEIGHBOURS from "../fixtures/files/NEAREST_NEIGHBOURS_Results.json";
 import results from "../fixtures/results";
-import { mockEsCalls } from "../mocks";
-
-mockEsCalls();
 
 jest.mock("keycloak-admin-client");
 

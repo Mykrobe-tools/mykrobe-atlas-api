@@ -102,6 +102,8 @@
     "husky": "^0.14.3",
     "jest": "^24",
     "jest-html-reporter": "^2.4.4",
+    "lodash": "^4.17.11",
+    "mockserver": "git://github.com/yassire/mockserver",
     "mongodb-memory-server": "^1.7.4",
     "prettier": "^1.16.4",
     "promised-mongo": "^1.2.0",

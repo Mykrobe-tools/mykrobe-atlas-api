@@ -3,12 +3,9 @@ import httpStatus from "http-status";
 import faker from "faker";
 
 import { createApp } from "../setup";
-import { mockEsCalls } from "../mocks";
 
 import User from "../../src/server/models/user.model";
 import Experiment from "../../src/server/models/experiment.model";
-
-mockEsCalls();
 
 const app = createApp();
 

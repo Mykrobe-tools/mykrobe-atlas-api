@@ -1,5 +1,7 @@
 import mongoose from "mongoose";
 import MongodbMemoryServer from "mongodb-memory-server";
+import http from "http";
+import mockserver from "mockserver";
 import config from "../src/config/env";
 import errorsDefinition from "../src/config/errors-definition";
 import {
@@ -23,6 +25,9 @@ let mongoServer;
 
 errorsDefinition.create();
 
+// mock server
+const elasticsearchMockServer = http.createServer(mockserver(`${__dirname}/mocks`));
+
 beforeAll(async done => {
   mongoServer = new MongodbMemoryServer({
     instance: {
@@ -40,7 +45,12 @@ beforeAll(async done => {
   });
 
   config.db.uri = mongoUri;
+  elasticsearchMockServer.listen(config.mockedEsPort);
+  done();
+});
 
+afterAll(async done => {
+  elasticsearchMockServer.close();
   done();
 });
 
@@ -54,6 +64,5 @@ stubSearchApi();
 // mocks
 mockKeycloakCalls();
 mockThirdPartyCalls();
-
 
 export default { config, createApp };

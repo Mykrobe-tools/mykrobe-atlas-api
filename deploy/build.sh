@@ -19,4 +19,3 @@ docker push mthomsit/atlas-api:latest
 # build is done remove the ssh keys
 rm bitbucket-readonly
 rm atlas-jsonschema-readonly
-

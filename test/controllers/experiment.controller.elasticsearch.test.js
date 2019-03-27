@@ -49,9 +49,7 @@ afterEach(async done => {
 });
 
 beforeAll(async done => {
-  console.log(`begin`);
   await ElasticsearchHelper.deleteIndexIfExists(config);
-  console.log("index deleted");
   await ElasticsearchHelper.createIndex(config, experimentSchema, "experiment");
 
   const experiment1 = await experimentWithMetadata.save();
@@ -66,27 +64,24 @@ beforeAll(async done => {
   // index to elasticsearch
   const experiments = await Experiment.list();
   await ElasticsearchHelper.indexDocuments(config, experiments, "experiment");
-  console.log("indexed experiments");
   let data = await ElasticsearchHelper.search(config, {}, "experiment");
-  console.log(`check: ${data.hits.total}`);
   while (data.hits.total < 2) {
     data = await ElasticsearchHelper.search(config, {}, "experiment");
-    console.log(`check: ${data.hits.total}`);
   }
 
   done();
 }, 60000);
 
 afterAll(async done => {
-  await ElasticsearchHelper.deleteIndexIfExists(config);
-  await ElasticsearchHelper.createIndex(config, experimentSchema, "experiment");
+  //await ElasticsearchHelper.deleteIndexIfExists(config);
+  //await ElasticsearchHelper.createIndex(config, experimentSchema, "experiment");
   await Experiment.remove({});
   done();
 });
 
 describe("ExperimentController > Elasticsearch", () => {
   describe("# GET /experiments/choices", () => {
-    it.only("should return choices and counts for enums", done => {
+    it("should return choices and counts for enums", done => {
       request(app)
         .get("/experiments/choices")
         .set("Authorization", `Bearer ${token}`)
@@ -544,21 +539,6 @@ describe("ExperimentController > Elasticsearch", () => {
           expect(pagination).toHaveProperty("page", 1);
           expect(pagination).toHaveProperty("previous", 1);
 
-          done();
-        });
-    });
-    it("should control the page value", done => {
-      request(app)
-        .get("/experiments/search?metadata.smoker=No&metadata.imprisoned=Yes&per=10&page=0")
-        .set("Authorization", `Bearer ${token}`)
-        .expect(httpStatus.OK)
-        .end((err, res) => {
-          expect(res.body.status).toEqual("error");
-          expect(res.body.message).toEqual(
-            expect.stringContaining(
-              "numHits must be > 0; please use TotalHitCountCollector if you just need the total hit count"
-            )
-          );
           done();
         });
     });

@@ -1,7 +1,6 @@
 module.exports = {
   testRegex: "(/test/(controllers|helpers)/.*?test).[jt]sx?$",
   testPathIgnorePatterns: [
-    "test/controllers/experiment.controller.elasticsearch.test.js",
     "test/helpers/AgendaHelper.test.js"
   ],
   collectCoverage: false,

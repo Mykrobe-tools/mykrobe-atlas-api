@@ -1,0 +1,88 @@
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=utf-8
+
+{
+    "took": 75,
+    "timed_out": false,
+    "_shards": {
+        "total": 5,
+        "successful": 5,
+        "skipped": 0,
+        "failed": 0
+    },
+    "hits": {
+        "total": 1,
+        "max_score": 1,
+        "hits": [
+            {
+                "_index": "atlas",
+                "_type": "experiment",
+                "_id": "5c9b4d0ca9c34c19406d01fe",
+                "_score": 1,
+                "_source": {
+                    "metadata": {
+                        "patient": {
+                            "patientId": "eff2fa6a-9d79-41ab-a307-b620cedf7293",
+                            "siteId": "a2a910e3-25ef-475c-bdf9-f6fe215d949f",
+                            "genderAtBirth": "Male",
+                            "countryOfBirth": "India",
+                            "age": 43,
+                            "bmi": 25.3,
+                            "injectingDrugUse": "No",
+                            "homeless": "No",
+                            "imprisoned": "No",
+                            "smoker": "Yes",
+                            "diabetic": "Insulin",
+                            "hivStatus": "Not tested"
+                        },
+                        "sample": {
+                            "labId": "d19637ed-e5b4-4ca7-8418-8713646a3359",
+                            "isolateId": "9c0c00f2-8cb1-4254-bf53-3271f35ce696",
+                            "collectionDate": "2018-10-19",
+                            "prospectiveIsolate": "Yes",
+                            "countryIsolate": "India",
+                            "cityIsolate": "Mumbai",
+                            "dateArrived": "2018-09-01",
+                            "anatomicalOrigin": "Respiratory",
+                            "smear": "Not known"
+                        },
+                        "genotyping": {
+                            "wgsPlatform": "MiSeq",
+                            "otherGenotypeInformation": "Yes",
+                            "genexpert": "Not tested",
+                            "hain": "INH/RIF test",
+                            "hainRif": "RIF resistant",
+                            "hainInh": "INH sensitive",
+                            "hainFl": "Not tested",
+                            "hainAm": "Not tested",
+                            "hainEth": "Not tested"
+                        },
+                        "phenotyping": {
+                            "phenotypeInformationFirstLineDrugs": "Yes",
+                            "rifampicin": {
+                                "susceptibility": "Resistant",
+                                "method": "Not known"
+                            },
+                            "ethambutol": {
+                                "susceptibility": "Sensitive",
+                                "method": "Not known"
+                            },
+                            "pyrazinamide": {
+                                "susceptibility": "Sensitive",
+                                "method": "Not known"
+                            },
+                            "isoniazid": {
+                                "susceptibility": "Sensitive",
+                                "method": "Not known"
+                            },
+                            "phenotypeInformationOtherDrugs": "No"
+                        }
+                    },
+                    "created": "2019-03-27T10:14:36.493Z",
+                    "modified": "2019-03-27T10:14:36.493Z",
+                    "id": "5c9b4d0ca9c34c19406d01fe"
+                }
+            }
+        ]
+    }
+}
