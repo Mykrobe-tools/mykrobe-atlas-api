@@ -6,8 +6,6 @@ import { createApp } from "../setup";
 import User from "../../src/server/models/user.model";
 import Organisation from "../../src/server/models/organisation.model";
 
-jest.mock("keycloak-admin-client");
-
 const app = createApp();
 
 const users = require("../fixtures/users");

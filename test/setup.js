@@ -5,7 +5,6 @@ import mockserver from "mockserver";
 import config from "../src/config/env";
 import errorsDefinition from "../src/config/errors-definition";
 import {
-  mockKeycloakCalls,
   mockThirdPartyCalls
 } from "./mocks";
 import {
@@ -25,8 +24,9 @@ let mongoServer;
 
 errorsDefinition.create();
 
-// mock server
+// mocked servers
 const elasticsearchMockServer = http.createServer(mockserver(`${__dirname}/mocks`));
+const keycloakMockServer = http.createServer(mockserver(`${__dirname}/mocks`));
 
 beforeAll(async done => {
   mongoServer = new MongodbMemoryServer({
@@ -46,11 +46,13 @@ beforeAll(async done => {
 
   config.db.uri = mongoUri;
   elasticsearchMockServer.listen(config.mockedEsPort);
+  keycloakMockServer.listen(config.mockedKeycloakPort);
   done();
 });
 
 afterAll(async done => {
   elasticsearchMockServer.close();
+  keycloakMockServer.close();
   done();
 });
 
@@ -62,7 +64,6 @@ stubDistanceApi();
 stubSearchApi();
 
 // mocks
-mockKeycloakCalls();
 mockThirdPartyCalls();
 
 export default { config, createApp };

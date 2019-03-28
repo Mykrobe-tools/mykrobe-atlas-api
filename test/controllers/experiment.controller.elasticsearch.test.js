@@ -16,8 +16,6 @@ import users from "../fixtures/users";
 import experiments from "../fixtures/experiments";
 import searches from "../fixtures/searches";
 
-jest.mock("keycloak-admin-client");
-
 const app = createApp();
 
 let token = null;
