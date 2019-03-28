@@ -33,9 +33,7 @@ const saveResult = async (req, res) => {
   try {
     const parser = await ResultsParserFactory.create(body);
     if (!parser) {
-      return res.jerror(
-        new errors.UpdateExperimentError("Invalid result type.")
-      );
+      return res.jerror(new errors.UpdateExperimentError("Invalid result type."));
     }
     const result = parser.parse();
     const savedSearch = await search.saveResult(result);

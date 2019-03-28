@@ -12,8 +12,6 @@ import { util as jsonschemaUtil } from "makeandship-api-common/lib/modules/jsons
 
 import Audit from "../models/audit.model";
 import Experiment from "../models/experiment.model";
-import Organisation from "../models/organisation.model";
-import Search from "../models/search.model";
 import Tree from "../models/tree.model";
 
 import resumable from "../modules/resumable";
@@ -21,8 +19,6 @@ import DownloadersFactory from "../helpers/DownloadersFactory";
 import BigsiSearchHelper from "../helpers/BigsiSearchHelper";
 
 import AuditJSONTransformer from "../transformers/AuditJSONTransformer";
-import SearchJSONTransformer from "../transformers/SearchJSONTransformer";
-import UserJSONTransformer from "../transformers/UserJSONTransformer";
 import ExperimentJSONTransformer from "../transformers/ExperimentJSONTransformer";
 import ExperimentsResultJSONTransformer from "../transformers/es/ExperimentsResultJSONTransformer";
 import ResultsJSONTransformer from "../transformers/ResultsJSONTransformer";
@@ -34,20 +30,12 @@ import { experiment as experimentSchema } from "mykrobe-atlas-jsonschema";
 import ResultsParserFactory from "../helpers/ResultsParserFactory";
 import { experimentEventEmitter, userEventEmitter } from "../modules/events";
 
-import {
-  isBigsiQuery,
-  callBigsiApi,
-  parseQuery,
-  callTreeApi
-} from "../modules/search";
+import { isBigsiQuery, callBigsiApi, parseQuery, callTreeApi } from "../modules/search";
 
 const config = require("../../config/env");
 
 // sort whitelist
-const sortWhiteList = ElasticsearchHelper.getSortWhitelist(
-  experimentSchema,
-  "experiment"
-);
+const sortWhiteList = ElasticsearchHelper.getSortWhitelist(experimentSchema, "experiment");
 
 /**
  * Load experiment and append to req.
@@ -72,9 +60,7 @@ const get = async (req, res) => {
   if (experiment.results && experiment.results.nearestNeighbours) {
     let nearestNeighbours = experiment.results.nearestNeighbours;
 
-    experiment.results.nearestNeighbours = await inflateResult(
-      nearestNeighbours
-    );
+    experiment.results.nearestNeighbours = await inflateResult(nearestNeighbours);
   }
 
   return res.jsend(experiment);
@@ -90,11 +76,7 @@ const create = async (req, res) => {
 
   try {
     const savedExperiment = await experiment.save();
-    await ElasticsearchHelper.indexDocument(
-      config,
-      savedExperiment,
-      "experiment"
-    );
+    await ElasticsearchHelper.indexDocument(config, savedExperiment, "experiment");
     return res.jsend(savedExperiment);
   } catch (e) {
     return res.jerror(new errors.CreateExperimentError(e.message));
@@ -115,11 +97,7 @@ const update = async (req, res) => {
 
   try {
     const savedExperiment = await experiment.save();
-    await ElasticsearchHelper.updateDocument(
-      config,
-      savedExperiment,
-      "experiment"
-    );
+    await ElasticsearchHelper.updateDocument(config, savedExperiment, "experiment");
     return res.jsend(savedExperiment);
   } catch (e) {
     return res.jerror(new errors.UpdateExperimentError(e.message));
@@ -152,11 +130,7 @@ const remove = async (req, res) => {
   const experiment = req.experiment;
   try {
     await experiment.remove();
-    await ElasticsearchHelper.deleteDocument(
-      config,
-      experiment.id,
-      "experiment"
-    );
+    await ElasticsearchHelper.deleteDocument(config, experiment.id, "experiment");
     return res.jsend("Experiment was successfully deleted.");
   } catch (e) {
     return res.jerror(e);
@@ -174,11 +148,7 @@ const metadata = async (req, res) => {
 
   try {
     const savedExperiment = await experiment.save();
-    await ElasticsearchHelper.updateDocument(
-      config,
-      savedExperiment,
-      "experiment"
-    );
+    await ElasticsearchHelper.updateDocument(config, savedExperiment, "experiment");
     return res.jsend(savedExperiment);
   } catch (e) {
     return res.jerror(new errors.UpdateExperimentError(e.message));
@@ -208,17 +178,11 @@ const results = async (req, res) => {
   try {
     const savedExperiment = await experiment.save();
 
-    await ElasticsearchHelper.updateDocument(
-      config,
-      savedExperiment,
-      "experiment"
-    );
+    await ElasticsearchHelper.updateDocument(config, savedExperiment, "experiment");
 
     const audit = await Audit.getByExperimentId(savedExperiment.id);
 
-    const experimentJSON = new ExperimentJSONTransformer().transform(
-      experiment
-    );
+    const experimentJSON = new ExperimentJSONTransformer().transform(experiment);
     const auditJSON = new AuditJSONTransformer().transform(audit);
 
     experimentEventEmitter.emit("analysis-complete", {
@@ -243,9 +207,7 @@ const uploadFile = async (req, res) => {
 
   // from 3rd party provider
   if (req.body.provider && req.body.path) {
-    const path = `${config.express.uploadDir}/experiments/${
-      experiment.id
-    }/file`;
+    const path = `${config.express.uploadDir}/experiments/${experiment.id}/file`;
     try {
       await mkdirp(path);
       const downloader = DownloadersFactory.create(`${path}/${req.body.name}`, {
@@ -254,9 +216,9 @@ const uploadFile = async (req, res) => {
       });
       downloader.download(async () => {
         await schedule("now", "call analysis api", {
-          file: `${config.express.uploadsLocation}/experiments/${
-            experiment.id
-          }/file/${req.body.name}`,
+          file: `${config.express.uploadsLocation}/experiments/${experiment.id}/file/${
+            req.body.name
+          }`,
           experiment_id: experiment.id,
           attempt: 0
         });
@@ -278,9 +240,7 @@ const uploadFile = async (req, res) => {
 
   // from local file
   try {
-    const experimentJson = new ExperimentJSONTransformer().transform(
-      req.experiment
-    );
+    const experimentJson = new ExperimentJSONTransformer().transform(req.experiment);
     const resumableFilename = req.body.resumableFilename;
 
     await resumable.setUploadDirectory(
@@ -297,21 +257,17 @@ const uploadFile = async (req, res) => {
         experiment: experimentJson,
         status: postUpload
       });
-      return resumable.reassembleChunks(
-        experimentJson.id,
-        resumableFilename,
-        async () => {
-          await schedule("now", "call analysis api", {
-            file: `${config.express.uploadsLocation}/experiments/${
-              experimentJson.id
-            }/file/${resumableFilename}`,
-            experiment_id: experimentJson.id,
-            attempt: 0,
-            experiment: experimentJson
-          });
-          return res.jsend("File uploaded and reassembled");
-        }
-      );
+      return resumable.reassembleChunks(experimentJson.id, resumableFilename, async () => {
+        await schedule("now", "call analysis api", {
+          file: `${config.express.uploadsLocation}/experiments/${
+            experimentJson.id
+          }/file/${resumableFilename}`,
+          experiment_id: experimentJson.id,
+          attempt: 0,
+          experiment: experimentJson
+        });
+        return res.jsend("File uploaded and reassembled");
+      });
     }
     return res.jerror(postUpload);
   } catch (err) {
@@ -325,9 +281,7 @@ const uploadFile = async (req, res) => {
 const readFile = (req, res) => {
   const experiment = req.experiment;
   if (experiment.file) {
-    const path = `${config.express.uploadDir}/experiments/${
-      experiment.id
-    }/file`;
+    const path = `${config.express.uploadDir}/experiments/${experiment.id}/file`;
     return res.sendFile(`${path}/${experiment.file}`);
   }
   return res.jerror("No file found for this Experiment");
@@ -344,10 +298,7 @@ const uploadStatus = async (req, res) => {
     if (validateGetRequest.valid) {
       return res.jsend(validateGetRequest);
     }
-    const error = new APIError(
-      validateGetRequest.message,
-      httpStatus.NO_CONTENT
-    );
+    const error = new APIError(validateGetRequest.message, httpStatus.NO_CONTENT);
     return res.jerror(error);
   } catch (err) {
     return res.jerror(new errors.UploadFileError(err.message));
@@ -360,11 +311,7 @@ const uploadStatus = async (req, res) => {
 const reindex = async (req, res) => {
   try {
     await ElasticsearchHelper.deleteIndexIfExists(config);
-    await ElasticsearchHelper.createIndex(
-      config,
-      experimentSchema,
-      "experiment"
-    );
+    await ElasticsearchHelper.createIndex(config, experimentSchema, "experiment");
     const experiments = await Experiment.list();
     await ElasticsearchHelper.indexDocuments(config, experiments, "experiment");
     return res.jsend("All Experiments have been indexed.");
@@ -427,22 +374,13 @@ const search = async (req, res) => {
         per: query.per || config.elasticsearch.resultsPerPage,
         page: query.page || 1
       };
-      const results = new SearchResultsJSONTransformer().transform(
-        resp,
-        options
-      );
+      const results = new SearchResultsJSONTransformer().transform(resp, options);
 
       if (results) {
         // augment with hits (project specific transformation)
-        results.results = new ExperimentsResultJSONTransformer().transform(
-          resp,
-          {}
-        );
+        results.results = new ExperimentsResultJSONTransformer().transform(resp, {});
         // augment with the original search query
-        results.search = new SearchQueryJSONTransformer().transform(
-          req.query,
-          {}
-        );
+        results.search = new SearchQueryJSONTransformer().transform(req.query, {});
       }
       return res.jsend(results);
     }
@@ -484,12 +422,9 @@ const inflateResult = async result => {
       enhancedExperiments.push(experiment);
     });
   }
-  const transformedExperiments = new ArrayJSONTransformer().transform(
-    enhancedExperiments,
-    {
-      transformer: ExperimentJSONTransformer
-    }
-  );
+  const transformedExperiments = new ArrayJSONTransformer().transform(enhancedExperiments, {
+    transformer: ExperimentJSONTransformer
+  });
   result.experiments = transformedExperiments;
   return result;
 };

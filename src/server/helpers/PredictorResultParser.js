@@ -37,14 +37,10 @@ class PredictorResultParser extends ResultParser {
           const attribute = keys[i];
           switch (attribute) {
             case SUSCEPTIBILITY:
-              result.susceptibility = parseSusceptibility(
-                predictorResult[attribute]
-              );
+              result.susceptibility = parseSusceptibility(predictorResult[attribute]);
               break;
             case PHYLOGENETICS:
-              result.phylogenetics = parsePhylogenetics(
-                predictorResult[attribute]
-              );
+              result.phylogenetics = parsePhylogenetics(predictorResult[attribute]);
               break;
             case VARIANT_CALLS:
               result.variantCalls = predictorResult[attribute];
@@ -75,9 +71,7 @@ class PredictorResultParser extends ResultParser {
               break;
           }
         }
-        const resistantAttributes = calculateResistantAttributes(
-          result.susceptibility
-        );
+        const resistantAttributes = calculateResistantAttributes(result.susceptibility);
 
         Object.assign(result, resistantAttributes);
       }

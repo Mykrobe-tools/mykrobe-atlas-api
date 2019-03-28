@@ -106,14 +106,8 @@ const filenameSort = (first, second) => {
   }
 
   // files with a part number
-  const firstPosition = first.substring(
-    first.lastIndexOf(".") + 1,
-    first.length
-  );
-  const secondPosition = second.substring(
-    second.lastIndexOf(".") + 1,
-    second.length
-  );
+  const firstPosition = first.substring(first.lastIndexOf(".") + 1, first.length);
+  const secondPosition = second.substring(second.lastIndexOf(".") + 1, second.length);
 
   if (isNumber(firstPosition) && isNumber(secondPosition)) {
     return parseInt(firstPosition) - parseInt(secondPosition);
@@ -154,9 +148,7 @@ const reassembleChunksToFile = (directory, targetPath, remove = true) => {
 
 const reassembleChunks = async (id, name, cb) => {
   const directory = `${config.express.uploadDir}/experiments/${id}/file`;
-  const targetPath = `${
-    config.express.uploadDir
-  }/experiments/${id}/file/${name}`;
+  const targetPath = `${config.express.uploadDir}/experiments/${id}/file/${name}`;
 
   reassembleChunksToFile(directory, targetPath, true);
 

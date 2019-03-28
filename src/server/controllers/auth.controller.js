@@ -9,7 +9,6 @@ import APIError from "../helpers/APIError";
 import AccountsHelper from "../helpers/AccountsHelper";
 
 import config from "../../config/env";
-import MonqHelper from "../helpers/MonqHelper";
 
 const keycloak = AccountsHelper.keycloakInstance();
 
@@ -64,9 +63,7 @@ const forgot = async (req, res) => {
         user.keycloakId = keycloakId;
         const savedUser = await user.save();
       } else {
-        return res.jerror(
-          new errors.UpdateUserError(`Unable to find user with email ${email}`)
-        );
+        return res.jerror(new errors.UpdateUserError(`Unable to find user with email ${email}`));
       }
     } else {
       keycloakId = user.keycloakId;
@@ -93,9 +90,7 @@ const resend = async (req, res) => {
         user.keycloakId = keycloakId;
         const savedUser = await user.save();
       } else {
-        return res.jerror(
-          new errors.UpdateUserError(`Unable to find user with email ${email}`)
-        );
+        return res.jerror(new errors.UpdateUserError(`Unable to find user with email ${email}`));
       }
     } else {
       keycloakId = user.keycloakId;

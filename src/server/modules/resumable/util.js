@@ -5,6 +5,7 @@ import mkdirp from "mkdirp-promise";
 import config from "../../../config/env";
 
 const maxFileSize = config.express.uploadMaxFileSize;
+
 let uploadDirectory;
 
 // set local upload directory
@@ -14,18 +15,12 @@ const setUploadDirectory = uploadDir => {
 };
 
 const initialise = fields => {
-  const identifier = fields.resumableIdentifier
-    ? cleanIdentifier(fields.resumableIdentifier)
-    : "";
+  const identifier = fields.resumableIdentifier ? cleanIdentifier(fields.resumableIdentifier) : "";
   const chunkNumber = fields.resumableChunkNumber || 0;
   const totalChunks = fields.resumableTotalChunks || 0;
   const chunkFilename = getChunkFilename(chunkNumber, identifier);
-  const chunkSize = fields.resumableChunkSize
-    ? parseInt(fields.resumableChunkSize, 10)
-    : 0;
-  const totalSize = fields.resumableTotalSize
-    ? parseInt(fields.resumableTotalSize, 10)
-    : 0;
+  const chunkSize = fields.resumableChunkSize ? parseInt(fields.resumableChunkSize, 10) : 0;
+  const totalSize = fields.resumableTotalSize ? parseInt(fields.resumableTotalSize, 10) : 0;
   const filename = fields.resumableFilename || "";
   const originalFilename = fields.resumableOriginalFilename || "";
   const type = fields.resumableType || "";
@@ -60,21 +55,18 @@ const setVerifiedTotalChunks = status => {
 
 const setComplete = status => {
   if (status && status.verifiedTotalChunks && status.identifier) {
-    status.complete = isUploadComplete(
-      status.verifiedTotalChunks,
-      status.identifier
-    );
+    status.complete = isUploadComplete(status.verifiedTotalChunks, status.identifier);
   }
 };
 
 const setPercentageComplete = status => {
   // percentage complete for valid number of and total chunks
   if (status && status.chunkNumber && status.totalChunks) {
-    status.percentageComplete = status.chunkNumber / status.totalChunks * 100;
+    status.percentageComplete = (status.chunkNumber / status.totalChunks) * 100;
   }
 };
 
-const cleanIdentifier = identifier => identifier.replace(/^0-9A-Za-z_-/gim, "");
+const cleanIdentifier = identifier => identifier.replace(/[^0-9A-Za-z_-]/gim, "");
 
 const getChunkFilename = (chunkNumber, identifier) => {
   identifier = cleanIdentifier(identifier);
@@ -121,11 +113,11 @@ const validateRequest = (status, fileSize) => {
       validation.message = "Incorrect chunk size";
       return validation;
     }
-    // Validation: The chunks in the POST is the last one, and the fil is not the correct size
+    // Validation: The chunks in the POST is the last one, and the file is not the correct size
     if (
       numberOfChunks > 1 &&
       chunkNumber === numberOfChunks &&
-      fileSize !== totalSize % chunkSize + chunkSize
+      fileSize !== (totalSize % chunkSize) + chunkSize
     ) {
       validation.valid = false;
       validation.message = "Incorrect final chunk size";
@@ -142,6 +134,9 @@ const validateRequest = (status, fileSize) => {
 };
 
 const validateChecksum = (filename, checksum) => {
+  if (!fs.existsSync(filename)) {
+    return false;
+  }
   const fileData = fs.readFileSync(filename);
   const generatedChecksum = crypto
     .createHash("md5")

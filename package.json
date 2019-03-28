@@ -1,34 +1,30 @@
 {
   "name": "atlas-api",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "Atals Restful api",
   "author": "Yassire Elhani <yassire@makeandship.com>",
   "main": "src/index.js",
   "private": true,
   "engines": {
-    "node": ">=4.6.0",
-    "npm": ">=2.15.9",
-    "yarn": ">=0.17.9"
+    "node": "8.12.0",
+    "npm": ">=6",
+    "yarn": ">=1"
   },
   "scripts": {
     "precommit": "yarn prettier && yarn test",
-    "start": "gulp serve",
-    "build": "gulp",
+    "serve": "node dist/index.js",
+    "start": "yarn build && yarn serve",
+    "build": "babel src --out-dir dist",
     "prettier": "prettier --find-config-path --write 'src/**/*.js'",
     "prettier-watch": "onchange 'src/**/*.js' -- prettier --write {{changed}}",
-    "test": "jest src/server/tests/**/*.test.js --coverage --verbose --colors",
-    "test-single": "jest --coverage --verbose --colors",
-    "test:watch": "jest --watch",
+    "test:version": "jest --version",
+    "test": "yarn test:unit && yarn test:integration",
+    "test:unit": "jest --verbose --colors --detectOpenHandles --forceExit -c jest.config.unit.js",
+    "test:integration": "jest --verbose --colors --detectOpenHandles -c jest.config.integration.js",
+    "test:verbose": "jest -c jest.config.js --coverage --verbose --colors",
+    "test:watch": "jest -c jest.config.js  --watch",
     "compile": "rm -rf dist && babel src --out-dir dist --source-maps",
     "postinstall": "cd node_modules/makeandship-api-common && yarn && yarn build"
-  },
-  "jest": {
-    "testPathIgnorePatterns": [
-      "dist/server",
-      "src/config"
-    ],
-    "collectCoverage": false,
-    "testEnvironment": "node"
   },
   "keywords": [
     "express",
@@ -43,6 +39,7 @@
     "jest"
   ],
   "dependencies": {
+    "@babel/runtime": "^7.3.4",
     "agenda": "^1.0.3",
     "await-spawn": "^2.1.1",
     "axios": "^0.18.0",
@@ -72,7 +69,6 @@
     "mongoose": "^5.1.1",
     "mongoose-jsonschema-validator": "git+ssh://git@bitbucket.org:makeandship/mongoose-jsonschema-validator.git",
     "mongoose-unique-validator": "^2.0.1",
-    "monq": "^0.3.7",
     "morgan": "^1.9.0",
     "multer": "^1.3.0",
     "mykrobe-atlas-jsonschema": "git+ssh://git@github.com/Mykrobe-tools/mykrobe-atlas-jsonschema.git",
@@ -88,17 +84,13 @@
     "winston": "^2.4.2"
   },
   "devDependencies": {
-    "babel-cli": "^6.26.0",
-    "babel-core": "^6.26.3",
-    "babel-jest": "^22.4.1",
-    "babel-loader": "^7.1.4",
-    "babel-plugin-add-module-exports": "^0.2.1",
-    "babel-plugin-transform-runtime": "^6.23.0",
-    "babel-polyfill": "^6.26.0",
-    "babel-preset-es2015": "^6.16.0",
-    "babel-preset-stage-0": "^6.24.1",
-    "babel-preset-stage-2": "^6.24.1",
-    "babel-register": "^6.26.0",
+    "@babel/cli": "^7.2.3",
+    "@babel/core": "^7.3.4",
+    "@babel/plugin-transform-runtime": "^7.3.4",
+    "@babel/polyfill": "^7.2.5",
+    "@babel/preset-env": "^7.3.4",
+    "@babel/register": "^7.0.0",
+    "babel-plugin-add-module-exports": "^1.0.0",
     "del": "^3.0.0",
     "gulp": "^3.9.1",
     "gulp-babel": "^7.0.1",
@@ -108,8 +100,12 @@
     "gulp-sourcemaps": "^2.6.4",
     "gulp-util": "^3.0.7",
     "husky": "^0.14.3",
-    "jest": "^22.4.3",
+    "jest": "^24",
+    "jest-html-reporter": "^2.4.4",
+    "lodash": "^4.17.11",
+    "mockserver": "git://github.com/yassire/mockserver",
     "mongodb-memory-server": "^1.7.4",
+    "prettier": "^1.16.4",
     "promised-mongo": "^1.2.0",
     "rimraf": "^2.6.2",
     "rmfr": "^2.0.0",

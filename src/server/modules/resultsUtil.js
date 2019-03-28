@@ -74,8 +74,7 @@ const calculateTDR = drugResistance => {
  * @param {*} drugResistance
  */
 const calculateMDR = drugResistance =>
-  drugResistance[ISONIAZID] === RESISTANT &&
-  drugResistance[RIFAMPICIN] === RESISTANT;
+  drugResistance[ISONIAZID] === RESISTANT && drugResistance[RIFAMPICIN] === RESISTANT;
 
 /**
  * Calculate XDR value

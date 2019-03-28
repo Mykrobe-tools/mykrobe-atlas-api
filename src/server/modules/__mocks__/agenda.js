@@ -8,23 +8,14 @@ const getInstance = dbUri => new Agenda({ db: { address: dbUri } });
 const schedule = (when, job, params) => {
   const agendaInstance = getInstance(config.db.uri);
 
-  agendaInstance.define(
-    "call analysis api",
-    AgendaHelper.callAnalysisApi.bind(agendaInstance)
-  );
+  agendaInstance.define("call analysis api", AgendaHelper.callAnalysisApi.bind(agendaInstance));
 
-  agendaInstance.define(
-    "call distance api",
-    AgendaHelper.callDistanceApi.bind(agendaInstance)
-  );
+  agendaInstance.define("call distance api", AgendaHelper.callDistanceApi.bind(agendaInstance));
 
-  agendaInstance.define(
-    "refresh isolateId",
-    AgendaHelper.refreshIsolateId.bind(agendaInstance)
-  );
+  agendaInstance.define("refresh isolateId", AgendaHelper.refreshIsolateId.bind(agendaInstance));
 
   agendaInstance.on("ready", async () => {
-    winston.info("agenda is ready and started.");
+    winston.debug("mock agenda is ready and started.");
     await agendaInstance.start();
     await agendaInstance.every("0 0 * * *", "refresh isolateId");
     agendaInstance.schedule(when, job, params);

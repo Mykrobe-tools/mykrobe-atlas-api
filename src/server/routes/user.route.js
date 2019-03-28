@@ -102,11 +102,7 @@ router
    *       401:
    *         description: Failed authentication
    */
-  .get(
-    keycloak.connect.protect(),
-    userController.loadCurrentUser,
-    userController.get
-  )
+  .get(keycloak.connect.protect(), userController.loadCurrentUser, userController.get)
   /**
    * @swagger
    * /user:
@@ -151,11 +147,7 @@ router
    *       401:
    *         description: Failed authentication
    */
-  .put(
-    keycloak.connect.protect(),
-    userController.loadCurrentUser,
-    userController.update
-  )
+  .put(keycloak.connect.protect(), userController.loadCurrentUser, userController.update)
   /**
    * @swagger
    * /user:
@@ -174,11 +166,7 @@ router
    *         schema:
    *           $ref: '#/definitions/BasicResponse'
    */
-  .delete(
-    keycloak.connect.protect(),
-    userController.loadCurrentUser,
-    userController.remove
-  );
+  .delete(keycloak.connect.protect(), userController.loadCurrentUser, userController.remove);
 
 router
   .route("/events")
@@ -211,10 +199,6 @@ router
    *           analysisCompleteExample:
    *             $ref: '#/definitions/analysisCompleteExample'
    */
-  .get(
-    keycloak.connect.protect(),
-    userController.loadCurrentUser,
-    userController.events
-  );
+  .get(keycloak.connect.protect(), userController.loadCurrentUser, userController.events);
 
 export default router;

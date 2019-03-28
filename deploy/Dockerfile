@@ -3,7 +3,7 @@ LABEL MAINTAINER="Yassire Elhani <yassire@makeandship.com>"
 
 RUN rm /bin/sh && ln -s /bin/bash /bin/sh
 
-ENV NODE_VERSION 8.11.2
+ENV NODE_VERSION 8.12.0
 ENV NVM_DIR /usr/local/nvm
 
 RUN echo "deb mirror://mirrors.ubuntu.com/mirrors.txt trusty main restricted universe multiverse" > /etc/apt/sources.list; \
@@ -71,8 +71,7 @@ RUN cat /root/.ssh/atlas-jsonschema-readonly > /etc/ssh/id_rsa && \
     yarn
 
 # build and compile the source
-RUN yarn global add gulp
-RUN gulp
+RUN yarn build
 
 # trim to production dependencies post build
 RUN cp -rf /app/node_modules/makeandship-api-common /tmp

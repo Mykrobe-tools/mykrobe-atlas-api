@@ -7,9 +7,7 @@ import config from "../../../config/env";
  */
 const callTreeApi = async () => {
   try {
-    const response = await axios.get(
-      `${config.services.analysisApiUrl}/tree/latest`
-    );
+    const response = await axios.get(`${config.services.analysisApiUrl}/tree/latest`);
     return response.data && response.data.result;
   } catch (e) {
     throw e;

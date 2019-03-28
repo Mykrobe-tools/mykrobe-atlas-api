@@ -3,20 +3,12 @@ import APIError from "../helpers/APIError";
 
 const ownerOnly = (req, res, next) => {
   const loggedInUserId = req.dbUser && req.dbUser.id;
-  const experimentOwnerId =
-    req.experiment && req.experiment.owner && req.experiment.owner.id;
-  if (
-    loggedInUserId &&
-    experimentOwnerId &&
-    loggedInUserId === experimentOwnerId
-  ) {
+  const experimentOwnerId = req.experiment && req.experiment.owner && req.experiment.owner.id;
+  if (loggedInUserId && experimentOwnerId && loggedInUserId === experimentOwnerId) {
     return next();
   }
   return res.jerror(
-    new APIError(
-      "Only the owner can edit this experiment",
-      httpStatus.UNAUTHORIZED
-    )
+    new APIError("Only the owner can edit this experiment", httpStatus.UNAUTHORIZED)
   );
 };
 

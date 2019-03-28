@@ -8,25 +8,13 @@ import config from "../../config/env";
 // agenda config
 const agendaInstance = new Agenda({ db: { address: config.db.uri } });
 
-agendaInstance.define(
-  "call analysis api",
-  AgendaHelper.callAnalysisApi.bind(agendaInstance)
-);
+agendaInstance.define("call analysis api", AgendaHelper.callAnalysisApi.bind(agendaInstance));
 
-agendaInstance.define(
-  "call distance api",
-  AgendaHelper.callDistanceApi.bind(agendaInstance)
-);
+agendaInstance.define("call distance api", AgendaHelper.callDistanceApi.bind(agendaInstance));
 
-agendaInstance.define(
-  "call search api",
-  AgendaHelper.callSearchApi.bind(agendaInstance)
-);
+agendaInstance.define("call search api", AgendaHelper.callSearchApi.bind(agendaInstance));
 
-agendaInstance.define(
-  "refresh isolateId",
-  AgendaHelper.refreshIsolateId.bind(agendaInstance)
-);
+agendaInstance.define("refresh isolateId", AgendaHelper.refreshIsolateId.bind(agendaInstance));
 
 agendaInstance.on("ready", async () => {
   winston.info("agenda is ready and started.");
@@ -38,8 +26,7 @@ agendaInstance.on("error", () => {
   agendaInstance.stop();
 });
 
-const schedule = (when, job, params) =>
-  agendaInstance.schedule(when, job, params);
+const schedule = (when, job, params) => agendaInstance.schedule(when, job, params);
 
 const agenda = Object.freeze({
   schedule

@@ -1,0 +1,12 @@
+FROM mthomsit/atlas-api
+
+# Install dev dependencies
+RUN yarn
+
+# Remove duplicate mocks
+RUN rm /app/dist/server/modules/__mocks__/*.js
+
+# Copy mongo
+RUN mkdir -p /app/tmp/mongo
+
+CMD yarn test:unit

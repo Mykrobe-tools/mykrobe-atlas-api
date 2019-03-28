@@ -16,17 +16,15 @@ import routes from "./routes/index.route";
 import config from "../config/env";
 import APIError from "./helpers/APIError";
 import AccountsHelper from "./helpers/AccountsHelper";
-import { mockDevApiCalls } from "./tests/mocks/index";
+import { stubDevApis } from "../external";
 
 const keycloak = AccountsHelper.keycloakInstance();
 
-const createApp = (
-  { rateLimitReset, rateLimitMax, limit } = config.express
-) => {
+const createApp = ({ rateLimitReset, rateLimitMax, limit } = config.express) => {
   const app = express();
 
   if (config.env === "development") {
-    mockDevApiCalls();
+    stubDevApis();
     app.use(logger("dev"));
   }
 
@@ -58,8 +56,7 @@ const createApp = (
       expressWinston.logger({
         winstonInstance,
         meta: true, // optional: log meta data about request (defaults to true)
-        msg:
-          "HTTP {{req.method}} {{req.url}} {{res.statusCode}} {{res.responseTime}}ms",
+        msg: "HTTP {{req.method}} {{req.url}} {{res.statusCode}} {{res.responseTime}}ms",
         colorStatus: true // Color the status code (default green, 3XX cyan, 4XX yellow, 5XX red).
       })
     );
@@ -89,10 +86,7 @@ const createApp = (
   // return the rich jsend response.
   app.use((err, req, res, next) => {
     res.header("Access-Control-Allow-Origin", "*");
-    res.header(
-      "Access-Control-Allow-Headers",
-      "Origin, X-Requested-With, Content-Type, Accept"
-    );
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     return res.jerror(err);
   });
 

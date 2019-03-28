@@ -50,11 +50,7 @@ class AgendaHelper {
         requestUri: uri
       });
       await audit.save();
-      await this.schedule(
-        config.services.analysisApiBackOffPeriod,
-        "call analysis api",
-        data
-      );
+      await this.schedule(config.services.analysisApiBackOffPeriod, "call analysis api", data);
       return done(e);
     }
   }
@@ -108,8 +104,7 @@ class AgendaHelper {
       try {
         const response = await axios.post(uri, searchQuery);
 
-        const taskId =
-          response.data && response.data.task_id ? response.data.task_id : null;
+        const taskId = response.data && response.data.task_id ? response.data.task_id : null;
 
         const audit = new Audit({
           status: "Successful",
@@ -146,11 +141,7 @@ class AgendaHelper {
         await audit.save();
 
         // wait for a period of time and retry the distance search
-        await this.schedule(
-          config.services.analysisApiBackOffPeriod,
-          "call search api",
-          data
-        );
+        await this.schedule(config.services.analysisApiBackOffPeriod, "call search api", data);
         return done(e);
       }
     }
@@ -169,11 +160,7 @@ class AgendaHelper {
       newMetadata.sample.isolateId = isolateId;
       experiment.set("metadata", newMetadata);
       const savedExperiment = await experiment.save();
-      await ElasticsearchHelper.updateDocument(
-        config,
-        savedExperiment,
-        "experiment"
-      );
+      await ElasticsearchHelper.updateDocument(config, savedExperiment, "experiment");
     });
     return done();
   }

@@ -19,7 +19,6 @@ import ExperimentJSONTransformer from "../transformers/ExperimentJSONTransformer
 import ExperimentsResultJSONTransformer from "../transformers/es/ExperimentsResultJSONTransformer";
 
 import AccountsHelper from "../helpers/AccountsHelper";
-import MonqHelper from "../helpers/MonqHelper";
 
 import ResultsParserFactory from "../helpers/ResultsParserFactory";
 
@@ -83,10 +82,8 @@ const update = async (req, res) => {
   const user = req.dbUser;
   user.firstname = req.body.firstname || user.firstname;
   user.lastname = req.body.lastname || user.lastname;
-  user.phone =
-    typeof req.body.phone === "undefined" ? user.phone : req.body.phone;
-  user.email =
-    typeof req.body.email === "undefined" ? user.email : req.body.email;
+  user.phone = typeof req.body.phone === "undefined" ? user.phone : req.body.phone;
+  user.email = typeof req.body.email === "undefined" ? user.email : req.body.email;
 
   try {
     const savedUser = await user.save({ lean: true });
