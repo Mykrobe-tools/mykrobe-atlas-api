@@ -17,29 +17,7 @@ const realm = keycloakConfig.realm;
 const tokenUrl = keycloakConfig.tokenUrl;
 const adminSettings = keycloakConfig.admin;
 
-// mock keycloak rest calls
-const mockKeycloakCalls = () => {
-  nock(adminSettings.baseUrl)
-    .persist()
-    .post(`/realms/${realm}/${tokenUrl}`, function(body) {
-      return body.username === "admin@nhs.co.uk" && body.password;
-    })
-    .replyWithFile(200, __dirname + "/replies/admin-auth.json", {
-      "Content-Type": "application/json"
-    });
-
-  nock(adminSettings.baseUrl)
-    .persist()
-    .post(`/realms/${realm}/${tokenUrl}`, function(body) {
-      return body.username && body.username !== "admin@nhs.co.uk" && body.password;
-    })
-    .replyWithFile(200, __dirname + "/replies/other-auth.json", {
-      "Content-Type": "application/json"
-    });
-};
-
 const mocks = Object.freeze({
-  mockKeycloakCalls,
   mockThirdPartyCalls
 });
 
