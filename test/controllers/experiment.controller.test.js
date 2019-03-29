@@ -844,6 +844,10 @@ describe("ExperimentController", () => {
             while (!updatedExperiment.file) {
               updatedExperiment = await Experiment.get(id);
             }
+            /**
+             * The event should be called at least one time, because of the parallel tests it may get called twice
+             * This should be changed to expect(mockCallback.mock.calls.length).toBe(1); when running with runInBand
+             */
             expect(mockCallback.mock.calls.length).toBeGreaterThanOrEqual(1);
             const args = mockCallback.mock.calls[0];
 
