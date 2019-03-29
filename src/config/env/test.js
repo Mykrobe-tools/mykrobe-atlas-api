@@ -3,10 +3,9 @@ const mockedEsPort = _.random(10000, 65535);
 const mockedKeycloakPort = _.random(10000, 65535);
 
 export default {
-  mockedEsPort,
-  mockedKeycloakPort,
   db: {},
   elasticsearch: {
+    port: mockedEsPort,
     index: "atlas",
     host: `http://localhost:${mockedEsPort}`
   },
@@ -17,6 +16,7 @@ export default {
   accounts: {
     keycloak: {
       admin: {
+        port: mockedKeycloakPort,
         baseUrl: `http://localhost:${mockedKeycloakPort}/auth`
       }
     }

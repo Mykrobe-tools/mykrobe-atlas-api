@@ -45,8 +45,8 @@ beforeAll(async done => {
   });
 
   config.db.uri = mongoUri;
-  elasticsearchMockServer.listen(config.mockedEsPort);
-  keycloakMockServer.listen(config.mockedKeycloakPort);
+  elasticsearchMockServer.listen(config.elasticsearch.port);
+  keycloakMockServer.listen(config.accounts.keycloak.admin.port);
   done();
 });
 
