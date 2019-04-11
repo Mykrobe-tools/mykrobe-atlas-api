@@ -37,16 +37,16 @@ ENV NODE_PATH $NVM_DIR/v$NODE_VERSION/lib/node_modules
 ENV PATH      $NVM_DIR/v$NODE_VERSION/bin:$PATH
 
 # Add the keys and set permissions
-RUN mkdir -p /home/go/.ssh && \
-    chmod 0700 /home/go/.ssh && \
-    echo "IdentityFile /home/go/.ssh/bitbucket-readonly" >> /home/go/.ssh/config
+RUN mkdir -p /root/.ssh && \
+    chmod 0700 /root/.ssh && \
+    echo "IdentityFile /root/.ssh/bitbucket-readonly" >> /root/.ssh/config
 
-ADD bitbucket-readonly /home/go/.ssh/
-ADD atlas-jsonschema-readonly /home/go/.ssh/
+ADD bitbucket-readonly /root/.ssh/
+ADD atlas-jsonschema-readonly /root/.ssh/
 
-RUN chmod 600 /home/go/.ssh/bitbucket-readonly && \
-    ssh-keyscan bitbucket.org >> /home/go/.ssh/known_hosts && \
-    ssh-keyscan github.com >> /home/go/.ssh/known_hosts
+RUN chmod 600 /root/.ssh/bitbucket-readonly && \
+    ssh-keyscan bitbucket.org >> /root/.ssh/known_hosts && \
+    ssh-keyscan github.com >> /root/.ssh/known_hosts
 
 # install yarn
 RUN apt-get install apt-transport-https
@@ -63,7 +63,7 @@ WORKDIR /app
 ADD . /app
 
 # install dependencies as a cachable step
-RUN cat /home/go/.ssh/atlas-jsonschema-readonly > /etc/ssh/id_rsa && \
+RUN cat /root/.ssh/atlas-jsonschema-readonly > /etc/ssh/id_rsa && \
     chmod 600 /etc/ssh/id_rsa && \
     eval $(ssh-agent -s) && \
     ssh-add /etc/ssh/id_rsa && \
