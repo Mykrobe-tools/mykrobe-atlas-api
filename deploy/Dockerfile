@@ -37,14 +37,12 @@ ENV NODE_PATH $NVM_DIR/v$NODE_VERSION/lib/node_modules
 ENV PATH      $NVM_DIR/v$NODE_VERSION/bin:$PATH
 
 # Add the keys and set permissions
-RUN whoami
-RUN pwd
 RUN mkdir -p /home/go/.ssh && \
     chmod 0700 /home/go/.ssh && \
     echo "IdentityFile /home/go/.ssh/bitbucket-readonly" >> /home/go/.ssh/config
 
-ADD /home/go/.ssh/bitbucket-readonly /home/go/.ssh/
-ADD /home/go/.ssh/atlas-jsonschema-readonly /home/go/.ssh/
+ADD /root/.ssh/bitbucket-readonly /home/go/.ssh/
+ADD /root/.ssh/atlas-jsonschema-readonly /home/go/.ssh/
 
 RUN chmod 600 /home/go/.ssh/bitbucket-readonly && \
     ssh-keyscan bitbucket.org >> /home/go/.ssh/known_hosts && \
