@@ -39,7 +39,7 @@ ENV PATH      $NVM_DIR/v$NODE_VERSION/bin:$PATH
 # Add the keys and set permissions
 RUN mkdir -p /home/go/.ssh && \
     chmod 0700 /home/go/.ssh && \
-    echo "IdentityFile /home/go/.ssh/bitbucket-readonly" >> /root/.ssh/config
+    echo "IdentityFile /home/go/.ssh/bitbucket-readonly" >> /home/go/.ssh/config
 
 ADD bitbucket-readonly /home/go/.ssh/
 ADD atlas-jsonschema-readonly /home/go/.ssh/
