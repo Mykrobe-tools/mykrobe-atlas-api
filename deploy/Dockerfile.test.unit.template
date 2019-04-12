@@ -1,4 +1,4 @@
-FROM mthomsit/atlas-api
+FROM mthomsit/atlas-api:$GO_DEPENDENCY_LABEL_UPSTREAM
 
 # Install dev dependencies
 RUN yarn
