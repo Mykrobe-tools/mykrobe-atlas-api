@@ -1,0 +1,28 @@
+{
+  "apiVersion": "extensions/v1beta1",
+  "kind": "Ingress",
+  "metadata": {
+    "name": "atlas-api-ingress"
+  },
+  "spec": {
+    "backend": {
+      "serviceName": "atlas-api-service",
+      "servicePort": 3000
+    },
+    "rules": [
+      {
+        "http": {
+          "paths": [
+            {
+              "backend": {
+                "serviceName": "atlas-api-service",
+                "servicePort": 3000
+              },
+              "path": "/atlas-api"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}
