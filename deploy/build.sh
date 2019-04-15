@@ -1,15 +1,16 @@
 #/bin/bash
 set -e
 
-cd /var/lib/go-agent/pipelines/${TARGET_ENVIRONMENT}-atlas-api
+cd /go/pipelines/atlas-api
 
 # copy the ssh keys
-cp /var/go/.ssh/bitbucket-readonly .
-cp /var/go/.ssh/atlas-jsonschema-readonly .
+cp /home/go/.ssh/bitbucket-readonly .
+cp /home/go/.ssh/atlas-jsonschema-readonly .
 
 # build the image
-envsubst < deploy/docker-compose.yml > deploy/docker-compose.yml.replace
+cat deploy/docker-compose.yml | while read line; do echo $(eval echo `echo $line`); done > deploy/docker-compose.yml.replace
 mv deploy/docker-compose.yml.replace deploy/docker-compose.yml
+cat deploy/docker-compose.yml 
 docker-compose -f deploy/docker-compose.yml build
 
 # push to the registry

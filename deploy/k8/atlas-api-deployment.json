@@ -1,0 +1,43 @@
+{
+  "apiVersion": "apps/v1beta2",
+  "kind": "Deployment",
+  "metadata": {
+    "labels": {
+      "app": "atlas-api"
+    },
+    "name": "atlas-api-deployment"
+  },
+  "spec": {
+    "replicas": 1,
+    "selector": {
+      "matchLabels": {
+        "app": "atlas-api"
+      }
+    },
+    "template": {
+      "metadata": {
+        "labels": {
+          "app": "atlas-api"
+        }
+      },
+      "spec": {
+        "containers": [
+          {
+            "command": [
+              "npm",
+              "start"
+            ],
+            "image": "#{image}",
+            "name": "atlas-api",
+            "ports": [
+              {
+                "containerPort": 3000,
+                "protocol": "TCP"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

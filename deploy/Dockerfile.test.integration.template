@@ -1,4 +1,4 @@
-FROM mthomsit/atlas-api
+FROM mthomsit/atlas-api:$GO_PIPELINE_LABEL
 
 # Install dev dependencies
 RUN yarn
@@ -9,4 +9,4 @@ RUN rm /app/dist/server/modules/__mocks__/*.js
 # Copy mongo
 RUN mkdir -p /app/tmp/mongo
 
-CMD yarn test:unit
+CMD yarn test:integration

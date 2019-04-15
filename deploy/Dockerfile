@@ -81,7 +81,7 @@ RUN cp -rf /tmp/makeandship-api-common /app/node_modules
 
 # Remove SSH keys
 RUN rm /app/bitbucket-readonly
-RUN rm -rf /root/.ssh
+RUN rm -rf /home/go/.ssh
 RUN rm /etc/ssh/id_rsa
 RUN rm -rf /tmp/makeandship-api-common
 
