@@ -12,6 +12,16 @@ if [ -z $NAMESPACE ]; then
   exit ${2:-1}
 fi
 
+if [ -z $KUBERNETES_SERVICE_HOST ]; then
+  echo "FATAL: Environment Variable KUBERNETES_SERVICE_HOST must be specified."
+  exit ${2:-1}
+fi
+
+if [ -z $KUBERNETES_PORT_443_TCP_PORT ]; then
+  echo "FATAL: Environment Variable KUBERNETES_PORT_443_TCP_PORT must be specified."
+  exit ${2:-1}
+fi
+
 echo
 echo "Namespace $NAMESPACE"
 
