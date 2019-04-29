@@ -161,7 +161,7 @@ describe("Experiment", () => {
       expect(sample.labId).toBeTruthy();
       expect(sample).toHaveProperty("collectionDate", "2018-10-19");
       expect(sample).toHaveProperty("prospectiveIsolate", "Yes");
-      expect(sample).toHaveProperty("countryIsolate", "India");
+      expect(sample).toHaveProperty("countryIsolate", "IN");
       expect(sample).toHaveProperty("cityIsolate", "Mumbai");
       expect(sample).toHaveProperty("dateArrived", "2018-09-01");
       expect(sample).toHaveProperty("anatomicalOrigin", "Respiratory");

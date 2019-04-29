@@ -33,7 +33,7 @@ beforeEach(async done => {
   savedUser = await userData.save();
   request(app)
     .post("/auth/login")
-    .send({ email: "admin@nhs.co.uk", password: "password" })
+    .send({ username: "admin@nhs.co.uk", password: "password" })
     .end((err, res) => {
       token = res.body.data.access_token;
       done();

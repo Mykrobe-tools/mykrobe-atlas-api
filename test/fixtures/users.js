@@ -6,6 +6,7 @@ export default {
     lastname: "Robin",
     role: "Administrator",
     phone: "06734929442",
+    username: "admin@nhs.co.uk",
     email: "admin@nhs.co.uk"
   },
   thomas: {
@@ -13,31 +14,32 @@ export default {
     lastname: "Carlos",
     role: "Carer",
     phone: "07737929442",
+    username: "thomas.carlos@nhs.net",
     email: "thomas.carlos@nhs.net"
   },
   neil: {
     firstname: "Neil",
     lastname: "Robin",
     phone: "023435493253",
-    email: "neil@nhs.co.uk"
+    username: "neil@nhs.co.uk"
   },
   helen: {
     firstname: "Chris",
     lastname: "Dee",
     phone: "034634843435",
-    email: "chris@nhs.co.uk"
+    username: "chris@nhs.co.uk"
   },
   steven: {
     firstname: "Steven",
     lastname: "Burns",
     phone: "02323545432",
-    email: "steven@nhs.co.uk"
+    username: "steven@nhs.co.uk"
   },
   userToVerify: {
     firstname: "Sara",
     lastname: "Crowe",
     phone: "032435940944",
-    email: "sara@nhs.co.uk"
+    username: "sara@nhs.co.uk"
   },
   invalid: {
     duplicateEmail: {
@@ -45,14 +47,14 @@ export default {
       lastname: "Walter",
       role: "Carer",
       phone: "083231292248",
-      email: "thomas.carlos@nhs.net"
+      username: "thomas.carlos@nhs.net"
     },
     duplicatePhone: {
       firstname: "Sean",
       lastname: "Moses",
       role: "Carer",
       phone: "07737929442",
-      email: "sean@nhs.co.uk"
+      username: "sean@nhs.co.uk"
     },
     missingEmail: {
       firstname: "David",

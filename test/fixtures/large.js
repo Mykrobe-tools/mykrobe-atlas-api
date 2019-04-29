@@ -6,6 +6,7 @@ export default {
   password: "password123",
   phone: "06734929442",
   email: "admin@nhs.co.uk",
+  username: "admin@nhs.co.uk",
   data: [
     {
       firstname: "David",
@@ -14,7 +15,8 @@ export default {
       valid: true,
       verificationToken: 107165,
       phone: "06734929442",
-      email: "admin@nhs.co.uk"
+      email: "admin@nhs.co.uk",
+      username: "admin@nhs.co.uk"
     },
     {
       firstname: "David",
@@ -23,7 +25,8 @@ export default {
       valid: true,
       verificationToken: 107165,
       phone: "06734929442",
-      email: "admin@nhs.co.uk"
+      email: "admin@nhs.co.uk",
+      username: "admin@nhs.co.uk"
     },
     {
       firstname: "David",

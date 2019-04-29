@@ -15,11 +15,12 @@ const UserSchema = new mongoose.Schema({
   lastname: String,
   role: String,
   phone: String,
-  email: {
+  username: {
     type: String,
     unique: true
   },
   keycloakId: String,
+  email: String,
   organisation: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Organisation"
@@ -76,7 +77,7 @@ UserSchema.statics = {
    * @param {String} email - The email of user.
    * @returns {Promise<User, APIError>}
    */
-  async getByEmail(email) {
+  async findByEmail(email) {
     const user = await this.findOne({ email }).exec();
     if (user) {
       return user;

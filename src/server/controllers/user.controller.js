@@ -19,6 +19,7 @@ import ExperimentJSONTransformer from "../transformers/ExperimentJSONTransformer
 import ExperimentsResultJSONTransformer from "../transformers/es/ExperimentsResultJSONTransformer";
 
 import AccountsHelper from "../helpers/AccountsHelper";
+import EmailHelper from "../helpers/EmailHelper";
 
 import ResultsParserFactory from "../helpers/ResultsParserFactory";
 
@@ -59,14 +60,38 @@ const get = (req, res) => res.jsend(req.dbUser);
  */
 const create = async (req, res) => {
   try {
-    const { firstname, lastname, phone, email } = req.body;
-    const keycloakId = await keycloak.register(
-      { email, username: email, firstName: firstname, lastName: lastname },
-      req.body.password
-    );
-    const user = new User({ firstname, lastname, phone, email, keycloakId });
+    const { firstname, lastname, username, phone } = req.body;
+    const userData = {
+      firstname,
+      lastname,
+      username,
+      phone
+    };
+
+    if (EmailHelper.isValid(username)) {
+      if (!req.body.password) {
+        return res.jerror("Please provide a password");
+      }
+
+      userData.email = username;
+
+      userData.keycloakId = await keycloak.register(
+        {
+          email: userData.email,
+          username: userData.email,
+          firstName: userData.firstname,
+          lastName: userData.lastname,
+          attributes: { phone: userData.phone }
+        },
+        req.body.password
+      );
+    } else {
+      return res.jerror("Invalid username");
+    }
+
+    const user = new User(userData);
     const savedUser = await user.save();
-    res.jsend(savedUser);
+    return res.jsend(savedUser);
   } catch (e) {
     return res.jerror(e);
   }
