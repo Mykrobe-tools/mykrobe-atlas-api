@@ -1,4 +1,4 @@
-FROM ubuntu:14.04
+FROM ubuntu:18.04
 LABEL MAINTAINER="Yassire Elhani <yassire@makeandship.com>"
 
 RUN rm /bin/sh && ln -s /bin/bash /bin/sh
@@ -12,16 +12,14 @@ RUN echo "deb mirror://mirrors.ubuntu.com/mirrors.txt trusty main restricted uni
     echo "deb mirror://mirrors.ubuntu.com/mirrors.txt trusty-security main restricted universe multiverse" >> /etc/apt/sources.list
 
 # install required software before using nvm/node/npm/bower
-RUN apt-get update 
-RUN apt-get install -y curl 
-RUN apt-get install -y git 
-RUN apt-get install -y python 
-RUN apt-get install -y build-essential 
+RUN apt-get update
+RUN apt-get install -y apt-transport-https
+RUN apt-get install -y curl
+RUN apt-get install -y git
+RUN apt-get install -y python
+RUN apt-get install -y build-essential
+RUN apt-get install -y imagemagick
 RUN apt-get install -y libssl-dev
-
-# add package manager for yarn
-RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
-RUN echo "deb https://dl.yarnpkg.com/debian/ stable main" >> /etc/apt/sources.list
 
 # download and install nvm
 RUN curl https://raw.githubusercontent.com/creationix/nvm/v0.32.1/install.sh | bash \
@@ -49,7 +47,6 @@ RUN chmod 600 /root/.ssh/bitbucket-readonly && \
     ssh-keyscan github.com >> /root/.ssh/known_hosts
 
 # install yarn
-RUN apt-get install apt-transport-https
 RUN npm install -g yarn
 
 # install global packages
