@@ -13,13 +13,13 @@ RUN echo "deb mirror://mirrors.ubuntu.com/mirrors.txt trusty main restricted uni
 
 # install required software before using nvm/node/npm/bower
 RUN apt-get update
-RUN apt-get install -y apt-transport-https
 RUN apt-get install -y curl
 RUN apt-get install -y git
 RUN apt-get install -y python
 RUN apt-get install -y build-essential
 RUN apt-get install -y imagemagick
 RUN apt-get install -y libssl-dev
+RUN apt-get install -y apt-transport-https
 
 # download and install nvm
 RUN curl https://raw.githubusercontent.com/creationix/nvm/v0.32.1/install.sh | bash \
