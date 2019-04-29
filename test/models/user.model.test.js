@@ -35,7 +35,7 @@ describe("User", () => {
         expect(user.firstname).toEqual("Sara");
         expect(user.lastname).toEqual("Crowe");
         expect(user.phone).toEqual("032435940944");
-        expect(user.email).toEqual("sara@nhs.co.uk");
+        expect(user.username).toEqual("sara@nhs.co.uk");
         done();
       });
     });
@@ -46,7 +46,7 @@ describe("User", () => {
           await userData.save();
         } catch (e) {
           expect(e.message).toEqual(
-            "User validation failed: email: thomas.carlos@nhs.net has already been registered"
+            "User validation failed: username: thomas.carlos@nhs.net has already been registered"
           );
           done();
         }
@@ -59,7 +59,7 @@ describe("User", () => {
           await userData.save();
         } catch (e) {
           expect(e.code).toEqual("ValidationError");
-          expect(e.data.errors.email.message).toEqual("should have required property 'email'");
+          expect(e.data.errors.username.message).toEqual("should have required property 'username'");
           done();
         }
       });
@@ -87,10 +87,10 @@ describe("User", () => {
       });
     });
   });
-  describe("#getByEmail", () => {
+  describe("#findByEmail", () => {
     describe("when the email exists", () => {
       it("should return the user", async done => {
-        const user = await User.getByEmail("thomas.carlos@nhs.net");
+        const user = await User.findByEmail("thomas.carlos@nhs.net");
         expect(user.firstname).toEqual("Thomas");
         expect(user.lastname).toEqual("Carlos");
         done();
@@ -99,7 +99,7 @@ describe("User", () => {
     describe("when the email does not exist", () => {
       it("should return an error message", async done => {
         try {
-          await User.getByEmail("amir@nhs.co.uk");
+          await User.findByEmail("amir@nhs.co.uk");
           fail();
         } catch (e) {
           expect(e.name).toEqual("ObjectNotFound");

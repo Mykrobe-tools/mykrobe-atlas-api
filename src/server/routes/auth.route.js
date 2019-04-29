@@ -25,7 +25,7 @@ const keycloak = AccountsHelper.keycloakInstance();
  *             type: string
  *           phone:
  *             type: string
- *           email:
+ *           username:
  *             type: string
  *           avatar:
  *             type: array
@@ -49,6 +49,7 @@ const keycloak = AccountsHelper.keycloakInstance();
  *         lastname: Kitting
  *         phone: 07686833972
  *         email: john@nhs.co.uk
+ *         username: john@nhs.co.uk
  *         avatar:
  *           - id: 59084b7505a2440a6ed57152
  *             url: https://host/user/avatar/ryg0cpHyb-128.png
@@ -134,15 +135,15 @@ const keycloak = AccountsHelper.keycloakInstance();
  *         schema:
  *           type: object
  *           required:
- *             - email
+ *             - username
  *             - password
  *           properties:
- *             email:
+ *             username:
  *               type: string
  *             password:
  *               type: string
  *           example:
- *             email: mark@makeandship.com
+ *             username: mark@makeandship.com
  *             password: password
  *     responses:
  *       200:

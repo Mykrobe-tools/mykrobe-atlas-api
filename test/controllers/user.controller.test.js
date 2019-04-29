@@ -22,7 +22,7 @@ beforeEach(async done => {
   savedUser = user;
   request(app)
     .post("/auth/login")
-    .send({ email: "admin@nhs.co.uk", password: "password" })
+    .send({ username: "admin@nhs.co.uk", password: "password" })
     .end((err, res) => {
       token = res.body.data.access_token;
       done();
@@ -41,7 +41,7 @@ describe("UserController", () => {
     lastname: "Robin",
     password: "password",
     phone: "094324783253",
-    email: "david@gmail.com"
+    username: "david@gmail.com"
   };
 
   describe("# POST /users", () => {
@@ -55,12 +55,12 @@ describe("UserController", () => {
           expect(res.body.data.firstname).toEqual(user.firstname);
           expect(res.body.data.lastname).toEqual(user.lastname);
           expect(res.body.data.phone).toEqual(user.phone);
-          expect(res.body.data.email).toEqual(user.email);
+          expect(res.body.data.email).toEqual(user.username);
           done();
         });
     });
 
-    it("should validate user before creation - email", done => {
+    it("should validate user before creation - username", done => {
       const invalid = {
         firstname: "David",
         lastname: "Robin",
@@ -73,7 +73,7 @@ describe("UserController", () => {
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
           expect(res.body.code).toEqual(10005);
-          expect(res.body.data.errors[""].message).toEqual("should have required property 'email'");
+          expect(res.body.data.errors[""].message).toEqual("should have required property 'username'");
           done();
         });
     });
@@ -82,7 +82,7 @@ describe("UserController", () => {
       const invalid = {
         firstname: "David",
         lastname: "Robin",
-        email: "admin@gmail.com"
+        username: "admin@gmail.com"
       };
       request(app)
         .post("/users")
@@ -90,10 +90,7 @@ describe("UserController", () => {
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
-          expect(res.body.code).toEqual(10005);
-          expect(res.body.data.errors[""].message).toEqual(
-            "should have required property 'password'"
-          );
+          expect(res.body.data).toEqual("Please provide a password");
           done();
         });
     });
@@ -104,7 +101,7 @@ describe("UserController", () => {
         lastname: "Robin",
         password: "password",
         phone: "06734929442",
-        email: "admin@nhs.co.uk"
+        username: "admin@nhs.co.uk"
       };
       request(app)
         .post("/users")
@@ -114,7 +111,7 @@ describe("UserController", () => {
           expect(res.body.status).toEqual("error");
           expect(res.body.code).toEqual("ValidationError");
           expect(res.body.message).toEqual(
-            "User validation failed: email: admin@nhs.co.uk has already been registered"
+            "User validation failed: username: admin@nhs.co.uk has already been registered"
           );
           done();
         });
@@ -125,7 +122,7 @@ describe("UserController", () => {
         firstname: "David",
         lastname: "Robin",
         phone: "094324783253",
-        email: "david",
+        username: "david",
         password: "password"
       };
       request(app)
@@ -134,8 +131,7 @@ describe("UserController", () => {
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
-          expect(res.body.code).toEqual(10005);
-          expect(res.body.data.errors.email.message).toEqual('should match format "email"');
+          expect(res.body.data).toEqual("Invalid username");
           done();
         });
     });
@@ -150,7 +146,7 @@ describe("UserController", () => {
           expect(res.body.data.firstname).toEqual(user.firstname);
           expect(res.body.data.lastname).toEqual(user.lastname);
           expect(res.body.data.phone).toEqual(user.phone);
-          expect(res.body.data.email).toEqual(user.email);
+          expect(res.body.data.email).toEqual(user.username);
           expect(res.body.data.keycloakId).toBeTruthy();
           done();
         });
