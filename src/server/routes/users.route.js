@@ -178,17 +178,14 @@ router
    *               type: string
    *             lastname:
    *               type: string
-   *             phone:
-   *               type: string
-   *             email:
+   *             username:
    *               type: string
    *             password:
    *               type: string
    *           example:
-   *             firstname: mark
-   *             lastname: thomsit
-   *             phone: 07686833972
-   *             email: mark@makeandship.com
+   *             firstname: Mark
+   *             lastname: Thomsit
+   *             username: mark@makeandship.com
    *             password: password
    *     responses:
    *       200:
