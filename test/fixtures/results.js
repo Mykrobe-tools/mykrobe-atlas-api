@@ -111,14 +111,14 @@ export default {
     phylogenetics: [
       {
         _id: "5b473a285fb3651c8818b33b",
-        type: "phylo_group",
+        type: "complex",
         result: "Mycobacterium_tuberculosis_complex",
         percentCoverage: 99.631,
         medianDepth: 55
       },
       {
         _id: "5b473a285fb3651c8818b33a",
-        type: "sub_complex",
+        type: "sub-complex",
         result: "Unknown",
         percentCoverage: -1,
         medianDepth: -1
@@ -132,7 +132,7 @@ export default {
       },
       {
         _id: "5b473a285fb3651c8818b338",
-        type: "lineage",
+        type: "sub-species",
         result: "European_American",
         percentCoverage: 100,
         medianDepth: 47
@@ -278,14 +278,14 @@ export default {
     phylogenetics: [
       {
         _id: "5b473a285fb3651c8818b33b",
-        type: "phylo_group",
+        type: "complex",
         result: "Mycobacterium_tuberculosis_complex",
         percentCoverage: 99.631,
         medianDepth: 55
       },
       {
         _id: "5b473a285fb3651c8818b338",
-        type: "lineage",
+        type: "sub-species",
         result: "European_American",
         percentCoverage: 100,
         medianDepth: 47
@@ -421,14 +421,14 @@ export default {
     phylogenetics: [
       {
         _id: "5b473a285fb3651c8818b33b",
-        type: "phylo_group",
+        type: "complex",
         result: "Mycobacterium_tuberculosis_complex",
         percentCoverage: 99.631,
         medianDepth: 55
       },
       {
         _id: "5b473a285fb3651c8818b338",
-        type: "lineage",
+        type: "sub-species",
         result: "European_American",
         percentCoverage: 100,
         medianDepth: 47

@@ -20,8 +20,8 @@ const keycloak = AccountsHelper.keycloakInstance();
  */
 const login = async (req, res) => {
   try {
-    const { email, password } = req.body;
-    const data = await keycloak.authenticate(email, password);
+    const { username, password } = req.body;
+    const data = await keycloak.authenticate(username, password);
     return res.jsend(data);
   } catch (e) {
     return res.jerror(new APIError(e.message, httpStatus.UNAUTHORIZED));
@@ -51,7 +51,7 @@ const getRandomNumber = (req, res) => {
 const forgot = async (req, res) => {
   try {
     const email = req.body.email;
-    const user = await User.getByEmail(email);
+    const user = await User.findByEmail(email);
 
     let keycloakId = null;
 
@@ -78,7 +78,7 @@ const forgot = async (req, res) => {
 const resend = async (req, res) => {
   try {
     const email = req.body.email;
-    const user = await User.getByEmail(email);
+    const user = await User.findByEmail(email);
 
     let keycloakId = null;
 

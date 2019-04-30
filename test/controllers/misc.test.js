@@ -72,7 +72,7 @@ describe("Misc", () => {
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
           expect(res.body.code).toEqual(10005);
-          expect(res.body.data.errors[""].message).toEqual("should have required property 'email'");
+          expect(res.body.data.errors[""].message).toEqual("should have required property 'username'");
           done();
         });
     });

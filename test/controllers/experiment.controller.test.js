@@ -43,7 +43,7 @@ beforeEach(async done => {
   const savedUser = await userData.save();
   request(app)
     .post("/auth/login")
-    .send({ email: "admin@nhs.co.uk", password: "password" })
+    .send({ username: "admin@nhs.co.uk", password: "password" })
     .end(async (err, res) => {
       token = res.body.data.access_token;
 
@@ -403,7 +403,7 @@ describe("ExperimentController", () => {
       beforeEach(async done => {
         request(app)
           .post("/auth/login")
-          .send({ email: "thomas.carlos@nhs.net", password: "password" })
+          .send({ username: "thomas.carlos@nhs.net", password: "password" })
           .end(async (err, res) => {
             thomasToken = res.body.data.access_token;
             done();
@@ -467,7 +467,7 @@ describe("ExperimentController", () => {
       beforeEach(async done => {
         request(app)
           .post("/auth/login")
-          .send({ email: "thomas.carlos@nhs.net", password: "password" })
+          .send({ username: "thomas.carlos@nhs.net", password: "password" })
           .end(async (err, res) => {
             thomasToken = res.body.data.access_token;
             done();
