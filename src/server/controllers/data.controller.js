@@ -12,8 +12,22 @@ const userRandomizer = new Randomizer(schemas.user, {});
 const experimentRandomizer = new Randomizer(schemas.experiment, {
   overrides: {
     results: {
-      phylogenetics: function(schema, property, data) {
-        return generatePhylogenetics.call(schema, property, data);
+      phylogenetics: {
+        medianDepth: function(schema, property, data, value) {
+          return _.sample([-1, 0, 40, 100, 116, 117, 122]);
+        },
+        percentCoverage: function(schema, property, data, value) {
+          return getRandomPercentage();
+        },
+        type: function(schema, property, data, value) {
+          return _.sample(Object.keys(phylogenetics));
+        },
+        result: function(schema, property, data, value) {
+          const path = property.split(".");
+          const type = data.results[path[1]].phylogenetics[path[3]].type;
+          const possibleResults = Object.keys(phylogenetics[type]);
+          return _.sample(possibleResults);
+        }
       }
     }
   }
