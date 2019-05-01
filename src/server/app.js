@@ -50,7 +50,10 @@ const createApp = ({ rateLimitReset, rateLimitMax, limit } = config.express) => 
   app.use(keycloak.getUserMiddleware.bind(keycloak));
 
   // enable detailed API logging in dev env
-  if (config.env === "development") {
+  if (
+    config.env === "development" ||
+    (process.env.DEBUG && (process.env.DEBUG === "true" || process.env.DEBUG === "1"))
+  ) {
     expressWinston.responseWhitelist.push("body");
     app.use(
       expressWinston.logger({
