@@ -1,5 +1,6 @@
 import fs from "fs";
 import _ from "lodash";
+import faker from "faker";
 import * as schemas from "mykrobe-atlas-jsonschema";
 import Randomizer from "makeandship-api-common/lib/modules/schema-faker/Randomizer";
 import { getRandomPercentage } from "makeandship-api-common/lib/modules/schema-faker/utils";
@@ -8,7 +9,13 @@ import Experiment from "../models/experiment.model";
 import phylogenetics from "../../config/faker/phylogenetics-choices";
 
 // randomizers
-const userRandomizer = new Randomizer(schemas.user, {});
+const userRandomizer = new Randomizer(schemas.user, {
+  overrides: {
+    username: function(schema, property, data, value) {
+      return faker.internet.email();
+    }
+  }
+});
 const experimentRandomizer = new Randomizer(schemas.experiment, {
   overrides: {
     results: {
