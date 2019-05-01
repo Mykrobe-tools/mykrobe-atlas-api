@@ -27,7 +27,7 @@ describe("Misc", () => {
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("success");
-          expect(res.body.data).toEqual("KO");
+          expect(res.body.data).toEqual("OK");
           done();
         });
     });
