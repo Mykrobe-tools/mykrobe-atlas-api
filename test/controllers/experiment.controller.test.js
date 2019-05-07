@@ -368,7 +368,7 @@ describe("ExperimentController", () => {
               expect(nearestNeighbour.metadata).toBeTruthy();
 
               expect(Object.keys(nearestNeighbour.results).length).toEqual(1);
-              expect(Object.keys(nearestNeighbour.metadata).length).toEqual(4);
+              expect(Object.keys(nearestNeighbour.metadata).length).toEqual(6);
 
               done();
             });
@@ -418,6 +418,56 @@ describe("ExperimentController", () => {
           .end((err, res) => {
             expect(res.body.status).toEqual("error");
             expect(res.body.message).toEqual("Only the owner can edit this experiment");
+            done();
+          });
+      });
+    });
+    describe("#761 - saving metadata fails", () => {
+      it("should update experiment details", done => {
+        const body = {
+          metadata: {
+            sample: {
+              labId: "123",
+              isolateId: "123",
+              collectionDate: "2019-05-06T23:00:00.000Z",
+              prospectiveIsolate: "Yes",
+              countryIsolate: "AF",
+              cityIsolate: "a",
+              dateArrived: "2019-05-06T23:00:00.000Z",
+              anatomicalOrigin: "Respiratory",
+              smear: "Not known"
+            },
+            patient: {
+              patientId: "123456",
+              siteId: "7890",
+              genderAtBirth: "Male",
+              countryOfBirth: "Albania",
+              age: 45,
+              bmi: 13,
+              injectingDrugUse: "No",
+              homeless: "No",
+              imprisoned: "Yes",
+              smoker: "Yes",
+              diabetic: "Not known",
+              hivStatus: "Not known"
+            }
+          }
+        };
+
+        request(app)
+          .put(`/experiments/${id}`)
+          .set("Authorization", `Bearer ${token}`)
+          .send(body)
+          .expect(httpStatus.OK)
+          .end((err, res) => {
+            expect(res.body).toHaveProperty("status", "success");
+            expect(res.body).toHaveProperty("data");
+
+            const data = res.body.data;
+            expect(data).toHaveProperty("metadata");
+            expect(data.metadata).toHaveProperty("sample");
+            expect(data.metadata).toHaveProperty("patient");
+
             done();
           });
       });
@@ -1807,7 +1857,7 @@ describe("ExperimentController", () => {
 
           const predictor = res.body.data.results["predictor"];
 
-          expect(predictor).toHaveProperty("r");
+          expect(predictor).toHaveProperty("r", true);
           expect(predictor).toHaveProperty("mdr");
           expect(predictor).toHaveProperty("xdr");
           expect(predictor).toHaveProperty("tdr");
@@ -1898,7 +1948,7 @@ describe("ExperimentController", () => {
 
           expect(results.length).toEqual(1);
 
-          const result = results[0];
+          const result = results[0].toJSON();
 
           expect(result).toHaveProperty("r");
           expect(result).toHaveProperty("mdr");
