@@ -471,6 +471,52 @@ describe("ExperimentController", () => {
             done();
           });
       });
+      it("should update experiment details", done => {
+        const body = {
+          metadata: {
+            sample: {
+              labId: "123",
+              isolateId: "234",
+              collectionDate: "2019-05-06T23:00:00.000Z",
+              prospectiveIsolate: "Yes",
+              countryIsolate: "AF",
+              dateArrived: "2019-05-06T23:00:00.000Z",
+              anatomicalOrigin: "CSF",
+              smear: "Not known"
+            },
+            patient: {
+              patientId: "123",
+              siteId: "234",
+              genderAtBirth: "Male",
+              countryOfBirth: "Albania",
+              age: 35,
+              bmi: 25,
+              injectingDrugUse: "Yes",
+              homeless: "No",
+              imprisoned: "No",
+              smoker: "Yes",
+              diabetic: "Diet alone",
+              hivStatus: "Not known"
+            }
+          }
+        };
+        request(app)
+          .put(`/experiments/${id}`)
+          .set("Authorization", `Bearer ${token}`)
+          .send(body)
+          .expect(httpStatus.OK)
+          .end((err, res) => {
+            expect(res.body).toHaveProperty("status", "success");
+            expect(res.body).toHaveProperty("data");
+
+            const data = res.body.data;
+            expect(data).toHaveProperty("metadata");
+            expect(data.metadata).toHaveProperty("sample");
+            expect(data.metadata).toHaveProperty("patient");
+
+            done();
+          });
+      });
     });
   });
 
