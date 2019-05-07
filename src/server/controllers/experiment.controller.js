@@ -31,6 +31,7 @@ import ResultsParserFactory from "../helpers/ResultsParserFactory";
 import { experimentEventEmitter, userEventEmitter } from "../modules/events";
 
 import { isBigsiQuery, callBigsiApi, parseQuery, callTreeApi } from "../modules/search";
+import logger from "../modules/winston";
 
 const config = require("../../config/env");
 
@@ -166,6 +167,7 @@ const results = async (req, res) => {
   if (!parser) {
     return res.jerror(new errors.UpdateExperimentError("Invalid result type."));
   }
+
   const result = parser.parse(req.body);
   const results = experiment.get("results");
 
