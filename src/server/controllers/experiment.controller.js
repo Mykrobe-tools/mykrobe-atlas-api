@@ -93,7 +93,8 @@ const update = async (req, res) => {
   // use set - https://github.com/Automattic/mongoose/issues/5378
   const experiment = req.experiment;
   Object.keys(req.body).forEach(key => {
-    experiment.set(key, req.body[key]);
+    const value = req.body[key];
+    experiment.set(key, value);
   });
 
   try {

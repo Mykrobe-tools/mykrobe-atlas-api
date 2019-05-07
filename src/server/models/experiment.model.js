@@ -2,12 +2,16 @@ import mongoose from "mongoose";
 import errors from "errors";
 import schemaValidator from "mongoose-jsonschema-validator";
 import { experiment as experimentJsonSchema } from "mykrobe-atlas-jsonschema";
+
+import JSONMongooseSchema from "./jsonschema.model";
+
 import ExperimentJSONTransformer from "../transformers/ExperimentJSONTransformer";
 
 /**
  * Experiment Schema
  */
-const ExperimentSchema = new mongoose.Schema(
+const ExperimentSchema = new JSONMongooseSchema(
+  experimentJsonSchema,
   {
     organisation: {
       type: mongoose.Schema.Types.ObjectId,
@@ -16,8 +20,7 @@ const ExperimentSchema = new mongoose.Schema(
     owner: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User"
-    },
-    file: String
+    }
   },
   {
     strict: false,
