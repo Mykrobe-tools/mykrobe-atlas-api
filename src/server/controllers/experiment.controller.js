@@ -31,6 +31,7 @@ import ResultsParserFactory from "../helpers/ResultsParserFactory";
 import { experimentEventEmitter, userEventEmitter } from "../modules/events";
 
 import { isBigsiQuery, callBigsiApi, parseQuery, callTreeApi } from "../modules/search";
+import logger from "../modules/winston";
 
 const config = require("../../config/env");
 
@@ -92,7 +93,8 @@ const update = async (req, res) => {
   // use set - https://github.com/Automattic/mongoose/issues/5378
   const experiment = req.experiment;
   Object.keys(req.body).forEach(key => {
-    experiment.set(key, req.body[key]);
+    const value = req.body[key];
+    experiment.set(key, value);
   });
 
   try {
@@ -166,6 +168,7 @@ const results = async (req, res) => {
   if (!parser) {
     return res.jerror(new errors.UpdateExperimentError("Invalid result type."));
   }
+
   const result = parser.parse(req.body);
   const results = experiment.get("results");
 
