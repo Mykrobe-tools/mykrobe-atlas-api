@@ -1,7 +1,7 @@
 {
   "name": "atlas-api",
-  "version": "0.0.1",
-  "description": "Atals Restful api",
+  "version": "0.0.2",
+  "description": "Atlas RESTful API",
   "author": "Yassire Elhani <yassire@makeandship.com>",
   "main": "src/index.js",
   "private": true,
