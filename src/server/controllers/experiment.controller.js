@@ -167,7 +167,7 @@ const results = async (req, res) => {
   if (!parser) {
     return res.jerror(new errors.UpdateExperimentError("Invalid result type."));
   }
-  logger.info(`Result: ${JSON.stringify(req.body)}`);
+
   const result = parser.parse(req.body);
   const results = experiment.get("results");
 
