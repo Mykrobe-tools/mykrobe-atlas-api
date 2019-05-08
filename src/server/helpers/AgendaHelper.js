@@ -92,7 +92,7 @@ class AgendaHelper {
     const user = data.user;
 
     if (data && search) {
-      const uri = `${config.services.analysisApiUrl}/search`;
+      const uri = `${config.services.bigsiApiUrl}/search`;
       const searchQuery = {
         result_id: search.id,
         user_id: user.id,
@@ -141,7 +141,7 @@ class AgendaHelper {
         await audit.save();
 
         // wait for a period of time and retry the distance search
-        await this.schedule(config.services.analysisApiBackOffPeriod, "call search api", data);
+        await this.schedule(config.services.bigsiApiBackOffPeriod, "call search api", data);
         return done(e);
       }
     }
