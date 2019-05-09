@@ -48,7 +48,6 @@ describe("Search", () => {
           done();
         } catch (e) {
           fail();
-          console.log(e);
         }
       });
     });

@@ -2214,7 +2214,7 @@ describe("ExperimentController", () => {
 
   describe("# GET /experiments/tree", () => {
     describe("when there is no tree in the db", () => {
-      it.only("should return the tree object and create one in mongo", done => {
+      it("should return the tree object and create one in mongo", done => {
         beforeEach(async () => {
           await Tree.remove({});
         });
@@ -2223,11 +2223,10 @@ describe("ExperimentController", () => {
           .set("Authorization", `Bearer ${token}`)
           .expect(httpStatus.OK)
           .end(async (err, res) => {
-            console.log(res.body);
-            // expect(res.body.status).toEqual("success");
-            // expect(res.body.data.tree).toEqual("00004012993414038108");
-            // const fromCache = await Tree.get();
-            // expect(fromCache).toBeTruthy();
+            expect(res.body.status).toEqual("success");
+            expect(res.body.data.tree).toEqual("00004012993414038108");
+            const fromCache = await Tree.get();
+            expect(fromCache).toBeTruthy();
             done();
           });
       });
