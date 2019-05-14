@@ -13,10 +13,14 @@ let user = null;
 
 beforeEach(async done => {
   const experimentData = new Experiment(experiments.tbUploadMetadata);
-  savedExperiment = await experimentData.save();
-  id = savedExperiment.id;
+  try {
+    savedExperiment = await experimentData.save();
+    id = savedExperiment.id;
 
-  done();
+    done();
+  } catch (e) {
+    done();
+  }
 });
 
 afterEach(async done => {
@@ -132,7 +136,7 @@ describe("Experiment", () => {
 
       done();
     });
-    it("should transform experiment experiment metadata", async done => {
+    it("should transform experiment metadata", async done => {
       const experiment = await Experiment.get(id);
       const json = experiment.toJSON();
 
@@ -159,11 +163,13 @@ describe("Experiment", () => {
       expect(metadata).toHaveProperty("sample");
       const sample = metadata.sample;
       expect(sample.labId).toBeTruthy();
-      expect(sample).toHaveProperty("collectionDate", "2018-10-19");
+      expect(sample).toHaveProperty("collectionDate");
+      expect(sample.collectionDate.toJSON()).toEqual("2018-10-19T00:00:00.000Z");
       expect(sample).toHaveProperty("prospectiveIsolate", "Yes");
       expect(sample).toHaveProperty("countryIsolate", "IN");
       expect(sample).toHaveProperty("cityIsolate", "Mumbai");
-      expect(sample).toHaveProperty("dateArrived", "2018-09-01");
+      expect(sample).toHaveProperty("dateArrived");
+      expect(sample.dateArrived.toJSON()).toEqual("2018-09-01T00:00:00.000Z");
       expect(sample).toHaveProperty("anatomicalOrigin", "Respiratory");
       expect(sample).toHaveProperty("smear", "Not known");
 

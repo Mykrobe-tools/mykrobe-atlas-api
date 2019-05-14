@@ -1,34 +1,32 @@
 import mongoose from "mongoose";
+import moment from "moment";
+import { tree as treeJsonSchema } from "mykrobe-atlas-jsonschema";
+
+import JSONMongooseSchema from "./jsonschema.model";
+
 import TreeJSONTransformer from "../transformers/TreeJSONTransformer";
 import config from "../../config/env";
-
 /**
  * Tree Schema
  */
-const TreeSchema = new mongoose.Schema({
-  tree: String,
-  type: {
-    type: String,
-    default: "newick"
-  },
-  version: String,
-  expires: Date
-});
+const TreeSchema = new JSONMongooseSchema(treeJsonSchema, {}, {});
 
 /**
  * Methods
  */
 TreeSchema.method({
   isExpired() {
-    return this.expires < new Date();
+    return moment(this.expires).isBefore(moment());
   },
 
-  async update(result, expiresIn = config.services.treeResultsTTL) {
-    const expires = new Date();
-    expires.setHours(expires.getHours() + expiresIn);
+  async updateAndSetExpiry(result, expiresIn = config.services.treeResultsTTL) {
+    const expires = moment();
+    expires.add(expiresIn, "hours");
+
     this.tree = result.tree;
     this.version = result.version;
-    this.expires = expires;
+    this.expires = expires.toISOString();
+
     return this.save();
   }
 });

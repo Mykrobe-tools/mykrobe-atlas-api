@@ -196,7 +196,6 @@ const results = async (req, res) => {
 
     return res.jsend(savedExperiment);
   } catch (e) {
-    console.log(e);
     return res.jerror(new errors.UpdateExperimentError(e.message));
   }
 };
@@ -438,13 +437,18 @@ const inflateResult = async result => {
  * @param {object} res
  */
 const tree = async (req, res) => {
-  let tree = await Tree.get();
-  if (tree && !tree.isExpired()) {
-    return res.jsend(tree);
+  const current = await Tree.get();
+
+  if (current && !current.isExpired()) {
+    return res.jsend(current);
   }
-  const treeResult = await callTreeApi();
-  tree = tree || new Tree();
-  const savedTree = await tree.update(treeResult);
+
+  // no tree (even expired), make one
+  const tree = current ? current : new Tree();
+
+  const latest = await callTreeApi();
+  const savedTree = await tree.updateAndSetExpiry(latest);
+
   return res.jsend(savedTree);
 };
 

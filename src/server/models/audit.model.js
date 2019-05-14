@@ -1,21 +1,14 @@
 import mongoose from "mongoose";
 import errors from "errors";
 
+import { audit as auditJsonSchema } from "mykrobe-atlas-jsonschema";
+
+import JSONMongooseSchema from "./jsonschema.model";
+
 /**
  * Audit Schema
  */
-const AuditSchema = new mongoose.Schema({
-  taskId: String,
-  experimentId: String,
-  searchId: String,
-  userId: String,
-  requestMethod: String,
-  requestUri: String,
-  fileLocation: String,
-  status: String,
-  type: String,
-  attempt: Number
-});
+const AuditSchema = new JSONMongooseSchema(auditJsonSchema, {}, {});
 
 /**
  * Methods
@@ -32,24 +25,16 @@ AuditSchema.statics = {
    * @returns {Promise<User, APIError>}
    */
   async getByExperimentId(experimentId) {
-    const audit = await this.findOne({ experimentId }).exec();
-    if (audit) {
-      return audit;
-    }
-    throw new errors.ObjectNotFound();
+    return await this.findOne({ experimentId }).exec();
   },
 
   /**
-   * Get audit by userId
-   * @param {String} userId - The id of experiment.
+   * Get audit by taskId
+   * @param {String} taskId - The id of experiment.
    * @returns {Promise<User, APIError>}
    */
-  async getByUserId(userId) {
-    const audit = await this.findOne({ userId }).exec();
-    if (audit) {
-      return audit;
-    }
-    throw new errors.ObjectNotFound();
+  async getByTaskId(taskId) {
+    return this.findOne({ taskId }).exec();
   },
 
   /**

@@ -1,3 +1,4 @@
+import moment from "moment";
 export default {
   full: {
     sequence: {
@@ -89,7 +90,7 @@ export default {
       },
       status: "pending",
       hash: "f13efe3c6fb77cac5fab23f8bd789050f3a52064",
-      expires: new Date()
+      expires: moment().toISOString()
     },
     proteinVariant: {
       type: "protein-variant",
@@ -101,7 +102,7 @@ export default {
       },
       status: "pending",
       hash: "62b982cf54332c4ca2fbb9e670e6aad2ac0ab427",
-      expires: new Date()
+      expires: moment().toISOString()
     },
     expiredSearch: {
       type: "sequence",
@@ -110,7 +111,7 @@ export default {
         threshold: 0.9
       },
       status: "pending",
-      expires: "2018-09-18"
+      expires: moment([2018, 9, 18]).toISOString()
     }
   },
   results: {

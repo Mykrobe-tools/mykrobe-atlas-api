@@ -1,8 +1,14 @@
 import mongoose from "mongoose";
 import errors from "errors";
+import moment from "moment";
 import schemaValidator from "mongoose-jsonschema-validator";
+
 import { search as searchJsonSchema } from "mykrobe-atlas-jsonschema";
+
+import JSONMongooseSchema from "./jsonschema.model";
+
 import SearchJSONTransformer from "../transformers/SearchJSONTransformer";
+
 import config from "../../config/env";
 
 // constants
@@ -12,24 +18,15 @@ const COMPLETE = "complete";
 /**
  * SearchSchema Schema
  */
-const SearchSchema = new mongoose.Schema(
+const SearchSchema = new JSONMongooseSchema(
+  searchJsonSchema,
   {
-    type: String,
-    status: {
-      type: String,
-      default: PENDING
-    },
-    expires: {
-      type: Date,
-      default: new Date()
-    },
     users: [
       {
-        type: mongoose.Schema.Types.ObjectId,
+        type: "ObjectId",
         ref: "User"
       }
-    ],
-    hash: String
+    ]
   },
   {
     strict: false,
@@ -58,15 +55,16 @@ SearchSchema.plugin(schemaValidator, {
  */
 SearchSchema.method({
   isExpired() {
-    return this.expires < new Date();
+    return moment(this.expires).isBefore(moment());
   },
 
-  async saveResult(result, expiresIn = config.services.bigsiResultsTTL) {
-    const expires = new Date();
-    expires.setHours(expires.getHours() + expiresIn);
-    this.expires = expires;
+  async updateAndSetExpiry(result, expiresIn = config.services.bigsiResultsTTL) {
+    const expires = moment();
+    expires.add(expiresIn, "hours");
+    this.expires = expires.toISOString();
     this.status = COMPLETE;
     this.set("result", result);
+
     return this.save();
   },
 

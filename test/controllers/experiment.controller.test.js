@@ -2,6 +2,7 @@ import request from "supertest";
 import httpStatus from "http-status";
 import fs from "fs";
 import hash from "object-hash";
+import moment from "moment";
 
 import { config, createApp } from "../setup";
 
@@ -2212,7 +2213,7 @@ describe("ExperimentController", () => {
   });
 
   describe("# GET /experiments/tree", () => {
-    describe("when no tree in the db", () => {
+    describe("when there is no tree in the db", () => {
       it("should return the tree object and create one in mongo", done => {
         beforeEach(async () => {
           await Tree.remove({});
@@ -2230,7 +2231,7 @@ describe("ExperimentController", () => {
           });
       });
     });
-    describe("when the tree is expired", () => {
+    describe("when the tree has expired", () => {
       beforeEach(async () => {
         const treeData = new Tree(trees.expiredResult);
         await treeData.save();
@@ -2259,13 +2260,15 @@ describe("ExperimentController", () => {
     describe("when the tree is not expired", () => {
       beforeEach(async () => {
         const treeData = new Tree(trees.activeResult);
-        treeData.expires.setMonth(treeData.expires.getMonth() + 1);
+        const expiryDate = new moment().add(1, "month");
+        treeData.expires = expiryDate.toISOString();
+
         const tree = await treeData.save();
       });
       afterEach(async () => {
         await Tree.remove({});
       });
-      it("should the tree object from cache", done => {
+      it("should the return tree object from cache", done => {
         request(app)
           .get("/experiments/tree")
           .set("Authorization", `Bearer ${token}`)

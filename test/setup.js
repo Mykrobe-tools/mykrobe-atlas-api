@@ -4,16 +4,14 @@ import http from "http";
 import mockserver from "mockserver";
 import config from "../src/config/env";
 import errorsDefinition from "../src/config/errors-definition";
-import {
-  mockThirdPartyCalls
-} from "./mocks";
+import { mockThirdPartyCalls } from "./mocks";
 import {
   stubTreeApi,
   stubIsolateIdMapping,
   stubAnalysisApi,
   stubDistanceApi,
   stubSearchApi
-} from "../src/external"
+} from "../src/external";
 
 require("../src/express-jsend");
 jest.mock("../src/server/modules/agenda");

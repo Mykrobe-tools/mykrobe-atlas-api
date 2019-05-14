@@ -1,3 +1,5 @@
+import moment from "moment";
+
 import Tree from "../../src/server/models/tree.model";
 
 import setup from "../setup";
@@ -6,7 +8,9 @@ import trees from "../fixtures/trees";
 
 beforeEach(async () => {
   const treeData = new Tree(trees.activeResult);
-  treeData.expires.setMonth(treeData.expires.getMonth() + 1);
+  const expiryDate = new moment().add(1, "month");
+  treeData.expires = expiryDate.toISOString();
+
   const tree = await treeData.save();
 });
 
@@ -32,7 +36,6 @@ describe("Tree", () => {
           expect(savedTree.version).toEqual("1.0");
           expect(savedTree.type).toEqual("newick");
         } catch (e) {
-          console.log(e.message);
           fail();
         }
 
@@ -88,7 +91,7 @@ describe("Tree", () => {
           const foundTree = await Tree.get();
           const isExpired = foundTree.isExpired();
 
-          expect(isExpired).toBe(true);
+          expect(isExpired).toEqual(true);
 
           done();
         });
@@ -109,7 +112,7 @@ describe("Tree", () => {
       it("should update the stored tree", async done => {
         const foundTree = await Tree.get();
 
-        const updatedTree = await foundTree.update(
+        const updatedTree = await foundTree.updateAndSetExpiry(
           {
             tree: "abcdabcd",
             version: "2.0"
@@ -117,13 +120,16 @@ describe("Tree", () => {
           2160
         );
 
-        var newExpirationDate = new Date();
-        newExpirationDate.setHours(newExpirationDate.getHours() + 2160);
+        const newExpirationDate = moment();
+        newExpirationDate.add(2160, "hours");
 
         expect(updatedTree.id).toEqual(foundTree.id);
-        expect(updatedTree.expires.getDay()).toEqual(newExpirationDate.getDay());
-        expect(updatedTree.expires.getMonth()).toEqual(newExpirationDate.getMonth());
-        expect(updatedTree.expires.getYear()).toEqual(newExpirationDate.getYear());
+
+        const expires = moment(updatedTree.expires);
+        expect(expires.date()).toEqual(newExpirationDate.date());
+        expect(expires.month()).toEqual(newExpirationDate.month());
+        expect(expires.year()).toEqual(newExpirationDate.year());
+
         expect(updatedTree.tree).toEqual("abcdabcd");
         expect(updatedTree.version).toEqual("2.0");
         expect(updatedTree.type).toEqual("newick");

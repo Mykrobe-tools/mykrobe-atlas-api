@@ -1,3 +1,4 @@
+import moment from "moment";
 const patients = {
   normal: {
     patientId: "eff2fa6a-9d79-41ab-a307-b620cedf7293",
@@ -32,22 +33,22 @@ const samples = {
   normal: {
     labId: "d19637ed-e5b4-4ca7-8418-8713646a3359",
     isolateId: "9c0c00f2-8cb1-4254-bf53-3271f35ce696",
-    collectionDate: "2018-10-19",
+    collectionDate: moment.utc([2018, 9, 19]).toDate(),
     prospectiveIsolate: "Yes",
     countryIsolate: "IN",
     cityIsolate: "Mumbai",
-    dateArrived: "2018-09-01",
+    dateArrived: moment.utc([2018, 8, 1]).toDate(),
     anatomicalOrigin: "Respiratory",
     smear: "Not known"
   },
   chinese: {
     labId: "f134b514-d2ac-460c-808b-9c5fd9cb9859",
     isolateId: "820a78d6-b5b9-45c4-95d1-9463e6bdb14a",
-    collectionDate: "2018-07-22",
+    collectionDate: moment.utc([2018, 6, 22]).toDate(),
     prospectiveIsolate: "Yes",
     countryIsolate: "CH",
     cityIsolate: "Chongqing",
-    dateArrived: "2017-11-05",
+    dateArrived: moment.utc([2017, 10, 5]).toDate(),
     anatomicalOrigin: "Respiratory",
     smear: "Not known"
   }
