@@ -129,10 +129,8 @@ describe("SearchController", () => {
 
             const newExpirationDate = moment();
             newExpirationDate.add(7, "days");
-            console.log(newExpirationDate);
 
             const expires = moment(foundSearch.expires);
-            console.log(expires);
             expect(expires.date()).toEqual(newExpirationDate.date());
             expect(expires.month()).toEqual(newExpirationDate.month());
             expect(expires.year()).toEqual(newExpirationDate.year());

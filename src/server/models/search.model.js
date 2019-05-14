@@ -59,13 +59,9 @@ SearchSchema.method({
   },
 
   async updateAndSetExpiry(result, expiresIn = config.services.bigsiResultsTTL) {
-    console.log(expiresIn);
     const expires = moment();
-    console.log(`before: ${expires}`);
     expires.add(expiresIn, "hours");
-    console.log(`after: ${expires}`);
     this.expires = expires.toISOString();
-    console.log(`model: ${this.expires}`);
     this.status = COMPLETE;
     this.set("result", result);
 

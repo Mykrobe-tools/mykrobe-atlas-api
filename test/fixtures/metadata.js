@@ -53,7 +53,6 @@ const samples = {
     smear: "Not known"
   }
 };
-console.log(`date arrived: ${samples.normal.dateArrived}`);
 const genotypings = {
   normal: {
     wgsPlatform: "MiSeq",
