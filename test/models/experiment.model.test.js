@@ -19,7 +19,7 @@ beforeEach(async done => {
 
     done();
   } catch (e) {
-    done();
+    done(e);
   }
 });
 
@@ -47,6 +47,46 @@ describe("Experiment", () => {
         expect(patient.siteId).toEqual("ccc4e687-a094-4533-b136-c507fe00a9a8");
         expect(patient.genderAtBirth).toEqual("Female");
         expect(patient.countryOfBirth).toEqual("China");
+
+        done();
+      });
+    });
+    describe("when isolate country has changed", () => {
+      it("should update location", async done => {
+        const experiment = await Experiment.get(id);
+        experiment.set("metadata.sample.countryIsolate", "MX");
+        experiment.set("metadata.sample.cityIsolate", "Puebla");
+
+        const updated = await experiment.save();
+        expect(updated.metadata.sample.latitudeIsolate).toEqual(19.0414398);
+        expect(updated.metadata.sample.longitudeIsolate).toEqual(-98.2062727);
+
+        done();
+      });
+    });
+    describe("when isolate city has changed", () => {
+      it("should update location", async done => {
+        const experiment = await Experiment.get(id);
+        experiment.set("metadata.sample.cityIsolate", "Chennai");
+
+        const updated = await experiment.save();
+        expect(updated.metadata.sample.latitudeIsolate).toEqual(13.0826802);
+        expect(updated.metadata.sample.longitudeIsolate).toEqual(80.2707184);
+
+        done();
+      });
+    });
+    describe("when neither isolate country or city have changed", () => {
+      it("should update location", async done => {
+        const experiment = await Experiment.get(id);
+        expect(experiment.metadata.sample.latitudeIsolate).toEqual(19.0759837);
+        expect(experiment.metadata.sample.longitudeIsolate).toEqual(72.8776559);
+
+        experiment.metadata.sample.sampleId = "13513871321";
+        const updated = await experiment.save();
+        expect(updated.metadata.sample.sampleId).toEqual("13513871321");
+        expect(updated.metadata.sample.latitudeIsolate).toEqual(19.0759837);
+        expect(updated.metadata.sample.longitudeIsolate).toEqual(72.8776559);
 
         done();
       });
