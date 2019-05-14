@@ -1,3 +1,4 @@
+import moment from "moment";
 import Search from "../../src/server/models/search.model";
 import User from "../../src/server/models/user.model";
 
@@ -10,9 +11,11 @@ let id = null;
 
 beforeEach(async () => {
   const searchData = new Search(searches.searchOnly.sequence);
-  const expires = new Date();
-  expires.setDate(expires.getDate() + 1);
-  searchData.expires = expires;
+
+  const expires = moment();
+  expires.add(1, "day");
+  searchData.expires = expires.toISOString();
+
   const search = await searchData.save();
 
   id = search.id;
@@ -78,7 +81,7 @@ describe("Search", () => {
       it("should save with the overriden TTL", async done => {
         const foundSearch = await Search.get(id);
 
-        const updatedSearch = await foundSearch.saveResult(
+        const updatedSearch = await foundSearch.updateAndSetExpiry(
           {
             ERR017683: {
               percent_kmers_found: 100
@@ -87,13 +90,16 @@ describe("Search", () => {
           72
         );
 
-        var newExpirationDate = new Date();
-        newExpirationDate.setHours(newExpirationDate.getHours() + 72);
+        const newExpirationDate = moment();
+        newExpirationDate.add(72, "hours");
 
         expect(updatedSearch.id).toEqual(foundSearch.id);
-        expect(updatedSearch.expires.getDay()).toEqual(newExpirationDate.getDay());
-        expect(updatedSearch.expires.getMonth()).toEqual(newExpirationDate.getMonth());
-        expect(updatedSearch.expires.getYear()).toEqual(newExpirationDate.getYear());
+
+        const expires = moment(updatedSearch.expires);
+        expect(expires.date()).toEqual(newExpirationDate.date());
+        expect(expires.month()).toEqual(newExpirationDate.month());
+        expect(expires.year()).toEqual(newExpirationDate.year());
+
         expect(updatedSearch.hash).toEqual("f13efe3c6fb77cac5fab23f8bd789050f3a52064");
         expect(updatedSearch.status).toEqual(Search.constants().COMPLETE);
 
@@ -107,19 +113,22 @@ describe("Search", () => {
       it("should save with the default TTL", async done => {
         const foundSearch = await Search.get(id);
 
-        const updatedSearch = await foundSearch.saveResult({
+        const updatedSearch = await foundSearch.updateAndSetExpiry({
           ERR017683: {
             percent_kmers_found: 100
           }
         });
 
-        var newExpirationDate = new Date();
-        newExpirationDate.setDate(newExpirationDate.getDate() + 7);
+        const newExpirationDate = moment();
+        newExpirationDate.add(7, "days");
 
         expect(updatedSearch.id).toEqual(foundSearch.id);
-        expect(updatedSearch.expires.getDay()).toEqual(newExpirationDate.getDay());
-        expect(updatedSearch.expires.getMonth()).toEqual(newExpirationDate.getMonth());
-        expect(updatedSearch.expires.getYear()).toEqual(newExpirationDate.getYear());
+
+        const expires = moment(updatedSearch.expires);
+        expect(expires.date()).toEqual(newExpirationDate.date());
+        expect(expires.month()).toEqual(newExpirationDate.month());
+        expect(expires.year()).toEqual(newExpirationDate.year());
+
         expect(updatedSearch.hash).toEqual("f13efe3c6fb77cac5fab23f8bd789050f3a52064");
         expect(updatedSearch.status).toEqual(Search.constants().COMPLETE);
 
@@ -133,6 +142,7 @@ describe("Search", () => {
   describe("when managing user searches", () => {
     describe("#addUser", () => {
       it("should add user to the users array", async done => {
+        const search = new Search();
         const userData = new User(users.thomas);
         const user = await userData.save();
         const foundSearch = await Search.get(id);
@@ -235,13 +245,17 @@ describe("Search", () => {
       describe("when the search has expired", () => {
         it("should mark the search as expired", async done => {
           const expiredSearchData = new Search(searches.searchOnly.expiredSearch);
-          const savedSearch = await expiredSearchData.save();
 
-          const isExpired = savedSearch.isExpired();
+          try {
+            const savedSearch = await expiredSearchData.save();
+            const isExpired = savedSearch.isExpired();
 
-          expect(isExpired).toBe(true);
+            expect(isExpired).toBe(true);
 
-          done();
+            done();
+          } catch (e) {
+            done();
+          }
         });
       });
     });

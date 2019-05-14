@@ -1,14 +1,16 @@
 import mongoose from "mongoose";
 import errors from "errors";
+
+import { organisation as organisationJsonSchema } from "mykrobe-atlas-jsonschema";
+
+import JSONMongooseSchema from "./jsonschema.model";
+
 import OrganisationJSONTransformer from "../transformers/OrganisationJSONTransformer";
 
 /**
  * Organisation Schema
  */
-const OrganisationSchema = new mongoose.Schema({
-  name: String,
-  template: String
-});
+const OrganisationSchema = new JSONMongooseSchema(organisationJsonSchema, {}, {});
 
 /**
  * Add your

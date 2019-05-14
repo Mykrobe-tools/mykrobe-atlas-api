@@ -1,4 +1,5 @@
 import request from "supertest";
+import moment from "moment";
 import httpStatus from "http-status";
 
 import { createApp } from "../setup";
@@ -111,7 +112,7 @@ describe("SearchController", () => {
             done();
           });
       });
-      it("should set the status to complete and update the date", done => {
+      it.only("should set the status to complete and update the date", done => {
         request(app)
           .put(`/searches/${sequenceSearchId}/results`)
           .send(searches.results.sequence)
@@ -125,12 +126,16 @@ describe("SearchController", () => {
             expect(data).toHaveProperty("status", Search.constants().COMPLETE);
 
             const foundSearch = await Search.get(sequenceSearchId);
-            var newExpirationDate = new Date();
-            newExpirationDate.setDate(newExpirationDate.getDate() + 7);
 
-            expect(foundSearch.expires.getDay()).toEqual(newExpirationDate.getDay());
-            expect(foundSearch.expires.getMonth()).toEqual(newExpirationDate.getMonth());
-            expect(foundSearch.expires.getYear()).toEqual(newExpirationDate.getYear());
+            const newExpirationDate = moment();
+            newExpirationDate.add(7, "days");
+            console.log(newExpirationDate);
+
+            const expires = moment(foundSearch.expires);
+            console.log(expires);
+            expect(expires.date()).toEqual(newExpirationDate.date());
+            expect(expires.month()).toEqual(newExpirationDate.month());
+            expect(expires.year()).toEqual(newExpirationDate.year());
 
             done();
           });
