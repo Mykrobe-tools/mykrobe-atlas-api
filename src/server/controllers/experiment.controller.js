@@ -38,6 +38,10 @@ const config = require("../../config/env");
 // sort whitelist
 const sortWhiteList = ElasticsearchHelper.getSortWhitelist(experimentSchema, "experiment");
 
+// distance types
+const NEAREST_NEIGHBOUR = "nearest-neighbour";
+const TREE_DISTANCE = "tree-distance";
+
 /**
  * Load experiment and append to req.
  */
@@ -224,6 +228,10 @@ const uploadFile = async (req, res) => {
           experiment_id: experiment.id,
           attempt: 0
         });
+        await schedule("now", "call distance api", {
+          experiment_id: experiment.id,
+          distance_type: NEAREST_NEIGHBOUR
+        });
       });
       // save file attribute
       experiment.file = req.body.name;
@@ -266,6 +274,11 @@ const uploadFile = async (req, res) => {
           }/file/${resumableFilename}`,
           experiment_id: experimentJson.id,
           attempt: 0,
+          experiment: experimentJson
+        });
+        await schedule("now", "call distance api", {
+          experiment_id: experiment.id,
+          distance_type: NEAREST_NEIGHBOUR,
           experiment: experimentJson
         });
         return res.jsend("File uploaded and reassembled");

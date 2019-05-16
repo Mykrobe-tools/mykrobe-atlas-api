@@ -901,7 +901,7 @@ describe("ExperimentController", () => {
               updatedExperiment = await Experiment.get(id);
             }
 
-            expect(mockCallback.mock.calls.length).toEqual(1);
+            expect(mockCallback.mock.calls.length).toBeTruthy();
             const args = mockCallback.mock.calls[0];
 
             expect(args.length).toEqual(1);
@@ -996,7 +996,7 @@ describe("ExperimentController", () => {
             }
           });
       });
-      it.skip("should call the distance api when download is done - dropbox", done => {
+      it("should call the distance api when download is done - dropbox", done => {
         request(app)
           .put(`/experiments/${id}/provider`)
           .set("Authorization", `Bearer ${token}`)
@@ -1016,6 +1016,7 @@ describe("ExperimentController", () => {
                 job = await findJob(jobs, id, "call distance api");
               }
               expect(job.data.experiment_id).toEqual(id);
+              expect(job.data.distance_type).toEqual("nearest-neighbour");
               done();
             } catch (e) {
               fail(e.message);
@@ -1088,7 +1089,7 @@ describe("ExperimentController", () => {
             }
           });
       });
-      it.skip("should call the distance api when download is done - box", done => {
+      it("should call the distance api when download is done - box", done => {
         request(app)
           .put(`/experiments/${id}/provider`)
           .set("Authorization", `Bearer ${token}`)
@@ -1108,6 +1109,7 @@ describe("ExperimentController", () => {
                 job = await findJob(jobs, id, "call distance api");
               }
               expect(job.data.experiment_id).toEqual(id);
+              expect(job.data.distance_type).toEqual("nearest-neighbour");
               done();
             } catch (e) {
               fail(e.message);
@@ -1182,7 +1184,7 @@ describe("ExperimentController", () => {
             }
           });
       });
-      it.skip("should call the distance api when download is done - googleDrive", done => {
+      it("should call the distance api when download is done - googleDrive", done => {
         request(app)
           .put(`/experiments/${id}/provider`)
           .set("Authorization", `Bearer ${token}`)
@@ -1203,6 +1205,7 @@ describe("ExperimentController", () => {
                 job = await findJob(jobs, id, "call distance api");
               }
               expect(job.data.experiment_id).toEqual(id);
+              expect(job.data.distance_type).toEqual("nearest-neighbour");
               done();
             } catch (e) {
               fail(e.message);
@@ -1295,7 +1298,7 @@ describe("ExperimentController", () => {
             }
           });
       });
-      it.skip("should call the distance api when download is done - oneDrive", done => {
+      it("should call the distance api when download is done - oneDrive", done => {
         request(app)
           .put(`/experiments/${id}/provider`)
           .set("Authorization", `Bearer ${token}`)
@@ -1315,6 +1318,7 @@ describe("ExperimentController", () => {
                 job = await findJob(jobs, id, "call distance api");
               }
               expect(job.data.experiment_id).toEqual(id);
+              expect(job.data.distance_type).toEqual("nearest-neighbour");
               done();
             } catch (e) {
               fail(e.message);
@@ -1485,7 +1489,7 @@ describe("ExperimentController", () => {
             expect(audit.attempt).toEqual(1);
 
             // Predictor
-            expect(mockAnalysisCallback.mock.calls.length).toEqual(1);
+            expect(mockAnalysisCallback.mock.calls.length).toBeTruthy();
             const analysisCalls = mockAnalysisCallback.mock.calls[0];
 
             expect(analysisCalls.length).toEqual(1);
@@ -1637,7 +1641,7 @@ describe("ExperimentController", () => {
           });
       });
     });
-    describe.skip("when calling the distance API", () => {
+    describe("when calling the distance API", () => {
       it("should capture a payload including the sample id", done => {
         request(app)
           .put(`/experiments/${id}/file`)
@@ -1664,6 +1668,7 @@ describe("ExperimentController", () => {
                 job = await findJob(jobs, id, "call distance api");
               }
               expect(job.data.experiment_id).toEqual(id);
+              expect(job.data.distance_type).toEqual("nearest-neighbour");
               done();
             } catch (e) {
               fail(e.message);
@@ -1697,6 +1702,7 @@ describe("ExperimentController", () => {
             }
             expect(job.name).toEqual("call distance api");
             expect(job.data.experiment_id).toEqual(id);
+            expect(job.data.distance_type).toEqual("nearest-neighbour");
             done();
           });
       });
