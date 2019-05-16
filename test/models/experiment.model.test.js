@@ -1,8 +1,8 @@
+import setup from "../setup";
+
 import Experiment from "../../src/server/models/experiment.model";
 import Organisation from "../../src/server/models/organisation.model";
 import User from "../../src/server/models/user.model";
-
-import setup from "../setup";
 
 const users = require("../fixtures/users");
 const experiments = require("../fixtures/experiments");

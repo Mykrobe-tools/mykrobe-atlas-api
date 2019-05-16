@@ -57,19 +57,27 @@ ExperimentSchema.pre("save", async function() {
     this.isModified("metadata.sample.cityIsolate")
   ) {
     const o = this.toObject();
-    const countryIsolate = o.metadata.sample.countryIsolate;
-    const cityIsolate = o.metadata.sample.cityIsolate;
+    if (o.metadata && o.metadata.sample) {
+      const countryIsolate = o.metadata.sample.countryIsolate;
+      const cityIsolate = o.metadata.sample.cityIsolate;
 
-    const address = [cityIsolate, countryIsolate].filter(Boolean).join(", ");
+      const address = [cityIsolate, countryIsolate].filter(Boolean).join(", ");
 
-    if (address) {
-      const location = await geocode(address);
-      if (location && Array.isArray(location)) {
-        const geo = location.shift();
+      if (address) {
+        const location = await geocode(address);
+        if (location && Array.isArray(location)) {
+          const geo = location.shift();
 
-        if (geo) {
-          this.set("metadata.sample.latitudeIsolate", geo.latitude);
-          this.set("metadata.sample.longitudeIsolate", geo.longitude);
+          if (geo) {
+            if (!this.metadata) {
+              this.metadata = {};
+            }
+            if (!this.metadata.sample) {
+              this.metadata.sample = {};
+            }
+            this.metadata.sample.latitudeIsolate = geo.latitude;
+            this.metadata.sample.longitudeIsolate = geo.longitude;
+          }
         }
       }
     }
