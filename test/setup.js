@@ -1,3 +1,4 @@
+import {} from "dotenv/config";
 import mongoose from "mongoose";
 import MongodbMemoryServer from "mongodb-memory-server";
 import http from "http";

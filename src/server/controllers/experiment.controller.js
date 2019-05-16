@@ -346,7 +346,6 @@ const choices = async (req, res) => {
     if (query.q && !query.q.indexOf("*") > -1) {
       query.q = `*${query.q}*`;
     }
-
     const resp = await ElasticsearchHelper.aggregate(
       config,
       experimentSchema,
@@ -355,6 +354,7 @@ const choices = async (req, res) => {
     );
     const titles = jsonschemaUtil.schemaTitles(experimentSchema);
     const choices = new ChoicesJSONTransformer().transform(resp, { titles });
+
     return res.jsend(choices);
   } catch (e) {
     return res.jerror(new errors.SearchMetadataValuesError(e.message));

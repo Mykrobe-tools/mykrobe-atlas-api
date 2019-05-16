@@ -1,7 +1,7 @@
 # Atlas
 
-A RESTful api using [Express](http://expressjs.com) and mongoose in [ES6](http://es6-features.org) 
-with [jest](https://facebook.github.io/jest/) for tests and coverage 
+A RESTful api using [Express](http://expressjs.com) and mongoose in [ES6](http://es6-features.org)
+with [jest](https://facebook.github.io/jest/) for tests and coverage
 and [JsonWebToken](https://jwt.io) authentication.
 
 ## Install
@@ -12,6 +12,14 @@ First, clone the repo then install dependencies.
 $ npm install -g yarn
 $ yarn
 ```
+
+Configure local environment variables
+
+```
+$ cp .env.sample .env
+```
+
+Update `.env`
 
 ## Database setup
 
