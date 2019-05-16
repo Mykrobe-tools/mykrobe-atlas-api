@@ -999,34 +999,6 @@ describe("ExperimentController", () => {
             }
           });
       });
-      it.skip("should call the distance api when download is done - dropbox", done => {
-        request(app)
-          .put(`/experiments/${id}/provider`)
-          .set("Authorization", `Bearer ${token}`)
-          .send({
-            provider: "dropbox",
-            name: "333-08.json",
-            path: "https://jsonplaceholder.typicode.com/posts/1"
-          })
-          .expect(httpStatus.OK)
-          .end(async (err, res) => {
-            const jobs = mongo(config.db.uri, []).agendaJobs;
-            expect(res.body.status).toEqual("success");
-            expect(res.body.data).toEqual("Download started from dropbox");
-            try {
-              let job = await findJob(jobs, id, "call distance api");
-              while (!job) {
-                job = await findJob(jobs, id, "call distance api");
-              }
-              expect(job.data.experiment_id).toEqual(id);
-              expect(job.data.distance_type).toEqual("nearest-neighbour");
-              done();
-            } catch (e) {
-              fail(e.message);
-              done();
-            }
-          });
-      });
       it("should save the dropbox file to the filesystem", done => {
         request(app)
           .put(`/experiments/${id}/provider`)
@@ -1085,34 +1057,6 @@ describe("ExperimentController", () => {
               );
               expect(job.data.experiment_id).toEqual(id);
               expect(job.data.attempt).toEqual(0);
-              done();
-            } catch (e) {
-              fail(e.message);
-              done();
-            }
-          });
-      });
-      it.skip("should call the distance api when download is done - box", done => {
-        request(app)
-          .put(`/experiments/${id}/provider`)
-          .set("Authorization", `Bearer ${token}`)
-          .send({
-            provider: "box",
-            name: "333-08.json",
-            path: "https://jsonplaceholder.typicode.com/posts/1"
-          })
-          .expect(httpStatus.OK)
-          .end(async (err, res) => {
-            const jobs = mongo(config.db.uri, []).agendaJobs;
-            expect(res.body.status).toEqual("success");
-            expect(res.body.data).toEqual("Download started from box");
-            try {
-              let job = await findJob(jobs, id, "call distance api");
-              while (!job) {
-                job = await findJob(jobs, id, "call distance api");
-              }
-              expect(job.data.experiment_id).toEqual(id);
-              expect(job.data.distance_type).toEqual("nearest-neighbour");
               done();
             } catch (e) {
               fail(e.message);
@@ -1180,35 +1124,6 @@ describe("ExperimentController", () => {
               );
               expect(job.data.experiment_id).toEqual(id);
               expect(job.data.attempt).toEqual(0);
-              done();
-            } catch (e) {
-              fail(e.message);
-              done();
-            }
-          });
-      });
-      it.skip("should call the distance api when download is done - googleDrive", done => {
-        request(app)
-          .put(`/experiments/${id}/provider`)
-          .set("Authorization", `Bearer ${token}`)
-          .send({
-            provider: "googleDrive",
-            name: "333-08.json",
-            path: "https://jsonplaceholder.typicode.com/posts/1",
-            accessToken: "dummy-token"
-          })
-          .expect(httpStatus.OK)
-          .end(async (err, res) => {
-            const jobs = mongo(config.db.uri, []).agendaJobs;
-            expect(res.body.status).toEqual("success");
-            expect(res.body.data).toEqual("Download started from googleDrive");
-            try {
-              let job = await findJob(jobs, id, "call distance api");
-              while (!job) {
-                job = await findJob(jobs, id, "call distance api");
-              }
-              expect(job.data.experiment_id).toEqual(id);
-              expect(job.data.distance_type).toEqual("nearest-neighbour");
               done();
             } catch (e) {
               fail(e.message);
@@ -1294,34 +1209,6 @@ describe("ExperimentController", () => {
               );
               expect(job.data.experiment_id).toEqual(id);
               expect(job.data.attempt).toEqual(0);
-              done();
-            } catch (e) {
-              fail(e.message);
-              done();
-            }
-          });
-      });
-      it.skip("should call the distance api when download is done - oneDrive", done => {
-        request(app)
-          .put(`/experiments/${id}/provider`)
-          .set("Authorization", `Bearer ${token}`)
-          .send({
-            provider: "oneDrive",
-            name: "333-08.json",
-            path: "https://jsonplaceholder.typicode.com/posts/1"
-          })
-          .expect(httpStatus.OK)
-          .end(async (err, res) => {
-            const jobs = mongo(config.db.uri, []).agendaJobs;
-            expect(res.body.status).toEqual("success");
-            expect(res.body.data).toEqual("Download started from oneDrive");
-            try {
-              let job = await findJob(jobs, id, "call distance api");
-              while (!job) {
-                job = await findJob(jobs, id, "call distance api");
-              }
-              expect(job.data.experiment_id).toEqual(id);
-              expect(job.data.distance_type).toEqual("nearest-neighbour");
               done();
             } catch (e) {
               fail(e.message);
@@ -1640,142 +1527,6 @@ describe("ExperimentController", () => {
             expect(audit.attempt).toEqual(1);
             expect(audit.taskId).toEqual("1447d80f-ca79-40ac-bc5d-8a02933323c3");
             expect(audit.type).toEqual("Predictor");
-            done();
-          });
-      });
-    });
-    describe.skip("when calling the distance API", () => {
-      it("should capture a payload including the sample id", done => {
-        request(app)
-          .put(`/experiments/${id}/file`)
-          .set("Authorization", `Bearer ${token}`)
-          .field("resumableChunkNumber", 1)
-          .field("resumableChunkSize", 1048576)
-          .field("resumableCurrentChunkSize", 251726)
-          .field("resumableTotalSize", 251726)
-          .field("resumableType", "application/json")
-          .field("resumableIdentifier", "251726-333-08json")
-          .field("resumableFilename", "333-08.json")
-          .field("resumableRelativePath", "333-08.json")
-          .field("resumableTotalChunks", 1)
-          .field("checksum", "4f36e4cbfc9dfc37559e13bd3a309d50")
-          .attach("file", "test/fixtures/files/333-08.json")
-          .expect(httpStatus.OK)
-          .end(async (err, res) => {
-            const jobs = mongo(config.db.uri, []).agendaJobs;
-            expect(res.body.status).toEqual("success");
-            expect(res.body.data).toEqual("File uploaded and reassembled");
-            try {
-              let job = await findJob(jobs, id, "call distance api");
-              while (!job) {
-                job = await findJob(jobs, id, "call distance api");
-              }
-              expect(job.data.experiment_id).toEqual(id);
-              expect(job.data.distance_type).toEqual("nearest-neighbour");
-              done();
-            } catch (e) {
-              fail(e.message);
-              done();
-            }
-          });
-      });
-      it("should call the distance api with payload", done => {
-        request(app)
-          .put(`/experiments/${id}/file`)
-          .set("Authorization", `Bearer ${token}`)
-          .field("resumableChunkNumber", 1)
-          .field("resumableChunkSize", 1048576)
-          .field("resumableCurrentChunkSize", 251726)
-          .field("resumableTotalSize", 251726)
-          .field("resumableType", "application/json")
-          .field("resumableIdentifier", "251726-333-08json")
-          .field("resumableFilename", "333-08.json")
-          .field("resumableRelativePath", "333-08.json")
-          .field("resumableTotalChunks", 1)
-          .field("checksum", "4f36e4cbfc9dfc37559e13bd3a309d50")
-          .attach("file", "test/fixtures/files/333-08.json")
-          .expect(httpStatus.OK)
-          .end(async (err, res) => {
-            const jobs = mongo(config.db.uri, []).agendaJobs;
-            expect(res.body.status).toEqual("success");
-            expect(res.body.data).toEqual("File uploaded and reassembled");
-            let job = await findJob(jobs, id, "call distance api");
-            while (!job) {
-              job = await findJob(jobs, id, "call distance api");
-            }
-            expect(job.name).toEqual("call distance api");
-            expect(job.data.experiment_id).toEqual(id);
-            expect(job.data.distance_type).toEqual("nearest-neighbour");
-            done();
-          });
-      });
-      it("should record taskId to the audit collection", done => {
-        request(app)
-          .put(`/experiments/${id}/file`)
-          .set("Authorization", `Bearer ${token}`)
-          .field("resumableChunkNumber", 1)
-          .field("resumableChunkSize", 1048576)
-          .field("resumableCurrentChunkSize", 251726)
-          .field("resumableTotalSize", 251726)
-          .field("resumableType", "application/json")
-          .field("resumableIdentifier", "251726-333-08json")
-          .field("resumableFilename", "333-08.json")
-          .field("resumableRelativePath", "333-08.json")
-          .field("resumableTotalChunks", 1)
-          .field("checksum", "4f36e4cbfc9dfc37559e13bd3a309d50")
-          .attach("file", "test/fixtures/files/333-08.json")
-          .expect(httpStatus.OK)
-          .end(async (err, res) => {
-            let audits = await Audit.find({
-              experimentId: id,
-              type: "Distance"
-            });
-            while (audits.length === 0) {
-              audits = await Audit.find({ experimentId: id, type: "Distance" });
-            }
-            const audit = audits[0];
-            expect(res.body.status).toEqual("success");
-            expect(res.body.data).toEqual("File uploaded and reassembled");
-            expect(audit.experimentId).toEqual(id);
-            expect(audit.status).toEqual("Successful");
-            expect(audit.attempt).toEqual(1);
-            expect(audit.taskId).toEqual("3a9ba217-4ccb-4108-9c01-60525e2ca905");
-            expect(audit.type).toEqual("Distance");
-            done();
-          });
-      });
-      it("should save the taskId in the audit collection", done => {
-        request(app)
-          .put(`/experiments/${id}/file`)
-          .set("Authorization", `Bearer ${token}`)
-          .field("resumableChunkNumber", 1)
-          .field("resumableChunkSize", 1048576)
-          .field("resumableCurrentChunkSize", 251726)
-          .field("resumableTotalSize", 251726)
-          .field("resumableType", "application/json")
-          .field("resumableIdentifier", "251726-333-08json")
-          .field("resumableFilename", "333-08.json")
-          .field("resumableRelativePath", "333-08.json")
-          .field("resumableTotalChunks", 1)
-          .field("checksum", "4f36e4cbfc9dfc37559e13bd3a309d50")
-          .attach("file", "test/fixtures/files/333-08.json")
-          .expect(httpStatus.OK)
-          .end(async (err, res) => {
-            let audits = await Audit.find({
-              experimentId: id,
-              type: "Distance"
-            });
-            while (audits.length === 0) {
-              audits = await Audit.find({ experimentId: id, type: "Distance" });
-            }
-            const audit = audits[0];
-            expect(res.body.status).toEqual("success");
-            expect(res.body.data).toEqual("File uploaded and reassembled");
-            expect(audit.experimentId).toEqual(id);
-            expect(audit.status).toEqual("Successful");
-            expect(audit.attempt).toEqual(1);
-            expect(audit.taskId).toEqual("3a9ba217-4ccb-4108-9c01-60525e2ca905");
-            expect(audit.type).toEqual("Distance");
             done();
           });
       });
