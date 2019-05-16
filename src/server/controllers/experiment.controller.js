@@ -328,23 +328,20 @@ const reindex = async (req, res) => {
 const choices = async (req, res) => {
   try {
     const query = req.query;
-    //console.log(`query: ${JSON.stringify(query)}`);
+
     // add wildcards if not already set
     if (query.q && !query.q.indexOf("*") > -1) {
       query.q = `*${query.q}*`;
     }
-    //console.log(`query: ${JSON.stringify(query)}`);
     const resp = await ElasticsearchHelper.aggregate(
       config,
       experimentSchema,
       { ...req.query },
       "experiment"
     );
-    //console.log(`resp: ${JSON.stringify(resp)}`);
     const titles = jsonschemaUtil.schemaTitles(experimentSchema);
-    //console.log(`titles: ${JSON.stringify(titles)}`);
     const choices = new ChoicesJSONTransformer().transform(resp, { titles });
-    console.log(`choices: ${JSON.stringify(choices)}`);
+
     return res.jsend(choices);
   } catch (e) {
     return res.jerror(new errors.SearchMetadataValuesError(e.message));
