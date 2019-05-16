@@ -1,3 +1,4 @@
+import {} from "dotenv/config";
 import mongoose from "mongoose";
 import util from "util";
 import config from "./config/env";

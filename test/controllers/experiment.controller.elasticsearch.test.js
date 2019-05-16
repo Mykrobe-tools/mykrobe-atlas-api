@@ -66,19 +66,18 @@ beforeAll(async done => {
   while (data.hits.total < 2) {
     data = await ElasticsearchHelper.search(config, {}, "experiment");
   }
-
   done();
 }, 60000);
 
 afterAll(async done => {
-  //await ElasticsearchHelper.deleteIndexIfExists(config);
-  //await ElasticsearchHelper.createIndex(config, experimentSchema, "experiment");
+  await ElasticsearchHelper.deleteIndexIfExists(config);
+  await ElasticsearchHelper.createIndex(config, experimentSchema, "experiment");
   await Experiment.remove({});
   done();
 });
 
 describe("ExperimentController > Elasticsearch", () => {
-  describe("# GET /experiments/choices", () => {
+  describe.skip("# GET /experiments/choices", () => {
     it("should return choices and counts for enums", done => {
       request(app)
         .get("/experiments/choices")
@@ -244,7 +243,6 @@ describe("ExperimentController > Elasticsearch", () => {
           expect(data["metadata.patient.bmi"].max).toEqual(33.1);
           expect(data["metadata.sample.dateArrived"].min).toEqual("2017-11-05T00:00:00.000Z");
           expect(data["metadata.sample.dateArrived"].max).toEqual("2017-11-05T00:00:00.000Z");
-
           done();
         });
     });
@@ -328,6 +326,9 @@ describe("ExperimentController > Elasticsearch", () => {
         .set("Authorization", `Bearer ${token}`)
         .expect(httpStatus.OK)
         .end((err, res) => {
+          if (err) {
+            done(err);
+          }
           expect(res.body.status).toEqual("success");
 
           const data = res.body.data;

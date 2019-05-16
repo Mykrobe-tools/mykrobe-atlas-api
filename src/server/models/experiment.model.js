@@ -3,6 +3,8 @@ import errors from "errors";
 import schemaValidator from "mongoose-jsonschema-validator";
 import { experiment as experimentJsonSchema } from "mykrobe-atlas-jsonschema";
 
+import { geocode } from "../modules/geo";
+
 import JSONMongooseSchema from "./jsonschema.model";
 
 import ExperimentJSONTransformer from "../transformers/ExperimentJSONTransformer";
@@ -47,6 +49,40 @@ ExperimentSchema.plugin(schemaValidator, {
  * Methods
  */
 ExperimentSchema.method({});
+
+// geocode when isolate country changes
+ExperimentSchema.pre("save", async function() {
+  if (
+    this.isModified("metadata.sample.countryIsolate") ||
+    this.isModified("metadata.sample.cityIsolate")
+  ) {
+    const o = this.toObject();
+    if (o.metadata && o.metadata.sample) {
+      const countryIsolate = o.metadata.sample.countryIsolate;
+      const cityIsolate = o.metadata.sample.cityIsolate;
+
+      const address = [cityIsolate, countryIsolate].filter(Boolean).join(", ");
+
+      if (address) {
+        const location = await geocode(address);
+        if (location && Array.isArray(location)) {
+          const geo = location.shift();
+
+          if (geo) {
+            if (!this.metadata) {
+              this.metadata = {};
+            }
+            if (!this.metadata.sample) {
+              this.metadata.sample = {};
+            }
+            this.metadata.sample.latitudeIsolate = geo.latitude;
+            this.metadata.sample.longitudeIsolate = geo.longitude;
+          }
+        }
+      }
+    }
+  }
+});
 
 /**
  * Statics

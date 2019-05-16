@@ -59,7 +59,9 @@ describe("User", () => {
           await userData.save();
         } catch (e) {
           expect(e.code).toEqual("ValidationError");
-          expect(e.data.errors.username.message).toEqual("should have required property 'username'");
+          expect(e.data.errors.username.message).toEqual(
+            "should have required property 'username'"
+          );
           done();
         }
       });

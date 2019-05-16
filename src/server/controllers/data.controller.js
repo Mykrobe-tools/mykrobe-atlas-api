@@ -76,6 +76,7 @@ const create = async (req, res) => {
 const saveExperiment = async owner => {
   const experimentData = experimentRandomizer.sample();
   experimentData.owner = owner;
+
   return new Experiment(experimentData).save();
 };
 

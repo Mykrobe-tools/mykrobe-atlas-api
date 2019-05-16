@@ -228,10 +228,6 @@ const uploadFile = async (req, res) => {
           experiment_id: experiment.id,
           attempt: 0
         });
-        await schedule("now", "call distance api", {
-          experiment_id: experiment.id,
-          distance_type: NEAREST_NEIGHBOUR
-        });
       });
       // save file attribute
       experiment.file = req.body.name;
@@ -274,11 +270,6 @@ const uploadFile = async (req, res) => {
           }/file/${resumableFilename}`,
           experiment_id: experimentJson.id,
           attempt: 0,
-          experiment: experimentJson
-        });
-        await schedule("now", "call distance api", {
-          experiment_id: experiment.id,
-          distance_type: NEAREST_NEIGHBOUR,
           experiment: experimentJson
         });
         return res.jsend("File uploaded and reassembled");
@@ -346,7 +337,6 @@ const choices = async (req, res) => {
     if (query.q && !query.q.indexOf("*") > -1) {
       query.q = `*${query.q}*`;
     }
-
     const resp = await ElasticsearchHelper.aggregate(
       config,
       experimentSchema,
@@ -355,6 +345,7 @@ const choices = async (req, res) => {
     );
     const titles = jsonschemaUtil.schemaTitles(experimentSchema);
     const choices = new ChoicesJSONTransformer().transform(resp, { titles });
+
     return res.jsend(choices);
   } catch (e) {
     return res.jerror(new errors.SearchMetadataValuesError(e.message));
@@ -465,6 +456,27 @@ const tree = async (req, res) => {
   return res.jsend(savedTree);
 };
 
+/**
+ * Refresh experiment results
+ * @param {object} req
+ * @param {object} res
+ */
+const refreshResults = async (req, res) => {
+  const experiment = req.experiment;
+  const experimentJson = new ExperimentJSONTransformer().transform(experiment);
+  await schedule("now", "call distance api", {
+    experiment_id: experiment.id,
+    distance_type: NEAREST_NEIGHBOUR,
+    experiment: experimentJson
+  });
+  await schedule("now", "call distance api", {
+    experiment_id: experiment.id,
+    distance_type: TREE_DISTANCE,
+    experiment: experimentJson
+  });
+  return res.jsend("Update of existing results triggered");
+};
+
 export default {
   load,
   get,
@@ -481,5 +493,6 @@ export default {
   choices,
   search,
   listResults,
-  tree
+  tree,
+  refreshResults
 };
