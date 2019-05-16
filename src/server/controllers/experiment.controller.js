@@ -38,6 +38,10 @@ const config = require("../../config/env");
 // sort whitelist
 const sortWhiteList = ElasticsearchHelper.getSortWhitelist(experimentSchema, "experiment");
 
+// distance types
+const NEAREST_NEIGHBOUR = "nearest-neighbour";
+const TREE_DISTANCE = "tree-distance";
+
 /**
  * Load experiment and append to req.
  */
@@ -196,7 +200,6 @@ const results = async (req, res) => {
 
     return res.jsend(savedExperiment);
   } catch (e) {
-    console.log(e);
     return res.jerror(new errors.UpdateExperimentError(e.message));
   }
 };
@@ -224,6 +227,10 @@ const uploadFile = async (req, res) => {
           }`,
           experiment_id: experiment.id,
           attempt: 0
+        });
+        await schedule("now", "call distance api", {
+          experiment_id: experiment.id,
+          distance_type: NEAREST_NEIGHBOUR
         });
       });
       // save file attribute
@@ -267,6 +274,11 @@ const uploadFile = async (req, res) => {
           }/file/${resumableFilename}`,
           experiment_id: experimentJson.id,
           attempt: 0,
+          experiment: experimentJson
+        });
+        await schedule("now", "call distance api", {
+          experiment_id: experiment.id,
+          distance_type: NEAREST_NEIGHBOUR,
           experiment: experimentJson
         });
         return res.jsend("File uploaded and reassembled");
@@ -438,13 +450,18 @@ const inflateResult = async result => {
  * @param {object} res
  */
 const tree = async (req, res) => {
-  let tree = await Tree.get();
-  if (tree && !tree.isExpired()) {
-    return res.jsend(tree);
+  const current = await Tree.get();
+
+  if (current && !current.isExpired()) {
+    return res.jsend(current);
   }
-  const treeResult = await callTreeApi();
-  tree = tree || new Tree();
-  const savedTree = await tree.update(treeResult);
+
+  // no tree (even expired), make one
+  const tree = current ? current : new Tree();
+
+  const latest = await callTreeApi();
+  const savedTree = await tree.updateAndSetExpiry(latest);
+
   return res.jsend(savedTree);
 };
 

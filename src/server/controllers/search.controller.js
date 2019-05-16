@@ -36,7 +36,7 @@ const saveResult = async (req, res) => {
       return res.jerror(new errors.UpdateExperimentError("Invalid result type."));
     }
     const result = parser.parse();
-    const savedSearch = await search.saveResult(result);
+    const savedSearch = await search.updateAndSetExpiry(result);
 
     const searchJson = new SearchJSONTransformer().transform(savedSearch);
 

@@ -61,7 +61,8 @@ class AgendaHelper {
     const uri = `${config.services.analysisApiUrl}/distance`;
     try {
       const response = await axios.post(uri, {
-        experiment_id: data.experiment_id
+        experiment_id: data.experiment_id,
+        distance_type: data.distance_type
       });
       const audit = new Audit({
         experimentId: experiment.id,

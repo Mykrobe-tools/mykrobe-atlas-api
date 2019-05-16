@@ -2,6 +2,7 @@ import request from "supertest";
 import httpStatus from "http-status";
 import fs from "fs";
 import hash from "object-hash";
+import moment from "moment";
 
 import { config, createApp } from "../setup";
 
@@ -900,7 +901,7 @@ describe("ExperimentController", () => {
               updatedExperiment = await Experiment.get(id);
             }
 
-            expect(mockCallback.mock.calls.length).toEqual(1);
+            expect(mockCallback.mock.calls.length).toBeTruthy();
             const args = mockCallback.mock.calls[0];
 
             expect(args.length).toEqual(1);
@@ -995,7 +996,7 @@ describe("ExperimentController", () => {
             }
           });
       });
-      it.skip("should call the distance api when download is done - dropbox", done => {
+      it("should call the distance api when download is done - dropbox", done => {
         request(app)
           .put(`/experiments/${id}/provider`)
           .set("Authorization", `Bearer ${token}`)
@@ -1015,6 +1016,7 @@ describe("ExperimentController", () => {
                 job = await findJob(jobs, id, "call distance api");
               }
               expect(job.data.experiment_id).toEqual(id);
+              expect(job.data.distance_type).toEqual("nearest-neighbour");
               done();
             } catch (e) {
               fail(e.message);
@@ -1087,7 +1089,7 @@ describe("ExperimentController", () => {
             }
           });
       });
-      it.skip("should call the distance api when download is done - box", done => {
+      it("should call the distance api when download is done - box", done => {
         request(app)
           .put(`/experiments/${id}/provider`)
           .set("Authorization", `Bearer ${token}`)
@@ -1107,6 +1109,7 @@ describe("ExperimentController", () => {
                 job = await findJob(jobs, id, "call distance api");
               }
               expect(job.data.experiment_id).toEqual(id);
+              expect(job.data.distance_type).toEqual("nearest-neighbour");
               done();
             } catch (e) {
               fail(e.message);
@@ -1181,7 +1184,7 @@ describe("ExperimentController", () => {
             }
           });
       });
-      it.skip("should call the distance api when download is done - googleDrive", done => {
+      it("should call the distance api when download is done - googleDrive", done => {
         request(app)
           .put(`/experiments/${id}/provider`)
           .set("Authorization", `Bearer ${token}`)
@@ -1202,6 +1205,7 @@ describe("ExperimentController", () => {
                 job = await findJob(jobs, id, "call distance api");
               }
               expect(job.data.experiment_id).toEqual(id);
+              expect(job.data.distance_type).toEqual("nearest-neighbour");
               done();
             } catch (e) {
               fail(e.message);
@@ -1294,7 +1298,7 @@ describe("ExperimentController", () => {
             }
           });
       });
-      it.skip("should call the distance api when download is done - oneDrive", done => {
+      it("should call the distance api when download is done - oneDrive", done => {
         request(app)
           .put(`/experiments/${id}/provider`)
           .set("Authorization", `Bearer ${token}`)
@@ -1314,6 +1318,7 @@ describe("ExperimentController", () => {
                 job = await findJob(jobs, id, "call distance api");
               }
               expect(job.data.experiment_id).toEqual(id);
+              expect(job.data.distance_type).toEqual("nearest-neighbour");
               done();
             } catch (e) {
               fail(e.message);
@@ -1484,7 +1489,7 @@ describe("ExperimentController", () => {
             expect(audit.attempt).toEqual(1);
 
             // Predictor
-            expect(mockAnalysisCallback.mock.calls.length).toEqual(1);
+            expect(mockAnalysisCallback.mock.calls.length).toBeTruthy();
             const analysisCalls = mockAnalysisCallback.mock.calls[0];
 
             expect(analysisCalls.length).toEqual(1);
@@ -1636,7 +1641,7 @@ describe("ExperimentController", () => {
           });
       });
     });
-    describe.skip("when calling the distance API", () => {
+    describe("when calling the distance API", () => {
       it("should capture a payload including the sample id", done => {
         request(app)
           .put(`/experiments/${id}/file`)
@@ -1663,6 +1668,7 @@ describe("ExperimentController", () => {
                 job = await findJob(jobs, id, "call distance api");
               }
               expect(job.data.experiment_id).toEqual(id);
+              expect(job.data.distance_type).toEqual("nearest-neighbour");
               done();
             } catch (e) {
               fail(e.message);
@@ -1696,6 +1702,7 @@ describe("ExperimentController", () => {
             }
             expect(job.name).toEqual("call distance api");
             expect(job.data.experiment_id).toEqual(id);
+            expect(job.data.distance_type).toEqual("nearest-neighbour");
             done();
           });
       });
@@ -2212,7 +2219,7 @@ describe("ExperimentController", () => {
   });
 
   describe("# GET /experiments/tree", () => {
-    describe("when no tree in the db", () => {
+    describe("when there is no tree in the db", () => {
       it("should return the tree object and create one in mongo", done => {
         beforeEach(async () => {
           await Tree.remove({});
@@ -2230,7 +2237,7 @@ describe("ExperimentController", () => {
           });
       });
     });
-    describe("when the tree is expired", () => {
+    describe("when the tree has expired", () => {
       beforeEach(async () => {
         const treeData = new Tree(trees.expiredResult);
         await treeData.save();
@@ -2259,13 +2266,15 @@ describe("ExperimentController", () => {
     describe("when the tree is not expired", () => {
       beforeEach(async () => {
         const treeData = new Tree(trees.activeResult);
-        treeData.expires.setMonth(treeData.expires.getMonth() + 1);
+        const expiryDate = new moment().add(1, "month");
+        treeData.expires = expiryDate.toISOString();
+
         const tree = await treeData.save();
       });
       afterEach(async () => {
         await Tree.remove({});
       });
-      it("should the tree object from cache", done => {
+      it("should the return tree object from cache", done => {
         request(app)
           .get("/experiments/tree")
           .set("Authorization", `Bearer ${token}`)
