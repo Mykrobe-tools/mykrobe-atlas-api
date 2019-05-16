@@ -4034,6 +4034,33 @@ router
    */
   .get(keycloak.connect.protect(), experimentController.uploadStatus);
 router
+  .route("/:id/refresh")
+  /**
+   * @swagger
+   * /experiments/{id}/refresh:
+   *   get:
+   *     tags:
+   *       - Experiments
+   *     description: Refresh the results
+   *     operationId: refreshResults
+   *     produces:
+   *       - application/json
+   *     security:
+   *       - Bearer: []
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         type: string
+   *         description: The experiment id
+   *     responses:
+   *       200:
+   *         description: A jsend response
+   *         schema:
+   *           $ref: '#/definitions/BasicResponse'
+   */
+  .post(keycloak.connect.protect(), experimentController.refreshResults);
+router
   .route("/reindex")
   /**
    * @swagger

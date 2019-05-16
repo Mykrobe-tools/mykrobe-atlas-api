@@ -77,7 +77,7 @@ afterAll(async done => {
 });
 
 describe("ExperimentController > Elasticsearch", () => {
-  describe("# GET /experiments/choices", () => {
+  describe.skip("# GET /experiments/choices", () => {
     it("should return choices and counts for enums", done => {
       request(app)
         .get("/experiments/choices")
