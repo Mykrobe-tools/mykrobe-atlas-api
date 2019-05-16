@@ -7,7 +7,7 @@ export default {
   elasticsearch: {
     port: mockedEsPort,
     index: "atlas",
-    host: `http://localhost:9200`
+    host: `http://localhost:${mockedEsPort}`
   },
   express: {
     uploadsLocation: "/atlas/uploads",

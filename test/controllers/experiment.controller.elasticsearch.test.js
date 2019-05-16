@@ -66,7 +66,6 @@ beforeAll(async done => {
   while (data.hits.total < 2) {
     data = await ElasticsearchHelper.search(config, {}, "experiment");
   }
-  console.log(`local data created`);
   done();
 }, 60000);
 
@@ -244,7 +243,6 @@ describe("ExperimentController > Elasticsearch", () => {
           expect(data["metadata.patient.bmi"].max).toEqual(33.1);
           expect(data["metadata.sample.dateArrived"].min).toEqual("2017-11-05T00:00:00.000Z");
           expect(data["metadata.sample.dateArrived"].max).toEqual("2017-11-05T00:00:00.000Z");
-
           done();
         });
     });

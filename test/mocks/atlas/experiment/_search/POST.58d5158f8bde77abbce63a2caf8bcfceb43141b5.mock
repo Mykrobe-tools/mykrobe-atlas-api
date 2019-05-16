@@ -2,7 +2,7 @@ HTTP/1.1 200 OK
 Content-Type: application/json; charset=utf-8
 
 {
-    "took": 5,
+    "took": 100,
     "timed_out": false,
     "_shards": {
         "total": 5,
@@ -11,81 +11,9 @@ Content-Type: application/json; charset=utf-8
         "failed": 0
     },
     "hits": {
-        "total": 2,
+        "total": 1,
         "max_score": 1,
         "hits": [
-            {
-                "_index": "atlas",
-                "_type": "experiment",
-                "_id": "5cdd5bc0156d782d81a87785",
-                "_score": 1,
-                "_source": {
-                    "metadata": {
-                        "patient": {
-                            "patientId": "eff2fa6a-9d79-41ab-a307-b620cedf7293",
-                            "siteId": "a2a910e3-25ef-475c-bdf9-f6fe215d949f",
-                            "genderAtBirth": "Male",
-                            "countryOfBirth": "India",
-                            "age": 43,
-                            "bmi": 25.3,
-                            "injectingDrugUse": "No",
-                            "homeless": "No",
-                            "imprisoned": "No",
-                            "smoker": "Yes",
-                            "diabetic": "Insulin",
-                            "hivStatus": "Not tested"
-                        },
-                        "sample": {
-                            "labId": "d19637ed-e5b4-4ca7-8418-8713646a3359",
-                            "isolateId": "9c0c00f2-8cb1-4254-bf53-3271f35ce696",
-                            "collectionDate": "2018-10-19T00:00:00.000Z",
-                            "prospectiveIsolate": "Yes",
-                            "countryIsolate": "IN",
-                            "cityIsolate": "Mumbai",
-                            "dateArrived": "2018-09-01T00:00:00.000Z",
-                            "anatomicalOrigin": "Respiratory",
-                            "smear": "Not known",
-                            "latitudeIsolate": 19.0759837,
-                            "longitudeIsolate": 72.8776559
-                        },
-                        "genotyping": {
-                            "wgsPlatform": "MiSeq",
-                            "otherGenotypeInformation": "Yes",
-                            "genexpert": "Not tested",
-                            "hain": "INH/RIF test",
-                            "hainRif": "RIF resistant",
-                            "hainInh": "INH sensitive",
-                            "hainFl": "Not tested",
-                            "hainAm": "Not tested",
-                            "hainEth": "Not tested"
-                        },
-                        "phenotyping": {
-                            "rifampicin": {
-                                "susceptibility": "Resistant",
-                                "method": "Not known"
-                            },
-                            "ethambutol": {
-                                "susceptibility": "Sensitive",
-                                "method": "Not known"
-                            },
-                            "pyrazinamide": {
-                                "susceptibility": "Sensitive",
-                                "method": "Not known"
-                            },
-                            "isoniazid": {
-                                "susceptibility": "Sensitive",
-                                "method": "Not known"
-                            },
-                            "phenotypeInformationFirstLineDrugs": "Yes",
-                            "phenotypeInformationOtherDrugs": "No"
-                        }
-                    },
-                    "results": {},
-                    "created": "2019-05-16T12:46:57.145Z",
-                    "modified": "2019-05-16T12:46:57.145Z",
-                    "id": "5cdd5bc0156d782d81a87785"
-                }
-            },
             {
                 "_index": "atlas",
                 "_type": "experiment",
@@ -284,7 +212,7 @@ Content-Type: application/json; charset=utf-8
             "buckets": [
                 {
                     "key": "Yes",
-                    "doc_count": 2
+                    "doc_count": 1
                 }
             ]
         },
@@ -303,7 +231,7 @@ Content-Type: application/json; charset=utf-8
             "value": null
         },
         "min_metadata.sample.latitudeIsolate": {
-            "value": 19.0759837
+            "value": 29.4315861
         },
         "max_metadata.treatment.outsideStandardPhaseTerizidone.stop": {
             "value": null
@@ -312,10 +240,6 @@ Content-Type: application/json; charset=utf-8
             "doc_count_error_upper_bound": 0,
             "sum_other_doc_count": 0,
             "buckets": [
-                {
-                    "key": "Insulin",
-                    "doc_count": 1
-                },
                 {
                     "key": "Not known",
                     "doc_count": 1
@@ -406,7 +330,7 @@ Content-Type: application/json; charset=utf-8
             "buckets": [
                 {
                     "key": "Not tested",
-                    "doc_count": 2
+                    "doc_count": 1
                 }
             ]
         },
@@ -461,7 +385,7 @@ Content-Type: application/json; charset=utf-8
             "buckets": [
                 {
                     "key": "Yes",
-                    "doc_count": 2
+                    "doc_count": 1
                 }
             ]
         },
@@ -481,7 +405,7 @@ Content-Type: application/json; charset=utf-8
             "buckets": [
                 {
                     "key": "Sensitive",
-                    "doc_count": 2
+                    "doc_count": 1
                 }
             ]
         },
@@ -491,7 +415,7 @@ Content-Type: application/json; charset=utf-8
             "buckets": [
                 {
                     "key": "Not known",
-                    "doc_count": 2
+                    "doc_count": 1
                 }
             ]
         },
@@ -563,7 +487,7 @@ Content-Type: application/json; charset=utf-8
             "buckets": [
                 {
                     "key": "No",
-                    "doc_count": 2
+                    "doc_count": 1
                 }
             ]
         },
@@ -574,10 +498,6 @@ Content-Type: application/json; charset=utf-8
             "doc_count_error_upper_bound": 0,
             "sum_other_doc_count": 0,
             "buckets": [
-                {
-                    "key": "No",
-                    "doc_count": 1
-                },
                 {
                     "key": "Yes",
                     "doc_count": 1
@@ -600,10 +520,6 @@ Content-Type: application/json; charset=utf-8
             "buckets": [
                 {
                     "key": "Not known",
-                    "doc_count": 1
-                },
-                {
-                    "key": "Not tested",
                     "doc_count": 1
                 }
             ]
@@ -656,7 +572,7 @@ Content-Type: application/json; charset=utf-8
             "buckets": [
                 {
                     "key": "Not tested",
-                    "doc_count": 2
+                    "doc_count": 1
                 }
             ]
         },
@@ -703,10 +619,6 @@ Content-Type: application/json; charset=utf-8
                 {
                     "key": "HiSeq",
                     "doc_count": 1
-                },
-                {
-                    "key": "MiSeq",
-                    "doc_count": 1
                 }
             ]
         },
@@ -729,7 +641,7 @@ Content-Type: application/json; charset=utf-8
             "buckets": [
                 {
                     "key": "RIF resistant",
-                    "doc_count": 2
+                    "doc_count": 1
                 }
             ]
         },
@@ -764,7 +676,7 @@ Content-Type: application/json; charset=utf-8
             "buckets": [
                 {
                     "key": "Not tested",
-                    "doc_count": 2
+                    "doc_count": 1
                 }
             ]
         },
@@ -779,7 +691,7 @@ Content-Type: application/json; charset=utf-8
             "value": null
         },
         "min_metadata.patient.bmi": {
-            "value": 25.3
+            "value": 33.1
         },
         "max_metadata.treatment.outsideStandardPhasePyrazinamide.stop": {
             "value": null
@@ -791,8 +703,8 @@ Content-Type: application/json; charset=utf-8
             "value": null
         },
         "max_metadata.sample.collectionDate": {
-            "value": 1539907200000,
-            "value_as_string": "2018-10-19T00:00:00.000Z"
+            "value": 1532217600000,
+            "value_as_string": "2018-07-22T00:00:00.000Z"
         },
         "metadata.phenotyping.pas.method": {
             "doc_count_error_upper_bound": 0,
@@ -862,10 +774,6 @@ Content-Type: application/json; charset=utf-8
                 {
                     "key": "Female",
                     "doc_count": 1
-                },
-                {
-                    "key": "Male",
-                    "doc_count": 1
                 }
             ]
         },
@@ -881,7 +789,7 @@ Content-Type: application/json; charset=utf-8
             "buckets": [
                 {
                     "key": "Respiratory",
-                    "doc_count": 2
+                    "doc_count": 1
                 }
             ]
         },
@@ -949,10 +857,6 @@ Content-Type: application/json; charset=utf-8
             "sum_other_doc_count": 0,
             "buckets": [
                 {
-                    "key": "No",
-                    "doc_count": 1
-                },
-                {
                     "key": "Yes",
                     "doc_count": 1
                 }
@@ -1014,7 +918,7 @@ Content-Type: application/json; charset=utf-8
             "buckets": [
                 {
                     "key": "Sensitive",
-                    "doc_count": 2
+                    "doc_count": 1
                 }
             ]
         },
@@ -1027,7 +931,7 @@ Content-Type: application/json; charset=utf-8
             "buckets": [
                 {
                     "key": "Resistant",
-                    "doc_count": 2
+                    "doc_count": 1
                 }
             ]
         },
@@ -1067,7 +971,7 @@ Content-Type: application/json; charset=utf-8
             "buckets": [
                 {
                     "key": "Not known",
-                    "doc_count": 2
+                    "doc_count": 1
                 }
             ]
         },
@@ -1110,8 +1014,8 @@ Content-Type: application/json; charset=utf-8
             ]
         },
         "max_metadata.sample.dateArrived": {
-            "value": 1535760000000,
-            "value_as_string": "2018-09-01T00:00:00.000Z"
+            "value": 1509840000000,
+            "value_as_string": "2017-11-05T00:00:00.000Z"
         },
         "max_metadata.treatment.continuation.stop": {
             "value": null
@@ -1138,12 +1042,12 @@ Content-Type: application/json; charset=utf-8
             "buckets": [
                 {
                     "key": "Not tested",
-                    "doc_count": 2
+                    "doc_count": 1
                 }
             ]
         },
         "min_metadata.sample.longitudeIsolate": {
-            "value": 72.8776559
+            "value": 106.912251
         },
         "metadata.phenotyping.ethambutol.susceptibility": {
             "doc_count_error_upper_bound": 0,
@@ -1151,10 +1055,6 @@ Content-Type: application/json; charset=utf-8
             "buckets": [
                 {
                     "key": "Resistant",
-                    "doc_count": 1
-                },
-                {
-                    "key": "Sensitive",
                     "doc_count": 1
                 }
             ]
@@ -1230,7 +1130,7 @@ Content-Type: application/json; charset=utf-8
             "buckets": [
                 {
                     "key": "Not known",
-                    "doc_count": 2
+                    "doc_count": 1
                 }
             ]
         },
@@ -1251,7 +1151,7 @@ Content-Type: application/json; charset=utf-8
             "value": null
         },
         "max_metadata.patient.age": {
-            "value": 43
+            "value": 32
         },
         "metadata.patient.injectingDrugUse": {
             "doc_count_error_upper_bound": 0,
@@ -1259,7 +1159,7 @@ Content-Type: application/json; charset=utf-8
             "buckets": [
                 {
                     "key": "No",
-                    "doc_count": 2
+                    "doc_count": 1
                 }
             ]
         },
@@ -1269,10 +1169,6 @@ Content-Type: application/json; charset=utf-8
             "buckets": [
                 {
                     "key": "China",
-                    "doc_count": 1
-                },
-                {
-                    "key": "India",
                     "doc_count": 1
                 }
             ]
@@ -1319,7 +1215,7 @@ Content-Type: application/json; charset=utf-8
             "buckets": [
                 {
                     "key": "Not known",
-                    "doc_count": 2
+                    "doc_count": 1
                 }
             ]
         },
@@ -1330,10 +1226,6 @@ Content-Type: application/json; charset=utf-8
                 {
                     "key": "INH resistant",
                     "doc_count": 1
-                },
-                {
-                    "key": "INH sensitive",
-                    "doc_count": 1
                 }
             ]
         },
@@ -1343,10 +1235,6 @@ Content-Type: application/json; charset=utf-8
             "buckets": [
                 {
                     "key": "No",
-                    "doc_count": 1
-                },
-                {
-                    "key": "Yes",
                     "doc_count": 1
                 }
             ]
@@ -1420,7 +1308,7 @@ Content-Type: application/json; charset=utf-8
             "buckets": [
                 {
                     "key": "INH/RIF test",
-                    "doc_count": 2
+                    "doc_count": 1
                 }
             ]
         },
@@ -1431,10 +1319,6 @@ Content-Type: application/json; charset=utf-8
                 {
                     "key": "CH",
                     "doc_count": 1
-                },
-                {
-                    "key": "IN",
-                    "doc_count": 1
                 }
             ]
         },
@@ -1444,7 +1328,7 @@ Content-Type: application/json; charset=utf-8
             "buckets": [
                 {
                     "key": "Not known",
-                    "doc_count": 2
+                    "doc_count": 1
                 }
             ]
         },
@@ -1482,7 +1366,7 @@ Content-Type: application/json; charset=utf-8
             "buckets": [
                 {
                     "key": "Yes",
-                    "doc_count": 2
+                    "doc_count": 1
                 }
             ]
         },

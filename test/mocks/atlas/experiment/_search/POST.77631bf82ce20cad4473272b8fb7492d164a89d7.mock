@@ -2,7 +2,7 @@ HTTP/1.1 200 OK
 Content-Type: application/json; charset=utf-8
 
 {
-    "took": 5,
+    "took": 90,
     "timed_out": false,
     "_shards": {
         "total": 5,
