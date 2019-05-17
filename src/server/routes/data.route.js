@@ -48,4 +48,33 @@ router.route("/clean").post(dataController.clean);
  */
 router.route("/create").post(dataController.create);
 
+/**
+ * @swagger
+ * /data/demo/{folder}:
+ *   post:
+ *     tags:
+ *       - Data
+ *     description: Load Demo Data
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: path
+ *         name: folder
+ *         required: true
+ *         type: string
+ *         description: The folder name to load from
+ *       - in: query
+ *         name: purge
+ *         type: string
+ *         description: A flag to purge existing experiments
+ *     security:
+ *       - Bearer: []
+ *     responses:
+ *       200:
+ *         description: A jsend response
+ *         schema:
+ *           $ref: '#/definitions/BasicResponse'
+ */
+router.route("/demo/:folder").post(dataController.loadDemo);
+
 export default router;

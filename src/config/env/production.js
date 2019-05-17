@@ -5,7 +5,8 @@ export default {
     }:${process.env.DB_SERVICE_PORT}/atlas`
   },
   express: {
-    uploadsLocation: process.env.UPLOADS_LOCATION
+    uploadsLocation: process.env.UPLOADS_LOCATION,
+    demoDataRootFolder: "/data"
   },
   accounts: {
     keycloak: {

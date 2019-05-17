@@ -31,7 +31,6 @@ import ResultsParserFactory from "../helpers/ResultsParserFactory";
 import { experimentEventEmitter, userEventEmitter } from "../modules/events";
 
 import { isBigsiQuery, callBigsiApi, parseQuery, callTreeApi } from "../modules/search";
-import logger from "../modules/winston";
 
 const config = require("../../config/env");
 

@@ -3,7 +3,8 @@ export default {
     uri: "mongodb://localhost/atlas-dev"
   },
   express: {
-    uploadsLocation: "/tmp/uploads"
+    uploadsLocation: "/tmp/uploads",
+    demoDataRootFolder: "/data"
   },
   accounts: {
     keycloak: {

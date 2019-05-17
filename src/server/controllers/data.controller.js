@@ -7,6 +7,8 @@ import { getRandomPercentage } from "makeandship-api-common/lib/modules/schema-f
 import User from "../models/user.model";
 import Experiment from "../models/experiment.model";
 import phylogenetics from "../../config/faker/phylogenetics-choices";
+import config from "../../config/env";
+import DataHelper from "../helpers/DataHelper";
 
 // randomizers
 const userRandomizer = new Randomizer(schemas.user, {
@@ -116,4 +118,20 @@ const generatePhylogenetics = (
   return phylogeneticsArray;
 };
 
-export default { clean, create };
+/**
+ * Load demo data from CSV files
+ * @param req
+ * @param res
+ * @returns {*}
+ */
+const loadDemo = async (req, res) => {
+  const folder = req.params.folder;
+  const purge = req.query.purge;
+  if (purge === "true") {
+    await Experiment.deleteMany({});
+  }
+  DataHelper.loadDemoData(`${config.express.demoDataRootFolder}/${folder}`);
+  return res.jsend(`Demo data upload started from ${config.express.demoDataRootFolder}/${folder}`);
+};
+
+export default { clean, create, loadDemo };
