@@ -51,6 +51,22 @@ const getCacheKey = address => {
   return null;
 };
 
+const getRequest = query => {
+  const options = getOptions();
+  switch (options.provider) {
+    case "google":
+      return [query.city, query.country || query.countryCode].filter(Boolean).join(", ");
+      break;
+    case "locationiq":
+      return {
+        country: query.countryCode,
+        city: query.city
+      };
+      break;
+  }
+  return query;
+};
+
 const geocode = async address => {
   const cacheKey = getCacheKey(address);
   const cachedLocation = cache.get(cacheKey);
@@ -63,8 +79,9 @@ const geocode = async address => {
     if (Array.isArray(address)) {
       const location = await geocoder.batchGeocode(address);
       return location;
-    } else if (typeof address === "object" && address.country) {
-      const location = await geocoder.geocode(address);
+    } else if (typeof address === "object" && (address.country || address.countryCode)) {
+      const request = getRequest(address);
+      const location = await geocoder.geocode(request);
       cache.set(cacheKey, location);
       return location;
     } else if (typeof address === "string") {

@@ -326,7 +326,7 @@ describe("UserController", () => {
         });
     });
 
-    it("should return an erro if user not found", done => {
+    it("should return an error if user not found", done => {
       request(app)
         .delete("/users/589dcdd38d71fee259dc4e00")
         .set("Authorization", `Bearer ${token}`)

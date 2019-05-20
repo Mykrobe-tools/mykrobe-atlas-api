@@ -72,8 +72,11 @@ describe("Experiment", () => {
         experiment.set("metadata.sample.cityIsolate", "Chennai");
 
         const updated = await experiment.save();
-        expect(updated.metadata.sample.latitudeIsolate).toEqual(13.0826802);
-        expect(updated.metadata.sample.longitudeIsolate).toEqual(80.2707184);
+        expect(updated.metadata.sample.latitudeIsolate).toBeGreaterThan(13.08);
+        expect(updated.metadata.sample.latitudeIsolate).toBeLessThan(13.083);
+
+        expect(updated.metadata.sample.longitudeIsolate).toBeGreaterThan(80.27);
+        expect(updated.metadata.sample.longitudeIsolate).toBeLessThan(80.29);
 
         done();
       });
@@ -81,14 +84,22 @@ describe("Experiment", () => {
     describe("when neither isolate country or city have changed", () => {
       it("should update location", async done => {
         const experiment = await Experiment.get(id);
-        expect(experiment.metadata.sample.latitudeIsolate).toEqual(19.0759837);
-        expect(experiment.metadata.sample.longitudeIsolate).toEqual(72.8776559);
+
+        expect(experiment.metadata.sample.latitudeIsolate).toBeGreaterThan(18.93);
+        expect(experiment.metadata.sample.latitudeIsolate).toBeLessThan(19.08);
+
+        expect(experiment.metadata.sample.longitudeIsolate).toBeGreaterThan(72.83);
+        expect(experiment.metadata.sample.longitudeIsolate).toBeLessThan(72.88);
 
         experiment.metadata.sample.sampleId = "13513871321";
         const updated = await experiment.save();
         expect(updated.metadata.sample.sampleId).toEqual("13513871321");
-        expect(updated.metadata.sample.latitudeIsolate).toEqual(19.0759837);
-        expect(updated.metadata.sample.longitudeIsolate).toEqual(72.8776559);
+
+        expect(updated.metadata.sample.latitudeIsolate).toBeGreaterThan(18.93);
+        expect(updated.metadata.sample.latitudeIsolate).toBeLessThan(19.08);
+
+        expect(updated.metadata.sample.longitudeIsolate).toBeGreaterThan(72.83);
+        expect(updated.metadata.sample.longitudeIsolate).toBeLessThan(72.88);
 
         done();
       });
