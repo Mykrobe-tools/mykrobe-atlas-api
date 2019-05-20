@@ -3,6 +3,7 @@ import errors from "errors";
 import schemaValidator from "mongoose-jsonschema-validator";
 import { experiment as experimentJsonSchema } from "mykrobe-atlas-jsonschema";
 
+import logger from "../modules/winston";
 import { geocode } from "../modules/geo";
 
 import JSONMongooseSchema from "./jsonschema.model";
@@ -58,26 +59,46 @@ ExperimentSchema.pre("save", async function() {
   ) {
     const o = this.toObject();
     if (o.metadata && o.metadata.sample) {
+      const address = {};
+
       const countryIsolate = o.metadata.sample.countryIsolate;
       const cityIsolate = o.metadata.sample.cityIsolate;
 
-      const address = [cityIsolate, countryIsolate].filter(Boolean).join(", ");
+      if (countryIsolate) {
+        address.countryCode = countryIsolate;
+      }
+      if (cityIsolate) {
+        address.city = cityIsolate;
+      }
 
       if (address) {
-        const location = await geocode(address);
-        if (location && Array.isArray(location)) {
-          const geo = location.shift();
+        try {
+          const location = await geocode(address);
+          if (location && Array.isArray(location)) {
+            const geo = location.find(result => {
+              const bothMatch =
+                countryIsolate &&
+                cityIsolate &&
+                result.countryCode === countryIsolate &&
+                result.city === cityIsolate;
+              const countryOnlyMatch =
+                countryIsolate && !cityIsolate && result.countryCode === countryIsolate;
+              return bothMatch || countryOnlyMatch;
+            });
 
-          if (geo) {
-            if (!this.metadata) {
-              this.metadata = {};
+            if (geo) {
+              if (!this.metadata) {
+                this.metadata = {};
+              }
+              if (!this.metadata.sample) {
+                this.metadata.sample = {};
+              }
+              this.metadata.sample.latitudeIsolate = geo.latitude;
+              this.metadata.sample.longitudeIsolate = geo.longitude;
             }
-            if (!this.metadata.sample) {
-              this.metadata.sample = {};
-            }
-            this.metadata.sample.latitudeIsolate = geo.latitude;
-            this.metadata.sample.longitudeIsolate = geo.longitude;
           }
+        } catch (e) {
+          logger.debug(`Unable to fetch geocode for ${JSON.stringify(address)}.  Error: ${e}`);
         }
       }
     }

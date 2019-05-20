@@ -13,10 +13,17 @@ const cache = new Cache(options);
 const getOptions = () => {
   const geo = config.services.geo;
   if (geo) {
-    if (geo.google) {
+    if (geo.google && geo.google.apiKey) {
       const options = {
         provider: "google",
         apiKey: geo.google.apiKey,
+        formatter: null
+      };
+      return options;
+    } else if (geo.locationIq && geo.locationIq.apiKey) {
+      const options = {
+        provider: "locationiq",
+        apiKey: geo.locationIq.apiKey,
         formatter: null
       };
       return options;
@@ -35,8 +42,34 @@ const getGeocoder = () => {
   return null;
 };
 
+const getCacheKey = address => {
+  if (typeof address === "object") {
+    return JSON.stringify(address);
+  } else if (typeof address === "string") {
+    return address;
+  }
+  return null;
+};
+
+const getRequest = query => {
+  const options = getOptions();
+  switch (options.provider) {
+    case "google":
+      return [query.city, query.country || query.countryCode].filter(Boolean).join(", ");
+      break;
+    case "locationiq":
+      return {
+        country: query.countryCode,
+        city: query.city
+      };
+      break;
+  }
+  return query;
+};
+
 const geocode = async address => {
-  const cachedLocation = cache.get(address);
+  const cacheKey = getCacheKey(address);
+  const cachedLocation = cache.get(cacheKey);
   if (typeof cachedLocation !== "undefined" && cachedLocation) {
     return cachedLocation;
   }
@@ -45,11 +78,15 @@ const geocode = async address => {
   if (geocoder) {
     if (Array.isArray(address)) {
       const location = await geocoder.batchGeocode(address);
-      cache.set(address, location);
       return location;
-    } else {
+    } else if (typeof address === "object" && (address.country || address.countryCode)) {
+      const request = getRequest(address);
+      const location = await geocoder.geocode(request);
+      cache.set(cacheKey, location);
+      return location;
+    } else if (typeof address === "string") {
       const location = await geocoder.geocode(address);
-      cache.set(address, location);
+      cache.set(cacheKey, location);
       return location;
     }
   }
