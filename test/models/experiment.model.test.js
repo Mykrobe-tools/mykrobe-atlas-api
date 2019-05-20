@@ -252,7 +252,10 @@ describe("Experiment", () => {
 
         expect(json.results).toBeTruthy();
         const results = json.results;
-        expect(results.nearestNeighbours).toBeTruthy();
+        expect(results).toHaveProperty("distance-nearest-neighbour");
+        expect(results["distance-nearest-neighbour"]).toBeTruthy();
+        expect(results).toHaveProperty("distance-tree-distance");
+        expect(results["distance-tree-distance"]).toBeTruthy();
 
         done();
       });
@@ -318,18 +321,18 @@ describe("Experiment", () => {
         done();
       });
     });
-  });
-  describe("when there are no matching experiments", () => {
-    it("should return an empty array", async done => {
-      const savedMetadata = savedExperiment.get("metadata");
-      const isolateIds = ["non-existant-isolate-id"];
+    describe("when there are no matching experiments", () => {
+      it("should return an empty array", async done => {
+        const savedMetadata = savedExperiment.get("metadata");
+        const isolateIds = ["non-existant-isolate-id"];
 
-      const experiments = await Experiment.findByIsolateIds(isolateIds);
+        const experiments = await Experiment.findByIsolateIds(isolateIds);
 
-      expect(experiments.length).toEqual(0);
-      expect(experiments).toEqual([]);
+        expect(experiments.length).toEqual(0);
+        expect(experiments).toEqual([]);
 
-      done();
+        done();
+      });
     });
   });
 });

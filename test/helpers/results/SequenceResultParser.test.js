@@ -1,5 +1,5 @@
-import SequenceResultParser from "../../src/server/helpers/SequenceResultParser";
-import searches from "../fixtures/searches";
+import SequenceResultParser from "../../../src/server/helpers/results/SequenceResultParser";
+import searches from "../../fixtures/searches";
 
 describe("SequenceResultParser", () => {
   describe("#parse", () => {

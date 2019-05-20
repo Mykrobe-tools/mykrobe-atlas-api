@@ -4,7 +4,7 @@ import {
   getPredictorResult,
   parseSusceptibility,
   parsePhylogenetics
-} from "../modules/resultsUtil";
+} from "./util";
 
 const SUSCEPTIBILITY = "susceptibility";
 const PHYLOGENETICS = "phylogenetics";

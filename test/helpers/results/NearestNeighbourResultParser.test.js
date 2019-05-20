@@ -1,26 +1,24 @@
-import NearestNeighboursResultParser from "../../src/server/helpers/NearestNeighboursResultParser";
-import NEAREST_NEIGHBOURS from "../fixtures/files/NEAREST_NEIGHBOURS_Results.json";
+import NearestNeighbourResultParser from "../../../src/server/helpers/results/NearestNeighbourResultParser";
+import NEAREST_NEIGHBOURS from "../../fixtures/files/NEAREST_NEIGHBOURS_Results.json";
 
-describe("NearestNeighboursResultParser", () => {
+describe("NearestNeighbourResultParser", () => {
   describe("#parse", () => {
     it("should parse a result", done => {
-      const parser = new NearestNeighboursResultParser(NEAREST_NEIGHBOURS);
+      const parser = new NearestNeighbourResultParser(NEAREST_NEIGHBOURS);
       const result = parser.parse();
 
-      expect(result).toHaveProperty("type");
-      expect(result).toHaveProperty("subType");
+      expect(result).toHaveProperty("type", "distance");
+      expect(result).toHaveProperty("subType", "nearest-neighbour");
       expect(result).toHaveProperty("received");
       expect(result).toHaveProperty("experiments");
 
-      expect(result.type).toEqual("nearestNeighbours");
-      expect(result.subType).toEqual("Nearest neighbours");
       expect(result.experiments.length).toEqual(9);
 
       done();
     });
 
     it("should create nearest neighbours array", done => {
-      const parser = new NearestNeighboursResultParser(NEAREST_NEIGHBOURS);
+      const parser = new NearestNeighbourResultParser(NEAREST_NEIGHBOURS);
       const result = parser.parse();
       const nearestNeighbours = result.experiments;
 
