@@ -1,5 +1,5 @@
-import ProteinVariantResultParser from "../../src/server/helpers/ProteinVariantResultParser";
-import searches from "../fixtures/searches";
+import ProteinVariantResultParser from "../../../src/server/helpers/results/ProteinVariantResultParser";
+import searches from "../../fixtures/searches";
 
 describe("ProteinVariantResultParser", () => {
   describe("#parse", () => {

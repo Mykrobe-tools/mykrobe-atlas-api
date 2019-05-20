@@ -13,14 +13,17 @@ class ExperimentResultsPerTypeJSONTransformer {
 
     if (res && res.length) {
       res.forEach(result => {
-        if (response[result.type]) {
-          if (new Date(result.analysed) > new Date(response[result.type].analysed)) {
-            response[result.type] = result;
+        if (result) {
+          const type = [result.type, result.subType].filter(Boolean).join("-");
+          // only return the most recent result
+          if (response[type]) {
+            if (new Date(result.analysed) > new Date(response[type].analysed)) {
+              response[type] = result;
+            }
+          } else {
+            response[type] = result;
           }
-        } else {
-          response[result.type] = result;
         }
-        delete response[result.type].type;
       });
 
       // transform the latest result

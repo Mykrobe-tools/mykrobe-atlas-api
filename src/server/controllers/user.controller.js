@@ -21,7 +21,7 @@ import ExperimentsResultJSONTransformer from "../transformers/es/ExperimentsResu
 import AccountsHelper from "../helpers/AccountsHelper";
 import EmailHelper from "../helpers/EmailHelper";
 
-import ResultsParserFactory from "../helpers/ResultsParserFactory";
+import ResultsParserFactory from "../helpers/results/ResultsParserFactory";
 
 import config from "../../config/env";
 import SearchJSONTransformer from "../transformers/SearchJSONTransformer";
