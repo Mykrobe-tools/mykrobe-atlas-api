@@ -58,15 +58,31 @@ ExperimentSchema.pre("save", async function() {
   ) {
     const o = this.toObject();
     if (o.metadata && o.metadata.sample) {
+      const address = {};
+
       const countryIsolate = o.metadata.sample.countryIsolate;
       const cityIsolate = o.metadata.sample.cityIsolate;
 
-      const address = [cityIsolate, countryIsolate].filter(Boolean).join(", ");
+      if (countryIsolate) {
+        address.country = countryIsolate;
+      }
+      if (cityIsolate) {
+        address.city = cityIsolate;
+      }
 
       if (address) {
         const location = await geocode(address);
         if (location && Array.isArray(location)) {
-          const geo = location.shift();
+          const geo = location.find(result => {
+            const bothMatch =
+              countryIsolate &&
+              cityIsolate &&
+              result.countryCode === countryIsolate &&
+              result.city === cityIsolate;
+            const countryOnlyMatch =
+              countryIsolate && !cityIsolate && result.countryCode === countryIsolate;
+            return bothMatch || countryOnlyMatch;
+          });
 
           if (geo) {
             if (!this.metadata) {
