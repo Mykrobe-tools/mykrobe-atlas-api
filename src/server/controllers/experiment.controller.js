@@ -27,7 +27,7 @@ import APIError from "../helpers/APIError";
 import { schedule } from "../modules/agenda";
 import { experiment as experimentSchema } from "mykrobe-atlas-jsonschema";
 
-import ResultsParserFactory from "../helpers/ResultsParserFactory";
+import ResultsParserFactory from "../helpers/results/ResultsParserFactory";
 import { experimentEventEmitter, userEventEmitter } from "../modules/events";
 
 import { isBigsiQuery, callBigsiApi, parseQuery, callTreeApi } from "../modules/search";
@@ -62,10 +62,17 @@ const load = async (req, res, next, id) => {
  */
 const get = async (req, res) => {
   const experiment = req.experiment.toJSON();
+
   if (experiment.results && experiment.results.nearestNeighbours) {
-    let nearestNeighbours = experiment.results.nearestNeighbours;
+    const nearestNeighbours = experiment.results.nearestNeighbours;
 
     experiment.results.nearestNeighbours = await inflateResult(nearestNeighbours);
+  }
+
+  if (experiment.results && experiment.results.treeDistance) {
+    const treeDistance = experiment.results.treeDistance;
+
+    experiment.results.treeDistance = await inflateResult(treeDistance);
   }
 
   return res.jsend(experiment);
@@ -195,7 +202,8 @@ const results = async (req, res) => {
     experimentEventEmitter.emit("analysis-complete", {
       audit: auditJSON,
       experiment: experimentJSON,
-      type: result.type
+      type: result.type,
+      subType: result.subType
     });
 
     return res.jsend(savedExperiment);

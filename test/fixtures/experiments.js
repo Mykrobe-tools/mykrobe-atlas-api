@@ -67,6 +67,6 @@ export default {
       genotyping: metadata.uploadedMetadata.genotyping,
       phenotyping: metadata.uploadedMetadata.phenotyping
     },
-    results: [results.nearestNeighbours]
+    results: [results.distance.nearestNeighbours, results.distance.treeDistance]
   }
 };

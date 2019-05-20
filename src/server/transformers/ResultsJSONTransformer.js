@@ -42,7 +42,42 @@ class ResultsJSONTransformer extends ModelJSONTransformer {
       });
       res.susceptibility = susceptibility;
     }
-    return res;
+
+    // remove unwanted values
+    const trimmed = this.trim(res);
+    return trimmed;
+  }
+
+  trim(o) {
+    const light = {};
+
+    Object.keys(o).forEach(key => {
+      const value = o[key];
+      switch (typeof value) {
+        case "object":
+          if (value && value instanceof Date) {
+            light[key] = value;
+          } else if (Object.keys(value).length) {
+            light[key] = value;
+          }
+          break;
+        case "array":
+          if (value.length) {
+            light[key] = value;
+          }
+          break;
+        case "boolean":
+          light[key] = value;
+          break;
+        default:
+          if (value) {
+            light[key] = value;
+          }
+          break;
+      }
+    });
+
+    return light;
   }
 }
 

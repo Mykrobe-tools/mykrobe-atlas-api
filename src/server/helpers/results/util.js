@@ -1,4 +1,4 @@
-import Experiment from "../models/experiment.model";
+import Experiment from "../../models/experiment.model";
 
 const EXTERNAL_ID = "external_id";
 const PREDICT = "predict";
@@ -180,15 +180,15 @@ const calculateResistantAttributes = susceptibility => {
   return resistance;
 };
 
-const calculateNearestNeighbours = nearestNeighboursResult => {
-  const nearestNeighbours = [];
-  Object.keys(nearestNeighboursResult).forEach(key => {
-    nearestNeighbours.push({
+const parseDistance = result => {
+  const nearest = [];
+  Object.keys(result).forEach(key => {
+    nearest.push({
       id: key,
-      distance: nearestNeighboursResult[key]
+      distance: result[key]
     });
   });
-  return nearestNeighbours;
+  return nearest;
 };
 
 const buildRandomDistanceResult = async () => {
@@ -210,7 +210,7 @@ const resultsUtil = Object.freeze({
   getPredictorResult,
   parseSusceptibility,
   parsePhylogenetics,
-  calculateNearestNeighbours,
+  parseDistance,
   buildRandomDistanceResult
 });
 

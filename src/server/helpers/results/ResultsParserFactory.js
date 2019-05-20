@@ -1,22 +1,29 @@
 import PredictorResultParser from "./PredictorResultParser";
+import TreeDistanceResultParser from "./TreeDistanceResultParser";
+import NearestNeighbourResultParser from "./NearestNeighbourResultParser";
 import ProteinVariantResultParser from "./ProteinVariantResultParser";
 import SequenceResultParser from "./SequenceResultParser";
-import NearestNeighboursResultParser from "./NearestNeighboursResultParser";
-import { buildRandomDistanceResult } from "../modules/resultsUtil";
+import { buildRandomDistanceResult } from "./util";
 
 /**
  * A factory class class to create results parser
  */
 class ResultsParserFactory {
-  static async create(result) {
+  static create(result) {
     switch (result.type) {
       case "predictor":
         return new PredictorResultParser(result);
 
       case "distance":
-        // temporary solution
-        const randomResult = await buildRandomDistanceResult();
-        return new NearestNeighboursResultParser(randomResult);
+        const subType = result.subType;
+        switch (subType) {
+          case "nearest-neighbour":
+            return new NearestNeighbourResultParser(result);
+            break;
+          case "tree-distance":
+            return new TreeDistanceResultParser(result);
+            break;
+        }
 
       case "sequence":
         return new SequenceResultParser(result);

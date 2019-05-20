@@ -7,7 +7,7 @@ import SearchJSONTransformer from "../transformers/SearchJSONTransformer";
 import AuditJSONTransformer from "../transformers/AuditJSONTransformer";
 import UserJSONTransformer from "../transformers/UserJSONTransformer";
 
-import ResultsParserFactory from "../helpers/ResultsParserFactory";
+import ResultsParserFactory from "../helpers/results/ResultsParserFactory";
 
 import { userEventEmitter } from "../modules/events";
 
