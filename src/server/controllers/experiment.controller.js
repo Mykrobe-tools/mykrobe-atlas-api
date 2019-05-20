@@ -63,16 +63,16 @@ const load = async (req, res, next, id) => {
 const get = async (req, res) => {
   const experiment = req.experiment.toJSON();
 
-  if (experiment.results && experiment.results.nearestNeighbours) {
-    const nearestNeighbours = experiment.results.nearestNeighbours;
+  if (experiment.results) {
+    const promises = {};
 
-    experiment.results.nearestNeighbours = await inflateResult(nearestNeighbours);
-  }
+    const keys = Object.keys(experiment.results);
+    keys.forEach(key => {
+      const result = experiment.results[key];
+      promises[key] = inflateResult(result);
+    });
 
-  if (experiment.results && experiment.results.treeDistance) {
-    const treeDistance = experiment.results.treeDistance;
-
-    experiment.results.treeDistance = await inflateResult(treeDistance);
+    experiment.results = await Promise.props(promises);
   }
 
   return res.jsend(experiment);
