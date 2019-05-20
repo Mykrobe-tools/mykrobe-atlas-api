@@ -1,8 +1,9 @@
 import express from "express";
 import dataController from "../controllers/data.controller";
+import AccountsHelper from "../helpers/AccountsHelper";
 
 const router = express.Router(); // eslint-disable-line new-cap
-
+const keycloak = AccountsHelper.keycloakInstance();
 /**
  * @swagger
  * /data/clean:
@@ -75,6 +76,6 @@ router.route("/create").post(dataController.create);
  *         schema:
  *           $ref: '#/definitions/BasicResponse'
  */
-router.route("/demo/:folder").post(dataController.loadDemo);
+router.route("/demo/:folder").post(keycloak.connect.protect(), dataController.loadDemo);
 
 export default router;

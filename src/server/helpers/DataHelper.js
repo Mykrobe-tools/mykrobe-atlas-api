@@ -14,29 +14,85 @@ const INVALID_COUNTRIES = [];
 
 // countries mapping
 const contriesMapping = {
-  USA: "United States",
-  "Cote d'Ivoire": "Ivory Coast (Cote D'Ivoire)",
-  "Viet Nam": "Vietnam",
-  Azerbaijan: "Azerbaidjan",
-  Moldova: "Moldavia",
-  Russia: "Russian Federation",
-  Tajikistan: "Tadjikistan",
-  Korea: "South Korea",
-  "Canada;Ontario": "Canada",
-  "Democratic Republic of the Congo": "Congo",
-  "Canada;Toronto": "Canada",
-  "Beijing, China": "China",
-  PERU: "Peru",
-  UK: "United Kingdom",
-  "Côte d'Ivoire": "Ivory Coast (Cote D'Ivoire)",
-  "USA, San Francisco": "United States",
-  "New Guinea": "Guinea",
-  Valencia: "Spain",
-  Lanzarote: "Spain",
-  "Gran Canaria": "Spain",
-  Tenerife: "Spain",
-  Fuerteventura: "Spain",
-  Zaragoza: "Spain"
+  USA: {
+    country: "United States"
+  },
+  "Cote d'Ivoire": {
+    country: "Ivory Coast (Cote D'Ivoire)"
+  },
+  "Viet Nam": {
+    country: "Vietnam"
+  },
+  Azerbaijan: {
+    country: "Azerbaidjan"
+  },
+  Moldova: {
+    country: "Moldavia"
+  },
+  Russia: {
+    country: "Russian Federation"
+  },
+  Tajikistan: {
+    country: "Tadjikistan"
+  },
+  Korea: {
+    country: "South Korea"
+  },
+  "Canada;Ontario": {
+    country: "Canada",
+    city: "Ontario"
+  },
+  "Democratic Republic of the Congo": {
+    country: "Congo"
+  },
+  "Canada;Toronto": {
+    country: "Canada",
+    city: "Toronto"
+  },
+  "Beijing, China": {
+    country: "China",
+    city: "Beijing"
+  },
+  PERU: {
+    country: "Peru"
+  },
+  UK: {
+    country: "United Kingdom"
+  },
+  "Côte d'Ivoire": {
+    country: "Ivory Coast (Cote D'Ivoire)"
+  },
+  "USA, San Francisco": {
+    country: "United States",
+    city: "San Francisco"
+  },
+  "New Guinea": {
+    country: "Papua New Guinea"
+  },
+  Valencia: {
+    country: "Spain",
+    city: "Valencia"
+  },
+  Lanzarote: {
+    country: "Spain",
+    city: "Lanzarote"
+  },
+  "Gran Canaria": {
+    country: "Spain",
+    city: "Gran Canaria"
+  },
+  Tenerife: {
+    country: "Spain",
+    city: "Tenerife"
+  },
+  Fuerteventura: {
+    country: "Spain",
+    city: "Fuerteventura"
+  },
+  Zaragoza: {
+    country: "Spain",
+    city: "Zaragoza"
+  }
 };
 
 class DataHelper {
@@ -45,6 +101,9 @@ class DataHelper {
    * @param {*} path
    */
   static loadDemoData(path) {
+    if (!fs.existsSync(path)) {
+      throw new Error(`Cannot find ${path} directory`);
+    }
     fs.readdir(path, (err, files) => {
       files.forEach(file => this.process(`${path}/${file}`));
     });
@@ -113,7 +172,10 @@ const transform = data => {
     countryIsolate = geoMetadata.trim();
     cityIsolate = "";
   }
-  countryIsolate = contriesMapping[countryIsolate] || countryIsolate;
+  if (contriesMapping[countryIsolate]) {
+    cityIsolate = contriesMapping[countryIsolate].city || cityIsolate;
+    countryIsolate = contriesMapping[countryIsolate].country;
+  }
   const index = countryEnumNames.indexOf(countryIsolate);
   if (countryEnum[index]) {
     return {
