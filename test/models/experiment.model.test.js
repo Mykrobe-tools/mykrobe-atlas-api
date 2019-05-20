@@ -52,7 +52,7 @@ describe("Experiment", () => {
       });
     });
     describe("when isolate country has changed", () => {
-      it.only("should update location", async done => {
+      it("should update location", async done => {
         const experiment = await Experiment.get(id);
         experiment.set("metadata.sample.countryIsolate", "MX");
         experiment.set("metadata.sample.cityIsolate", "Puebla");
