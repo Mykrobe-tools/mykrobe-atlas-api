@@ -12,14 +12,6 @@ const users = require("../fixtures/users");
 const experiments = require("../fixtures/experiments");
 let token = null;
 
-/*
-beforeEach(async done => {
-  await User.remove({});
-  await Experiment.remove({});
-  done();
-});
-*/
-
 beforeEach(async done => {
   const userData = new User(users.admin);
 
