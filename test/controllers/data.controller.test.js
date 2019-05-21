@@ -201,8 +201,9 @@ describe("DataController", () => {
       });
       it("should purge all the experiments", done => {
         request(app)
-          .post("/data/demo/experiments-demo?purge=true")
+          .post("/data/demo/experiments-demo")
           .set("Authorization", `Bearer ${token}`)
+          .send({ purge: true })
           .expect(httpStatus.OK)
           .end(async (err, res) => {
             let total = await Experiment.count();
@@ -219,8 +220,9 @@ describe("DataController", () => {
       });
       it("should successfully load the experiments", done => {
         request(app)
-          .post("/data/demo/experiments-demo?purge=true")
+          .post("/data/demo/experiments-demo")
           .set("Authorization", `Bearer ${token}`)
+          .send({ purge: true })
           .expect(httpStatus.OK)
           .end(async (err, res) => {
             let total = await Experiment.count();
@@ -240,8 +242,9 @@ describe("DataController", () => {
       });
       it("should replace the city and country", done => {
         request(app)
-          .post("/data/demo/experiments-demo?purge=true")
+          .post("/data/demo/experiments-demo")
           .set("Authorization", `Bearer ${token}`)
+          .send({ purge: true })
           .expect(httpStatus.OK)
           .end(async (err, res) => {
             let total = await Experiment.count();
@@ -262,8 +265,9 @@ describe("DataController", () => {
       });
       it("should populate geo data", done => {
         request(app)
-          .post("/data/demo/experiments-demo?purge=true")
+          .post("/data/demo/experiments-demo")
           .set("Authorization", `Bearer ${token}`)
+          .send({ purge: true })
           .expect(httpStatus.OK)
           .end(async (err, res) => {
             expect(res.body.status).toEqual("success");
@@ -282,7 +286,7 @@ describe("DataController", () => {
             expect(experiment.metadata.sample.cityIsolate).toEqual("Geneva");
 
             expect(experiment.metadata.sample.latitudeIsolate).toBeGreaterThan(46.2);
-            expect(experiment.metadata.sample.latitudeIsolate).toBeLessThan(46.202);
+            expect(experiment.metadata.sample.latitudeIsolate).toBeLessThan(47);
 
             expect(experiment.metadata.sample.longitudeIsolate).toBeGreaterThan(6.142);
             expect(experiment.metadata.sample.longitudeIsolate).toBeLessThan(6.147);
@@ -291,8 +295,9 @@ describe("DataController", () => {
       });
       it("should not populate the value if unknown", done => {
         request(app)
-          .post("/data/demo/experiments-demo?purge=true")
+          .post("/data/demo/experiments-demo")
           .set("Authorization", `Bearer ${token}`)
+          .send({ purge: true })
           .expect(httpStatus.OK)
           .end(async (err, res) => {
             let total = await Experiment.count();
