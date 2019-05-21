@@ -136,12 +136,13 @@ class DataHelper {
             for (let i = 0; i < chunked.length; i++) {
               const chunk_arr = chunked[i];
               await Experiment.insertMany(chunk_arr);
-              logger.info(`Insert ${chunk_arr.length} records`);
+              logger.info(`Inserting chunk with ${chunk_arr.length} records`);
             }
-            logger.info(`Insert ${buffer.length} records`);
+            logger.info(`All chunks inserted, total of ${buffer.length} records`);
           }
+          logger.info("Enhancing experiments with longitude and latitude");
           await enhanceGeoCodes(geocodes);
-          logger.info("Data load ended.");
+          logger.info("All records enhanced");
         } catch (e) {
           logger.info(`Error: ${JSON.stringify(e)}`);
           stream.destroy(e);
@@ -218,7 +219,9 @@ const enhanceGeoCodes = async geocodes => {
         countryCode: countryIsolate,
         city: cityIsolate
       };
+      logger.info(`Lookup geocode for ${JSON.stringify(address)}`);
       const location = await geocode(address);
+      logger.info(`${location && location.length ? location.length : 0} matching location(s)`);
       if (location && Array.isArray(location)) {
         const geo = location.find(result => {
           const bothMatch =
@@ -231,6 +234,7 @@ const enhanceGeoCodes = async geocodes => {
           return bothMatch || countryOnlyMatch;
         });
         if (geo) {
+          logger.info(`Geo match found ${geo.longitude}, ${geo.latitude}`);
           await Experiment.updateMany(
             {
               "metadata.sample.countryIsolate": countryIsolate,
@@ -241,6 +245,8 @@ const enhanceGeoCodes = async geocodes => {
               "metadata.sample.longitudeIsolate": geo.longitude
             }
           );
+        } else {
+          logger.info(`No geo match found, ignore update`);
         }
       }
     });
@@ -255,6 +261,6 @@ const chunk = (array, size) => {
     index += size;
   }
   return chunked_arr;
-}
+};
 
 export default DataHelper;
