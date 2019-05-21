@@ -1,5 +1,5 @@
-import PredictorResultParser from "../../src/server/helpers/PredictorResultParser";
-import MDR from "../fixtures/files/MDR_Results.json";
+import PredictorResultParser from "../../../src/server/helpers/results/PredictorResultParser";
+import MDR from "../../fixtures/files/MDR_Results.json";
 import {
   TRELLO_760,
   SUSCEPTIBLE_ALL,
@@ -8,7 +8,7 @@ import {
   SECOND_CLASS_RESISTANCE,
   MDR_XDR_RESISTANCE,
   RESISTANCE_ALL
-} from "../fixtures/files/results_payloads";
+} from "../../fixtures/files/results_payloads";
 
 describe("PredictorResultParser", () => {
   describe("#parse", () => {

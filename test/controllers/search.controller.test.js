@@ -112,7 +112,7 @@ describe("SearchController", () => {
             done();
           });
       });
-      it.only("should set the status to complete and update the date", done => {
+      it("should set the status to complete and update the date", done => {
         request(app)
           .put(`/searches/${sequenceSearchId}/results`)
           .send(searches.results.sequence)
