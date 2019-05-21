@@ -280,8 +280,12 @@ describe("DataController", () => {
             }
             expect(experiment.metadata.sample.countryIsolate).toEqual("CH");
             expect(experiment.metadata.sample.cityIsolate).toEqual("Geneva");
-            expect(experiment.metadata.sample.latitudeIsolate).toEqual(46.2043907);
-            expect(experiment.metadata.sample.longitudeIsolate).toEqual(6.1431577);
+
+            expect(experiment.metadata.sample.latitudeIsolate).toBeGreaterThan(46.2);
+            expect(experiment.metadata.sample.latitudeIsolate).toBeLessThan(46.202);
+
+            expect(experiment.metadata.sample.longitudeIsolate).toBeGreaterThan(6.142);
+            expect(experiment.metadata.sample.longitudeIsolate).toBeLessThan(6.147);
             done();
           });
       });
