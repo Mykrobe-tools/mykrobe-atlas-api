@@ -5,6 +5,7 @@ import SchemaExplorer from "makeandship-api-common/lib/modules/jsonschema/schema
 import Experiment from "../models/experiment.model";
 import ExperimentJSONTransformer from "../transformers/ExperimentJSONTransformer";
 import { geocode } from "../modules/geo";
+import logger from "../modules/winston";
 
 // constants
 const explorer = new SchemaExplorer(experimentJsonSchema);
@@ -120,7 +121,7 @@ class DataHelper {
     let buffer = [],
       counter = 0,
       geocodes = [];
-    console.log("data load started...");
+    logger.info("data load started...");
     csv
       .fromStream(stream, { headers: true, delimiter: "\t" })
       .transform(data => transform(data, geocodes))
@@ -131,12 +132,12 @@ class DataHelper {
         try {
           if (counter === BULK_INSERT_LIMIT) {
             await Experiment.insertMany(buffer);
-            console.log(`insert ${buffer.length} records`);
+            logger.info(`insert ${buffer.length} records`);
             buffer = [];
             counter = 0;
           }
         } catch (e) {
-          console.log(`error: ${JSON.stringify(e)}`);
+          logger.info(`error: ${JSON.stringify(e)}`);
           stream.destroy(e);
         }
         stream.resume();
@@ -145,12 +146,12 @@ class DataHelper {
         try {
           if (counter > 0) {
             await Experiment.insertMany(buffer);
-            console.log(`insert ${buffer.length} records`);
+            logger.info(`insert ${buffer.length} records`);
           }
           await enhanceGeoCodes(geocodes);
-          console.log("data load ended.");
+          logger.info("data load ended.");
         } catch (e) {
-          console.log(`error: ${JSON.stringify(e)}`);
+          logger.info(`error: ${JSON.stringify(e)}`);
           stream.destroy(e);
         }
       });
@@ -162,46 +163,46 @@ class DataHelper {
  * @param {*} data
  */
 const transform = (data, geocodes) => {
-  let countryIsolate, cityIsolate;
+  const location = {};
   const geoMetadata = data.geo_metadata;
   if (geoMetadata.indexOf(":") > -1) {
     const geoArray = geoMetadata.split(":");
-    countryIsolate = geoArray[0].trim();
-    cityIsolate = geoArray[1].trim();
+    location.countryIsolate = geoArray[0].trim();
+    location.cityIsolate = geoArray[1].trim();
   } else if (geoMetadata.toLowerCase() === "unknown") {
-    countryIsolate = "";
-    cityIsolate = "";
+    location.countryIsolate = "";
+    location.cityIsolate = "";
   } else {
-    countryIsolate = geoMetadata.trim();
-    cityIsolate = "";
+    location.countryIsolate = geoMetadata.trim();
+    location.cityIsolate = "";
   }
-  if (contriesMapping[countryIsolate]) {
-    cityIsolate = contriesMapping[countryIsolate].city || cityIsolate;
-    countryIsolate = contriesMapping[countryIsolate].country;
+  if (contriesMapping[location.countryIsolate]) {
+    location.cityIsolate = contriesMapping[location.countryIsolate].city || location.cityIsolate;
+    location.countryIsolate = contriesMapping[location.countryIsolate].country;
   }
-  const index = countryEnumNames.indexOf(countryIsolate);
+  const index = countryEnumNames.indexOf(location.countryIsolate);
   if (countryEnum[index]) {
     if (
-      cityIsolate &&
-      cityIsolate !== "" &&
-      geocodes.indexOf(`${countryEnum[index]}|${cityIsolate}`) === -1
+      location.cityIsolate &&
+      location.cityIsolate !== "" &&
+      geocodes.indexOf(`${countryEnum[index]}|${location.cityIsolate}`) === -1
     ) {
-      geocodes.push(`${countryEnum[index]}|${cityIsolate}`);
+      geocodes.push(`${countryEnum[index]}|${location.cityIsolate}`);
     }
     return {
       metadata: {
         sample: {
           isolateId: data.sample_name,
           countryIsolate: countryEnum[index],
-          cityIsolate
+          cityIsolate: location.cityIsolate
         }
       }
     };
   }
 
-  if (INVALID_COUNTRIES.indexOf(countryIsolate) === -1) {
-    console.log(`Invalid country found: ${countryIsolate}`);
-    INVALID_COUNTRIES.push(countryIsolate);
+  if (INVALID_COUNTRIES.indexOf(location.countryIsolate) === -1) {
+    logger.info(`Invalid country found: ${location.countryIsolate}`);
+    INVALID_COUNTRIES.push(location.countryIsolate);
   }
   return {
     metadata: {
@@ -214,7 +215,7 @@ const transform = (data, geocodes) => {
 
 /**
  * Enhance data with geo codes
- * @param {*} geocodes 
+ * @param {*} geocodes
  */
 const enhanceGeoCodes = async geocodes => {
   if (geocodes.length > 0) {

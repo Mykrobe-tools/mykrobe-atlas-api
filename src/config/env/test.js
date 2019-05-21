@@ -12,7 +12,7 @@ export default {
   express: {
     uploadsLocation: "/atlas/uploads",
     uploadMaxFileSize: 12000000,
-    demoDataRootFolder: "test/fixtures"
+    demoDataRootFolder: process.env.DEMO_DATA_ROOT_FOLDER
   },
   accounts: {
     keycloak: {
