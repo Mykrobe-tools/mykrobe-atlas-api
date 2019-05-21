@@ -35,6 +35,7 @@ atlas-api:
     - ANALYSIS_API=$ANALYSIS_API
     - API_HOST=$API_HOST
     - UPLOADS_LOCATION=$UPLOADS_LOCATION
+    - DEMO_DATA_ROOT_FOLDER=$DEMO_DATA_ROOT_FOLDER
   links:
     - db
 swagger-ui:
