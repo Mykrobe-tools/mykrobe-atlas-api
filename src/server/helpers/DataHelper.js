@@ -4,6 +4,7 @@ import { experiment as experimentJsonSchema } from "mykrobe-atlas-jsonschema";
 import SchemaExplorer from "makeandship-api-common/lib/modules/jsonschema/schema-explorer";
 import Experiment from "../models/experiment.model";
 import ExperimentJSONTransformer from "../transformers/ExperimentJSONTransformer";
+import { geocode } from "../modules/geo";
 
 // constants
 const explorer = new SchemaExplorer(experimentJsonSchema);
@@ -117,11 +118,12 @@ class DataHelper {
   static process(filePath) {
     const stream = fs.createReadStream(filePath);
     let buffer = [],
-      counter = 0;
+      counter = 0,
+      geocodes = [];
     console.log("data load started...");
     csv
       .fromStream(stream, { headers: true, delimiter: "\t" })
-      .transform(data => transform(data))
+      .transform(data => transform(data, geocodes))
       .on("data", async data => {
         stream.pause();
         buffer.push(data);
@@ -145,6 +147,7 @@ class DataHelper {
             await Experiment.insertMany(buffer);
             console.log(`insert ${buffer.length} records`);
           }
+          await enhanceGeoCodes(geocodes);
           console.log("data load ended.");
         } catch (e) {
           console.log(`error: ${JSON.stringify(e)}`);
@@ -158,7 +161,7 @@ class DataHelper {
  * Transform the data to a format supported by the schema
  * @param {*} data
  */
-const transform = data => {
+const transform = (data, geocodes) => {
   let countryIsolate, cityIsolate;
   const geoMetadata = data.geo_metadata;
   if (geoMetadata.indexOf(":") > -1) {
@@ -178,6 +181,13 @@ const transform = data => {
   }
   const index = countryEnumNames.indexOf(countryIsolate);
   if (countryEnum[index]) {
+    if (
+      cityIsolate &&
+      cityIsolate !== "" &&
+      geocodes.indexOf(`${countryEnum[index]}|${cityIsolate}`) === -1
+    ) {
+      geocodes.push(`${countryEnum[index]}|${cityIsolate}`);
+    }
     return {
       metadata: {
         sample: {
@@ -200,6 +210,44 @@ const transform = data => {
       }
     }
   };
+};
+
+const enhanceGeoCodes = async geocodes => {
+  if (geocodes.length > 0) {
+    geocodes.forEach(async item => {
+      const countryIsolate = item.split("|")[0];
+      const cityIsolate = item.split("|")[1];
+      const address = {
+        countryCode: countryIsolate,
+        city: cityIsolate
+      };
+      const location = await geocode(address);
+      if (location && Array.isArray(location)) {
+        const geo = location.find(result => {
+          const bothMatch =
+            countryIsolate &&
+            cityIsolate &&
+            result.countryCode === countryIsolate &&
+            result.city === cityIsolate;
+          const countryOnlyMatch =
+            countryIsolate && !cityIsolate && result.countryCode === countryIsolate;
+          return bothMatch || countryOnlyMatch;
+        });
+        if (geo) {
+          await Experiment.updateMany(
+            {
+              "metadata.sample.countryIsolate": countryIsolate,
+              "metadata.sample.cityIsolate": cityIsolate
+            },
+            {
+              "metadata.sample.latitudeIsolate": geo.latitude,
+              "metadata.sample.longitudeIsolate": geo.longitude
+            }
+          );
+        }
+      }
+    });
+  }
 };
 
 export default DataHelper;

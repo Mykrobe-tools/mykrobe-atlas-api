@@ -260,6 +260,31 @@ describe("DataController", () => {
             done();
           });
       });
+      it("should populate geo data", done => {
+        request(app)
+          .post("/data/demo/experiments-demo?purge=true")
+          .set("Authorization", `Bearer ${token}`)
+          .expect(httpStatus.OK)
+          .end(async (err, res) => {
+            expect(res.body.status).toEqual("success");
+            expect(res.body.data).toEqual(
+              "Demo data upload started from test/fixtures/experiments-demo"
+            );
+            let experiment = await Experiment.findOne({
+              "metadata.sample.isolateId": "SRR8237379"
+            });
+            while (!experiment || !experiment.metadata.sample.latitudeIsolate) {
+              experiment = await Experiment.findOne({
+                "metadata.sample.isolateId": "SRR8237379"
+              });
+            }
+            expect(experiment.metadata.sample.countryIsolate).toEqual("CH");
+            expect(experiment.metadata.sample.cityIsolate).toEqual("Geneva");
+            expect(experiment.metadata.sample.latitudeIsolate).toEqual(46.2043907);
+            expect(experiment.metadata.sample.longitudeIsolate).toEqual(6.1431577);
+            done();
+          });
+      });
       it("should not populate the value if unknown", done => {
         request(app)
           .post("/data/demo/experiments-demo?purge=true")
