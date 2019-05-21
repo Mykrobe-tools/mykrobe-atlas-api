@@ -7,14 +7,14 @@ ENV NODE_VERSION 8.12.0
 ENV NVM_DIR /usr/local/nvm
 
 # install required software before using nvm/node/npm/bower
-RUN apt-get update
-RUN apt-get install -y curl
-RUN apt-get install -y git
-RUN apt-get install -y python
-RUN apt-get install -y build-essential
-RUN apt-get install -y imagemagick
-RUN apt-get install -y libssl-dev
-RUN apt-get install -y apt-transport-https
+RUN apt update
+RUN apt install -y curl
+RUN apt install -y git
+RUN apt install -y python
+RUN apt install -y build-essential
+RUN apt install -y imagemagick
+RUN apt install -y libssl-dev
+RUN apt install -y apt-transport-https
 
 # download and install nvm
 RUN curl https://raw.githubusercontent.com/creationix/nvm/v0.32.1/install.sh | bash \

@@ -126,26 +126,18 @@ class DataHelper {
       .fromStream(stream, { headers: true, delimiter: "\t" })
       .transform(data => transform(data, geocodes))
       .on("data", async data => {
-        stream.pause();
         buffer.push(data);
         counter++;
-        try {
-          if (counter === BULK_INSERT_LIMIT) {
-            await Experiment.insertMany(buffer);
-            logger.info(`Insert ${buffer.length} records`);
-            buffer = [];
-            counter = 0;
-          }
-        } catch (e) {
-          logger.info(`Error: ${JSON.stringify(e)}`);
-          stream.destroy(e);
-        }
-        stream.resume();
       })
       .on("end", async () => {
         try {
           if (counter > 0) {
-            await Experiment.insertMany(buffer);
+            const chunked = chunk(buffer, BULK_INSERT_LIMIT);
+            for (let i = 0; i < chunked.length; i++) {
+              const chunk_arr = chunked[i];
+              await Experiment.insertMany(chunk_arr);
+              logger.info(`Insert ${chunk_arr.length} records`);
+            }
             logger.info(`Insert ${buffer.length} records`);
           }
           await enhanceGeoCodes(geocodes);
@@ -254,5 +246,15 @@ const enhanceGeoCodes = async geocodes => {
     });
   }
 };
+
+const chunk = (array, size) => {
+  const chunked_arr = [];
+  let index = 0;
+  while (index < array.length) {
+    chunked_arr.push(array.slice(index, size + index));
+    index += size;
+  }
+  return chunked_arr;
+}
 
 export default DataHelper;
