@@ -212,6 +212,10 @@ const transform = (data, geocodes) => {
   };
 };
 
+/**
+ * Enhance data with geo codes
+ * @param {*} geocodes 
+ */
 const enhanceGeoCodes = async geocodes => {
   if (geocodes.length > 0) {
     geocodes.forEach(async item => {
