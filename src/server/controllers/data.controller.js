@@ -126,8 +126,8 @@ const generatePhylogenetics = (
  */
 const loadDemo = async (req, res) => {
   const folder = req.params.folder;
-  const purge = req.query.purge;
-  if (purge === "true") {
+  const purge = req.body.purge;
+  if (purge === true) {
     await Experiment.deleteMany({});
   }
   try {

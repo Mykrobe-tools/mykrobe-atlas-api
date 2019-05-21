@@ -64,10 +64,16 @@ router.route("/create").post(dataController.create);
  *         required: true
  *         type: string
  *         description: The folder name to load from
- *       - in: query
+ *       - in: body
  *         name: purge
- *         type: string
  *         description: A flag to purge existing experiments
+ *         schema:
+ *           type: object
+ *           properties:
+ *             purge:
+ *               type: boolean
+ *           example:
+ *             purge: true
  *     security:
  *       - Bearer: []
  *     responses:

@@ -121,7 +121,7 @@ class DataHelper {
     let buffer = [],
       counter = 0,
       geocodes = [];
-    logger.debug("Data load started...");
+    logger.info("Data load started...");
     csv
       .fromStream(stream, { headers: true, delimiter: "\t" })
       .transform(data => transform(data, geocodes))
@@ -132,12 +132,12 @@ class DataHelper {
         try {
           if (counter === BULK_INSERT_LIMIT) {
             await Experiment.insertMany(buffer);
-            logger.debug(`Insert ${buffer.length} records`);
+            logger.info(`Insert ${buffer.length} records`);
             buffer = [];
             counter = 0;
           }
         } catch (e) {
-          logger.debug(`Error: ${JSON.stringify(e)}`);
+          logger.info(`Error: ${JSON.stringify(e)}`);
           stream.destroy(e);
         }
         stream.resume();
@@ -146,12 +146,12 @@ class DataHelper {
         try {
           if (counter > 0) {
             await Experiment.insertMany(buffer);
-            logger.debug(`Insert ${buffer.length} records`);
+            logger.info(`Insert ${buffer.length} records`);
           }
           await enhanceGeoCodes(geocodes);
-          logger.debug("Data load ended.");
+          logger.info("Data load ended.");
         } catch (e) {
-          logger.debug(`Error: ${JSON.stringify(e)}`);
+          logger.info(`Error: ${JSON.stringify(e)}`);
           stream.destroy(e);
         }
       });
@@ -201,7 +201,7 @@ const transform = (data, geocodes) => {
   }
 
   if (INVALID_COUNTRIES.indexOf(location.countryIsolate) === -1) {
-    logger.debug(`Invalid country found: ${location.countryIsolate}`);
+    logger.info(`Invalid country found: ${location.countryIsolate}`);
     INVALID_COUNTRIES.push(location.countryIsolate);
   }
   return {
