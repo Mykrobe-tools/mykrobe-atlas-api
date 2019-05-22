@@ -46,7 +46,7 @@ describe("Experiment", () => {
         expect(patient.patientId).toEqual("9bd049c5-7407-4129-a973-17291ccdd2cc");
         expect(patient.siteId).toEqual("ccc4e687-a094-4533-b136-c507fe00a9a8");
         expect(patient.genderAtBirth).toEqual("Female");
-        expect(patient.countryOfBirth).toEqual("China");
+        expect(patient.countryOfBirth).toEqual("CN");
 
         done();
       });
@@ -120,7 +120,7 @@ describe("Experiment", () => {
         expect(patient.patientId).toEqual("eff2fa6a-9d79-41ab-a307-b620cedf7293");
         expect(patient.siteId).toEqual("a2a910e3-25ef-475c-bdf9-f6fe215d949f");
         expect(patient.genderAtBirth).toEqual("Male");
-        expect(patient.countryOfBirth).toEqual("India");
+        expect(patient.countryOfBirth).toEqual("IN");
 
         done();
       });
@@ -203,7 +203,7 @@ describe("Experiment", () => {
       expect(patient).toHaveProperty("siteId");
       expect(patient.siteId).toBeTruthy();
       expect(patient).toHaveProperty("genderAtBirth", "Male");
-      expect(patient).toHaveProperty("countryOfBirth", "India");
+      expect(patient).toHaveProperty("countryOfBirth", "IN");
       expect(patient).toHaveProperty("age", 43);
       expect(patient).toHaveProperty("bmi", 25.3);
       expect(patient).toHaveProperty("injectingDrugUse", "No");
@@ -292,7 +292,7 @@ describe("Experiment", () => {
         expect(patient.patientId).toEqual("eff2fa6a-9d79-41ab-a307-b620cedf7293");
         expect(patient.siteId).toEqual("a2a910e3-25ef-475c-bdf9-f6fe215d949f");
         expect(patient.genderAtBirth).toEqual("Male");
-        expect(patient.countryOfBirth).toEqual("India");
+        expect(patient.countryOfBirth).toEqual("IN");
 
         done();
       });
@@ -329,7 +329,7 @@ describe("Experiment", () => {
         expect(patient.patientId).toEqual("eff2fa6a-9d79-41ab-a307-b620cedf7293");
         expect(patient.siteId).toEqual("a2a910e3-25ef-475c-bdf9-f6fe215d949f");
         expect(patient.genderAtBirth).toEqual("Male");
-        expect(patient.countryOfBirth).toEqual("India");
+        expect(patient.countryOfBirth).toEqual("IN");
 
         done();
       });
