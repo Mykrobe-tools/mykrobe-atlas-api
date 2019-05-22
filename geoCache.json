@@ -1,0 +1,1100 @@
+{
+  "{\"cityIsolate\":\"Tokyo\",\"countryIsolate\":\"JP\"}": {
+    "cityIsolate": "Tokyo",
+    "countryIsolate": "JP",
+    "longitudeIsolate": 139.283071,
+    "latitudeIsolate": 35.660175
+  },
+  "{\"cityIsolate\":\"Osaka\",\"countryIsolate\":\"JP\"}": {
+    "cityIsolate": "Osaka",
+    "countryIsolate": "JP",
+    "longitudeIsolate": 135.5014539,
+    "latitudeIsolate": 34.6937569
+  },
+  "{\"cityIsolate\":\"Yamagata\",\"countryIsolate\":\"JP\"}": {
+    "cityIsolate": "Yamagata",
+    "countryIsolate": "JP",
+    "longitudeIsolate": 140.3400205,
+    "latitudeIsolate": 38.2553393
+  },
+  "{\"cityIsolate\":\"Okinawa\",\"countryIsolate\":\"JP\"}": {
+    "cityIsolate": "Okinawa",
+    "countryIsolate": "JP",
+    "longitudeIsolate": 127.806341,
+    "latitudeIsolate": 26.338393
+  },
+  "{\"cityIsolate\":\"Tochigi\",\"countryIsolate\":\"JP\"}": {
+    "cityIsolate": "Tochigi",
+    "countryIsolate": "JP",
+    "longitudeIsolate": 139.7341435,
+    "latitudeIsolate": 36.3824655
+  },
+  "{\"cityIsolate\":\"\",\"countryIsolate\":\"JP\"}": {
+    "cityIsolate": "",
+    "countryIsolate": "JP",
+    "longitudeIsolate": 139.2394179,
+    "latitudeIsolate": 36.5748441
+  },
+  "{\"cityIsolate\":\"\",\"countryIsolate\":\"RU\"}": {
+    "cityIsolate": "",
+    "countryIsolate": "RU",
+    "longitudeIsolate": 97.7453061,
+    "latitudeIsolate": 64.6863136
+  },
+  "{\"cityIsolate\":\"Birmingham\",\"countryIsolate\":\"UK\"}": {
+    "cityIsolate": "Birmingham",
+    "countryIsolate": "UK",
+    "longitudeIsolate": -1.9026911,
+    "latitudeIsolate": 52.4796992
+  },
+  "{\"cityIsolate\":\"\",\"countryIsolate\":\"DK\"}": {
+    "cityIsolate": "",
+    "countryIsolate": "DK",
+    "longitudeIsolate": 10.3333283,
+    "latitudeIsolate": 55.670249
+  },
+  "{\"cityIsolate\":\"\",\"countryIsolate\":\"IE\"}": {
+    "cityIsolate": "",
+    "countryIsolate": "IE",
+    "longitudeIsolate": -7.9794599,
+    "latitudeIsolate": 52.865196
+  },
+  "{\"cityIsolate\":\"\",\"countryIsolate\":\"ET\"}": {
+    "cityIsolate": "",
+    "countryIsolate": "ET",
+    "longitudeIsolate": 38.896778,
+    "latitudeIsolate": 7.996115
+  },
+  "{\"cityIsolate\":\"\",\"countryIsolate\":\"ZA\"}": {
+    "cityIsolate": "",
+    "countryIsolate": "ZA",
+    "longitudeIsolate": 24.991639,
+    "latitudeIsolate": -28.8166236
+  },
+  "{\"cityIsolate\":\"\",\"countryIsolate\":\"CN\"}": {
+    "cityIsolate": "",
+    "countryIsolate": "CN",
+    "longitudeIsolate": 104.999927,
+    "latitudeIsolate": 35.000074
+  },
+  "{\"cityIsolate\":\"\",\"countryIsolate\":\"CH\"}": {
+    "cityIsolate": "",
+    "countryIsolate": "CH",
+    "longitudeIsolate": 8.2319736,
+    "latitudeIsolate": 46.7985624
+  },
+  "{\"cityIsolate\":\"\",\"countryIsolate\":\"FR\"}": {
+    "cityIsolate": "",
+    "countryIsolate": "FR",
+    "longitudeIsolate": 1.8883335,
+    "latitudeIsolate": 46.603354
+  },
+  "{\"cityIsolate\":\"\",\"countryIsolate\":\"NO\"}": {
+    "cityIsolate": "",
+    "countryIsolate": "NO",
+    "longitudeIsolate": 9.0999715,
+    "latitudeIsolate": 60.5000209
+  },
+  "{\"cityIsolate\":\"\",\"countryIsolate\":\"BR\"}": {
+    "cityIsolate": "",
+    "countryIsolate": "BR",
+    "longitudeIsolate": -53.2,
+    "latitudeIsolate": -10.3333333
+  },
+  "{\"cityIsolate\":\"Stellenbosch\",\"countryIsolate\":\"ZA\"}": {
+    "cityIsolate": "Stellenbosch",
+    "countryIsolate": "ZA",
+    "longitudeIsolate": 18.869167,
+    "latitudeIsolate": -33.934444
+  },
+  "{\"cityIsolate\":\"Cape Town\",\"countryIsolate\":\"ZA\"}": {
+    "cityIsolate": "Cape Town",
+    "countryIsolate": "ZA",
+    "longitudeIsolate": 18.417396,
+    "latitudeIsolate": -33.928992
+  },
+  "{\"cityIsolate\":\"\",\"countryIsolate\":\"MW\"}": {
+    "cityIsolate": "",
+    "countryIsolate": "MW",
+    "longitudeIsolate": 33.9301963,
+    "latitudeIsolate": -13.2687204
+  },
+  "{\"cityIsolate\":\"Nonthaburi\",\"countryIsolate\":\"TH\"}": {
+    "cityIsolate": "Nonthaburi",
+    "countryIsolate": "TH",
+    "longitudeIsolate": 100.5133388,
+    "latitudeIsolate": 13.8608545
+  },
+  "{\"cityIsolate\":\"Brits\",\"countryIsolate\":\"ZA\"}": {
+    "cityIsolate": "Brits",
+    "countryIsolate": "ZA",
+    "longitudeIsolate": 27.7841667,
+    "latitudeIsolate": -25.6297222
+  },
+  "{\"cityIsolate\":\"Durban\",\"countryIsolate\":\"ZA\"}": {
+    "cityIsolate": "Durban",
+    "countryIsolate": "ZA",
+    "longitudeIsolate": 31.009909,
+    "latitudeIsolate": -29.861825
+  },
+  "{\"cityIsolate\":\"Kuala Lumpur\",\"countryIsolate\":\"MY\"}": {
+    "cityIsolate": "Kuala Lumpur",
+    "countryIsolate": "MY",
+    "longitudeIsolate": 101.6943028,
+    "latitudeIsolate": 3.1516636
+  },
+  "{\"cityIsolate\":\"Johannesburg\",\"countryIsolate\":\"ZA\"}": {
+    "cityIsolate": "Johannesburg",
+    "countryIsolate": "ZA",
+    "longitudeIsolate": 28.049722,
+    "latitudeIsolate": -26.205
+  },
+  "{\"cityIsolate\":\"San Francisco\",\"countryIsolate\":\"US\"}": {
+    "cityIsolate": "San Francisco",
+    "countryIsolate": "US",
+    "longitudeIsolate": -122.4199061,
+    "latitudeIsolate": 37.7790262
+  },
+  "{\"cityIsolate\":\"\",\"countryIsolate\":\"NL\"}": {
+    "cityIsolate": "",
+    "countryIsolate": "NL",
+    "longitudeIsolate": 5.7480821,
+    "latitudeIsolate": 52.5001698
+  },
+  "{\"cityIsolate\":\"Amsterdam\",\"countryIsolate\":\"NL\"}": {
+    "cityIsolate": "Amsterdam",
+    "countryIsolate": "NL",
+    "longitudeIsolate": 4.89797550561798,
+    "latitudeIsolate": 52.3745403
+  },
+  "{\"cityIsolate\":\"\",\"countryIsolate\":\"BW\"}": {
+    "cityIsolate": "",
+    "countryIsolate": "BW",
+    "longitudeIsolate": 24.5928742,
+    "latitudeIsolate": -23.1681782
+  },
+  "{\"cityIsolate\":\"\",\"countryIsolate\":\"ZW\"}": {
+    "cityIsolate": "",
+    "countryIsolate": "ZW",
+    "longitudeIsolate": 29.7468414,
+    "latitudeIsolate": -18.4554963
+  },
+  "{\"cityIsolate\":\"\",\"countryIsolate\":\"SG\"}": {
+    "cityIsolate": "",
+    "countryIsolate": "SG",
+    "longitudeIsolate": 103.8194992,
+    "latitudeIsolate": 1.357107
+  },
+  "{\"cityIsolate\":\"\",\"countryIsolate\":\"CI\"}": {
+    "cityIsolate": "",
+    "countryIsolate": "CI",
+    "longitudeIsolate": -5.5679458,
+    "latitudeIsolate": 7.9897371
+  },
+  "{\"cityIsolate\":\"\",\"countryIsolate\":\"AR\"}": {
+    "cityIsolate": "",
+    "countryIsolate": "AR",
+    "longitudeIsolate": -64.9672817,
+    "latitudeIsolate": -34.9964963
+  },
+  "{\"cityIsolate\":\"\",\"countryIsolate\":\"UK\"}": {
+    "cityIsolate": "",
+    "countryIsolate": "UK",
+    "longitudeIsolate": -3.96141844454237,
+    "latitudeIsolate": 55.367
+  },
+  "{\"cityIsolate\":\"\",\"countryIsolate\":\"AU\"}": {
+    "cityIsolate": "",
+    "countryIsolate": "AU",
+    "longitudeIsolate": 133.350677573337,
+    "latitudeIsolate": -26.7105188
+  },
+  "{\"cityIsolate\":\"\",\"countryIsolate\":\"MM\"}": {
+    "cityIsolate": "",
+    "countryIsolate": "MM",
+    "longitudeIsolate": 95.9999652,
+    "latitudeIsolate": 17.1750495
+  },
+  "{\"cityIsolate\":\"\",\"countryIsolate\":\"EE\"}": {
+    "cityIsolate": "",
+    "countryIsolate": "EE",
+    "longitudeIsolate": 24.5075441067899,
+    "latitudeIsolate": 58.71971295
+  },
+  "{\"cityIsolate\":\"\",\"countryIsolate\":\"CA\"}": {
+    "cityIsolate": "",
+    "countryIsolate": "CA",
+    "longitudeIsolate": -102.302225371634,
+    "latitudeIsolate": 62.50633655
+  },
+  "{\"cityIsolate\":\"\",\"countryIsolate\":\"IN\"}": {
+    "cityIsolate": "",
+    "countryIsolate": "IN",
+    "longitudeIsolate": 78.6677428,
+    "latitudeIsolate": 22.3511148
+  },
+  "{\"cityIsolate\":\"\",\"countryIsolate\":\"KZ\"}": {
+    "cityIsolate": "",
+    "countryIsolate": "KZ",
+    "longitudeIsolate": 65.2093197,
+    "latitudeIsolate": 47.2286086
+  },
+  "{\"cityIsolate\":\"\",\"countryIsolate\":\"NG\"}": {
+    "cityIsolate": "",
+    "countryIsolate": "NG",
+    "longitudeIsolate": 7.9999721,
+    "latitudeIsolate": 9.6000359
+  },
+  "{\"cityIsolate\":\"\",\"countryIsolate\":\"US\"}": {
+    "cityIsolate": "",
+    "countryIsolate": "US",
+    "longitudeIsolate": -100.4458825,
+    "latitudeIsolate": 39.7837304
+  },
+  "{\"cityIsolate\":\"Kampala\",\"countryIsolate\":\"UG\"}": {
+    "cityIsolate": "Kampala",
+    "countryIsolate": "UG",
+    "longitudeIsolate": 32.5813539,
+    "latitudeIsolate": 0.3177137
+  },
+  "{\"cityIsolate\":\"Nkandla\",\"countryIsolate\":\"ZA\"}": {
+    "cityIsolate": "Nkandla",
+    "countryIsolate": "ZA",
+    "longitudeIsolate": 31.090556,
+    "latitudeIsolate": -28.62
+  },
+  "{\"cityIsolate\":\"Rietvlei\",\"countryIsolate\":\"ZA\"}": {
+    "cityIsolate": "Rietvlei",
+    "countryIsolate": "ZA",
+    "longitudeIsolate": 30.2880295,
+    "latitudeIsolate": -29.1831854
+  },
+  "{\"cityIsolate\":\"Stanger\",\"countryIsolate\":\"ZA\"}": {
+    "cityIsolate": "Stanger",
+    "countryIsolate": "ZA",
+    "longitudeIsolate": 31.2888955,
+    "latitudeIsolate": -29.3396846
+  },
+  "{\"cityIsolate\":\"Ladysmith\",\"countryIsolate\":\"ZA\"}": {
+    "cityIsolate": "Ladysmith",
+    "countryIsolate": "ZA",
+    "longitudeIsolate": 29.778333,
+    "latitudeIsolate": -28.551944
+  },
+  "{\"cityIsolate\":\"Greytown\",\"countryIsolate\":\"ZA\"}": {
+    "cityIsolate": "Greytown",
+    "countryIsolate": "ZA",
+    "longitudeIsolate": 30.588889,
+    "latitudeIsolate": -29.060556
+  },
+  "{\"cityIsolate\":\"Madadeni\",\"countryIsolate\":\"ZA\"}": {
+    "cityIsolate": "Madadeni",
+    "countryIsolate": "ZA",
+    "longitudeIsolate": 30.038611,
+    "latitudeIsolate": -27.745
+  },
+  "{\"cityIsolate\":\"Eshowe\",\"countryIsolate\":\"ZA\"}": {
+    "cityIsolate": "Eshowe",
+    "countryIsolate": "ZA",
+    "longitudeIsolate": 31.464842,
+    "latitudeIsolate": -28.891577
+  },
+  "{\"cityIsolate\":\"Hlabisa\",\"countryIsolate\":\"ZA\"}": {
+    "cityIsolate": "Hlabisa",
+    "countryIsolate": "ZA",
+    "longitudeIsolate": 31.875278,
+    "latitudeIsolate": -28.145833
+  },
+  "{\"cityIsolate\":\"Edendale\",\"countryIsolate\":\"ZA\"}": {
+    "cityIsolate": "Edendale",
+    "countryIsolate": "ZA",
+    "longitudeIsolate": 30.314722,
+    "latitudeIsolate": -29.652778
+  },
+  "{\"cityIsolate\":\"California\",\"countryIsolate\":\"US\"}": {
+    "cityIsolate": "California",
+    "countryIsolate": "US",
+    "longitudeIsolate": -79.8918436,
+    "latitudeIsolate": 40.0657724
+  },
+  "{\"cityIsolate\":\"Heilongjiang\",\"countryIsolate\":\"CN\"}": {
+    "cityIsolate": "Heilongjiang",
+    "countryIsolate": "CN",
+    "longitudeIsolate": 127.999992,
+    "latitudeIsolate": 48.0000047
+  },
+  "{\"cityIsolate\":\"Shanghai\",\"countryIsolate\":\"CN\"}": {
+    "cityIsolate": "Shanghai",
+    "countryIsolate": "CN",
+    "longitudeIsolate": 121.4890497,
+    "latitudeIsolate": 31.2252985
+  },
+  "{\"cityIsolate\":\"Haarlem\",\"countryIsolate\":\"NL\"}": {
+    "cityIsolate": "Haarlem",
+    "countryIsolate": "NL",
+    "longitudeIsolate": 4.64355969655963,
+    "latitudeIsolate": 52.38370575
+  },
+  "{\"cityIsolate\":\"Western Cape\",\"countryIsolate\":\"ZA\"}": {
+    "cityIsolate": "Western Cape",
+    "countryIsolate": "ZA",
+    "longitudeIsolate": 20.72753,
+    "latitudeIsolate": -33.546977
+  },
+  "{\"cityIsolate\":\"Umlazi\",\"countryIsolate\":\"ZA\"}": {
+    "cityIsolate": "Umlazi",
+    "countryIsolate": "ZA",
+    "longitudeIsolate": 30.900278,
+    "latitudeIsolate": -29.9525
+  },
+  "{\"cityIsolate\":\"Nqutu\",\"countryIsolate\":\"ZA\"}": {
+    "cityIsolate": "Nqutu",
+    "countryIsolate": "ZA",
+    "longitudeIsolate": 30.6733333,
+    "latitudeIsolate": -28.2166667
+  },
+  "{\"cityIsolate\":\"Bamako\",\"countryIsolate\":\"ML\"}": {
+    "cityIsolate": "Bamako",
+    "countryIsolate": "ML",
+    "longitudeIsolate": -8.000337,
+    "latitudeIsolate": 12.649319
+  },
+  "{\"cityIsolate\":\"Pietermaritzburg\",\"countryIsolate\":\"ZA\"}": {
+    "cityIsolate": "Pietermaritzburg",
+    "countryIsolate": "ZA",
+    "longitudeIsolate": 30.3788889,
+    "latitudeIsolate": -29.6
+  },
+  "{\"cityIsolate\":\"Pretoria\",\"countryIsolate\":\"ZA\"}": {
+    "cityIsolate": "Pretoria",
+    "countryIsolate": "ZA",
+    "longitudeIsolate": 28.1879444,
+    "latitudeIsolate": -25.7459374
+  },
+  "{\"cityIsolate\":\"uMhlathuze Local Municipality\",\"countryIsolate\":\"ZA\"}": {
+    "cityIsolate": "uMhlathuze Local Municipality",
+    "countryIsolate": "ZA",
+    "longitudeIsolate": 31.9658130178442,
+    "latitudeIsolate": -28.7886787
+  },
+  "{\"cityIsolate\":\"Polokwane\",\"countryIsolate\":\"ZA\"}": {
+    "cityIsolate": "Polokwane",
+    "countryIsolate": "ZA",
+    "longitudeIsolate": 29.4613889,
+    "latitudeIsolate": -23.9058333
+  },
+  "{\"cityIsolate\":\"Free State\",\"countryIsolate\":\"ZA\"}": {
+    "cityIsolate": "Free State",
+    "countryIsolate": "ZA",
+    "longitudeIsolate": 26.4978933,
+    "latitudeIsolate": -28.7853618
+  },
+  "{\"cityIsolate\":\"Alicedale\",\"countryIsolate\":\"ZA\"}": {
+    "cityIsolate": "Alicedale",
+    "countryIsolate": "ZA",
+    "longitudeIsolate": 26.0841667,
+    "latitudeIsolate": -33.3155556
+  },
+  "{\"cityIsolate\":\"Upington\",\"countryIsolate\":\"ZA\"}": {
+    "cityIsolate": "Upington",
+    "countryIsolate": "ZA",
+    "longitudeIsolate": 21.241867,
+    "latitudeIsolate": -28.456325
+  },
+  "{\"cityIsolate\":\"Keimoes\",\"countryIsolate\":\"ZA\"}": {
+    "cityIsolate": "Keimoes",
+    "countryIsolate": "ZA",
+    "longitudeIsolate": 20.974871,
+    "latitudeIsolate": -28.708951
+  },
+  "{\"cityIsolate\":\"\",\"countryIsolate\":\"KR\"}": {
+    "cityIsolate": "",
+    "countryIsolate": "KR",
+    "longitudeIsolate": 127.9408564,
+    "latitudeIsolate": 36.5581914
+  },
+  "{\"cityIsolate\":\"\",\"countryIsolate\":\"UG\"}": {
+    "cityIsolate": "",
+    "countryIsolate": "UG",
+    "longitudeIsolate": 32.2166578,
+    "latitudeIsolate": 1.5333554
+  },
+  "{\"cityIsolate\":\"\",\"countryIsolate\":\"TW\"}": {
+    "cityIsolate": "",
+    "countryIsolate": "TW",
+    "longitudeIsolate": 120.9820179,
+    "latitudeIsolate": 23.9739374
+  },
+  "{\"cityIsolate\":\"Inanda\",\"countryIsolate\":\"ZA\"}": {
+    "cityIsolate": "Inanda",
+    "countryIsolate": "ZA",
+    "longitudeIsolate": 30.95,
+    "latitudeIsolate": -29.715
+  },
+  "{\"cityIsolate\":\"Amatikulu\",\"countryIsolate\":\"ZA\"}": {
+    "cityIsolate": "Amatikulu",
+    "countryIsolate": "ZA",
+    "longitudeIsolate": 31.5280556,
+    "latitudeIsolate": -29.0466667
+  },
+  "{\"cityIsolate\":\"Nairobi\",\"countryIsolate\":\"KE\"}": {
+    "cityIsolate": "Nairobi",
+    "countryIsolate": "KE",
+    "longitudeIsolate": 36.8172449,
+    "latitudeIsolate": -1.2832533
+  },
+  "{\"cityIsolate\":\"Jaipur\",\"countryIsolate\":\"IN\"}": {
+    "cityIsolate": "Jaipur",
+    "countryIsolate": "IN",
+    "longitudeIsolate": 75.820349,
+    "latitudeIsolate": 26.916194
+  },
+  "{\"cityIsolate\":\"Boston\",\"countryIsolate\":\"US\"}": {
+    "cityIsolate": "Boston",
+    "countryIsolate": "US",
+    "longitudeIsolate": -71.0582912,
+    "latitudeIsolate": 42.3602534
+  },
+  "{\"cityIsolate\":\"Worcester\",\"countryIsolate\":\"US\"}": {
+    "cityIsolate": "Worcester",
+    "countryIsolate": "US",
+    "longitudeIsolate": -71.8022934,
+    "latitudeIsolate": 42.2625932
+  },
+  "{\"cityIsolate\":\"Manguzi\",\"countryIsolate\":\"ZA\"}": {
+    "cityIsolate": "Manguzi",
+    "countryIsolate": "ZA",
+    "longitudeIsolate": 32.756033,
+    "latitudeIsolate": -26.988287
+  },
+  "{\"cityIsolate\":\"Baltimore\",\"countryIsolate\":\"US\"}": {
+    "cityIsolate": "Baltimore",
+    "countryIsolate": "US",
+    "longitudeIsolate": -76.610759,
+    "latitudeIsolate": 39.2908816
+  },
+  "{\"cityIsolate\":\"\",\"countryIsolate\":\"SE\"}": {
+    "cityIsolate": "",
+    "countryIsolate": "SE",
+    "longitudeIsolate": 14.5208584,
+    "latitudeIsolate": 59.6749712
+  },
+  "{\"cityIsolate\":\"\",\"countryIsolate\":\"BY\"}": {
+    "cityIsolate": "",
+    "countryIsolate": "BY",
+    "longitudeIsolate": 27.6971358,
+    "latitudeIsolate": 53.4250605
+  },
+  "{\"cityIsolate\":\"\",\"countryIsolate\":\"PE\"}": {
+    "cityIsolate": "",
+    "countryIsolate": "PE",
+    "longitudeIsolate": -76.2775463202992,
+    "latitudeIsolate": -10.1399415
+  },
+  "{\"cityIsolate\":\"\",\"countryIsolate\":\"RO\"}": {
+    "cityIsolate": "",
+    "countryIsolate": "RO",
+    "longitudeIsolate": 24.3031375280287,
+    "latitudeIsolate": 45.9418906
+  },
+  "{\"cityIsolate\":\"Buenaventura\",\"countryIsolate\":\"CO\"}": {
+    "cityIsolate": "Buenaventura",
+    "countryIsolate": "CO",
+    "longitudeIsolate": -77.0786047,
+    "latitudeIsolate": 3.8899335
+  },
+  "{\"cityIsolate\":\"Chisinau\",\"countryIsolate\":\"MD\"}": {
+    "cityIsolate": "Chisinau",
+    "countryIsolate": "MD",
+    "longitudeIsolate": 28.8322534,
+    "latitudeIsolate": 47.0244707
+  },
+  "{\"cityIsolate\":\"\",\"countryIsolate\":\"IR\"}": {
+    "cityIsolate": "",
+    "countryIsolate": "IR",
+    "longitudeIsolate": 54.5643516,
+    "latitudeIsolate": 32.6475314
+  },
+  "{\"cityIsolate\":\"Quebec\",\"countryIsolate\":\"CA\"}": {
+    "cityIsolate": "Quebec",
+    "countryIsolate": "CA",
+    "longitudeIsolate": -71.2352226,
+    "latitudeIsolate": 46.8259601
+  },
+  "{\"cityIsolate\":\"Tennessee\",\"countryIsolate\":\"US\"}": {
+    "cityIsolate": "Tennessee",
+    "countryIsolate": "US",
+    "longitudeIsolate": -94.3182551,
+    "latitudeIsolate": 31.9565572
+  },
+  "{\"cityIsolate\":\"Texas\",\"countryIsolate\":\"US\"}": {
+    "cityIsolate": "Texas",
+    "countryIsolate": "US",
+    "longitudeIsolate": -77.2527545,
+    "latitudeIsolate": 41.5350719
+  },
+  "{\"cityIsolate\":\"\",\"countryIsolate\":\"ML\"}": {
+    "cityIsolate": "",
+    "countryIsolate": "ML",
+    "longitudeIsolate": -2.2900239,
+    "latitudeIsolate": 16.3700359
+  },
+  "{\"cityIsolate\":\"Montreal\",\"countryIsolate\":\"CA\"}": {
+    "cityIsolate": "Montreal",
+    "countryIsolate": "CA",
+    "longitudeIsolate": -73.6103642,
+    "latitudeIsolate": 45.4972159
+  },
+  "{\"cityIsolate\":\"El Algodonal\",\"countryIsolate\":\"PE\"}": {
+    "cityIsolate": "El Algodonal",
+    "countryIsolate": "PE",
+    "longitudeIsolate": -71.2438988,
+    "latitudeIsolate": -17.6123818
+  },
+  "{\"cityIsolate\":\"El Yaral\",\"countryIsolate\":\"PE\"}": {
+    "cityIsolate": "El Yaral",
+    "countryIsolate": "PE",
+    "longitudeIsolate": -71.2126766,
+    "latitudeIsolate": -17.5835843
+  },
+  "{\"cityIsolate\":\"Beijing\",\"countryIsolate\":\"CN\"}": {
+    "cityIsolate": "Beijing",
+    "countryIsolate": "CN",
+    "longitudeIsolate": 116.3912757,
+    "latitudeIsolate": 39.906217
+  },
+  "{\"cityIsolate\":\"Toronto\",\"countryIsolate\":\"CA\"}": {
+    "cityIsolate": "Toronto",
+    "countryIsolate": "CA",
+    "longitudeIsolate": -79.387207,
+    "latitudeIsolate": 43.653963
+  },
+  "{\"cityIsolate\":\"Ontario\",\"countryIsolate\":\"CA\"}": {
+    "cityIsolate": "Ontario",
+    "countryIsolate": "CA",
+    "longitudeIsolate": -86.000977,
+    "latitudeIsolate": 50.000678
+  },
+  "{\"cityIsolate\":\"Saskatchewan\",\"countryIsolate\":\"CA\"}": {
+    "cityIsolate": "Saskatchewan",
+    "countryIsolate": "CA",
+    "longitudeIsolate": -104.9253475,
+    "latitudeIsolate": 50.7972328
+  },
+  "{\"cityIsolate\":\"\",\"countryIsolate\":\"TH\"}": {
+    "cityIsolate": "",
+    "countryIsolate": "TH",
+    "longitudeIsolate": 100.83273,
+    "latitudeIsolate": 14.8971921
+  },
+  "{\"cityIsolate\":\"Oxford\",\"countryIsolate\":\"UK\"}": {
+    "cityIsolate": "Oxford",
+    "countryIsolate": "UK",
+    "longitudeIsolate": -1.2578499,
+    "latitudeIsolate": 51.7520131
+  },
+  "{\"cityIsolate\":\"Guangxi\",\"countryIsolate\":\"CN\"}": {
+    "cityIsolate": "Guangxi",
+    "countryIsolate": "CN",
+    "longitudeIsolate": 109.352,
+    "latitudeIsolate": 26.8497
+  },
+  "{\"cityIsolate\":\"Henan\",\"countryIsolate\":\"CN\"}": {
+    "cityIsolate": "Henan",
+    "countryIsolate": "CN",
+    "longitudeIsolate": 126.02,
+    "latitudeIsolate": 47.9648
+  },
+  "{\"cityIsolate\":\"Sichuan\",\"countryIsolate\":\"CN\"}": {
+    "cityIsolate": "Sichuan",
+    "countryIsolate": "CN",
+    "longitudeIsolate": 105.480318,
+    "latitudeIsolate": 35.122098
+  },
+  "{\"cityIsolate\":\"Shandong\",\"countryIsolate\":\"CN\"}": {
+    "cityIsolate": "Shandong",
+    "countryIsolate": "CN",
+    "longitudeIsolate": 108.142,
+    "latitudeIsolate": 27.1918
+  },
+  "{\"cityIsolate\":\"\",\"countryIsolate\":\"MD\"}": {
+    "cityIsolate": "",
+    "countryIsolate": "MD",
+    "longitudeIsolate": 28.5110236,
+    "latitudeIsolate": 47.286747
+  },
+  "{\"cityIsolate\":\"\",\"countryIsolate\":\"GT\"}": {
+    "cityIsolate": "",
+    "countryIsolate": "GT",
+    "longitudeIsolate": -89.8988087,
+    "latitudeIsolate": 15.6356088
+  },
+  "{\"cityIsolate\":\"Bangkok\",\"countryIsolate\":\"TH\"}": {
+    "cityIsolate": "Bangkok",
+    "countryIsolate": "TH",
+    "longitudeIsolate": 100.493087,
+    "latitudeIsolate": 13.7542529
+  },
+  "{\"cityIsolate\":\"Vellore\",\"countryIsolate\":\"IN\"}": {
+    "cityIsolate": "Vellore",
+    "countryIsolate": "IN",
+    "longitudeIsolate": 79.1309695,
+    "latitudeIsolate": 12.9071753
+  },
+  "{\"cityIsolate\":\"\",\"countryIsolate\":\"CG\"}": {
+    "cityIsolate": "",
+    "countryIsolate": "CG",
+    "longitudeIsolate": 15.6419155,
+    "latitudeIsolate": -0.7264327
+  },
+  "{\"cityIsolate\":\"\",\"countryIsolate\":\"TZ\"}": {
+    "cityIsolate": "",
+    "countryIsolate": "TZ",
+    "longitudeIsolate": 35.7878438,
+    "latitudeIsolate": -6.5247123
+  },
+  "{\"cityIsolate\":\"KwaZulu-Natal\",\"countryIsolate\":\"ZA\"}": {
+    "cityIsolate": "KwaZulu-Natal",
+    "countryIsolate": "ZA",
+    "longitudeIsolate": 30.8875009,
+    "latitudeIsolate": -28.503833
+  },
+  "{\"cityIsolate\":\"\",\"countryIsolate\":\"TJ\"}": {
+    "cityIsolate": "",
+    "countryIsolate": "TJ",
+    "longitudeIsolate": 70.8156541,
+    "latitudeIsolate": 38.6281733
+  },
+  "{\"cityIsolate\":\"\",\"countryIsolate\":\"IT\"}": {
+    "cityIsolate": "",
+    "countryIsolate": "IT",
+    "longitudeIsolate": 14.1885945703517,
+    "latitudeIsolate": 41.7035189
+  },
+  "{\"cityIsolate\":\"\",\"countryIsolate\":\"TN\"}": {
+    "cityIsolate": "",
+    "countryIsolate": "TN",
+    "longitudeIsolate": 9.36709774832555,
+    "latitudeIsolate": 33.994953
+  },
+  "{\"cityIsolate\":\"\",\"countryIsolate\":\"MZ\"}": {
+    "cityIsolate": "",
+    "countryIsolate": "MZ",
+    "longitudeIsolate": 34.9144977,
+    "latitudeIsolate": -19.302233
+  },
+  "{\"cityIsolate\":\"\",\"countryIsolate\":\"DJ\"}": {
+    "cityIsolate": "",
+    "countryIsolate": "DJ",
+    "longitudeIsolate": 42.7577845199437,
+    "latitudeIsolate": 11.85677545
+  },
+  "{\"cityIsolate\":\"\",\"countryIsolate\":\"AL\"}": {
+    "cityIsolate": "",
+    "countryIsolate": "AL",
+    "longitudeIsolate": 19.9999619,
+    "latitudeIsolate": 41.000028
+  },
+  "{\"cityIsolate\":\"Agra\",\"countryIsolate\":\"IN\"}": {
+    "cityIsolate": "Agra",
+    "countryIsolate": "IN",
+    "longitudeIsolate": 78.0098161,
+    "latitudeIsolate": 27.1752554
+  },
+  "{\"cityIsolate\":\"Farrukhabad\",\"countryIsolate\":\"IN\"}": {
+    "cityIsolate": "Farrukhabad",
+    "countryIsolate": "IN",
+    "longitudeIsolate": 79.5790994,
+    "latitudeIsolate": 27.3895336
+  },
+  "{\"cityIsolate\":\"Firozabad\",\"countryIsolate\":\"IN\"}": {
+    "cityIsolate": "Firozabad",
+    "countryIsolate": "IN",
+    "longitudeIsolate": 78.3991439,
+    "latitudeIsolate": 27.1527986
+  },
+  "{\"cityIsolate\":\"Etawah\",\"countryIsolate\":\"IN\"}": {
+    "cityIsolate": "Etawah",
+    "countryIsolate": "IN",
+    "longitudeIsolate": 79.0221467,
+    "latitudeIsolate": 26.7781316
+  },
+  "{\"cityIsolate\":\"Etah\",\"countryIsolate\":\"IN\"}": {
+    "cityIsolate": "Etah",
+    "countryIsolate": "IN",
+    "longitudeIsolate": 78.6578425,
+    "latitudeIsolate": 27.56002
+  },
+  "{\"cityIsolate\":\"Jhansi\",\"countryIsolate\":\"IN\"}": {
+    "cityIsolate": "Jhansi",
+    "countryIsolate": "IN",
+    "longitudeIsolate": 78.5800085,
+    "latitudeIsolate": 25.4502464
+  },
+  "{\"cityIsolate\":\"Mathura\",\"countryIsolate\":\"IN\"}": {
+    "cityIsolate": "Mathura",
+    "countryIsolate": "IN",
+    "longitudeIsolate": 77.6855554,
+    "latitudeIsolate": 27.4955539
+  },
+  "{\"cityIsolate\":\"Kasganj\",\"countryIsolate\":\"IN\"}": {
+    "cityIsolate": "Kasganj",
+    "countryIsolate": "IN",
+    "longitudeIsolate": 78.6456226,
+    "latitudeIsolate": 27.8077034
+  },
+  "{\"cityIsolate\":\"Assam\",\"countryIsolate\":\"IN\"}": {
+    "cityIsolate": "Assam",
+    "countryIsolate": "IN",
+    "longitudeIsolate": 95.7668887,
+    "latitudeIsolate": 27.3252271
+  },
+  "{\"cityIsolate\":\"Kannauj\",\"countryIsolate\":\"IN\"}": {
+    "cityIsolate": "Kannauj",
+    "countryIsolate": "IN",
+    "longitudeIsolate": 79.9201719,
+    "latitudeIsolate": 27.0536345
+  },
+  "{\"cityIsolate\":\"Hathras\",\"countryIsolate\":\"IN\"}": {
+    "cityIsolate": "Hathras",
+    "countryIsolate": "IN",
+    "longitudeIsolate": 78.0545477,
+    "latitudeIsolate": 27.5975888
+  },
+  "{\"cityIsolate\":\"Kanpur\",\"countryIsolate\":\"IN\"}": {
+    "cityIsolate": "Kanpur",
+    "countryIsolate": "IN",
+    "longitudeIsolate": 80.3217588,
+    "latitudeIsolate": 26.4609135
+  },
+  "{\"cityIsolate\":\"Mainpuri\",\"countryIsolate\":\"IN\"}": {
+    "cityIsolate": "Mainpuri",
+    "countryIsolate": "IN",
+    "longitudeIsolate": 79.0271702,
+    "latitudeIsolate": 27.2270677
+  },
+  "{\"cityIsolate\":\"Bhind\",\"countryIsolate\":\"IN\"}": {
+    "cityIsolate": "Bhind",
+    "countryIsolate": "IN",
+    "longitudeIsolate": 78.7889864,
+    "latitudeIsolate": 26.5652355
+  },
+  "{\"cityIsolate\":\"\",\"countryIsolate\":\"KE\"}": {
+    "cityIsolate": "",
+    "countryIsolate": "KE",
+    "longitudeIsolate": 38.4313975,
+    "latitudeIsolate": 1.4419683
+  },
+  "{\"cityIsolate\":\"Yangon\",\"countryIsolate\":\"MM\"}": {
+    "cityIsolate": "Yangon",
+    "countryIsolate": "MM",
+    "longitudeIsolate": 96.1609916,
+    "latitudeIsolate": 16.7967129
+  },
+  "{\"cityIsolate\":\"\",\"countryIsolate\":\"GE\"}": {
+    "cityIsolate": "",
+    "countryIsolate": "GE",
+    "longitudeIsolate": 43.5308206009927,
+    "latitudeIsolate": 42.3209451
+  },
+  "{\"cityIsolate\":\"Bucharest\",\"countryIsolate\":\"RO\"}": {
+    "cityIsolate": "Bucharest",
+    "countryIsolate": "RO",
+    "longitudeIsolate": 26.1027202,
+    "latitudeIsolate": 44.4361414
+  },
+  "{\"cityIsolate\":\"Cambridge\",\"countryIsolate\":\"US\"}": {
+    "cityIsolate": "Cambridge",
+    "countryIsolate": "US",
+    "longitudeIsolate": -71.1056157,
+    "latitudeIsolate": 42.3750997
+  },
+  "{\"cityIsolate\":\"Craiova\",\"countryIsolate\":\"RO\"}": {
+    "cityIsolate": "Craiova",
+    "countryIsolate": "RO",
+    "longitudeIsolate": 23.7965614,
+    "latitudeIsolate": 44.3190159
+  },
+  "{\"cityIsolate\":\"Ingwavuma\",\"countryIsolate\":\"ZA\"}": {
+    "cityIsolate": "Ingwavuma",
+    "countryIsolate": "ZA",
+    "longitudeIsolate": 31.996667,
+    "latitudeIsolate": -27.133611
+  },
+  "{\"cityIsolate\":\"Port Shepstone\",\"countryIsolate\":\"ZA\"}": {
+    "cityIsolate": "Port Shepstone",
+    "countryIsolate": "ZA",
+    "longitudeIsolate": 30.450556,
+    "latitudeIsolate": -30.742778
+  },
+  "{\"cityIsolate\":\"KwaDukuza\",\"countryIsolate\":\"ZA\"}": {
+    "cityIsolate": "KwaDukuza",
+    "countryIsolate": "ZA",
+    "longitudeIsolate": 31.296489,
+    "latitudeIsolate": -29.335722
+  },
+  "{\"cityIsolate\":\"Empangeni\",\"countryIsolate\":\"ZA\"}": {
+    "cityIsolate": "Empangeni",
+    "countryIsolate": "ZA",
+    "longitudeIsolate": 31.897222,
+    "latitudeIsolate": -28.746111
+  },
+  "{\"cityIsolate\":\"Kranskop\",\"countryIsolate\":\"ZA\"}": {
+    "cityIsolate": "Kranskop",
+    "countryIsolate": "ZA",
+    "longitudeIsolate": 30.861667,
+    "latitudeIsolate": -28.966944
+  },
+  "{\"cityIsolate\":\"KwaMashu\",\"countryIsolate\":\"ZA\"}": {
+    "cityIsolate": "KwaMashu",
+    "countryIsolate": "ZA",
+    "longitudeIsolate": 30.962222,
+    "latitudeIsolate": -29.741389
+  },
+  "{\"cityIsolate\":\"Thiruvallur\",\"countryIsolate\":\"IN\"}": {
+    "cityIsolate": "Thiruvallur",
+    "countryIsolate": "IN",
+    "longitudeIsolate": 79.9073038,
+    "latitudeIsolate": 13.1394358
+  },
+  "{\"cityIsolate\":\"Tbilisi\",\"countryIsolate\":\"GE\"}": {
+    "cityIsolate": "Tbilisi",
+    "countryIsolate": "GE",
+    "longitudeIsolate": 44.8014495,
+    "latitudeIsolate": 41.6934591
+  },
+  "{\"cityIsolate\":\"England\",\"countryIsolate\":\"UK\"}": {
+    "cityIsolate": "England",
+    "countryIsolate": "UK",
+    "longitudeIsolate": -0.2491985,
+    "latitudeIsolate": 52.5934191
+  },
+  "{\"cityIsolate\":\"New York\",\"countryIsolate\":\"US\"}": {
+    "cityIsolate": "New York",
+    "countryIsolate": "US",
+    "longitudeIsolate": -87.2008048,
+    "latitudeIsolate": 30.8385202
+  },
+  "{\"cityIsolate\":\"Sitapura\",\"countryIsolate\":\"IN\"}": {
+    "cityIsolate": "Sitapura",
+    "countryIsolate": "IN",
+    "longitudeIsolate": 76.6120765,
+    "latitudeIsolate": 12.4433042
+  },
+  "{\"cityIsolate\":\"\",\"countryIsolate\":\"BD\"}": {
+    "cityIsolate": "",
+    "countryIsolate": "BD",
+    "longitudeIsolate": 90.2932426,
+    "latitudeIsolate": 24.4768783
+  },
+  "{\"cityIsolate\":\"Hyogo\",\"countryIsolate\":\"JP\"}": {
+    "cityIsolate": "Hyogo",
+    "countryIsolate": "JP",
+    "longitudeIsolate": 135.1623934,
+    "latitudeIsolate": 34.6812221
+  },
+  "{\"cityIsolate\":\"Ho Chi Minh City\",\"countryIsolate\":\"VN\"}": {
+    "cityIsolate": "Ho Chi Minh City",
+    "countryIsolate": "VN",
+    "longitudeIsolate": 106.7017555,
+    "latitudeIsolate": 10.7758439
+  },
+  "{\"cityIsolate\":\"Auckland\",\"countryIsolate\":\"NZ\"}": {
+    "cityIsolate": "Auckland",
+    "countryIsolate": "NZ",
+    "longitudeIsolate": 174.7655514,
+    "latitudeIsolate": -36.8534665
+  },
+  "{\"cityIsolate\":\"Aarhus\",\"countryIsolate\":\"DK\"}": {
+    "cityIsolate": "Aarhus",
+    "countryIsolate": "DK",
+    "longitudeIsolate": 10.2134046,
+    "latitudeIsolate": 56.1496278
+  },
+  "{\"cityIsolate\":\"Kanchanaburi\",\"countryIsolate\":\"TH\"}": {
+    "cityIsolate": "Kanchanaburi",
+    "countryIsolate": "TH",
+    "longitudeIsolate": 99.5333293,
+    "latitudeIsolate": 14.0249954
+  },
+  "{\"cityIsolate\":\"Chachoengsao\",\"countryIsolate\":\"TH\"}": {
+    "cityIsolate": "Chachoengsao",
+    "countryIsolate": "TH",
+    "longitudeIsolate": 101.0609637,
+    "latitudeIsolate": 13.689391
+  },
+  "{\"cityIsolate\":\"Ratchaburi\",\"countryIsolate\":\"TH\"}": {
+    "cityIsolate": "Ratchaburi",
+    "countryIsolate": "TH",
+    "longitudeIsolate": 99.8178536,
+    "latitudeIsolate": 13.5407196
+  },
+  "{\"cityIsolate\":\"Chandigarh\",\"countryIsolate\":\"IN\"}": {
+    "cityIsolate": "Chandigarh",
+    "countryIsolate": "IN",
+    "longitudeIsolate": 76.7646552,
+    "latitudeIsolate": 30.7194022
+  },
+  "{\"cityIsolate\":\"Baku\",\"countryIsolate\":\"AZ\"}": {
+    "cityIsolate": "Baku",
+    "countryIsolate": "AZ",
+    "longitudeIsolate": 49.8326748,
+    "latitudeIsolate": 40.3754434
+  },
+  "{\"cityIsolate\":\"Mumbai\",\"countryIsolate\":\"IN\"}": {
+    "cityIsolate": "Mumbai",
+    "countryIsolate": "IN",
+    "longitudeIsolate": 72.8353355,
+    "latitudeIsolate": 18.9387711
+  },
+  "{\"cityIsolate\":\"Andhra Pradesh\",\"countryIsolate\":\"IN\"}": {
+    "cityIsolate": "Andhra Pradesh",
+    "countryIsolate": "IN",
+    "longitudeIsolate": 80.1863809,
+    "latitudeIsolate": 15.9240905
+  },
+  "{\"cityIsolate\":\"Daru\",\"countryIsolate\":\"PG\"}": {
+    "cityIsolate": "Daru",
+    "countryIsolate": "PG",
+    "longitudeIsolate": 143.210029,
+    "latitudeIsolate": -9.069901
+  },
+  "{\"cityIsolate\":\"Alberta\",\"countryIsolate\":\"CA\"}": {
+    "cityIsolate": "Alberta",
+    "countryIsolate": "CA",
+    "longitudeIsolate": -113.271110875615,
+    "latitudeIsolate": 50.7979955
+  },
+  "{\"cityIsolate\":\"Nunavut\",\"countryIsolate\":\"CA\"}": {
+    "cityIsolate": "Nunavut",
+    "countryIsolate": "CA",
+    "longitudeIsolate": -90,
+    "latitudeIsolate": 70.0000073
+  },
+  "{\"cityIsolate\":\"British Columbia\",\"countryIsolate\":\"CA\"}": {
+    "cityIsolate": "British Columbia",
+    "countryIsolate": "CA",
+    "longitudeIsolate": -125.002441,
+    "latitudeIsolate": 55.001251
+  },
+  "{\"cityIsolate\":\"Saint Petersburg\",\"countryIsolate\":\"RU\"}": {
+    "cityIsolate": "Saint Petersburg",
+    "countryIsolate": "RU",
+    "longitudeIsolate": 30.316229,
+    "latitudeIsolate": 59.938732
+  },
+  "{\"cityIsolate\":\"Minsk\",\"countryIsolate\":\"BY\"}": {
+    "cityIsolate": "Minsk",
+    "countryIsolate": "BY",
+    "longitudeIsolate": 28.0341956,
+    "latitudeIsolate": 53.8892876
+  },
+  "{\"cityIsolate\":\"Bandung\",\"countryIsolate\":\"ID\"}": {
+    "cityIsolate": "Bandung",
+    "countryIsolate": "ID",
+    "longitudeIsolate": 107.6049539,
+    "latitudeIsolate": -6.9344694
+  },
+  "{\"cityIsolate\":\"Moscow\",\"countryIsolate\":\"RU\"}": {
+    "cityIsolate": "Moscow",
+    "countryIsolate": "RU",
+    "longitudeIsolate": 37.6174943,
+    "latitudeIsolate": 55.7504461
+  },
+  "{\"cityIsolate\":\"Hawaii\",\"countryIsolate\":\"US\"}": {
+    "cityIsolate": "Hawaii",
+    "countryIsolate": "US",
+    "longitudeIsolate": -157.7454331,
+    "latitudeIsolate": 21.2900359
+  },
+  "{\"cityIsolate\":\"Melbourne\",\"countryIsolate\":\"AU\"}": {
+    "cityIsolate": "Melbourne",
+    "countryIsolate": "AU",
+    "longitudeIsolate": 144.9631608,
+    "latitudeIsolate": -37.8142176
+  },
+  "{\"cityIsolate\":\"Suphan Buri\",\"countryIsolate\":\"TH\"}": {
+    "cityIsolate": "Suphan Buri",
+    "countryIsolate": "TH",
+    "longitudeIsolate": 100.1160317,
+    "latitudeIsolate": 14.4684819
+  },
+  "{\"cityIsolate\":\"Richmond\",\"countryIsolate\":\"US\"}": {
+    "cityIsolate": "Richmond",
+    "countryIsolate": "US",
+    "longitudeIsolate": -122.3477486,
+    "latitudeIsolate": 37.9357576
+  },
+  "{\"cityIsolate\":\"Annapolis\",\"countryIsolate\":\"US\"}": {
+    "cityIsolate": "Annapolis",
+    "countryIsolate": "US",
+    "longitudeIsolate": -76.492786,
+    "latitudeIsolate": 38.9786401
+  },
+  "{\"cityIsolate\":\"\",\"countryIsolate\":\"IL\"}": {
+    "cityIsolate": "",
+    "countryIsolate": "IL",
+    "longitudeIsolate": 35.0015196,
+    "latitudeIsolate": 30.8760272
+  },
+  "{\"cityIsolate\":\"Yakutsk\",\"countryIsolate\":\"RU\"}": {
+    "cityIsolate": "Yakutsk",
+    "countryIsolate": "RU",
+    "longitudeIsolate": 129.732086,
+    "latitudeIsolate": 62.027287
+  },
+  "{\"cityIsolate\":\"\",\"countryIsolate\":\"SL\"}": {
+    "cityIsolate": "",
+    "countryIsolate": "SL",
+    "longitudeIsolate": -12.0823699610804,
+    "latitudeIsolate": 8.3774516
+  },
+  "{\"cityIsolate\":\"\",\"countryIsolate\":\"PG\"}": {
+    "cityIsolate": "",
+    "countryIsolate": "PG",
+    "longitudeIsolate": 144.2489081,
+    "latitudeIsolate": -5.6816069
+  },
+  "{\"cityIsolate\":\"\",\"countryIsolate\":\"LR\"}": {
+    "cityIsolate": "",
+    "countryIsolate": "LR",
+    "longitudeIsolate": -9.3658524,
+    "latitudeIsolate": 5.7499721
+  },
+  "{\"cityIsolate\":\"Zaragoza\",\"countryIsolate\":\"ES\"}": {
+    "cityIsolate": "Zaragoza",
+    "countryIsolate": "ES",
+    "longitudeIsolate": -0.8809428,
+    "latitudeIsolate": 41.6521342
+  },
+  "{\"cityIsolate\":\"Valencia\",\"countryIsolate\":\"ES\"}": {
+    "cityIsolate": "Valencia",
+    "countryIsolate": "ES",
+    "longitudeIsolate": -0.3759513,
+    "latitudeIsolate": 39.4699014
+  },
+  "{\"cityIsolate\":\"Las Palmas de Gran Canaria\",\"countryIsolate\":\"ES\"}": {
+    "cityIsolate": "Las Palmas de Gran Canaria",
+    "countryIsolate": "ES",
+    "longitudeIsolate": -15.4349448,
+    "latitudeIsolate": 28.128874
+  },
+  "{\"cityIsolate\":\"Santa Cruz de Tenerife\",\"countryIsolate\":\"ES\"}": {
+    "cityIsolate": "Santa Cruz de Tenerife",
+    "countryIsolate": "ES",
+    "longitudeIsolate": -16.2540884,
+    "latitudeIsolate": 28.469648
+  },
+  "{\"cityIsolate\":\"Arrecife\",\"countryIsolate\":\"ES\"}": {
+    "cityIsolate": "Arrecife",
+    "countryIsolate": "ES",
+    "longitudeIsolate": -13.5499014,
+    "latitudeIsolate": 28.9639681
+  },
+  "{\"cityIsolate\":\"Geneva\",\"countryIsolate\":\"CH\"}": {
+    "cityIsolate": "Geneva",
+    "countryIsolate": "CH",
+    "longitudeIsolate": 6.1466014,
+    "latitudeIsolate": 46.2017559
+  }
+}

@@ -130,8 +130,9 @@ const loadDemo = async (req, res) => {
   if (purge === true) {
     await Experiment.deleteMany({});
   }
+
   try {
-    DataHelper.loadDemoData(`${config.express.demoDataRootFolder}/${folder}`);
+    await DataHelper.load(`${config.express.demoDataRootFolder}/${folder}`);
     return res.jsend(
       `Demo data upload started from ${config.express.demoDataRootFolder}/${folder}`
     );
