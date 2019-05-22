@@ -9,13 +9,18 @@ import logger from "../modules/winston";
 
 // constants
 const explorer = new SchemaExplorer(experimentJsonSchema);
+
 const countryEnum = explorer.getAttributeBy("metadata.sample.countryIsolate", "enum");
 const countryEnumNames = explorer.getAttributeBy("metadata.sample.countryIsolate", "enumNames");
+
+logger.info(`${countryEnum.length} country enum entries`);
+logger.info(`${countryEnumNames.length} country names`);
+
 const BULK_INSERT_LIMIT = 1000;
 const INVALID_COUNTRIES = [];
 
 // countries mapping
-const contriesMapping = {
+const countriesMapping = {
   USA: {
     country: "United States"
   },
@@ -166,6 +171,8 @@ class DataHelper {
 const transform = (data, geocodes) => {
   const location = {};
   const geoMetadata = data.geo_metadata;
+
+  // create initial list in country and city
   if (geoMetadata.indexOf(":") > -1) {
     const geoArray = geoMetadata.split(":");
     location.countryIsolate = geoArray[0].trim();
@@ -177,10 +184,13 @@ const transform = (data, geocodes) => {
     location.countryIsolate = geoMetadata.trim();
     location.cityIsolate = "";
   }
-  if (contriesMapping[location.countryIsolate]) {
-    location.cityIsolate = contriesMapping[location.countryIsolate].city || location.cityIsolate;
-    location.countryIsolate = contriesMapping[location.countryIsolate].country;
+
+  // re-map countries, city only entries
+  if (countriesMapping[location.countryIsolate]) {
+    location.cityIsolate = countriesMapping[location.countryIsolate].city || location.cityIsolate;
+    location.countryIsolate = countriesMapping[location.countryIsolate].country;
   }
+
   const index = countryEnumNames.indexOf(location.countryIsolate);
   if (countryEnum[index]) {
     if (

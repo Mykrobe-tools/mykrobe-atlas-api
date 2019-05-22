@@ -76,7 +76,7 @@
     "mongoose-unique-validator": "^2.0.1",
     "morgan": "^1.9.0",
     "multer": "^1.3.0",
-    "mykrobe-atlas-jsonschema": "git+ssh://git@github.com/Mykrobe-tools/mykrobe-atlas-jsonschema.git#v0.0.10",
+    "mykrobe-atlas-jsonschema": "git+ssh://git@github.com/Mykrobe-tools/mykrobe-atlas-jsonschema.git#v0.0.11",
     "nock": "^9.4.4",
     "node-cache": "^4.2.0",
     "node-geocoder": "^3.22.0",
