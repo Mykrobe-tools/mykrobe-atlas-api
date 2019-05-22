@@ -14,6 +14,11 @@ const countryEnumNames = explorer.getAttributeBy("metadata.sample.countryIsolate
 const BULK_INSERT_LIMIT = 1000;
 const INVALID_COUNTRIES = [];
 
+// rate limiting
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 // countries mapping
 const contriesMapping = {
   USA: {
@@ -249,6 +254,8 @@ const enhanceGeoCodes = async geocodes => {
           logger.info(`No geo match found, ignore update`);
         }
       }
+      // avoid hitting rate limit
+      await sleep(1100);
     });
   }
 };
