@@ -14,11 +14,6 @@ const countryEnumNames = explorer.getAttributeBy("metadata.sample.countryIsolate
 const BULK_INSERT_LIMIT = 1000;
 const INVALID_COUNTRIES = [];
 
-// rate limiting
-function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
-
 // countries mapping
 const contriesMapping = {
   USA: {
@@ -103,6 +98,14 @@ const contriesMapping = {
 };
 
 class DataHelper {
+  /**
+   * Rate limit support
+   * @param {*} ms
+   */
+  static sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
   /**
    * Load all files from a given path
    * @param {*} path
@@ -217,7 +220,7 @@ const transform = (data, geocodes) => {
  */
 const enhanceGeoCodes = async geocodes => {
   if (geocodes.length > 0) {
-    geocodes.forEach(async item => {
+    for (let item of geocodes) {
       const countryIsolate = item.split("|")[0];
       const cityIsolate = item.split("|")[1];
       const address = {
@@ -255,8 +258,8 @@ const enhanceGeoCodes = async geocodes => {
         }
       }
       // avoid hitting rate limit
-      await sleep(1100);
-    });
+      await DataHelper.sleep(1100);
+    }
   }
 };
 
