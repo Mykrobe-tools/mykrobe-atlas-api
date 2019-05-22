@@ -7,6 +7,8 @@ import { createApp } from "../setup";
 import User from "../../src/server/models/user.model";
 import Experiment from "../../src/server/models/experiment.model";
 
+import DataHelper from "../../src/server/helpers/DataHelper";
+
 const app = createApp();
 const users = require("../fixtures/users");
 const experiments = require("../fixtures/experiments");
@@ -196,7 +198,7 @@ describe("DataController", () => {
     describe("when using purge", () => {
       beforeEach(async done => {
         const experimentData = new Experiment(experiments.tbUploadMetadata);
-        await experimentData.save();
+        const experiment = await experimentData.save();
         done();
       });
       it("should purge all the experiments", done => {
@@ -208,6 +210,7 @@ describe("DataController", () => {
           .end(async (err, res) => {
             let total = await Experiment.count();
             while (total < 11) {
+              await DataHelper.sleep(100);
               total = await Experiment.count();
             }
             expect(res.body.status).toEqual("success");
@@ -236,7 +239,7 @@ describe("DataController", () => {
             const experiment = await Experiment.findOne({
               "metadata.sample.isolateId": "ERR550945"
             });
-            expect(experiment.metadata.sample.countryIsolate).toEqual("PF");
+            expect(experiment.metadata.sample.countryIsolate).toEqual("PG");
             done();
           });
       });
@@ -311,8 +314,8 @@ describe("DataController", () => {
             const experiment = await Experiment.findOne({
               "metadata.sample.isolateId": "ERR552694"
             });
-            expect(experiment.metadata.sample.countryIsolate).toBeUndefined();
-            expect(experiment.metadata.sample.cityIsolate).toBeUndefined();
+            expect(experiment.metadata.sample.countryIsolate).toEqual("");
+            expect(experiment.metadata.sample.cityIsolate).toEqual("");
             done();
           });
       });
@@ -358,7 +361,7 @@ describe("DataController", () => {
             const experiment = await Experiment.findOne({
               "metadata.sample.isolateId": "ERR550945"
             });
-            expect(experiment.metadata.sample.countryIsolate).toEqual("PF");
+            expect(experiment.metadata.sample.countryIsolate).toEqual("PG");
             done();
           });
       });
