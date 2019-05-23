@@ -17,6 +17,7 @@ import { experimentEventEmitter, userEventEmitter } from "../../src/server/modul
 import MDR from "../fixtures/files/MDR_Results.json";
 import predictor784 from "../fixtures/files/784.predictor.json";
 import predictor787 from "../fixtures/files/787.predictor.json";
+import predictor788 from "../fixtures/files/788.predictor.json";
 import NEAREST_NEIGHBOURS from "../fixtures/files/NEAREST_NEIGHBOURS_Results.json";
 import results from "../fixtures/results";
 
@@ -1886,6 +1887,35 @@ describe("ExperimentController", () => {
         request(app)
           .post(`/experiments/${experimentId}/results`)
           .send(predictor787)
+          .expect(httpStatus.OK)
+          .end(async (err, res) => {
+            expect(res.body).toHaveProperty("status", "success");
+            expect(res.body.data).toHaveProperty("results");
+
+            const results = res.body.data.results;
+            expect(results).toHaveProperty("predictor");
+            done();
+          });
+      });
+    });
+    describe("when saving a predictor result into an experiment with empty country #788", () => {
+      it("should return successfully", async done => {
+        const data = {
+          metadata: {
+            sample: {
+              isolateId: "SAMEA1018978",
+              countryIsolate: "",
+              cityIsolate: ""
+            }
+          }
+        };
+        const experiment = new Experiment(data);
+        const savedExperiment = await experiment.save();
+        const experimentId = savedExperiment._id;
+
+        request(app)
+          .post(`/experiments/${experimentId}/results`)
+          .send(predictor788)
           .expect(httpStatus.OK)
           .end(async (err, res) => {
             expect(res.body).toHaveProperty("status", "success");
