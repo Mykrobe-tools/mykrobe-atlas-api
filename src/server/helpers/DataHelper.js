@@ -204,7 +204,8 @@ class DataHelper {
    */
   static getCache() {
     if (!geo.initialised) {
-      const localGeoCache = JSON.parse(fs.readFileSync("./geoCache.json"));
+      logger.info(`Loading geocache from ${process.cwd()}/geoCache.json`);
+      const localGeoCache = JSON.parse(fs.readFileSync(`${process.cwd()}/geoCache.json`));
       Object.keys(localGeoCache).forEach(key => {
         geo.cache[key] = localGeoCache[key];
       });
@@ -218,7 +219,7 @@ class DataHelper {
    * Save the geo cache
    */
   static saveCache() {
-    fs.writeFileSync("./geoCache.json", JSON.stringify(geo.cache, null, 2));
+    fs.writeFileSync(`${process.cwd()}/geoCache.json`, JSON.stringify(geo.cache, null, 2));
   }
 
   /**
