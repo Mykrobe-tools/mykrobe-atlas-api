@@ -1076,6 +1076,7 @@ array-unique@^0.3.2:
 arrify@^1.0.1, arrify@~1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/arrify/-/arrify-1.0.1.tgz#898508da2226f380df904728456849c1501a4b0d"
+  integrity sha1-iYUI2iIm84DfkEcoRWhJwVAaSw0=
 
 asn1.js@^4.5.2:
   version "4.10.1"
@@ -1618,6 +1619,7 @@ chokidar@^1.7.0:
 chokidar@^2.0.2, chokidar@~2.0.0:
   version "2.0.4"
   resolved "https://registry.yarnpkg.com/chokidar/-/chokidar-2.0.4.tgz#356ff4e2b0e8e43e322d18a372460bbcf3accd26"
+  integrity sha512-z9n7yt9rOvIJrMhvDtDictKrkFHeihkNl6uWMmZlmL6tJtX9Cs+87oK+teBx+JIgzvbX3yZHT3eF8vpbDxHJXQ==
   dependencies:
     anymatch "^2.0.0"
     async-each "^1.0.0"
@@ -1924,6 +1926,7 @@ cross-spawn@^5.0.1:
 cross-spawn@^6.0.0, cross-spawn@~6.0.0:
   version "6.0.5"
   resolved "https://registry.yarnpkg.com/cross-spawn/-/cross-spawn-6.0.5.tgz#4a5ec7c64dfae22c3a14124dbacdee846d80cbc4"
+  integrity sha512-eTVLrBSt7fjbDygz805pMnstIs2VTBNkRm0qxZd+M7A5XDdxVRWO5MxGBXZhjY4cqLYLdtrGqRf8mBPmzwSpWQ==
   dependencies:
     nice-try "^1.0.4"
     path-key "^2.0.1"
@@ -5468,9 +5471,9 @@ multipipe@^0.1.2:
   dependencies:
     duplexer2 "0.0.2"
 
-"mykrobe-atlas-jsonschema@git+ssh://git@github.com/Mykrobe-tools/mykrobe-atlas-jsonschema.git#v0.0.11":
-  version "0.0.11"
-  resolved "git+ssh://git@github.com/Mykrobe-tools/mykrobe-atlas-jsonschema.git#45451b7514d1820341385ea9d9248f9ea67fe60a"
+"mykrobe-atlas-jsonschema@git+ssh://git@github.com/Mykrobe-tools/mykrobe-atlas-jsonschema.git#v0.0.12":
+  version "0.0.12"
+  resolved "git+ssh://git@github.com/Mykrobe-tools/mykrobe-atlas-jsonschema.git#1d61d0b978794b682f41d8f7b75aeadae04a46f0"
   dependencies:
     onchange "^4.0.0"
 
@@ -5825,6 +5828,7 @@ once@~1.3.0:
 onchange@^4.0.0:
   version "4.1.0"
   resolved "https://registry.yarnpkg.com/onchange/-/onchange-4.1.0.tgz#5f2c352127ea110c9c677d82924993fa9d31841d"
+  integrity sha512-xSuX6stJmPO+V1CBFYUdVS7AzuH2nyXXzW6OW7HLXaBa9Pc7bFGcjCXTha575wTeEe2N8p1gIQhwLMDNU15YPg==
   dependencies:
     arrify "~1.0.1"
     chokidar "~2.0.0"
@@ -7470,8 +7474,9 @@ traverse@>=0.2.4, traverse@^0.6.6:
   resolved "https://registry.yarnpkg.com/traverse/-/traverse-0.3.9.tgz#717b8f220cc0bb7b44e40514c22b2e8bbc70d8b9"
 
 tree-kill@~1.2.0:
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/tree-kill/-/tree-kill-1.2.0.tgz#5846786237b4239014f05db156b643212d4c6f36"
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/tree-kill/-/tree-kill-1.2.1.tgz#5398f374e2f292b9dcc7b2e71e30a5c3bb6c743a"
+  integrity sha512-4hjqbObwlh2dLyW4tcz0Ymw0ggoaVDMveUB9w8kFSQScdRLo0gxO9J7WFcUBo+W3C1TLdFIEwNOWebgZZ0RH9Q==
 
 trim-right@^1.0.1:
   version "1.0.1"
