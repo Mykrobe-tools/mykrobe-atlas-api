@@ -196,7 +196,7 @@ const results = async (req, res) => {
     const audit = await Audit.getByExperimentId(savedExperiment.id);
 
     const experimentJSON = new ExperimentJSONTransformer().transform(experiment);
-    const auditJSON = new AuditJSONTransformer().transform(audit);
+    const auditJSON = audit ? new AuditJSONTransformer().transform(audit) : null;
 
     experimentEventEmitter.emit("analysis-complete", {
       audit: auditJSON,
