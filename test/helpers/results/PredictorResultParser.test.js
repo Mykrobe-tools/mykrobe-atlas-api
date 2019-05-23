@@ -2,6 +2,7 @@ import PredictorResultParser from "../../../src/server/helpers/results/Predictor
 import MDR from "../../fixtures/files/MDR_Results.json";
 import {
   TRELLO_760,
+  TRELLO_784,
   SUSCEPTIBLE_ALL,
   ONE_FIRST_CLASS_RESISTANCE,
   MULTIPLE_FIRST_CLASS_RESISTANCE,
@@ -245,6 +246,26 @@ describe("PredictorResultParser", () => {
     describe("760-results-structure", () => {
       it("should return the result", done => {
         const parser = new PredictorResultParser(TRELLO_760);
+        const result = parser.parse();
+
+        expect(result).toHaveProperty("susceptibility");
+        expect(result).toHaveProperty("phylogenetics");
+        expect(result).toHaveProperty("kmer");
+        expect(result).toHaveProperty("probeSets");
+        expect(result).toHaveProperty("files");
+        expect(result).toHaveProperty("version");
+        expect(result).toHaveProperty("genotypeModel");
+        expect(result).toHaveProperty("r");
+        expect(result).toHaveProperty("mdr");
+        expect(result).toHaveProperty("xdr");
+        expect(result).toHaveProperty("tdr");
+
+        done();
+      });
+    });
+    describe("784-results-structure", () => {
+      it.only("should return the result", done => {
+        const parser = new PredictorResultParser(TRELLO_784);
         const result = parser.parse();
 
         expect(result).toHaveProperty("susceptibility");

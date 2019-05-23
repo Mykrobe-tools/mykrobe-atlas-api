@@ -15,6 +15,7 @@ import Search from "../../src/server/models/search.model";
 import { experimentEventEmitter, userEventEmitter } from "../../src/server/modules/events";
 
 import MDR from "../fixtures/files/MDR_Results.json";
+import predictor784 from "../fixtures/files/784.predictor.json";
 import NEAREST_NEIGHBOURS from "../fixtures/files/NEAREST_NEIGHBOURS_Results.json";
 import results from "../fixtures/results";
 
@@ -1821,6 +1822,48 @@ describe("ExperimentController", () => {
 
           done();
         });
+    });
+    describe("when validating result format #784", () => {
+      it("should be successful", done => {
+        const mockCallback = jest.fn();
+        experimentEventEmitter.on("analysis-complete", mockCallback);
+        request(app)
+          .post(`/experiments/${id}/results`)
+          .send(predictor784)
+          .expect(httpStatus.OK)
+          .end(async (err, res) => {
+            if (err) {
+              done(err);
+            }
+
+            expect(res.body.status).toEqual("success");
+            expect(res.body.data).toHaveProperty("results");
+            expect(Object.keys(res.body.data.results).length).toEqual(1);
+
+            const predictor = res.body.data.results["predictor"];
+
+            expect(Object.keys(predictor.susceptibility).length).toEqual(11);
+            expect(Object.keys(predictor.phylogenetics).length).toEqual(4);
+            expect(predictor.variantCalls).toBeFalsy();
+            expect(predictor.sequenceCalls).toBeFalsy();
+            expect(predictor.received).toBeTruthy();
+
+            done();
+          });
+      });
+      it("should save results against the experiment", done => {
+        request(app)
+          .post(`/experiments/${id}/results`)
+          .send(predictor784)
+          .expect(httpStatus.OK)
+          .end(async (err, res) => {
+            const experimentWithResults = await Experiment.get(id);
+            const results = experimentWithResults.get("results");
+
+            expect(results.length).toEqual(1);
+            done();
+          });
+      });
     });
   });
   describe("# POST /experiments/reindex", () => {
