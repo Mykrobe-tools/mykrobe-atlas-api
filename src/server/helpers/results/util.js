@@ -127,7 +127,7 @@ const parseSusceptibility = predictorSusceptibility => {
       const results = predictorSusceptibility[drug];
       const prediction = results[PREDICT];
       if (prediction) {
-        drugSusceptibility.prediction = prediction;
+        drugSusceptibility.prediction = prediction.toUpperCase();
         if (prediction === RESISTANT) {
           drugSusceptibility.calledBy = results[CALLED_BY];
         }

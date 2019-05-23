@@ -18,6 +18,7 @@ import MDR from "../fixtures/files/MDR_Results.json";
 import predictor784 from "../fixtures/files/784.predictor.json";
 import predictor787 from "../fixtures/files/787.predictor.json";
 import predictor788 from "../fixtures/files/788.predictor.json";
+import predictor789 from "../fixtures/files/789.predictor.json";
 import NEAREST_NEIGHBOURS from "../fixtures/files/NEAREST_NEIGHBOURS_Results.json";
 import results from "../fixtures/results";
 
@@ -1923,6 +1924,45 @@ describe("ExperimentController", () => {
 
             const results = res.body.data.results;
             expect(results).toHaveProperty("predictor");
+            done();
+          });
+      });
+    });
+    describe("when saving a predictor result into an experiment with empty country #789", () => {
+      it("should return successfully", async done => {
+        const data = {
+          metadata: {
+            sample: {
+              isolateId: "SAMEA1015968",
+              countryIsolate: "RU",
+              cityIsolate: "",
+              longitudeIsolate: 97.7453061,
+              latitudeIsolate: 64.6863136
+            }
+          }
+        };
+        const experiment = new Experiment(data);
+        const savedExperiment = await experiment.save();
+        const experimentId = savedExperiment._id;
+
+        request(app)
+          .post(`/experiments/${experimentId}/results`)
+          .send(predictor789)
+          .expect(httpStatus.OK)
+          .end(async (err, res) => {
+            expect(res.body).toHaveProperty("status", "success");
+            expect(res.body.data).toHaveProperty("results");
+
+            const results = res.body.data.results;
+            expect(results).toHaveProperty("predictor");
+
+            const predictor = results.predictor;
+            expect(predictor).toHaveProperty("susceptibility");
+
+            const susceptibility = predictor.susceptibility;
+            expect(susceptibility).toHaveProperty("Ethambutol");
+            expect(susceptibility.Ethambutol).toHaveProperty("prediction", "R");
+            expect(susceptibility.Pyrazinamide).toHaveProperty("prediction", "R");
             done();
           });
       });

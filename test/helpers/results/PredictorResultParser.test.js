@@ -3,6 +3,7 @@ import MDR from "../../fixtures/files/MDR_Results.json";
 import {
   TRELLO_760,
   TRELLO_784,
+  TRELLO_789,
   SUSCEPTIBLE_ALL,
   ONE_FIRST_CLASS_RESISTANCE,
   MULTIPLE_FIRST_CLASS_RESISTANCE,
@@ -264,7 +265,7 @@ describe("PredictorResultParser", () => {
       });
     });
     describe("784-results-structure", () => {
-      it.only("should return the result", done => {
+      it("should return the result", done => {
         const parser = new PredictorResultParser(TRELLO_784);
         const result = parser.parse();
 
@@ -279,6 +280,63 @@ describe("PredictorResultParser", () => {
         expect(result).toHaveProperty("mdr");
         expect(result).toHaveProperty("xdr");
         expect(result).toHaveProperty("tdr");
+
+        done();
+      });
+    });
+    describe("789-result-susceptability-case", () => {
+      it("should return the result", done => {
+        const parser = new PredictorResultParser(TRELLO_789);
+        const result = parser.parse();
+
+        expect(result).toHaveProperty("susceptibility");
+        result.susceptibility.forEach(s => {
+          switch (s.name) {
+            case "Ofloxacin":
+              expect(s.prediction).toEqual("S");
+              break;
+            case "Moxifloxacin":
+              expect(s.prediction).toEqual("S");
+              break;
+            case "Isoniazid":
+              expect(s.prediction).toEqual("R");
+              break;
+            case "Kanamycin":
+              expect(s.prediction).toEqual("R");
+              break;
+            case "Ethambutol":
+              expect(s.prediction).toEqual("R");
+              break;
+            case "Streptomycin":
+              expect(s.prediction).toEqual("R");
+              break;
+            case "Ciprofloxacin":
+              expect(s.prediction).toEqual("S");
+              break;
+            case "Pyrazinamide":
+              expect(s.prediction).toEqual("R");
+              break;
+            case "Rifampicin":
+              expect(s.prediction).toEqual("R");
+              break;
+            case "Amikacin":
+              expect(s.prediction).toEqual("S");
+              break;
+            case "Capreomycin":
+              expect(s.prediction).toEqual("S");
+              break;
+          }
+        });
+        expect(result).toHaveProperty("phylogenetics");
+        expect(result).toHaveProperty("kmer");
+        expect(result).toHaveProperty("probeSets");
+        expect(result).toHaveProperty("files");
+        expect(result).toHaveProperty("version");
+        expect(result).toHaveProperty("genotypeModel");
+        expect(result).toHaveProperty("r", true);
+        expect(result).toHaveProperty("mdr", true);
+        expect(result).toHaveProperty("xdr", false);
+        expect(result).toHaveProperty("tdr", false);
 
         done();
       });
