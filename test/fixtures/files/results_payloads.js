@@ -133,6 +133,88 @@ export default {
       }
     }
   },
+  TRELLO_784: {
+    type: "predictor",
+    result: {
+      SAMEA4744311: {
+        susceptibility: {
+          Ofloxacin: {
+            predict: "S"
+          },
+          Moxifloxacin: {
+            predict: "S"
+          },
+          Isoniazid: {
+            predict: "S"
+          },
+          Kanamycin: {
+            predict: "S"
+          },
+          Ethambutol: {
+            predict: "S"
+          },
+          Streptomycin: {
+            predict: "S"
+          },
+          Ciprofloxacin: {
+            predict: "S"
+          },
+          Pyrazinamide: {
+            predict: "S"
+          },
+          Rifampicin: {
+            predict: "S"
+          },
+          Amikacin: {
+            predict: "S"
+          },
+          Capreomycin: {
+            predict: "S"
+          }
+        },
+        phylogenetics: {
+          phylo_group: {
+            Mycobacterium_tuberculosis_complex: {
+              percent_coverage: 99.726,
+              median_depth: 237.5
+            }
+          },
+          sub_complex: {
+            Unknown: {
+              percent_coverage: -1,
+              median_depth: -1
+            }
+          },
+          species: {
+            Mycobacterium_tuberculosis: {
+              percent_coverage: 98.503,
+              median_depth: 215.0
+            }
+          },
+          lineage: {
+            European_American: {
+              percent_coverage: 100.0,
+              median_depth: 231
+            }
+          }
+        },
+        kmer: 21,
+        probe_sets: [
+          "/nfs/leia/research/iqbal/software/mykrobe/mykrobe-atlas-cli/src/mykrobe/data/panels/tb-species-170421.fasta.gz",
+          "/nfs/leia/research/iqbal/software/mykrobe/mykrobe-atlas-cli/src/mykrobe/data/panels/tb-hunt-probe-set-jan-03-2019.fasta.gz"
+        ],
+        files: [
+          "/nfs/leia/research/iqbal/mhunt/Clockwork_ena_tb/Pipeline_root/00/03/40/73/34073/Reads/reads.remove_contam.1.1.fq.gz",
+          "/nfs/leia/research/iqbal/mhunt/Clockwork_ena_tb/Pipeline_root/00/03/40/73/34073/Reads/reads.remove_contam.1.2.fq.gz"
+        ],
+        version: {
+          "mykrobe-predictor": "v0.7.0",
+          "mykrobe-atlas": "v0.7.0"
+        },
+        genotype_model: "kmer_count"
+      }
+    }
+  },
   SUSCEPTIBLE_ALL: {
     type: "predictor",
     result: {
