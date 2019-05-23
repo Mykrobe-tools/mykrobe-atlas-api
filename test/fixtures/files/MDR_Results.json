@@ -33,11 +33,7 @@
             "rpoB_S450L-S450L": {
               "variant": null,
               "genotype": [1, 1],
-              "genotype_likelihoods": [
-                -334.96485856320845,
-                -93.36660230364348,
-                -89.30418482988242
-              ],
+              "genotype_likelihoods": [-334.96485856320845, -93.36660230364348, -89.30418482988242],
               "info": {
                 "coverage": {
                   "reference": {
@@ -91,8 +87,7 @@
       },
       "variant_calls": {
         "ahpC_C-57T-C2726136T": {
-          "variant":
-            "ref-C-57T?var_name=C2726136T&num_alts=18&ref=NC_000962.3&enum=0&gene=ahpC&mut=C-57T",
+          "variant": "ref-C-57T?var_name=C2726136T&num_alts=18&ref=NC_000962.3&enum=0&gene=ahpC&mut=C-57T",
           "genotype": [0, 0],
           "genotype_likelihoods": [-5.4379592204612965, -99999999, -99999999],
           "info": {
@@ -118,8 +113,7 @@
           "_cls": "Call.VariantCall"
         },
         "ahpC_C-72T-C2726121T": {
-          "variant":
-            "ref-C-72T?var_name=C2726121T&num_alts=34&ref=NC_000962.3&enum=0&gene=ahpC&mut=C-72T",
+          "variant": "ref-C-72T?var_name=C2726121T&num_alts=34&ref=NC_000962.3&enum=0&gene=ahpC&mut=C-72T",
           "genotype": [0, 0],
           "genotype_likelihoods": [-5.479806330396828, -99999999, -99999999],
           "info": {
