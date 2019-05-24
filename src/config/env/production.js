@@ -6,7 +6,8 @@ export default {
   },
   express: {
     uploadsLocation: process.env.UPLOADS_LOCATION,
-    demoDataRootFolder: process.env.DEMO_DATA_ROOT_FOLDER
+    demoDataRootFolder: process.env.DEMO_DATA_ROOT_FOLDER,
+    rateLimitReset: 1 * 60 * 1000
   },
   accounts: {
     keycloak: {
