@@ -345,6 +345,12 @@ const reindex = async (req, res) => {
       const experiments = await Experiment.since(pagination.id, size);
       await ElasticsearchHelper.indexDocuments(config, experiments, "experiment");
 
+      winston.info(
+        `Indexed ${size} experiments from ${pagination.id ? pagination.id : "the start"} reaching ${
+          pagination.count
+        }.  ${pagination.more ? "There are more" : "Indexing complete"}`
+      );
+
       if (experiments.length === size) {
         pagination.more = true;
         pagination.id = experiments[experiments.length - 1]._id;
@@ -352,12 +358,6 @@ const reindex = async (req, res) => {
         pagination.more = false;
       }
       pagination.count = pagination.count + experiments.length;
-
-      winston.info(
-        `Indexed ${pagination.count} experiments from ${
-          pagination.id ? pagination.id : "the start"
-        }.  ${pagination.more ? "There are more" : "Indexing complete"}`
-      );
     }
     return res.jsend("All Experiments have been indexed.");
   } catch (e) {

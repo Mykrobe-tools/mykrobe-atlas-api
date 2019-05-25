@@ -100,12 +100,14 @@ ExperimentSchema.statics = {
       // start from the last id - ids maintain a natural order
       return this.find({ _id: { $gt: id } })
         .populate(["organisation", "owner"])
+        .sort({ _id: "asc" })
         .limit(limit)
         .exec();
     } else {
       // start from the beginning
       return this.find({})
         .populate(["organisation", "owner"])
+        .sort({ _id: "asc" })
         .limit(limit)
         .exec();
     }
