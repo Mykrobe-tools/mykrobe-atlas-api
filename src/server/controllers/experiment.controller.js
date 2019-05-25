@@ -8,6 +8,7 @@ import ArrayJSONTransformer from "makeandship-api-common/lib/transformers/ArrayJ
 import SearchResultsJSONTransformer from "makeandship-api-common/lib/modules/elasticsearch/transformers/SearchResultsJSONTransformer";
 import SearchQueryJSONTransformer from "makeandship-api-common/lib/modules/elasticsearch/transformers/SearchQueryJSONTransformer";
 import ChoicesJSONTransformer from "makeandship-api-common/lib/modules/elasticsearch/transformers/ChoicesJSONTransformer";
+import WildcardSearchQueryDecorator from "makeandship-api-common/lib/modules/elasticsearch/query-decorators/wildcard-search-query-decorator";
 import { util as jsonschemaUtil } from "makeandship-api-common/lib/modules/jsonschema";
 
 import Audit from "../models/audit.model";
@@ -342,18 +343,16 @@ const reindex = async (req, res) => {
  */
 const choices = async (req, res) => {
   try {
-    const query = req.query;
+    const clone = Object.assign({}, req.query);
+    const decoratedQuery = new WildcardSearchQueryDecorator().decorate(clone);
 
-    // add wildcards if not already set
-    if (query.q && !query.q.indexOf("*") > -1) {
-      query.q = `*${query.q}*`;
-    }
     const resp = await ElasticsearchHelper.aggregate(
       config,
       experimentSchema,
-      { ...req.query },
+      decoratedQuery,
       "experiment"
     );
+
     const titles = jsonschemaUtil.schemaTitles(experimentSchema);
     const choices = new ChoicesJSONTransformer().transform(resp, { titles });
 
@@ -369,7 +368,7 @@ const choices = async (req, res) => {
  */
 const search = async (req, res) => {
   try {
-    const clone = JSON.parse(JSON.stringify(req.query));
+    const clone = Object.assign({}, req.query);
 
     const container = parseQuery(clone);
 
@@ -380,11 +379,10 @@ const search = async (req, res) => {
       const search = await BigsiSearchHelper.search(bigsi, query, req.dbUser);
       return res.jsend(search);
     } else {
-      const resp = await ElasticsearchHelper.search(
-        config,
-        { whitelist: sortWhiteList, ...query },
-        "experiment"
-      );
+      const decoratedQuery = new WildcardSearchQueryDecorator().decorate(clone);
+      decoratedQuery.whitelist = sortWhitelist;
+
+      const resp = await ElasticsearchHelper.search(config, decoratedQuery, "experiment");
 
       // generate the core elastic search structure
       const options = {
