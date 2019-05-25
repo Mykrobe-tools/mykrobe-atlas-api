@@ -329,11 +329,15 @@ const reindex = async (req, res) => {
   try {
     const size = req.body.size || req.query.size || 1000;
 
-    winston.info(`Reindexing experiments in batches of ${size}`);
-
     // recreate the index
     await ElasticsearchHelper.deleteIndexIfExists(config);
-    await ElasticsearchHelper.createIndex(config, experimentSchema, "experiment");
+    await ElasticsearchHelper.createIndex(config, experimentSchema, "experiment", {
+      settings: {
+        "index.mapping.total_fields.limit": 2000
+      }
+    });
+
+    winston.info(`Reindexing experiments in batches of ${size}`);
 
     // index in batches
     const pagination = {
@@ -343,13 +347,10 @@ const reindex = async (req, res) => {
     };
     while (pagination.more) {
       const experiments = await Experiment.since(pagination.id, size);
-      await ElasticsearchHelper.indexDocuments(config, experiments, "experiment");
+      const result = await ElasticsearchHelper.indexDocuments(config, experiments, "experiment");
+      winston.info(`result: ${JSON.stringify(result, null, 2)}`);
 
-      winston.info(
-        `Indexed ${size} experiments from ${pagination.id ? pagination.id : "the start"} reaching ${
-          pagination.count
-        }.  ${pagination.more ? "There are more" : "Indexing complete"}`
-      );
+      const startId = pagination.id;
 
       if (experiments.length === size) {
         pagination.more = true;
@@ -358,8 +359,14 @@ const reindex = async (req, res) => {
         pagination.more = false;
       }
       pagination.count = pagination.count + experiments.length;
+
+      winston.info(
+        `Indexed ${size} experiments from ${startId ? startId : "the start"}.  Current total is ${
+          pagination.count
+        }.  ${pagination.more ? "There are more" : "Indexing complete"}`
+      );
     }
-    return res.jsend("All Experiments have been indexed.");
+    return res.jsend(`All ${pagination.count} experiment(s) have been indexed.`);
   } catch (e) {
     return res.jerror(e.message);
   }
