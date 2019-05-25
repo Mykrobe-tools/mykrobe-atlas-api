@@ -10,29 +10,29 @@ import SearchQueryJSONTransformer from "makeandship-api-common/lib/modules/elast
 import ChoicesJSONTransformer from "makeandship-api-common/lib/modules/elasticsearch/transformers/ChoicesJSONTransformer";
 import { util as jsonschemaUtil } from "makeandship-api-common/lib/modules/jsonschema";
 
+import { experiment as experimentSchema } from "mykrobe-atlas-jsonschema";
+
 import Audit from "../models/audit.model";
 import Experiment from "../models/experiment.model";
 import Tree from "../models/tree.model";
 
 import resumable from "../modules/resumable";
+import { schedule } from "../modules/agenda";
+import { experimentEventEmitter, userEventEmitter } from "../modules/events";
+import { isBigsiQuery, callBigsiApi, parseQuery, callTreeApi } from "../modules/search";
+import winston from "../modules/winston";
+
+import APIError from "../helpers/APIError";
 import DownloadersFactory from "../helpers/DownloadersFactory";
 import BigsiSearchHelper from "../helpers/BigsiSearchHelper";
+import ResultsParserFactory from "../helpers/results/ResultsParserFactory";
 
 import AuditJSONTransformer from "../transformers/AuditJSONTransformer";
 import ExperimentJSONTransformer from "../transformers/ExperimentJSONTransformer";
 import ExperimentsResultJSONTransformer from "../transformers/es/ExperimentsResultJSONTransformer";
 import ResultsJSONTransformer from "../transformers/ResultsJSONTransformer";
 
-import APIError from "../helpers/APIError";
-import { schedule } from "../modules/agenda";
-import { experiment as experimentSchema } from "mykrobe-atlas-jsonschema";
-
-import ResultsParserFactory from "../helpers/results/ResultsParserFactory";
-import { experimentEventEmitter, userEventEmitter } from "../modules/events";
-
-import { isBigsiQuery, callBigsiApi, parseQuery, callTreeApi } from "../modules/search";
-
-const config = require("../../config/env");
+import config from "../../config/env";
 
 // sort whitelist
 const sortWhiteList = ElasticsearchHelper.getSortWhitelist(experimentSchema, "experiment");
@@ -327,10 +327,38 @@ const uploadStatus = async (req, res) => {
  */
 const reindex = async (req, res) => {
   try {
+    const size = req.body.size || req.query.size || 1000;
+
+    winston.info(`Reindexing experiments in batches of ${size}`);
+
+    // recreate the index
     await ElasticsearchHelper.deleteIndexIfExists(config);
     await ElasticsearchHelper.createIndex(config, experimentSchema, "experiment");
-    const experiments = await Experiment.list();
-    await ElasticsearchHelper.indexDocuments(config, experiments, "experiment");
+
+    // index in batches
+    const pagination = {
+      count: 0,
+      more: true,
+      id: null
+    };
+    while (pagination.more) {
+      const experiments = await Experiment.since(pagination.id, size);
+      await ElasticsearchHelper.indexDocuments(config, experiments, "experiment");
+
+      if (experiments.length === size) {
+        pagination.more = true;
+        pagination.id = experiments[experiments.length - 1]._id;
+      } else {
+        pagination.more = false;
+      }
+      pagination.count = pagination.count + experiments.length;
+
+      winston.info(
+        `Indexed ${pagination.count} experiments from ${
+          pagination.id ? pagination.id : "the start"
+        }.  ${pagination.more ? "There are more" : "Indexing complete"}`
+      );
+    }
     return res.jsend("All Experiments have been indexed.");
   } catch (e) {
     return res.jerror(e.message);

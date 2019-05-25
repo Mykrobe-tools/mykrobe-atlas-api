@@ -91,7 +91,25 @@ ExperimentSchema.statics = {
       .limit(limit)
       .exec();
   },
-
+  /**
+   * List all experiments since an object id
+   * @returns {Promise<Experiment[]>}
+   */
+  since(id = null, limit = 0) {
+    if (id) {
+      // start from the last id - ids maintain a natural order
+      return this.find({ _id: { $gt: id } })
+        .populate(["organisation", "owner"])
+        .limit(limit)
+        .exec();
+    } else {
+      // start from the beginning
+      return this.find({})
+        .populate(["organisation", "owner"])
+        .limit(limit)
+        .exec();
+    }
+  },
   /**
    * Find experiments by ids
    * @returns {Promise<Experiment[]>}
