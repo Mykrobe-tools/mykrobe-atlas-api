@@ -1976,7 +1976,7 @@ describe("ExperimentController", () => {
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("success");
-          expect(res.body.data).toEqual("All Experiments have been indexed.");
+          expect(res.body.data).toEqual("All 1 experiment(s) have been indexed.");
           done();
         });
     });

@@ -11,8 +11,8 @@ class ResultsJSONTransformer extends ModelJSONTransformer {
   /**
    * The transformation engine
    */
-  transform(o) {
-    let res = super.transform(o, {});
+  transform(o, options = {}) {
+    let res = super.transform(o, options);
     res = new BlacklistTransformer().transform(res, { blacklist: BLACKLIST });
 
     if (res.phylogenetics && res.phylogenetics.length) {
@@ -28,6 +28,9 @@ class ResultsJSONTransformer extends ModelJSONTransformer {
       });
       res.phylogenetics = phylogenetics;
     }
+
+    const calledBy = options.calledBy || false;
+
     if (res.susceptibility && res.susceptibility.length) {
       const susceptibility = {};
       res.susceptibility.forEach(result => {
@@ -36,7 +39,7 @@ class ResultsJSONTransformer extends ModelJSONTransformer {
         susceptibility[name] = {
           prediction: result.prediction
         };
-        if (result.calledBy) {
+        if (calledBy && result.calledBy) {
           susceptibility[name].calledBy = result.calledBy;
         }
       });
