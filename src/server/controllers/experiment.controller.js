@@ -348,7 +348,6 @@ const reindex = async (req, res) => {
     while (pagination.more) {
       const experiments = await Experiment.since(pagination.id, size);
       const result = await ElasticsearchHelper.indexDocuments(config, experiments, "experiment");
-      winston.info(`result: ${JSON.stringify(result, null, 2)}`);
 
       const startId = pagination.id;
 
