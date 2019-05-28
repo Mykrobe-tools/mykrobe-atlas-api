@@ -8,7 +8,6 @@ import ArrayJSONTransformer from "makeandship-api-common/lib/transformers/ArrayJ
 import SearchResultsJSONTransformer from "makeandship-api-common/lib/modules/elasticsearch/transformers/SearchResultsJSONTransformer";
 import SearchQueryJSONTransformer from "makeandship-api-common/lib/modules/elasticsearch/transformers/SearchQueryJSONTransformer";
 import ChoicesJSONTransformer from "makeandship-api-common/lib/modules/elasticsearch/transformers/ChoicesJSONTransformer";
-import WildcardSearchQueryDecorator from "makeandship-api-common/lib/modules/elasticsearch/query-decorators/wildcard-search-query-decorator";
 import { util as jsonschemaUtil } from "makeandship-api-common/lib/modules/jsonschema";
 
 import { experiment as experimentSchema } from "mykrobe-atlas-jsonschema";
@@ -378,14 +377,8 @@ const reindex = async (req, res) => {
 const choices = async (req, res) => {
   try {
     const clone = Object.assign({}, req.query);
-    const decoratedQuery = new WildcardSearchQueryDecorator().decorate(clone);
 
-    const resp = await ElasticsearchHelper.aggregate(
-      config,
-      experimentSchema,
-      decoratedQuery,
-      "experiment"
-    );
+    const resp = await ElasticsearchHelper.aggregate(config, experimentSchema, clone, "experiment");
     const titles = jsonschemaUtil.schemaTitles(experimentSchema);
     const choices = new ChoicesJSONTransformer().transform(resp, { titles });
 
