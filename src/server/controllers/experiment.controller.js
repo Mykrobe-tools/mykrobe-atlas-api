@@ -429,7 +429,6 @@ const search = async (req, res) => {
         // augment with the original search query
         results.search = new SearchQueryJSONTransformer().transform(req.query, {});
       }
-      console.log("n");
       return res.jsend(results);
     }
   } catch (e) {
