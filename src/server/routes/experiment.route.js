@@ -3495,6 +3495,81 @@ router
    *         name: metadata.sample.countryIsolate
    *         type: string
    *         description: Which country the sample was collected in
+   *       - in: query
+   *         name: results.predictor.susceptibility.Ofloxacin.prediction
+   *         type: string
+   *         description: Ofloxacin susceptibility
+   *         enum: [R, S]
+   *       - in: query
+   *         name: results.predictor.susceptibility.Moxifloxacin.prediction
+   *         type: string
+   *         description: Moxifloxacin susceptibility
+   *         enum: [R, S]
+   *       - in: query
+   *         name: results.predictor.susceptibility.Isoniazid.prediction
+   *         type: string
+   *         description: Isoniazid susceptibility
+   *         enum: [R, S]
+   *       - in: query
+   *         name: results.predictor.susceptibility.Kanamycin.prediction
+   *         type: string
+   *         description: Kanamycin susceptibility
+   *         enum: [R, S]
+   *       - in: query
+   *         name: results.predictor.susceptibility.Ethambutol.prediction
+   *         type: string
+   *         description: Ethambutol susceptibility
+   *         enum: [R, S]
+   *       - in: query
+   *         name: results.predictor.susceptibility.Streptomycin.prediction
+   *         type: string
+   *         description: Streptomycin susceptibility
+   *         enum: [R, S]
+   *       - in: query
+   *         name: results.predictor.susceptibility.Ciprofloxacin.prediction
+   *         type: string
+   *         description: Ciprofloxacin susceptibility
+   *         enum: [R, S]
+   *       - in: query
+   *         name: results.predictor.susceptibility.Pyrazinamide.prediction
+   *         type: string
+   *         description: Pyrazinamide susceptibility
+   *         enum: [R, S]
+   *       - in: query
+   *         name: results.predictor.susceptibility.Rifampicin.prediction
+   *         type: string
+   *         description: Rifampicin susceptibility
+   *         enum: [R, S]
+   *       - in: query
+   *         name: results.predictor.susceptibility.Amikacin.prediction
+   *         type: string
+   *         description: Amikacin susceptibility
+   *         enum: [R, S]
+   *       - in: query
+   *         name: results.predictor.susceptibility.Capreomycin.prediction
+   *         type: string
+   *         description: Capreomycin susceptibility
+   *         enum: [R, S]
+   *       - in: query
+   *         name: results.predictor.r
+   *         type: boolean
+   *         description: Resistant
+   *         enum: [true, false]
+   *       - in: query
+   *         name: results.predictor.mdr
+   *         type: boolean
+   *         description: Multi drug resistant
+   *         enum: [true, false]
+   *       - in: query
+   *         name: results.predictor.xdr
+   *         type: boolean
+   *         description: Extensively drug resistant
+   *         enum: [true, false]
+   *       - in: query
+   *         name: results.predictor.tdr
+   *         type: boolean
+   *         description: Totally drug resistant
+   *         enum: [true, false]
    *     responses:
    *       200:
    *         description: Experiments choices
@@ -3579,6 +3654,81 @@ router
    *         name: metadata.sample.countryIsolate
    *         type: string
    *         description: Which country the sample was collected in
+   *       - in: query
+   *         name: results.predictor.susceptibility.Ofloxacin.prediction
+   *         type: string
+   *         description: Ofloxacin susceptibility
+   *         enum: [R, S]
+   *       - in: query
+   *         name: results.predictor.susceptibility.Moxifloxacin.prediction
+   *         type: string
+   *         description: Moxifloxacin susceptibility
+   *         enum: [R, S]
+   *       - in: query
+   *         name: results.predictor.susceptibility.Isoniazid.prediction
+   *         type: string
+   *         description: Isoniazid susceptibility
+   *         enum: [R, S]
+   *       - in: query
+   *         name: results.predictor.susceptibility.Kanamycin.prediction
+   *         type: string
+   *         description: Kanamycin susceptibility
+   *         enum: [R, S]
+   *       - in: query
+   *         name: results.predictor.susceptibility.Ethambutol.prediction
+   *         type: string
+   *         description: Ethambutol susceptibility
+   *         enum: [R, S]
+   *       - in: query
+   *         name: results.predictor.susceptibility.Streptomycin.prediction
+   *         type: string
+   *         description: Streptomycin susceptibility
+   *         enum: [R, S]
+   *       - in: query
+   *         name: results.predictor.susceptibility.Ciprofloxacin.prediction
+   *         type: string
+   *         description: Ciprofloxacin susceptibility
+   *         enum: [R, S]
+   *       - in: query
+   *         name: results.predictor.susceptibility.Pyrazinamide.prediction
+   *         type: string
+   *         description: Pyrazinamide susceptibility
+   *         enum: [R, S]
+   *       - in: query
+   *         name: results.predictor.susceptibility.Rifampicin.prediction
+   *         type: string
+   *         description: Rifampicin susceptibility
+   *         enum: [R, S]
+   *       - in: query
+   *         name: results.predictor.susceptibility.Amikacin.prediction
+   *         type: string
+   *         description: Amikacin susceptibility
+   *         enum: [R, S]
+   *       - in: query
+   *         name: results.predictor.susceptibility.Capreomycin.prediction
+   *         type: string
+   *         description: Capreomycin susceptibility
+   *         enum: [R, S]
+   *       - in: query
+   *         name: results.predictor.r
+   *         type: boolean
+   *         description: Resistant
+   *         enum: [true, false]
+   *       - in: query
+   *         name: results.predictor.mdr
+   *         type: boolean
+   *         description: Multi drug resistant
+   *         enum: [true, false]
+   *       - in: query
+   *         name: results.predictor.xdr
+   *         type: boolean
+   *         description: Extensively drug resistant
+   *         enum: [true, false]
+   *       - in: query
+   *         name: results.predictor.tdr
+   *         type: boolean
+   *         description: Totally drug resistant
+   *         enum: [true, false]
    *       - in: query
    *         name: page
    *         type: number
