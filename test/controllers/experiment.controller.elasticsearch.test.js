@@ -254,6 +254,7 @@ describe("ExperimentController > Elasticsearch", () => {
         });
     });
     // POST.30f98efc12e95978db30d97497fc490d27058009.mock
+    // new POST.8c0d09b2058ddc4583b0cb05a9a3a614a062cc1e.mock
     it("should apply a free text query to choices - male", done => {
       request(app)
         .get("/experiments/choices?q=Male")
@@ -411,9 +412,9 @@ describe("ExperimentController > Elasticsearch", () => {
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("success");
-          expect(res.body.data).toHaveProperty("total", 1);
+          expect(res.body.data).toHaveProperty("total", 2);
           expect(res.body.data).toHaveProperty("results");
-          expect(res.body.data.results.length).toEqual(1);
+          expect(res.body.data.results.length).toEqual(2);
           expect(res.body.data).toHaveProperty("search");
           expect(res.body.data.search).toHaveProperty("q", "Female");
           done();
@@ -426,9 +427,9 @@ describe("ExperimentController > Elasticsearch", () => {
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("success");
-          expect(res.body.data).toHaveProperty("total", 1);
+          expect(res.body.data).toHaveProperty("total", 2);
           expect(res.body.data).toHaveProperty("results");
-          expect(res.body.data.results.length).toEqual(1);
+          expect(res.body.data.results.length).toEqual(2);
           expect(res.body.data).toHaveProperty("search");
           expect(res.body.data.search).toHaveProperty("q", "emale");
           done();

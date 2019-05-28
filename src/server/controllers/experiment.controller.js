@@ -35,7 +35,7 @@ import ResultsJSONTransformer from "../transformers/ResultsJSONTransformer";
 import config from "../../config/env";
 
 // sort whitelist
-const sortWhiteList = ElasticsearchHelper.getSortWhitelist(experimentSchema, "experiment");
+const sortWhitelist = ElasticsearchHelper.getSortWhitelist(experimentSchema, "experiment");
 
 // distance types
 const NEAREST_NEIGHBOUR = "nearest-neighbour";
@@ -376,18 +376,9 @@ const reindex = async (req, res) => {
  */
 const choices = async (req, res) => {
   try {
-    const query = req.query;
+    const clone = Object.assign({}, req.query);
 
-    // add wildcards if not already set
-    if (query.q && !query.q.indexOf("*") > -1) {
-      query.q = `*${query.q}*`;
-    }
-    const resp = await ElasticsearchHelper.aggregate(
-      config,
-      experimentSchema,
-      { ...req.query },
-      "experiment"
-    );
+    const resp = await ElasticsearchHelper.aggregate(config, experimentSchema, clone, "experiment");
     const titles = jsonschemaUtil.schemaTitles(experimentSchema);
     const choices = new ChoicesJSONTransformer().transform(resp, { titles });
 
@@ -403,8 +394,7 @@ const choices = async (req, res) => {
  */
 const search = async (req, res) => {
   try {
-    const clone = JSON.parse(JSON.stringify(req.query));
-
+    const clone = Object.assign({}, req.query);
     const container = parseQuery(clone);
 
     const bigsi = container.bigsi;
@@ -414,22 +404,21 @@ const search = async (req, res) => {
       const search = await BigsiSearchHelper.search(bigsi, query, req.dbUser);
       return res.jsend(search);
     } else {
-      const resp = await ElasticsearchHelper.search(
-        config,
-        { whitelist: sortWhiteList, ...query },
-        "experiment"
-      );
+      clone.whitelist = sortWhitelist;
+
+      const resp = await ElasticsearchHelper.search(config, clone, "experiment");
 
       // generate the core elastic search structure
       const options = {
         per: query.per || config.elasticsearch.resultsPerPage,
         page: query.page || 1
       };
-      const results = new SearchResultsJSONTransformer().transform(resp, options);
 
+      const results = new SearchResultsJSONTransformer().transform(resp, options);
       if (results) {
         // augment with hits (project specific transformation)
         results.results = new ExperimentsResultJSONTransformer().transform(resp, {});
+
         // augment with the original search query
         results.search = new SearchQueryJSONTransformer().transform(req.query, {});
       }
