@@ -12,13 +12,13 @@ Content-Type: application/json; charset=utf-8
     },
     "hits": {
         "total": 1,
-        "max_score": 0,
+        "max_score": 5,
         "hits": [
             {
                 "_index": "atlas",
                 "_type": "experiment",
                 "_id": "5c9b4d0ca9c34c19406d01fe",
-                "_score": 0,
+                "_score": 2,
                 "_source": {
                     "metadata": {
                         "patient": {
