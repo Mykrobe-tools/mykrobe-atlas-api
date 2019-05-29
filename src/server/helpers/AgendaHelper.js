@@ -105,18 +105,17 @@ class AgendaHelper {
 
     if (data && search) {
       const uri = `${config.services.analysisApiUrl}/search`;
-      const searchQuery = {
-        result_id: search.id,
-        user_id: user.id,
-        query: search.bigsi
-      };
+      const bigsi = search.bigsi;
+      bigsi.search_id = search.id;
+
       winston.info(`POST ${uri}`);
-      winston.info(searchQuery);
-      const type = search.bigsi && search.bigsi.type ? search.bigsi.type : null;
+      winston.info(bigsi);
+
+      const type = bigsi && bigsi.type ? bigsi.type : null;
 
       data.attempt = data.attempt ? data.attempt++ : 1;
       try {
-        const response = await axios.post(uri, searchQuery);
+        const response = await axios.post(uri, bigsi);
 
         const taskId = response.data && response.data.task_id ? response.data.task_id : null;
 
