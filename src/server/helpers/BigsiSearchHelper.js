@@ -74,30 +74,24 @@ class BigsiSearchHelper {
    * @param {*} searchData
    */
   static async triggerBigsiSearch(search, user, searchData) {
-    console.log(searchData);
     const newSearch = search || new Search(searchData);
 
     // set status to pending and clear old result
     newSearch.status = Constants.SEARCH_PENDING;
     newSearch.set("result", {});
 
-    try {
-      const savedSearch = await newSearch.save();
-      if (!savedSearch.userExists(user)) {
-        await savedSearch.addUser(user);
-      }
-      const searchJson = new SearchJSONTransformer().transform(savedSearch);
-      const userJson = new UserJSONTransformer().transform(user);
-      // call bigsi via agenda to support retries
-      await schedule("now", "call search api", {
-        search: searchJson,
-        user: userJson
-      });
-      return savedSearch;
-    } catch (e) {
-      console.log(e);
-      return null;
+    const savedSearch = await newSearch.save();
+    if (!savedSearch.userExists(user)) {
+      await savedSearch.addUser(user);
     }
+    const searchJson = new SearchJSONTransformer().transform(savedSearch);
+    const userJson = new UserJSONTransformer().transform(user);
+    // call bigsi via agenda to support retries
+    await schedule("now", "call search api", {
+      search: searchJson,
+      user: userJson
+    });
+    return savedSearch;
   }
 
   /**
