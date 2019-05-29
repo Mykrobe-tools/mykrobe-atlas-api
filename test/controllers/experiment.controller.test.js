@@ -403,6 +403,37 @@ describe("ExperimentController", () => {
               done();
             });
         });
+        it("should replace the experiments ids", done => {
+          request(app)
+            .get(`/experiments/${id}`)
+            .set("Authorization", `Bearer ${token}`)
+            .expect(httpStatus.OK)
+            .end(async (err, res) => {
+              expect(res.body.status).toEqual("success");
+
+              expect(res.body.data).toHaveProperty("results");
+              const results = res.body.data.results;
+
+              expect(results).toHaveProperty("distance-nearest-neighbour");
+              const nearestNeighbour = results["distance-nearest-neighbour"];
+
+              expect(nearestNeighbour.type).toEqual("distance");
+              expect(nearestNeighbour.subType).toEqual("nearest-neighbour");
+
+              expect(nearestNeighbour).toHaveProperty("experiments");
+              expect(nearestNeighbour.experiments.length).toEqual(1);
+
+              const first = nearestNeighbour.experiments.shift();
+
+              const targetExperiment = await Experiment.findByIsolateIds([
+                "9c0c00f2-8cb1-4254-bf53-3271f35ce696"
+              ]);
+
+              expect(first.id).toEqual(targetExperiment[0].id);
+
+              done();
+            });
+        });
       });
     });
   });
