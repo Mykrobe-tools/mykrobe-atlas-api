@@ -2,18 +2,16 @@ import mongoose from "mongoose";
 import errors from "errors";
 import moment from "moment";
 import schemaValidator from "mongoose-jsonschema-validator";
-
 import { search as searchJsonSchema } from "mykrobe-atlas-jsonschema";
+
+import Constants from "../Constants";
 
 import JSONMongooseSchema from "./jsonschema.model";
 
+import SearchHelper from "../helpers/SearchHelper";
 import SearchJSONTransformer from "../transformers/SearchJSONTransformer";
 
 import config from "../../config/env";
-
-// constants
-const PENDING = "pending";
-const COMPLETE = "complete";
 
 /**
  * SearchSchema Schema
@@ -26,7 +24,14 @@ const SearchSchema = new JSONMongooseSchema(
         type: "ObjectId",
         ref: "User"
       }
-    ]
+    ],
+    expires: {
+      default: () => {
+        const m = moment();
+        m.add(3, "days");
+        return m.toDate();
+      }
+    }
   },
   {
     strict: false,
@@ -50,6 +55,11 @@ SearchSchema.plugin(schemaValidator, {
   modelName: "Search"
 });
 
+// Create a hash for a search
+SearchSchema.pre("save", function() {
+  this.hash = this.generateHash();
+});
+
 /**
  * Methods
  */
@@ -62,7 +72,7 @@ SearchSchema.method({
     const expires = moment();
     expires.add(expiresIn, "hours");
     this.expires = expires.toISOString();
-    this.status = COMPLETE;
+    this.status = Constants.SEARCH_COMPLETE;
     this.set("result", result);
 
     return this.save();
@@ -79,11 +89,23 @@ SearchSchema.method({
   },
 
   isPending() {
-    return this.status === PENDING;
+    return this.status === Constants.SEARCH_PENDING;
+  },
+
+  isComplete() {
+    return this.status === Constants.SEARCH_COMPLETE;
   },
 
   userExists(user) {
     return this.users.find(element => element.id === user.id);
+  },
+
+  generateHash() {
+    const data = {
+      type: this.type,
+      bigsi: this.bigsi
+    };
+    return SearchHelper.generateHash(data);
   }
 });
 
@@ -119,10 +141,6 @@ SearchSchema.statics = {
     return this.findOne({ hash })
       .populate("users")
       .exec();
-  },
-
-  constants() {
-    return { PENDING, COMPLETE };
   }
 };
 

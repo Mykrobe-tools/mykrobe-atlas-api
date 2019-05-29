@@ -12,6 +12,7 @@ const PROTEIN_VARIANT_REGEX = /([a-zA-Z]+)_([A-Z])([-0-9]+)([A-Z])/;
  */
 const SEQUENCE = "sequence";
 const PROTEIN_VARIANT = "protein-variant";
+const DNA_VARIANT = "dna-variant";
 
 const DEFAULT_THRESHOLD = 1;
 
@@ -48,7 +49,6 @@ const isBigsiQuery = (query, options) => {
  */
 const extractBigsiQuery = (query, options) => {
   const q = query.q;
-
   if (q && q.match(SEQUENCE_REGEX)) {
     return extractSequenceQuery(query, options);
   } else if (q && q.match(PROTEIN_VARIANT_REGEX)) {
@@ -66,19 +66,20 @@ const extractBigsiQuery = (query, options) => {
  */
 const extractSequenceQuery = query => {
   const bigsiQuery = {
-    type: SEQUENCE
+    type: SEQUENCE,
+    query: {}
   };
 
   if (query.hasOwnProperty("q")) {
-    bigsiQuery.seq = query.q;
+    bigsiQuery.query.seq = query.q;
     delete query.q;
   }
 
   if (query.hasOwnProperty("threshold")) {
-    bigsiQuery.threshold = Number(query.threshold);
+    bigsiQuery.query.threshold = Number(query.threshold);
     delete query.threshold;
   } else {
-    bigsiQuery.threshold = DEFAULT_THRESHOLD;
+    bigsiQuery.query.threshold = DEFAULT_THRESHOLD;
   }
 
   return bigsiQuery;
@@ -91,7 +92,8 @@ const extractSequenceQuery = query => {
  */
 const extractProteinVariantQuery = query => {
   const bigsiQuery = {
-    type: PROTEIN_VARIANT
+    type: PROTEIN_VARIANT,
+    query: {}
   };
 
   if (query.hasOwnProperty("q")) {
@@ -99,26 +101,26 @@ const extractProteinVariantQuery = query => {
 
     const result = q.match(PROTEIN_VARIANT_REGEX);
     if (result) {
-      bigsiQuery.gene = result[GENE_INDEX];
-      bigsiQuery.ref = result[REF_INDEX];
-      bigsiQuery.pos = parseInt(result[POS_INDEX]);
-      bigsiQuery.alt = result[ALT_INDEX];
+      bigsiQuery.query.gene = result[GENE_INDEX];
+      bigsiQuery.query.ref = result[REF_INDEX];
+      bigsiQuery.query.pos = parseInt(result[POS_INDEX]);
+      bigsiQuery.query.alt = result[ALT_INDEX];
 
-      // query attribute filter is prioritised over free-text format
+      // use query attribute filter if provided, prioritised over free-text format
       if (query.gene) {
-        bigsiQuery.gene = query.gene;
+        bigsiQuery.query.gene = query.gene;
         delete query.gene;
       }
       if (query.ref) {
-        bigsiQuery.ref = query.ref;
+        bigsiQuery.query.ref = query.ref;
         delete query.ref;
       }
       if (query.pos) {
-        bigsiQuery.pos = query.pos;
+        bigsiQuery.query.pos = query.pos;
         delete query.pos;
       }
       if (query.alt) {
-        bigsiQuery.alt = query.alt;
+        bigsiQuery.query.alt = query.alt;
         delete query.alt;
       }
     }
@@ -134,6 +136,7 @@ const extractProteinVariantQuery = query => {
  * @param {Object} query
  */
 const callBigsiApi = async query => {
+  console.log(query);
   try {
     const response = await axios.post(`${config.services.analysisApiUrl}/search`, query);
     return response.data;

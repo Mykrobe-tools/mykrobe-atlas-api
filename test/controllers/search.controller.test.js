@@ -2,6 +2,8 @@ import request from "supertest";
 import moment from "moment";
 import httpStatus from "http-status";
 
+import Constants from "../../src/server/Constants";
+
 import { createApp } from "../setup";
 
 import User from "../../src/server/models/user.model";
@@ -123,7 +125,7 @@ describe("SearchController", () => {
 
             const data = res.body.data;
 
-            expect(data).toHaveProperty("status", Search.constants().COMPLETE);
+            expect(data).toHaveProperty("status", Constants.SEARCH_COMPLETE);
 
             const foundSearch = await Search.get(sequenceSearchId);
 
@@ -151,7 +153,7 @@ describe("SearchController", () => {
 
             const data = res.body.data;
 
-            expect(data).toHaveProperty("status", Search.constants().COMPLETE);
+            expect(data).toHaveProperty("status", Constants.SEARCH_COMPLETE);
 
             expect(mockCallback.mock.calls.length).toEqual(1);
             const calls = mockCallback.mock.calls;

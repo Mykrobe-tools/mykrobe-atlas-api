@@ -15,10 +15,12 @@ describe("bigsi", () => {
           threshold: 0.9
         };
 
-        const result = extractBigsiQuery(search);
-        expect(result).toHaveProperty("type", "sequence");
-        expect(result).toHaveProperty("seq", "CGGTCAGTCCGTTTGTTCTTGTGGCGAGTGTTGCCGTTTTCTTG");
-        expect(result).toHaveProperty("threshold", 0.9);
+        const bigsi = extractBigsiQuery(search);
+        expect(bigsi).toHaveProperty("type", "sequence");
+        expect(bigsi).toHaveProperty("query");
+        const query = bigsi.query;
+        expect(query).toHaveProperty("seq", "CGGTCAGTCCGTTTGTTCTTGTGGCGAGTGTTGCCGTTTTCTTG");
+        expect(query).toHaveProperty("threshold", 0.9);
       });
       it("should remove the free text search from the underlying query", () => {
         const query = {
@@ -41,13 +43,13 @@ describe("bigsi", () => {
     });
     describe("when q contains any combination ACGT and no threshold passed", () => {
       it("should create sequence query with a default threshold of 1", () => {
-        const query = {
+        const search = {
           q: "CGGTCAGTCCGTTTGTTCTTGTGGCGAGTGTTGCCGTTTTCTTG"
         };
-        const result = extractBigsiQuery(query);
-        expect(result).toHaveProperty("type", "sequence");
-        expect(result).toHaveProperty("seq", "CGGTCAGTCCGTTTGTTCTTGTGGCGAGTGTTGCCGTTTTCTTG");
-        expect(result).toHaveProperty("threshold", 1);
+        const bigsi = extractBigsiQuery(search);
+        expect(bigsi).toHaveProperty("query");
+        const query = bigsi.query;
+        expect(query).toHaveProperty("threshold", 1);
       });
       it("should remove the free text search from the underlying query", () => {
         const query = {
@@ -65,11 +67,14 @@ describe("bigsi", () => {
         };
         const result = extractBigsiQuery(query);
 
-        expect(result.type).toEqual("protein-variant");
-        expect(result.ref).toEqual("S");
-        expect(result.alt).toEqual("L");
-        expect(result.pos).toEqual(450);
-        expect(result.gene).toEqual("rpoB");
+        expect(result).toHaveProperty("type", "protein-variant");
+        expect(result).toHaveProperty("query");
+
+        const resultQuery = result.query;
+        expect(resultQuery.ref).toEqual("S");
+        expect(resultQuery.alt).toEqual("L");
+        expect(resultQuery.pos).toEqual(450);
+        expect(resultQuery.gene).toEqual("rpoB");
       });
 
       it("should remove the free-text query from the underlying search", () => {
@@ -126,8 +131,7 @@ describe("bigsi", () => {
             pos: 450,
             gene: "rpoB"
           },
-          user_id: "5b8d19173470371d9e49811d",
-          result_id: "56c787ccc67fc16ccc13245"
+          search_id: "56c787ccc67fc16ccc13245"
         };
         const result = await callBigsiApi(query);
         expect(result.result).toEqual("success");
@@ -135,7 +139,8 @@ describe("bigsi", () => {
       });
     });
     describe("when throwing an error", () => {
-      it("should return error", async () => {
+      it("should return error", async done => {
+        // an error is triggered in stubSearchApi when search_id === 56c787ccc67fc16ccc13246
         const query = {
           type: "protein-variant",
           query: {
@@ -144,13 +149,14 @@ describe("bigsi", () => {
             pos: 450,
             gene: "rpoB"
           },
-          user_id: "56c787ccc67fc16ccc1a5e92",
-          result_id: "56c787ccc67fc16ccc13245"
+          search_id: "56c787ccc67fc16ccc13246"
         };
         try {
           const result = await callBigsiApi(query);
           fail();
-        } catch (e) {}
+        } catch (e) {
+          done();
+        }
       });
     });
   });

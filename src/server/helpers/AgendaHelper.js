@@ -95,8 +95,7 @@ class AgendaHelper {
     if (data && search) {
       const uri = `${config.services.analysisApiUrl}/search`;
       const searchQuery = {
-        result_id: search.id,
-        user_id: user.id,
+        search_id: search.id,
         query: search.bigsi
       };
       const type = search.bigsi && search.bigsi.type ? search.bigsi.type : null;

@@ -39,7 +39,7 @@ const stubSearchApi = () => {
 
   nock(config.services.analysisApiUrl)
     .persist()
-    .post("/search", body => body.user_id === "56c787ccc67fc16ccc1a5e92")
+    .post("/search", body => body.search_id === "56c787ccc67fc16ccc13246")
     .reply(500, { result: "error" });
 };
 
