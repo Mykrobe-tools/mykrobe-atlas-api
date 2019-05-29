@@ -458,6 +458,7 @@ const inflateResult = async result => {
         });
         experiment.results = exp[0].get("results");
         experiment.metadata = exp[0].get("metadata");
+        experiment.id = exp[0].id;
       } catch (e) {}
       enhancedExperiments.push(experiment);
     });
