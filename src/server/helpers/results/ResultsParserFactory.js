@@ -30,6 +30,9 @@ class ResultsParserFactory {
 
       case "protein-variant":
         return new ProteinVariantResultParser(result);
+
+      case "dna-variant":
+        return new DnaVariantResultParser(result);
     }
 
     return null;
