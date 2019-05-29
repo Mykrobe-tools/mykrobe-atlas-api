@@ -1,11 +1,16 @@
 import axios from "axios";
 import uuid from "uuid";
 import { ElasticsearchHelper } from "makeandship-api-common/lib/modules/elasticsearch";
+
 import Audit from "../models/audit.model";
 import Experiment from "../models/experiment.model";
-import AuditJSONTransformer from "../transformers/AuditJSONTransformer";
-import config from "../../config/env";
+
+import winston from "../modules/winston";
 import { userEventEmitter, experimentEventEmitter } from "../modules/events";
+
+import AuditJSONTransformer from "../transformers/AuditJSONTransformer";
+
+import config from "../../config/env";
 
 class AgendaHelper {
   static async callAnalysisApi(job, done) {
@@ -15,10 +20,13 @@ class AgendaHelper {
     const uri = `${config.services.analysisApiUrl}/analyses`;
     try {
       if (data.attempt < config.services.analysisApiMaxRetries) {
-        const response = await axios.post(uri, {
+        const payload = {
           file: data.file,
           experiment_id: data.experiment_id
-        });
+        };
+        winston.info(`POST ${uri}`);
+        winston.info(payload);
+        const response = await axios.post(uri, payload);
         const audit = new Audit({
           experimentId: data.experiment_id,
           fileLocation: data.file,
@@ -60,10 +68,13 @@ class AgendaHelper {
     const experiment = data.experiment;
     const uri = `${config.services.analysisApiUrl}/distance`;
     try {
-      const response = await axios.post(uri, {
+      const payload = {
         experiment_id: data.experiment_id,
         distance_type: data.distance_type
-      });
+      };
+      winston.info(`POST ${uri}`);
+      winston.info(payload);
+      const response = await axios.post(uri, payload);
       const audit = new Audit({
         experimentId: experiment.id,
         status: "Successful",
@@ -95,9 +106,12 @@ class AgendaHelper {
     if (data && search) {
       const uri = `${config.services.analysisApiUrl}/search`;
       const searchQuery = {
-        search_id: search.id,
+        result_id: search.id,
+        user_id: user.id,
         query: search.bigsi
       };
+      winston.info(`POST ${uri}`);
+      winston.info(searchQuery);
       const type = search.bigsi && search.bigsi.type ? search.bigsi.type : null;
 
       data.attempt = data.attempt ? data.attempt++ : 1;
