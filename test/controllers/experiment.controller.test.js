@@ -2338,6 +2338,49 @@ describe("ExperimentController", () => {
               done();
             });
         });
+        describe("when no gene is provided", () => {
+          it("should trigger protein variant search", done => {
+            request(app)
+              .get("/experiments/search?q=C32T")
+              .set("Authorization", `Bearer ${token}`)
+              .expect(httpStatus.OK)
+              .end(async (err, res) => {
+                const jobs = mongo(config.db.uri, []).agendaJobs;
+                expect(res.body.status).toEqual("success");
+                try {
+                  let job = await findJobBySearchId(jobs, res.body.data.id, "call search api");
+                  while (!job) {
+                    job = await findJobBySearchId(jobs, res.body.data.id, "call search api");
+                  }
+                  expect(job.data.search.bigsi.type).toEqual("protein-variant");
+                  expect(job.data.search.bigsi.gene).toBeUndefined();
+                  expect(job.data.search.bigsi.ref).toEqual("C");
+                  expect(job.data.search.bigsi.pos).toEqual(32);
+                  expect(job.data.search.bigsi.alt).toEqual("T");
+                  done();
+                } catch (e) {
+                  fail(e.message);
+                  done();
+                }
+              });
+          });
+          it("should create a valid hash", done => {
+            request(app)
+              .get("/experiments/search?q=C32T")
+              .set("Authorization", `Bearer ${token}`)
+              .expect(httpStatus.OK)
+              .end(async (err, res) => {
+                expect(res.body.status).toEqual("success");
+                expect(res.body.data.bigsi).toEqual({
+                  type: "protein-variant",
+                  ref: "C",
+                  pos: 32,
+                  alt: "T"
+                });
+                done();
+              });
+          });
+        });
       });
       describe("when a pending search found in the cache", () => {
         let searchId = null;

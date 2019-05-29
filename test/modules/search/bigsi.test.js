@@ -85,6 +85,19 @@ describe("bigsi", () => {
 
         expect(query.q).toBeUndefined();
       });
+
+      it("should create protein variant query without gene", () => {
+        const query = {
+          q: "C32T"
+        };
+        const result = extractBigsiQuery(query);
+
+        expect(result.type).toEqual("protein-variant");
+        expect(result.ref).toEqual("C");
+        expect(result.alt).toEqual("T");
+        expect(result.pos).toEqual(32);
+        expect(result.gene).toBeUndefined();
+      });
     });
     describe("when q doesnt match any format", () => {
       it("should return null query", () => {
@@ -157,6 +170,44 @@ describe("bigsi", () => {
         } catch (e) {
           done();
         }
+      });
+    });
+  });
+  describe("#isBigsiQuery", () => {
+    describe("when the free-text query matches the protein variant format", () => {
+      it("should create protein variant query", () => {
+        const query = {
+          q: "rpoB_S450L"
+        };
+        const result = isBigsiQuery(query);
+        expect(result).toEqual(true);
+      });
+
+      it("should return true for sequence search", () => {
+        const search = {
+          q: "CGGTCAGTCCGTTTGTTCTTGTGGCGAGTGTTGCCGTTTTCTTG",
+          threshold: 0.9
+        };
+
+        const result = isBigsiQuery(search);
+        expect(result).toEqual(true);
+      });
+
+      it("should create protein variant query without gene", () => {
+        const query = {
+          q: "C32T"
+        };
+        const result = isBigsiQuery(query);
+        expect(result).toEqual(true);
+      });
+
+      it("should return false for normal search", () => {
+        const search = {
+          q: "abcd"
+        };
+
+        const result = isBigsiQuery(search);
+        expect(result).toEqual(false);
       });
     });
   });

@@ -5,7 +5,7 @@ import config from "../../../config/env";
  * Regex constants
  */
 const SEQUENCE_REGEX = /^[ACGT]+$/;
-const PROTEIN_VARIANT_REGEX = /([a-zA-Z]+)_([A-Z])([-0-9]+)([A-Z])/;
+const PROTEIN_VARIANT_REGEX = /([a-zA-Z]+)?_?([A-Z])([-0-9]+)([A-Z])/;
 
 /**
  * Search types constants
