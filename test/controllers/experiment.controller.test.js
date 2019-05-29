@@ -4,7 +4,11 @@ import fs from "fs";
 import hash from "object-hash";
 import moment from "moment";
 
+import Constants from "../../src/server/Constants";
+
 import { config, createApp } from "../setup";
+
+import SearchHelper from "../../src/server/helpers/SearchHelper";
 
 import User from "../../src/server/models/user.model";
 import Experiment from "../../src/server/models/experiment.model";
@@ -20,15 +24,16 @@ import predictor787 from "../fixtures/files/787.predictor.json";
 import predictor788 from "../fixtures/files/788.predictor.json";
 import predictor789 from "../fixtures/files/789.predictor.json";
 import NEAREST_NEIGHBOURS from "../fixtures/files/NEAREST_NEIGHBOURS_Results.json";
+
 import results from "../fixtures/results";
+import users from "../fixtures/users";
+import experiments from "../fixtures/experiments";
+import trees from "../fixtures/trees";
+import searches from "../fixtures/searches";
 
 const app = createApp();
 
 const mongo = require("promised-mongo").compatible();
-const users = require("../fixtures/users");
-const experiments = require("../fixtures/experiments");
-const trees = require("../fixtures/trees");
-const searches = require("../fixtures/searches");
 
 let token = null;
 let id = null;
@@ -2240,8 +2245,22 @@ describe("ExperimentController", () => {
             .expect(httpStatus.OK)
             .end(async (err, res) => {
               expect(res.body.status).toEqual("success");
-              expect(res.body.data.status).toEqual(Search.constants().PENDING);
+              expect(res.body.data.status).toEqual(Constants.SEARCH_PENDING);
               expect(res.body.data.type).toEqual("protein-variant");
+
+              const data = res.body.data;
+              expect(data).toHaveProperty("type", "protein-variant");
+              expect(data).toHaveProperty("bigsi");
+
+              const bigsi = data.bigsi;
+              expect(bigsi).toHaveProperty("type", "protein-variant");
+              expect(bigsi).toHaveProperty("query");
+
+              const query = bigsi.query;
+              expect(query).toHaveProperty("gene", "rpoB");
+              expect(query).toHaveProperty("ref", "S");
+              expect(query).toHaveProperty("pos", 450);
+              expect(query).toHaveProperty("alt", "L");
               done();
             });
         });
@@ -2252,8 +2271,15 @@ describe("ExperimentController", () => {
             .expect(httpStatus.OK)
             .end(async (err, res) => {
               expect(res.body.status).toEqual("success");
-              expect(res.body.data.users.length).toEqual(1);
-              expect(res.body.data.users[0].firstname).toEqual("David");
+              expect(res.body.data).toHaveProperty("users");
+
+              const users = res.body.data.users;
+              expect(users.length).toEqual(1);
+
+              const user = users.shift();
+              expect(user.firstname).toEqual("David");
+              expect(user.lastname).toEqual("Robin");
+              expect(user.email).toEqual("admin@nhs.co.uk");
               done();
             });
         });
@@ -2270,11 +2296,17 @@ describe("ExperimentController", () => {
                 while (!job) {
                   job = await findJobBySearchId(jobs, res.body.data.id, "call search api");
                 }
-                expect(job.data.search.bigsi.type).toEqual("protein-variant");
-                expect(job.data.search.bigsi.gene).toEqual("rpoB");
-                expect(job.data.search.bigsi.ref).toEqual("S");
-                expect(job.data.search.bigsi.pos).toEqual(450);
-                expect(job.data.search.bigsi.alt).toEqual("L");
+                expect(job.data).toHaveProperty("search");
+                expect(job.data.search.type).toEqual("protein-variant");
+                expect(job.data.search).toHaveProperty("bigsi");
+                expect(job.data.search.bigsi).toHaveProperty("type", "protein-variant");
+                expect(job.data.search.bigsi).toHaveProperty("query");
+
+                const query = job.data.search.bigsi.query;
+                expect(query.gene).toEqual("rpoB");
+                expect(query.ref).toEqual("S");
+                expect(query.pos).toEqual(450);
+                expect(query.alt).toEqual("L");
                 done();
               } catch (e) {
                 fail(e.message);
@@ -2290,14 +2322,16 @@ describe("ExperimentController", () => {
             .end(async (err, res) => {
               expect(res.body.status).toEqual("success");
               expect(res.body.data.hash).toEqual(
-                hash({
+                SearchHelper.generateHash({
                   type: "protein-variant",
                   bigsi: {
                     type: "protein-variant",
-                    gene: "rpoB",
-                    ref: "S",
-                    pos: 450,
-                    alt: "L"
+                    query: {
+                      gene: "rpoB",
+                      ref: "S",
+                      pos: 450,
+                      alt: "L"
+                    }
                   }
                 })
               );
@@ -2351,19 +2385,25 @@ describe("ExperimentController", () => {
       describe("when a pending search found in the cache", () => {
         let searchId = null;
         beforeEach(async done => {
-          const searchData = new Search(searches.searchOnly.proteinVariant);
-          const savedSearch = await searchData.save();
-          searchId = savedSearch.id;
-          const auditData = new Audit({
-            status: "Successful",
-            searchId,
-            taskId: "123-456-789",
-            type: savedSearch.type,
-            attempt: 1,
-            requestMethod: "post"
-          });
-          await auditData.save();
-          done();
+          try {
+            const searchData = new Search(searches.searchOnly.proteinVariant);
+            const savedSearch = await searchData.save();
+
+            searchId = savedSearch.id;
+            const auditData = new Audit({
+              status: "Successful",
+              searchId,
+              taskId: "123-456-789",
+              type: savedSearch.type,
+              attempt: 1,
+              requestMethod: "post"
+            });
+
+            await auditData.save();
+            done();
+          } catch (e) {
+            done(e);
+          }
         });
         it("should add the user to the list of users to be notified", done => {
           request(app)
@@ -2451,11 +2491,15 @@ describe("ExperimentController", () => {
       describe("when a results are expired", () => {
         let searchId = null;
         beforeEach(async done => {
-          const searchData = new Search(searches.full.proteinVariant);
-          const expires = new Date();
-          expires.setDate(expires.getDate() - 2);
-          searchData.expires = expires;
-          const savedSearch = await searchData.save();
+          const search = new Search(searches.full.proteinVariant);
+
+          // expire the search
+          const expires = moment();
+          expires.subtract(2, "days");
+          search.expires = expires.toDate();
+
+          const savedSearch = await search.save();
+
           searchId = savedSearch.id;
           const auditData = new Audit({
             status: "Successful",
@@ -2495,11 +2539,18 @@ describe("ExperimentController", () => {
                 while (!job) {
                   job = await findJobBySearchId(jobs, res.body.data.id, "call search api");
                 }
-                expect(job.data.search.type).toEqual("protein-variant");
-                expect(job.data.search.bigsi.gene).toEqual("rpoB");
-                expect(job.data.search.bigsi.ref).toEqual("S");
-                expect(job.data.search.bigsi.pos).toEqual(450);
-                expect(job.data.search.bigsi.alt).toEqual("L");
+                const search = job.data.search;
+
+                expect(search).toHaveProperty("type", "protein-variant");
+                expect(search).toHaveProperty("bigsi");
+                const bigsi = search.bigsi;
+                expect(bigsi).toHaveProperty("type", "protein-variant");
+                expect(bigsi).toHaveProperty("query");
+                const query = bigsi.query;
+                expect(query.gene).toEqual("rpoB");
+                expect(query.ref).toEqual("S");
+                expect(query.pos).toEqual(450);
+                expect(query.alt).toEqual("L");
 
                 done();
               } catch (e) {
