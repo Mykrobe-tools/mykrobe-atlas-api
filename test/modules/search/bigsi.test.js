@@ -8,59 +8,61 @@ import setup from "../../setup";
 
 describe("bigsi", () => {
   describe("#extractBigsiQuery", () => {
-    describe("when q contains any combination ACGT and threshold was passed", () => {
-      it("should create sequence query with the threshold passed", () => {
-        const search = {
-          q: "CGGTCAGTCCGTTTGTTCTTGTGGCGAGTGTTGCCGTTTTCTTG",
-          threshold: 0.9
-        };
+    describe("when q contains a sequence", () => {
+      describe("with a threshold", () => {
+        it("should create sequence query with the threshold passed", () => {
+          const search = {
+            q: "CGGTCAGTCCGTTTGTTCTTGTGGCGAGTGTTGCCGTTTTCTTG",
+            threshold: 0.9
+          };
 
-        const bigsi = extractBigsiQuery(search);
-        expect(bigsi).toHaveProperty("type", "sequence");
-        expect(bigsi).toHaveProperty("query");
-        const query = bigsi.query;
-        expect(query).toHaveProperty("seq", "CGGTCAGTCCGTTTGTTCTTGTGGCGAGTGTTGCCGTTTTCTTG");
-        expect(query).toHaveProperty("threshold", 0.9);
+          const bigsi = extractBigsiQuery(search);
+          expect(bigsi).toHaveProperty("type", "sequence");
+          expect(bigsi).toHaveProperty("query");
+          const query = bigsi.query;
+          expect(query).toHaveProperty("seq", "CGGTCAGTCCGTTTGTTCTTGTGGCGAGTGTTGCCGTTTTCTTG");
+          expect(query).toHaveProperty("threshold", 0.9);
+        });
+        it("should remove the free text search from the underlying query", () => {
+          const query = {
+            q: "CGGTCAGTCCGTTTGTTCTTGTGGCGAGTGTTGCCGTTTTCTTG",
+            threshold: 0.9
+          };
+          const result = extractBigsiQuery(query);
+
+          expect(query.q).toBeUndefined();
+        });
+        it("should remove threshold from the underlying query", () => {
+          const query = {
+            q: "CGGTCAGTCCGTTTGTTCTTGTGGCGAGTGTTGCCGTTTTCTTG",
+            threshold: 0.9
+          };
+          const result = extractBigsiQuery(query);
+
+          expect(query.threshold).toBeUndefined();
+        });
       });
-      it("should remove the free text search from the underlying query", () => {
-        const query = {
-          q: "CGGTCAGTCCGTTTGTTCTTGTGGCGAGTGTTGCCGTTTTCTTG",
-          threshold: 0.9
-        };
-        const result = extractBigsiQuery(query);
+      describe("with no threshold passed", () => {
+        it("should create sequence query with a default threshold of 1", () => {
+          const search = {
+            q: "CGGTCAGTCCGTTTGTTCTTGTGGCGAGTGTTGCCGTTTTCTTG"
+          };
+          const bigsi = extractBigsiQuery(search);
+          expect(bigsi).toHaveProperty("query");
+          const query = bigsi.query;
+          expect(query).toHaveProperty("threshold", 1);
+        });
+        it("should remove the free text search from the underlying query", () => {
+          const query = {
+            q: "CGGTCAGTCCGTTTGTTCTTGTGGCGAGTGTTGCCGTTTTCTTG"
+          };
+          const result = extractBigsiQuery(query);
 
-        expect(query.q).toBeUndefined();
-      });
-      it("should remove threshold from the underlying query", () => {
-        const query = {
-          q: "CGGTCAGTCCGTTTGTTCTTGTGGCGAGTGTTGCCGTTTTCTTG",
-          threshold: 0.9
-        };
-        const result = extractBigsiQuery(query);
-
-        expect(query.threshold).toBeUndefined();
+          expect(query.q).toBeUndefined();
+        });
       });
     });
-    describe("when q contains any combination ACGT and no threshold passed", () => {
-      it("should create sequence query with a default threshold of 1", () => {
-        const search = {
-          q: "CGGTCAGTCCGTTTGTTCTTGTGGCGAGTGTTGCCGTTTTCTTG"
-        };
-        const bigsi = extractBigsiQuery(search);
-        expect(bigsi).toHaveProperty("query");
-        const query = bigsi.query;
-        expect(query).toHaveProperty("threshold", 1);
-      });
-      it("should remove the free text search from the underlying query", () => {
-        const query = {
-          q: "CGGTCAGTCCGTTTGTTCTTGTGGCGAGTGTTGCCGTTTTCTTG"
-        };
-        const result = extractBigsiQuery(query);
-
-        expect(query.q).toBeUndefined();
-      });
-    });
-    describe("when the free-text query matches the protein variant format", () => {
+    describe("when the free-text query uses protein variant format", () => {
       it("should create protein variant query", () => {
         const query = {
           q: "rpoB_S450L"
@@ -85,18 +87,31 @@ describe("bigsi", () => {
 
         expect(query.q).toBeUndefined();
       });
-
-      it("should create protein variant query without gene", () => {
+    });
+    describe("when the free-text query uses dna variant format", () => {
+      it("should create dna variant query", done => {
+        const search = {
+          q: "C32T"
+        };
+        const result = extractBigsiQuery(search);
+        expect(result.type).toEqual("dna-variant");
+        expect(result).toHaveProperty("query");
+        const query = result.query;
+        expect(query.ref).toEqual("C");
+        expect(query.alt).toEqual("T");
+        expect(query.pos).toEqual(32);
+        expect(query.gene).toBeUndefined();
+        done();
+      });
+      it("should remove the free-text query from the underlying search", done => {
         const query = {
           q: "C32T"
         };
         const result = extractBigsiQuery(query);
 
-        expect(result.type).toEqual("protein-variant");
-        expect(result.ref).toEqual("C");
-        expect(result.alt).toEqual("T");
-        expect(result.pos).toEqual(32);
-        expect(result.gene).toBeUndefined();
+        expect(query.q).toBeUndefined();
+
+        done();
       });
     });
     describe("when q doesnt match any format", () => {
@@ -182,7 +197,8 @@ describe("bigsi", () => {
         const result = isBigsiQuery(query);
         expect(result).toEqual(true);
       });
-
+    });
+    describe("when the free-text query matches the sequence format", () => {
       it("should return true for sequence search", () => {
         const search = {
           q: "CGGTCAGTCCGTTTGTTCTTGTGGCGAGTGTTGCCGTTTTCTTG",
@@ -192,15 +208,17 @@ describe("bigsi", () => {
         const result = isBigsiQuery(search);
         expect(result).toEqual(true);
       });
-
-      it("should create protein variant query without gene", () => {
+    });
+    describe("when the free-text query matches the dna variant format", () => {
+      it("should create dna variant query", () => {
         const query = {
           q: "C32T"
         };
         const result = isBigsiQuery(query);
         expect(result).toEqual(true);
       });
-
+    });
+    describe("when the free-text query matches is not a bigsi query", () => {
       it("should return false for normal search", () => {
         const search = {
           q: "abcd"

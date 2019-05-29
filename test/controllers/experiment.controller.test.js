@@ -2369,8 +2369,8 @@ describe("ExperimentController", () => {
               done();
             });
         });
-        describe("when no gene is provided", () => {
-          it("should trigger protein variant search", done => {
+        describe("when using a dna variant querys", () => {
+          it("should trigger dna variant search", done => {
             request(app)
               .get("/experiments/search?q=C32T")
               .set("Authorization", `Bearer ${token}`)
@@ -2383,11 +2383,16 @@ describe("ExperimentController", () => {
                   while (!job) {
                     job = await findJobBySearchId(jobs, res.body.data.id, "call search api");
                   }
-                  expect(job.data.search.bigsi.type).toEqual("protein-variant");
-                  expect(job.data.search.bigsi.gene).toBeUndefined();
-                  expect(job.data.search.bigsi.ref).toEqual("C");
-                  expect(job.data.search.bigsi.pos).toEqual(32);
-                  expect(job.data.search.bigsi.alt).toEqual("T");
+                  expect(job.data.search).toHaveProperty("bigsi");
+                  expect(job.data.search.bigsi).toHaveProperty("type", "dna-variant");
+                  expect(job.data.search.bigsi).toHaveProperty("query");
+
+                  const query = job.data.search.bigsi.query;
+
+                  expect(query.ref).toEqual("C");
+                  expect(query.pos).toEqual(32);
+                  expect(query.alt).toEqual("T");
+
                   done();
                 } catch (e) {
                   fail(e.message);
@@ -2401,13 +2406,21 @@ describe("ExperimentController", () => {
               .set("Authorization", `Bearer ${token}`)
               .expect(httpStatus.OK)
               .end(async (err, res) => {
-                expect(res.body.status).toEqual("success");
-                expect(res.body.data.bigsi).toEqual({
-                  type: "protein-variant",
-                  ref: "C",
-                  pos: 32,
-                  alt: "T"
-                });
+                expect(res.body.data).toHaveProperty("hash");
+                expect(res.body.data.hash).toEqual(
+                  SearchHelper.generateHash({
+                    bigsi: {
+                      type: "dna-variant",
+                      query: {
+                        ref: "C",
+                        pos: 32,
+                        alt: "T"
+                      }
+                    },
+                    type: "dna-variant"
+                  })
+                );
+
                 done();
               });
           });
