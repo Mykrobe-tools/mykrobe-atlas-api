@@ -136,7 +136,6 @@ const extractProteinVariantQuery = query => {
  * @param {Object} query
  */
 const callBigsiApi = async query => {
-  console.log(query);
   try {
     const response = await axios.post(`${config.services.analysisApiUrl}/search`, query);
     return response.data;
