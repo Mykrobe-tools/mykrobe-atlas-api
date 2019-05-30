@@ -83,7 +83,7 @@ describe("SearchController", () => {
             expect(bigsi).toHaveProperty("query");
             const query = bigsi.query;
             expect(query).toHaveProperty("seq", "GTCAGTCCGTTTGTTCTTGTGGCGAGTGTAGTA");
-            expect(query).toHaveProperty("threshold", 0.9);
+            expect(query).toHaveProperty("threshold", 90);
 
             expect(data).toHaveProperty("users");
             expect(data.users.length).toEqual(0);
