@@ -54,7 +54,7 @@ const router = express.Router();
  *         bigsi:
  *           type: sequence
  *           seq: CAGTCCGTTTGTTCT
- *           threshold: 0.9
+ *           threshold: 90
  *         result:
  *           type: sequence
  *           received: 2018-09-19T09:17:14.565Z
@@ -102,7 +102,7 @@ router
    *                 percent_kmers_found: 100
    *             query:
    *               seq: CTTGTGGCGAGTGTTGC
-   *               threshold: 0.8
+   *               threshold: 80
    *     responses:
    *       200:
    *         description: Search Result data
