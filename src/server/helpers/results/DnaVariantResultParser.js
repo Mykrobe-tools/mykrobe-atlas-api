@@ -12,12 +12,25 @@ class DnaVariantResultParser extends ResultParser {
     };
     if (this.namedResult && this.namedResult.result) {
       const container = this.namedResult.result;
+      result.reference = container.reference;
+      result.ref = container.ref;
+      result.pos = container.pos;
+      result.alt = container.alt;
+      result.genebank = container.genebank || null;
+      result.gene = container.gene || null;
+      result.completedBigsiQueries = container.completed_bigsi_queries;
+      result.totalBigsiQueries = container.total_bigsi_queries;
+
       delete container.query;
-      // single mutation only
-      const mutation = Object.keys(container).pop();
-      if (mutation) {
-        result.result = container[mutation];
-      }
+
+      const hits = container.results.map(hit => {
+        return {
+          "metadata.sample.isolateId": hit.sample_name,
+          genotype: hit.genotype
+        };
+      });
+
+      result.results = hits;
     }
 
     return result;
