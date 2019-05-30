@@ -111,6 +111,18 @@ export default {
       },
       status: "pending"
     },
+    dnaVariant: {
+      type: "dna-variant",
+      bigsi: {
+        type: "dna-variant",
+        query: {
+          ref: "G",
+          pos: 4346385,
+          alt: "C"
+        }
+      },
+      status: "pending"
+    },
     pendingSearch: {
       type: "sequence",
       bigsi: {
@@ -172,56 +184,52 @@ export default {
         }
       }
     },
+    dnaVariant: {
+      type: "dna-variant",
+      result: {
+        id: "a699c1ecde6f6e6713190eed9",
+        reference: "/data/NC_000961.4.fasta",
+        ref: "G",
+        pos: 4346385,
+        alt: "C",
+        genbank: null,
+        gene: null,
+        completed_bigsi_queries: 2,
+        total_bigsi_queries: 1,
+        results: [
+          {
+            sample_name: "HN079",
+            genotype: "1/1"
+          },
+          {
+            sample_name: "SAMN06092584",
+            genotype: "1/1"
+          }
+        ]
+      }
+    },
     proteinVariant: {
       type: "protein-variant",
       result: {
-        rpoB_S450L: {
-          SRR1229544: {
-            genotype: "0/0",
-            aa_mut: "S450L",
-            variant: "TCG761154CTG",
-            gene: "rpoB"
+        id: "a699c1eaee6f6e618910eed9",
+        reference: "/data/NC_000962.3.fasta",
+        ref: "S",
+        pos: 450,
+        alt: "L",
+        genbank: null,
+        gene: "rpoB",
+        completed_bigsi_queries: 3,
+        total_bigsi_queries: 1,
+        results: [
+          {
+            sample_name: "HN081",
+            genotype: "1/1"
           },
-          SRR1792504: {
-            genotype: "0/0",
-            aa_mut: "S450L",
-            variant: "TCG761154CTG",
-            gene: "rpoB"
-          },
-          SRR1173815: {
-            genotype: "0/0",
-            aa_mut: "S450L",
-            variant: "TCG761154CTG",
-            gene: "rpoB"
-          },
-          ERR133938: {
-            genotype: "0/0",
-            aa_mut: "S450L",
-            variant: "TCG761154CTG",
-            gene: "rpoB"
-          },
-          ERR550906: {
-            genotype: "1/1",
-            aa_mut: "S450L",
-            variant: "TCG761154TTG",
-            gene: "rpoB"
-          },
-          ERR1213887: {
-            genotype: "1/1",
-            aa_mut: "S450L",
-            variant: "TCG761154TTG",
-            gene: "rpoB"
+          {
+            sample_name: "SAMN06192378",
+            genotype: "1/1"
           }
-        }
-      },
-      bigsi: {
-        type: "protein-variant",
-        query: {
-          ref: "S",
-          alt: "L",
-          pos: 450,
-          gene: "rpoB"
-        }
+        ]
       }
     }
   }

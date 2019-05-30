@@ -19,6 +19,7 @@ import users from "../fixtures/users";
 
 let token = "123";
 
+let dnaVariantSearchId = null;
 let proteinVariantSearchId = null;
 let sequenceSearchId = null;
 
@@ -52,6 +53,19 @@ beforeEach(async done => {
     status: "Success"
   });
   await proteinSearchAudit.save();
+
+  // dna variant search with no results
+  const dnaVariantSearch = new Search(searches.searchOnly.dnaVariant);
+  const savedDnaVariantSearch = await dnaVariantSearch.save();
+  dnaVariantSearchId = savedDnaVariantSearch.id;
+
+  // audit for the protein variant search
+  const dnaSearchAudit = new Audit({
+    searchId: dnaVariantSearchId,
+    attempts: 1,
+    status: "Success"
+  });
+  await dnaSearchAudit.save();
 
   done();
 });
@@ -201,7 +215,7 @@ describe("SearchController", () => {
       });
     });
     describe("when searching by protein variant", () => {
-      it("should store protein variant results", done => {
+      it("should return protein variant results", done => {
         request(app)
           .put(`/searches/${proteinVariantSearchId}/results`)
           .send(searches.results.proteinVariant)
@@ -229,10 +243,116 @@ describe("SearchController", () => {
             expect(data).toHaveProperty("result");
             const container = data.result;
             expect(container).toHaveProperty("received");
+            expect(container).toHaveProperty("reference", "/data/NC_000962.3.fasta");
+            expect(container).toHaveProperty("ref", "S");
+            expect(container).toHaveProperty("pos", 450);
+            expect(container).toHaveProperty("alt", "L");
+            expect(container).toHaveProperty("genebank", null);
+            expect(container).toHaveProperty("gene", "rpoB");
+            expect(container).toHaveProperty("completedBigsiQueries", 3);
+            expect(container).toHaveProperty("totalBigsiQueries", 1);
 
-            expect(container).toHaveProperty("result");
-            const result = container.result;
-            expect(Object.keys(result).length).toEqual(6);
+            expect(container).toHaveProperty("results");
+            const results = container.results;
+            expect(results.length).toEqual(2);
+
+            expect(results.length).toEqual(2);
+            results.forEach(entry => {
+              const isolateId = entry["metadata.sample.isolateId"];
+              const genotype = entry.genotype;
+
+              expect(["HN081", "SAMN06192378"].includes(isolateId)).toEqual(true);
+              expect(genotype).toEqual("1/1");
+            });
+
+            done();
+          });
+      });
+      it("should store protein variant results in the search", done => {
+        request(app)
+          .put(`/searches/${proteinVariantSearchId}/results`)
+          .send(searches.results.proteinVariant)
+          .expect(httpStatus.OK)
+          .end(async (err, res) => {
+            const search = await Search.get(proteinVariantSearchId);
+            expect(search).toBeTruthy();
+
+            const result = search.get("result");
+            expect(result.type).toEqual("protein-variant");
+            expect(result).toHaveProperty("results");
+            expect(result.results.length).toEqual(2);
+
+            done();
+          });
+      });
+    });
+    describe("when searching by dna variant", () => {
+      it("should return dna variant results", done => {
+        request(app)
+          .put(`/searches/${dnaVariantSearchId}/results`)
+          .send(searches.results.dnaVariant)
+          .expect(httpStatus.OK)
+          .end((err, res) => {
+            expect(res.body).toHaveProperty("status", "success");
+            expect(res.body).toHaveProperty("data");
+
+            const data = res.body.data;
+            expect(data).toHaveProperty("type", "dna-variant");
+            expect(data).toHaveProperty("bigsi");
+            const bigsi = data.bigsi;
+            expect(bigsi).toHaveProperty("query");
+            const query = bigsi.query;
+            expect(query).toHaveProperty("ref", "G");
+            expect(query).toHaveProperty("alt", "C");
+            expect(query).toHaveProperty("pos", 4346385);
+            expect(query).not.toHaveProperty("gene");
+
+            expect(data).toHaveProperty("created");
+            expect(data).toHaveProperty("modified");
+            expect(data).toHaveProperty("users");
+            expect(data).toHaveProperty("id");
+
+            expect(data).toHaveProperty("result");
+            const container = data.result;
+            expect(container).toHaveProperty("received");
+            expect(container).toHaveProperty("reference", "/data/NC_000961.4.fasta");
+            expect(container).toHaveProperty("ref", "G");
+            expect(container).toHaveProperty("pos", 4346385);
+            expect(container).toHaveProperty("alt", "C");
+            expect(container).toHaveProperty("genebank", null);
+            expect(container).toHaveProperty("gene", null);
+            expect(container).toHaveProperty("completedBigsiQueries", 2);
+            expect(container).toHaveProperty("totalBigsiQueries", 1);
+
+            expect(container).toHaveProperty("results");
+            const results = container.results;
+            expect(results.length).toEqual(2);
+
+            expect(results.length).toEqual(2);
+            results.forEach(entry => {
+              const isolateId = entry["metadata.sample.isolateId"];
+              const genotype = entry.genotype;
+
+              expect(["HN079", "SAMN06092584"].includes(isolateId)).toEqual(true);
+              expect(genotype).toEqual("1/1");
+            });
+
+            done();
+          });
+      });
+      it("should store dna variant results in the search", done => {
+        request(app)
+          .put(`/searches/${dnaVariantSearchId}/results`)
+          .send(searches.results.dnaVariant)
+          .expect(httpStatus.OK)
+          .end(async (err, res) => {
+            const search = await Search.get(dnaVariantSearchId);
+            expect(search).toBeTruthy();
+
+            const result = search.get("result");
+            expect(result.type).toEqual("dna-variant");
+            expect(result).toHaveProperty("results");
+            expect(result.results.length).toEqual(2);
 
             done();
           });

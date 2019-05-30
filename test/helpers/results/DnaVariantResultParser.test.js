@@ -1,25 +1,25 @@
-import ProteinVariantResultParser from "../../../src/server/helpers/results/ProteinVariantResultParser";
+import DnaVariantResultParser from "../../../src/server/helpers/results/DnaVariantResultParser";
 import searches from "../../fixtures/searches";
 
-describe("ProteinVariantResultParser", () => {
+describe("DnaVariantResultParser", () => {
   describe("#parse", () => {
     it("should parse a result", done => {
-      const parser = new ProteinVariantResultParser(searches.results.proteinVariant);
+      const parser = new DnaVariantResultParser(searches.results.dnaVariant);
       const parsedResult = parser.parse();
 
-      expect(parsedResult).toHaveProperty("type", "protein-variant");
+      expect(parsedResult).toHaveProperty("type", "dna-variant");
 
       expect(parsedResult).toHaveProperty("received");
       expect(parsedResult.received).toBeTruthy();
 
       expect(parsedResult).toHaveProperty("results");
-      expect(parsedResult).toHaveProperty("reference", "/data/NC_000962.3.fasta");
-      expect(parsedResult).toHaveProperty("ref", "S");
-      expect(parsedResult).toHaveProperty("pos", 450);
-      expect(parsedResult).toHaveProperty("alt", "L");
+      expect(parsedResult).toHaveProperty("reference", "/data/NC_000961.4.fasta");
+      expect(parsedResult).toHaveProperty("ref", "G");
+      expect(parsedResult).toHaveProperty("pos", 4346385);
+      expect(parsedResult).toHaveProperty("alt", "C");
       expect(parsedResult).toHaveProperty("genebank", null);
-      expect(parsedResult).toHaveProperty("gene", "rpoB");
-      expect(parsedResult).toHaveProperty("completedBigsiQueries", 3);
+      expect(parsedResult).toHaveProperty("gene", null);
+      expect(parsedResult).toHaveProperty("completedBigsiQueries", 2);
       expect(parsedResult).toHaveProperty("totalBigsiQueries", 1);
 
       expect(parsedResult).toHaveProperty("results");
@@ -29,7 +29,7 @@ describe("ProteinVariantResultParser", () => {
         const isolateId = entry["metadata.sample.isolateId"];
         const genotype = entry.genotype;
 
-        expect(["HN081", "SAMN06192378"].includes(isolateId)).toEqual(true);
+        expect(["HN079", "SAMN06092584"].includes(isolateId)).toEqual(true);
         expect(genotype).toEqual("1/1");
       });
 
