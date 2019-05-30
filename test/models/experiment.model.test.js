@@ -259,16 +259,20 @@ describe("Experiment", () => {
     describe("when the experiement has results", () => {
       it("should transform experiment results", async done => {
         const experimentDataWithResults = new Experiment(experiments.tbUploadMetadataResults);
-        const savedExperimentWithResults = await experimentDataWithResults.save();
+        try {
+          const savedExperimentWithResults = await experimentDataWithResults.save();
 
-        const json = savedExperimentWithResults.toJSON();
+          const json = savedExperimentWithResults.toJSON();
 
-        expect(json.results).toBeTruthy();
-        const results = json.results;
-        expect(results).toHaveProperty("distance-nearest-neighbour");
-        expect(results["distance-nearest-neighbour"]).toBeTruthy();
-        expect(results).toHaveProperty("distance-tree-distance");
-        expect(results["distance-tree-distance"]).toBeTruthy();
+          expect(json.results).toBeTruthy();
+          const results = json.results;
+          expect(results).toHaveProperty("distance-nearest-neighbour");
+          expect(results["distance-nearest-neighbour"]).toBeTruthy();
+          expect(results).toHaveProperty("distance-tree-distance");
+          expect(results["distance-tree-distance"]).toBeTruthy();
+        } catch (e) {
+          console.log(JSON.stringify(e));
+        }
 
         done();
       });
