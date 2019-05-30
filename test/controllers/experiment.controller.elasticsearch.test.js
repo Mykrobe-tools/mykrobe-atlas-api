@@ -408,6 +408,19 @@ describe("ExperimentController > Elasticsearch", () => {
           done();
         });
     });
+    it("should match the relevance to the score from elasticsearch", done => {
+      request(app)
+        .get("/experiments/search?q=insulin")
+        .set("Authorization", `Bearer ${token}`)
+        .expect(httpStatus.OK)
+        .end((err, res) => {
+          expect(res.body.data.metadata.maxRelevance).toEqual(3.8100972);
+          res.body.data.results.forEach(result => {
+            expect(result).toHaveProperty("relevance", 3.8100972);
+          });
+          done();
+        });
+    });
     it("should apply a free text search query", done => {
       request(app)
         .get("/experiments/search?q=Female")

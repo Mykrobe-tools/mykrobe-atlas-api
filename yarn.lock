@@ -4552,7 +4552,6 @@ json-schema@0.2.3:
 json-stable-stringify@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/json-stable-stringify/-/json-stable-stringify-1.0.1.tgz#9a759d39c5f2ff503fd5300646ed445f88c4f9af"
-  integrity sha1-mnWdOcXy/1A/1TAGRu1EX4jE+a8=
   dependencies:
     jsonify "~0.0.0"
 
@@ -4575,7 +4574,6 @@ jsonfile@^4.0.0:
 jsonify@~0.0.0:
   version "0.0.0"
   resolved "https://registry.yarnpkg.com/jsonify/-/jsonify-0.0.0.tgz#2c74b6ee41d93ca51b7b5aaee8f503631d252a73"
-  integrity sha1-LHS27kHZPKUbe1qu6PUDYx0lKnM=
 
 jsonpointer@^4.0.1:
   version "4.0.1"
@@ -4987,9 +4985,9 @@ make-iterator@^1.0.0:
     tough-cookie "^3.0.1"
     url "^0.11.0"
 
-"makeandship-api-common@git+ssh://git@bitbucket.org:makeandship/makeandship-api-common.git#v0.0.66":
-  version "0.0.66"
-  resolved "git+ssh://git@bitbucket.org:makeandship/makeandship-api-common.git#caed2540b15246ac55b9f48b716c0fe0b997c1d2"
+"makeandship-api-common@git+ssh://git@bitbucket.org:makeandship/makeandship-api-common.git#v0.0.67":
+  version "0.0.67"
+  resolved "git+ssh://git@bitbucket.org:makeandship/makeandship-api-common.git#76c4611cebc027547e4c2acba9145211b5191ab2"
   dependencies:
     ajv "^6.5.0"
     axios "^0.18.0"
