@@ -4,9 +4,9 @@ export default {
 
   DEFAULT_SEARCH_EXPIRY_DAYS: 3,
   LIBRARY_PROJECTION: {
-    id: "id",
-    "metadata.sample.isolateId": "metadata.sample.isolateId",
-    "metadata.sample.longitudeIsolate": "metadata.sample.longitudeIsolate",
-    "metadata.sample.latitudeIsolate": "metadata.sample.latitudeIsolate"
+    _id: 1,
+    "metadata.sample.isolateId": 1,
+    "metadata.sample.longitudeIsolate": 1,
+    "metadata.sample.latitudeIsolate": 1
   }
 };

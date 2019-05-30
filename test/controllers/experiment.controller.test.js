@@ -398,7 +398,6 @@ describe("ExperimentController", () => {
               expect(first.metadata.sample.latitudeIsolate).toBeTruthy();
 
               expect(Object.keys(first.metadata).length).toEqual(1);
-              
 
               done();
             });
@@ -431,7 +430,7 @@ describe("ExperimentController", () => {
               expect(first.metadata.sample.latitudeIsolate).toBeTruthy();
 
               expect(Object.keys(first.metadata).length).toEqual(1);
-              
+
               expect(first.results).toBeUndefined();
               expect(first.type).toBeUndefined();
               expect(first.subType).toBeUndefined();

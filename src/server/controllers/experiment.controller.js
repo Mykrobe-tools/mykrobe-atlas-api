@@ -453,7 +453,7 @@ const inflateResult = async (result, projection = null) => {
   const enhancedExperiments = [];
   if (result.experiments && Array.isArray(result.experiments)) {
     const ids = result.experiments.map(experiment => experiment.id);
-    const experiments = await Experiment.findByIsolateIds(ids);
+    const experiments = await Experiment.findByIsolateIds(ids, projection);
     result.experiments.forEach(experiment => {
       try {
         const exp = experiments.filter(item => {
@@ -464,12 +464,7 @@ const inflateResult = async (result, projection = null) => {
         experiment.metadata = exp[0].get("metadata");
         experiment.id = exp[0].id;
       } catch (e) {}
-      if (projection) {
-        const lightExperiment = objectMapper(experiment, projection);
-        enhancedExperiments.push(lightExperiment);
-      } else {
-        enhancedExperiments.push(experiment);
-      }
+      enhancedExperiments.push(experiment);
     });
   }
   const transformedExperiments = new ArrayJSONTransformer().transform(enhancedExperiments, {
