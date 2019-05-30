@@ -2,6 +2,7 @@ import errors from "errors";
 import httpStatus from "http-status";
 import mkdirp from "mkdirp-promise";
 import Promise from "bluebird";
+import objectMapper from "object-mapper";
 
 import { ElasticsearchHelper } from "makeandship-api-common/lib/modules/elasticsearch/";
 import ArrayJSONTransformer from "makeandship-api-common/lib/transformers/ArrayJSONTransformer";
@@ -33,6 +34,7 @@ import ExperimentsResultJSONTransformer from "../transformers/es/ExperimentsResu
 import ResultsJSONTransformer from "../transformers/ResultsJSONTransformer";
 
 import config from "../../config/env";
+import Constants from "../Constants";
 
 // sort whitelist
 const sortWhitelist = ElasticsearchHelper.getSortWhitelist(experimentSchema, "experiment");
@@ -68,7 +70,7 @@ const get = async (req, res) => {
     const keys = Object.keys(experiment.results);
     keys.forEach(key => {
       const result = experiment.results[key];
-      promises[key] = inflateResult(result);
+      promises[key] = inflateResult(result, Constants.LIBRARY_PROJECTION);
     });
 
     experiment.results = await Promise.props(promises);
@@ -447,7 +449,7 @@ const listResults = async (req, res) => {
   return res.jsend(resp);
 };
 
-const inflateResult = async result => {
+const inflateResult = async (result, projection = null) => {
   const enhancedExperiments = [];
   if (result.experiments && Array.isArray(result.experiments)) {
     const ids = result.experiments.map(experiment => experiment.id);
@@ -462,7 +464,12 @@ const inflateResult = async result => {
         experiment.metadata = exp[0].get("metadata");
         experiment.id = exp[0].id;
       } catch (e) {}
-      enhancedExperiments.push(experiment);
+      if (projection) {
+        const lightExperiment = objectMapper(experiment, projection);
+        enhancedExperiments.push(lightExperiment);
+      } else {
+        enhancedExperiments.push(experiment);
+      }
     });
   }
   const transformedExperiments = new ArrayJSONTransformer().transform(enhancedExperiments, {
