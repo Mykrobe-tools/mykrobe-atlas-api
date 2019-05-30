@@ -108,10 +108,25 @@ describe("Search", () => {
 
         const foundSearchResult = savedSearchData.get("result");
         const result = foundSearchResult.result;
+        expect(result).toHaveProperty("results");
+        const results = result.results;
+        expect(results.length).toEqual(3);
 
-        expect(result.ERR017683.percent_kmers_found).toEqual(100);
-        expect(result.ERR1149371.percent_kmers_found).toEqual(90);
-        expect(result.ERR1163331.percent_kmers_found).toEqual(100);
+        results.forEach(result => {
+          const isolateId = result.sample_name;
+          const percentKmersFound = result.percent_kmers_found;
+          switch (isolateId) {
+            case "ERR017683":
+              expect(percentKmersFound).toEqual(100);
+              break;
+            case "ERR1149371":
+              expect(percentKmersFound).toEqual(90);
+              break;
+            case "ERR1163331":
+              expect(percentKmersFound).toEqual(100);
+              break;
+          }
+        });
 
         done();
       });

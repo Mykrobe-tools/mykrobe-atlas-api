@@ -57,9 +57,16 @@ class BigsiSearchHelper {
     if (search.isPending() && !search.userExists(user)) {
       await this.addAndNotifyUser(search, user);
     } else if (!search.isPending()) {
-      const mergedExperiments = await this.mergeWithExperiments(search, query);
-      search.set("result", mergedExperiments);
+      const result = search.get("result");
+
+      const results = result.results;
+
+      const experiments = await this.enhanceBigsiResultsWithExperiments(results, query);
+      result.results = experiments;
+
+      search.set("result", result);
     }
+
     return search;
   }
 
@@ -122,45 +129,49 @@ class BigsiSearchHelper {
    * @param {*} search
    * @param {*} query
    */
-  static async mergeWithExperiments(search, query) {
-    const mergedExperiments = [];
-    const result = search.get("result") || {};
+  static async enhanceBigsiResultsWithExperiments(results, query) {
+    const isolateIds =
+      results && Array.isArray(results) && results.length
+        ? results.map(r => r["metadata.sample.isolateId"])
+        : [];
 
-    let isolateIds = [];
-    if (result.result) {
-      isolateIds = Object.keys(result.result);
-    }
+    // filter by isolateIds
+    const isolateQuery = { "metadata.sample.isolateId": isolateIds };
 
-    // from ES
-    let searchQuery = { "metadata.sample.isolateId": isolateIds };
-    if (query && Object.keys(query).length > 0) {
-      Object.assign(searchQuery, flatten(query));
-    }
+    // include any elasticsearch side query filters
+    const elasticQuery =
+      query && Object.keys(query).length > 0
+        ? Object.assign(isolateQuery, flatten(query))
+        : isolateQuery;
 
-    const resp = await ElasticsearchHelper.search(config, searchQuery, "experiment");
+    const resp = await ElasticsearchHelper.search(config, elasticQuery, "experiment");
 
     const experiments = new ExperimentsResultJSONTransformer().transform(resp, {});
 
-    // merge results
+    // merge results in order
+    const hits = [];
     isolateIds.forEach(isolateId => {
-      let mergedExperiment = {};
-      try {
-        const exp = experiments.filter(item => item.metadata.sample.isolateId === isolateId);
+      const match = experiments.find(item => {
+        return item.metadata.sample.isolateId === isolateId;
+      });
 
-        mergedExperiment = exp[0];
-        mergedExperiment.results = mergedExperiment.results || {};
-        mergedExperiment.results.bigsi = result.result[isolateId];
-      } catch (e) {}
-      if (mergedExperiment) {
-        mergedExperiments.push(mergedExperiment);
+      const bigsi =
+        results && Array.isArray(results) && results.length
+          ? results.find(item => item["metadata.sample.isolateId"] === isolateId)
+          : null;
+
+      if (bigsi && bigsi["metadata.sample.isolateId"]) {
+        delete bigsi["metadata.sample.isolateId"];
+      }
+
+      // merge result data and handle nulls
+      if (match && bigsi) {
+        const hit = Object.assign({}, bigsi, match);
+        hits.push(hit);
       }
     });
 
-    result.experiments = mergedExperiments;
-
-    delete result.result;
-
-    return result;
+    return hits;
   }
 }
 

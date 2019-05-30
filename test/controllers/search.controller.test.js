@@ -102,16 +102,25 @@ describe("SearchController", () => {
             expect(data).toHaveProperty("users");
             expect(data.users.length).toEqual(0);
 
-            expect(data).toHaveProperty("result");
+            expect(data).toHaveProperty("results");
 
-            const container = data.result;
-            expect(container).toHaveProperty("result");
-            const result = container.result;
+            expect(data.results.length).toEqual(3);
+            data.results.forEach(result => {
+              const isolateId = result["metadata.sample.isolateId"];
+              const kmers = result.percentKmersFound;
 
-            expect(Object.keys(result).length).toEqual(3);
-
-            expect(result.ERR017683.percent_kmers_found).toEqual(100);
-            expect(result.ERR1149371.percent_kmers_found).toEqual(90);
+              switch (isolateId) {
+                case "ERR017683":
+                  expect(kmers).toEqual(100);
+                  break;
+                case "ERR1149371":
+                  expect(kmers).toEqual(90);
+                  break;
+                case "ERR1163331":
+                  expect(kmers).toEqual(100);
+                  break;
+              }
+            });
 
             done();
           });
@@ -240,20 +249,8 @@ describe("SearchController", () => {
             expect(data).toHaveProperty("users");
             expect(data).toHaveProperty("id");
 
-            expect(data).toHaveProperty("result");
-            const container = data.result;
-            expect(container).toHaveProperty("received");
-            expect(container).toHaveProperty("reference", "/data/NC_000962.3.fasta");
-            expect(container).toHaveProperty("ref", "S");
-            expect(container).toHaveProperty("pos", 450);
-            expect(container).toHaveProperty("alt", "L");
-            expect(container).toHaveProperty("genebank", null);
-            expect(container).toHaveProperty("gene", "rpoB");
-            expect(container).toHaveProperty("completedBigsiQueries", 3);
-            expect(container).toHaveProperty("totalBigsiQueries", 1);
-
-            expect(container).toHaveProperty("results");
-            const results = container.results;
+            expect(data).toHaveProperty("results");
+            const results = data.results;
             expect(results.length).toEqual(2);
 
             expect(results.length).toEqual(2);
@@ -312,20 +309,8 @@ describe("SearchController", () => {
             expect(data).toHaveProperty("users");
             expect(data).toHaveProperty("id");
 
-            expect(data).toHaveProperty("result");
-            const container = data.result;
-            expect(container).toHaveProperty("received");
-            expect(container).toHaveProperty("reference", "/data/NC_000961.4.fasta");
-            expect(container).toHaveProperty("ref", "G");
-            expect(container).toHaveProperty("pos", 4346385);
-            expect(container).toHaveProperty("alt", "C");
-            expect(container).toHaveProperty("genebank", null);
-            expect(container).toHaveProperty("gene", null);
-            expect(container).toHaveProperty("completedBigsiQueries", 2);
-            expect(container).toHaveProperty("totalBigsiQueries", 1);
-
-            expect(container).toHaveProperty("results");
-            const results = container.results;
+            expect(data).toHaveProperty("results");
+            const results = data.results;
             expect(results.length).toEqual(2);
 
             expect(results.length).toEqual(2);

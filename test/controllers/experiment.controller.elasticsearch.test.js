@@ -735,14 +735,21 @@ describe("ExperimentController > Elasticsearch", () => {
 
       const result = {
         type: "sequence",
-        result: {},
+        results: [],
         query: {
           seq: "CAGTCCGTTTGTTCT",
           threshold: 80
         }
       };
-      result.result[`${isolateId1}`] = { percent_kmers_found: 100 };
-      result.result[`${isolateId2}`] = { percent_kmers_found: 90 };
+      result.results.push({
+        "metadata.sample.isolateId": isolateId1,
+        percent_kmers_found: 100
+      });
+      result.results.push({
+        "metadata.sample.isolateId": isolateId2,
+        percent_kmers_found: 90
+      });
+
       sequenceSearchData.users.push(savedUser);
       sequenceSearchData.set("result", result);
       sequenceSearchData.status = Constants.SEARCH_COMPLETE;
@@ -764,21 +771,22 @@ describe("ExperimentController > Elasticsearch", () => {
             expect(data.type).toEqual("sequence");
             expect(data.bigsi).toBeTruthy();
             expect(data.users).toBeTruthy();
-            expect(data.result).toBeTruthy();
+            expect(data.results).toBeTruthy();
+            expect(data.type).toEqual("sequence");
 
-            const result = data.result;
-            expect(result.type).toEqual("sequence");
-            expect(result.experiments.length).toEqual(2);
+            const results = data.results;
+            expect(results.length).toEqual(2);
 
-            expect(result.experiments[0].id).toBeTruthy();
-            expect(result.experiments[0].metadata).toBeTruthy();
-            expect(result.experiments[0].results.bigsi).toBeTruthy();
-            expect(result.experiments[0].results.bigsi.percent_kmers_found).toBeTruthy();
+            const result1 = results[0];
+            const result2 = results[1];
 
-            expect(result.experiments[1].id).toBeTruthy();
-            expect(result.experiments[1].metadata).toBeTruthy();
-            expect(result.experiments[1].results.bigsi).toBeTruthy();
-            expect(result.experiments[1].results.bigsi.percent_kmers_found).toBeTruthy();
+            expect(result1.id).toBeTruthy();
+            expect(result1.metadata).toBeTruthy();
+            expect(result1.percent_kmers_found).toBeTruthy();
+
+            expect(result2.id).toBeTruthy();
+            expect(result2.metadata).toBeTruthy();
+            expect(result2.percent_kmers_found).toBeTruthy();
 
             done();
           });
@@ -796,20 +804,22 @@ describe("ExperimentController > Elasticsearch", () => {
             expect(res.body.status).toEqual("success");
 
             const data = res.body.data;
+
             expect(data.type).toEqual("sequence");
             expect(data.bigsi).toBeTruthy();
             expect(data.users).toBeTruthy();
+            expect(data.results).toBeTruthy();
+            expect(data.type).toEqual("sequence");
 
-            const result = data.result;
-            expect(result.type).toEqual("sequence");
+            const results = data.results;
+            expect(results.length).toEqual(1);
 
-            expect(result.experiments.length).toEqual(1);
+            const result = results.shift();
 
-            expect(result.experiments[0].id).toBeTruthy();
-            expect(result.experiments[0].metadata).toBeTruthy();
-            expect(result.experiments[0].metadata.patient.smoker).toEqual("No");
-            expect(result.experiments[0].results.bigsi).toBeTruthy();
-            expect(result.experiments[0].results.bigsi.percent_kmers_found).toEqual(90);
+            expect(result.id).toBeTruthy();
+            expect(result.metadata).toBeTruthy();
+            expect(result.metadata.patient.smoker).toEqual("No");
+            expect(result.percent_kmers_found).toEqual(90);
 
             done();
           });
@@ -827,13 +837,15 @@ describe("ExperimentController > Elasticsearch", () => {
             expect(res.body.status).toEqual("success");
 
             const data = res.body.data;
+
             expect(data.type).toEqual("sequence");
             expect(data.bigsi).toBeTruthy();
             expect(data.users).toBeTruthy();
-            expect(data.result).toBeTruthy();
+            expect(data.results).toBeTruthy();
+            expect(data.type).toEqual("sequence");
 
-            const result = data.result;
-            expect(result.experiments.length).toEqual(0);
+            const results = data.results;
+            expect(results.length).toEqual(0);
 
             done();
           });

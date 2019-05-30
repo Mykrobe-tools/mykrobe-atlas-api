@@ -34,6 +34,7 @@ import ResultsJSONTransformer from "../transformers/ResultsJSONTransformer";
 
 import config from "../../config/env";
 import Constants from "../Constants";
+import SearchJSONTransformer from "../transformers/SearchJSONTransformer";
 
 // sort whitelist
 const sortWhitelist = ElasticsearchHelper.getSortWhitelist(experimentSchema, "experiment");
@@ -405,7 +406,11 @@ const search = async (req, res) => {
 
     if (bigsi) {
       const search = await BigsiSearchHelper.search(bigsi, query, req.dbUser);
-      return res.jsend(search);
+      const searchJson = new SearchJSONTransformer().transform(search);
+
+      searchJson.search = new SearchQueryJSONTransformer().transform(req.query, {});
+
+      return res.jsend(searchJson);
     } else {
       clone.whitelist = sortWhitelist;
 
