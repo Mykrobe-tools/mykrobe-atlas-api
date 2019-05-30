@@ -33,6 +33,7 @@ import ExperimentsResultJSONTransformer from "../transformers/es/ExperimentsResu
 import ResultsJSONTransformer from "../transformers/ResultsJSONTransformer";
 
 import config from "../../config/env";
+import Constants from "../Constants";
 
 // sort whitelist
 const sortWhitelist = ElasticsearchHelper.getSortWhitelist(experimentSchema, "experiment");
@@ -68,7 +69,7 @@ const get = async (req, res) => {
     const keys = Object.keys(experiment.results);
     keys.forEach(key => {
       const result = experiment.results[key];
-      promises[key] = inflateResult(result);
+      promises[key] = inflateResult(result, Constants.DISTANCE_PROJECTION);
     });
 
     experiment.results = await Promise.props(promises);
@@ -447,11 +448,11 @@ const listResults = async (req, res) => {
   return res.jsend(resp);
 };
 
-const inflateResult = async result => {
+const inflateResult = async (result, projection = null) => {
   const enhancedExperiments = [];
   if (result.experiments && Array.isArray(result.experiments)) {
     const ids = result.experiments.map(experiment => experiment.id);
-    const experiments = await Experiment.findByIsolateIds(ids);
+    const experiments = await Experiment.findByIsolateIds(ids, projection);
     result.experiments.forEach(experiment => {
       try {
         const exp = experiments.filter(item => {

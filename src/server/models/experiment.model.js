@@ -129,8 +129,8 @@ ExperimentSchema.statics = {
    * Find experiments by isolateIds
    * @returns {Promise<Experiment[]>}
    */
-  async findByIsolateIds(ids) {
-    return this.find({ "metadata.sample.isolateId": { $in: ids } }).exec();
+  async findByIsolateIds(ids, projection = null) {
+    return this.find({ "metadata.sample.isolateId": { $in: ids } }, projection).exec();
   }
 };
 
