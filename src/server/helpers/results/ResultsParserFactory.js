@@ -2,6 +2,7 @@ import PredictorResultParser from "./PredictorResultParser";
 import TreeDistanceResultParser from "./TreeDistanceResultParser";
 import NearestNeighbourResultParser from "./NearestNeighbourResultParser";
 import ProteinVariantResultParser from "./ProteinVariantResultParser";
+import DnaVariantResultParser from "./DnaVariantResultParser";
 import SequenceResultParser from "./SequenceResultParser";
 import { buildRandomDistanceResult } from "./util";
 
