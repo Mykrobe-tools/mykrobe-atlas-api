@@ -393,12 +393,47 @@ describe("ExperimentController", () => {
               const first = nearestNeighbour.experiments.shift();
 
               expect(first.id).toBeTruthy();
-              expect(first.distance).toEqual(24);
-              expect(first.results).toBeTruthy();
-              expect(first.metadata).toBeTruthy();
+              expect(first.metadata.sample.isolateId).toBeTruthy();
+              expect(first.metadata.sample.longitudeIsolate).toBeTruthy();
+              expect(first.metadata.sample.latitudeIsolate).toBeTruthy();
 
-              expect(Object.keys(first.results).length).toEqual(1);
-              expect(Object.keys(first.metadata).length).toEqual(6);
+              expect(Object.keys(first.metadata).length).toEqual(1);
+
+              done();
+            });
+        });
+        it("should return a lighweight object when inflating", done => {
+          request(app)
+            .get(`/experiments/${id}`)
+            .set("Authorization", `Bearer ${token}`)
+            .expect(httpStatus.OK)
+            .end((err, res) => {
+              expect(res.body.status).toEqual("success");
+
+              expect(res.body.data).toHaveProperty("results");
+              const results = res.body.data.results;
+
+              expect(results).toHaveProperty("distance-nearest-neighbour");
+              const nearestNeighbour = results["distance-nearest-neighbour"];
+
+              expect(nearestNeighbour.type).toEqual("distance");
+              expect(nearestNeighbour.subType).toEqual("nearest-neighbour");
+
+              expect(nearestNeighbour).toHaveProperty("experiments");
+              expect(nearestNeighbour.experiments.length).toEqual(1);
+
+              const first = nearestNeighbour.experiments.shift();
+
+              expect(first.id).toBeTruthy();
+              expect(first.metadata.sample.isolateId).toBeTruthy();
+              expect(first.metadata.sample.longitudeIsolate).toBeTruthy();
+              expect(first.metadata.sample.latitudeIsolate).toBeTruthy();
+
+              expect(Object.keys(first.metadata).length).toEqual(1);
+
+              expect(first.results).toBeUndefined();
+              expect(first.type).toBeUndefined();
+              expect(first.subType).toBeUndefined();
 
               done();
             });
