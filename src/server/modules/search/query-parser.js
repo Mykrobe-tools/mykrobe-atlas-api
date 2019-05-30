@@ -8,11 +8,6 @@ const parseQuery = body => {
 
   if (isBigsiQuery(query)) {
     search.bigsi = extractBigsiQuery(query);
-  } else {
-    // add wildcards if not already set
-    if (query.q && !query.q.indexOf("*") > -1) {
-      query.q = `*${query.q}*`;
-    }
   }
 
   // only allow the whitelist of filters if set

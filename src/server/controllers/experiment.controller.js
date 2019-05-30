@@ -19,7 +19,7 @@ import Tree from "../models/tree.model";
 import resumable from "../modules/resumable";
 import { schedule } from "../modules/agenda";
 import { experimentEventEmitter, userEventEmitter } from "../modules/events";
-import { isBigsiQuery, callBigsiApi, parseQuery, callTreeApi } from "../modules/search";
+import { parseQuery, callTreeApi } from "../modules/search";
 import winston from "../modules/winston";
 
 import APIError from "../helpers/APIError";
@@ -377,8 +377,10 @@ const reindex = async (req, res) => {
 const choices = async (req, res) => {
   try {
     const clone = Object.assign({}, req.query);
+    const container = parseQuery(clone);
+    const query = container.query;
 
-    const resp = await ElasticsearchHelper.aggregate(config, experimentSchema, clone, "experiment");
+    const resp = await ElasticsearchHelper.aggregate(config, experimentSchema, query, "experiment");
     const titles = jsonschemaUtil.schemaTitles(experimentSchema);
     const choices = new ChoicesJSONTransformer().transform(resp, { titles });
 
