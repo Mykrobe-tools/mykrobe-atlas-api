@@ -13,7 +13,7 @@ describe("bigsi", () => {
         it("should create sequence query with the threshold passed", () => {
           const search = {
             q: "CGGTCAGTCCGTTTGTTCTTGTGGCGAGTGTTGCCGTTTTCTTG",
-            threshold: 0.9
+            threshold: 90
           };
 
           const bigsi = extractBigsiQuery(search);
@@ -21,12 +21,12 @@ describe("bigsi", () => {
           expect(bigsi).toHaveProperty("query");
           const query = bigsi.query;
           expect(query).toHaveProperty("seq", "CGGTCAGTCCGTTTGTTCTTGTGGCGAGTGTTGCCGTTTTCTTG");
-          expect(query).toHaveProperty("threshold", 0.9);
+          expect(query).toHaveProperty("threshold", 90);
         });
         it("should remove the free text search from the underlying query", () => {
           const query = {
             q: "CGGTCAGTCCGTTTGTTCTTGTGGCGAGTGTTGCCGTTTTCTTG",
-            threshold: 0.9
+            threshold: 90
           };
           const result = extractBigsiQuery(query);
 
@@ -35,7 +35,7 @@ describe("bigsi", () => {
         it("should remove threshold from the underlying query", () => {
           const query = {
             q: "CGGTCAGTCCGTTTGTTCTTGTGGCGAGTGTTGCCGTTTTCTTG",
-            threshold: 0.9
+            threshold: 90
           };
           const result = extractBigsiQuery(query);
 
@@ -43,14 +43,14 @@ describe("bigsi", () => {
         });
       });
       describe("with no threshold passed", () => {
-        it("should create sequence query with a default threshold of 1", () => {
+        it("should create sequence query with a default threshold of 40", () => {
           const search = {
             q: "CGGTCAGTCCGTTTGTTCTTGTGGCGAGTGTTGCCGTTTTCTTG"
           };
           const bigsi = extractBigsiQuery(search);
           expect(bigsi).toHaveProperty("query");
           const query = bigsi.query;
-          expect(query).toHaveProperty("threshold", 1);
+          expect(query).toHaveProperty("threshold", 40);
         });
         it("should remove the free text search from the underlying query", () => {
           const query = {
@@ -140,7 +140,7 @@ describe("bigsi", () => {
           type: "sequence",
           query: {
             seq: "GTTCTTGTGGCGAGTGTTGC",
-            threshold: 0.9
+            threshold: 90
           },
           user_id: "5b8d19173470371d9e49811d"
         };
@@ -202,7 +202,7 @@ describe("bigsi", () => {
       it("should return true for sequence search", () => {
         const search = {
           q: "CGGTCAGTCCGTTTGTTCTTGTGGCGAGTGTTGCCGTTTTCTTG",
-          threshold: 0.9
+          threshold: 90
         };
 
         const result = isBigsiQuery(search);

@@ -92,7 +92,7 @@ export default {
         type: "sequence",
         query: {
           seq: "GTCAGTCCGTTTGTTCTTGTGGCGAGTGTAGTA",
-          threshold: 0.9
+          threshold: 90
         }
       },
       status: "pending",
@@ -117,7 +117,7 @@ export default {
         type: "sequence",
         query: {
           seq: "GTCAGTCCGTTTGTTCTTGTGGCGAGTGTAGTA",
-          threshold: 0.9
+          threshold: 90
         }
       },
       status: "pending",
@@ -129,7 +129,7 @@ export default {
         type: "sequence",
         query: {
           seq: "GTCAGTCCGTTTGTTCTTGTGGCGAGTGTAGTA",
-          threshold: 0.9
+          threshold: 90
         }
       },
       status: "complete",
@@ -141,7 +141,7 @@ export default {
         type: "sequence",
         query: {
           seq: "GTCAGTCCGTTTGTTCTTGTGGCGAGTGTAGTA",
-          threshold: 0.9
+          threshold: 90
         }
       },
       status: "pending",
