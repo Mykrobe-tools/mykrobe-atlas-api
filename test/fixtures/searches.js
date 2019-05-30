@@ -164,15 +164,26 @@ export default {
     sequence: {
       type: "sequence",
       result: {
-        ERR017683: {
-          percent_kmers_found: 100
-        },
-        ERR1149371: {
-          percent_kmers_found: 90
-        },
-        ERR1163331: {
-          percent_kmers_found: 100
-        }
+        id: "a699c1ecde6f6e6787990eed9",
+        reference: "/data/NC_000961.4.fasta",
+        threshold: 90,
+        seq: "GTCAGTCCGTTTGTTCTTGTGGCGAGTGTAGTA",
+        completed_bigsi_queries: 2,
+        total_bigsi_queries: 1,
+        results: [
+          {
+            sample_name: "ERR017683",
+            percent_kmers_found: 100
+          },
+          {
+            sample_name: "ERR1149371",
+            percent_kmers_found: 90
+          },
+          {
+            sample_name: "ERR1163331",
+            percent_kmers_found: 100
+          }
+        ]
       },
       bigsi: {
         type: "sequence",

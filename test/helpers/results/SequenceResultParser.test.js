@@ -12,8 +12,9 @@ describe("SequenceResultParser", () => {
       expect(result).toHaveProperty("received");
       expect(result.received).toBeTruthy();
 
-      expect(result).toHaveProperty("result");
-      expect(Object.keys(result.result).length).toEqual(3);
+      expect(result).toHaveProperty("results");
+      const results = result.results;
+      expect(results.length).toEqual(3);
 
       done();
     });
