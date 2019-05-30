@@ -40,7 +40,7 @@ describe("Search", () => {
             type: "sequence",
             query: {
               seq: "GTCAGTCCGTTTGTTCTTGTGGCGAGTGT",
-              threshold: 0.3
+              threshold: 30
             }
           },
           status: Constants.SEARCH_PENDING
@@ -51,7 +51,7 @@ describe("Search", () => {
             type: "sequence",
             query: {
               seq: "GTCAGTCCGTTTGTTCTTGTGGCGAGTGT",
-              threshold: 0.3
+              threshold: 30
             }
           }
         });
@@ -70,7 +70,7 @@ describe("Search", () => {
           expect(bigsi).toHaveProperty("query");
           const query = bigsi.query;
           expect(query.seq).toEqual("GTCAGTCCGTTTGTTCTTGTGGCGAGTGT");
-          expect(query.threshold).toEqual(0.3);
+          expect(query.threshold).toEqual(30);
 
           done();
         } catch (e) {
@@ -84,7 +84,7 @@ describe("Search", () => {
             type: "sequence",
             query: {
               seq: "GTCAGTCCGTTTGTTCTTGTGGCGAGTGT",
-              threshold: 0.3
+              threshold: 30
             }
           },
           status: Constants.SEARCH_PENDING
@@ -249,13 +249,13 @@ describe("Search", () => {
 
         const query = bigsi.query;
         expect(query.seq).toEqual("GTCAGTCCGTTTGTTCTTGTGGCGAGTGTAGTA");
-        expect(query.threshold).toEqual(0.9);
+        expect(query.threshold).toEqual(90);
         expect(foundSearch.status).toEqual(Constants.SEARCH_PENDING);
         expect(foundSearch.hash).toBeTruthy();
 
         done();
       });
-      it("should return transform json", async done => {
+      it("should return transformed json", async done => {
         const foundSearch = await Search.get(id);
         const json = foundSearch.toJSON();
 
@@ -271,7 +271,7 @@ describe("Search", () => {
         expect(bigsi).toHaveProperty("query");
         const query = bigsi.query;
         expect(query).toHaveProperty("seq", "GTCAGTCCGTTTGTTCTTGTGGCGAGTGTAGTA");
-        expect(query).toHaveProperty("threshold", 0.9);
+        expect(query).toHaveProperty("threshold", 90);
 
         done();
       });
@@ -324,7 +324,7 @@ describe("Search", () => {
             type: "sequence",
             query: {
               seq: "GTCAGTCCGTTTGTTCTTGTGGCGAGTGTAGTA",
-              threshold: 0.9
+              threshold: 90
             }
           }
         });
@@ -339,7 +339,7 @@ describe("Search", () => {
         expect(bigsi).toHaveProperty("query");
         const query = bigsi.query;
         expect(query).toHaveProperty("seq", "GTCAGTCCGTTTGTTCTTGTGGCGAGTGTAGTA");
-        expect(query).toHaveProperty("threshold", 0.9);
+        expect(query).toHaveProperty("threshold", 90);
 
         done();
       });

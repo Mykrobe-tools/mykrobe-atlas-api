@@ -597,14 +597,14 @@ describe("ExperimentController > Elasticsearch", () => {
             expect(bigsi).toHaveProperty("type", "sequence");
             expect(bigsi).toHaveProperty("query");
             const query = bigsi.query;
-            expect(query.threshold).toEqual(1);
+            expect(query.threshold).toEqual(40);
             expect(res.body.data.id).toBeTruthy();
             done();
           });
       });
       it("should return a search object for sequence search - no threshold", done => {
         request(app)
-          .get("/experiments/search?q=CAGTCCGTTTGTTCT&threshold=0.8")
+          .get("/experiments/search?q=CAGTCCGTTTGTTCT&threshold=80")
           .set("Authorization", `Bearer ${token}`)
           .expect(httpStatus.OK)
           .end((err, res) => {
@@ -617,7 +617,7 @@ describe("ExperimentController > Elasticsearch", () => {
             expect(bigsi).toHaveProperty("type", "sequence");
             expect(bigsi).toHaveProperty("query");
             const query = bigsi.query;
-            expect(query.threshold).toEqual(0.8);
+            expect(query.threshold).toEqual(80);
             expect(res.body.data.id).toBeTruthy();
             done();
           });
@@ -647,7 +647,7 @@ describe("ExperimentController > Elasticsearch", () => {
       });
       it("should save search in mongo", done => {
         request(app)
-          .get("/experiments/search?q=CAGTCCGTTTGTTCT&threshold=0.8")
+          .get("/experiments/search?q=CAGTCCGTTTGTTCT&threshold=80")
           .set("Authorization", `Bearer ${token}`)
           .expect(httpStatus.OK)
           .end(async (err, res) => {
@@ -656,7 +656,7 @@ describe("ExperimentController > Elasticsearch", () => {
             expect(search).toHaveProperty("type", "sequence");
             const bigsi = search.get("bigsi");
             const query = bigsi.query;
-            expect(query.threshold).toEqual(0.8);
+            expect(query.threshold).toEqual(80);
             done();
           });
       });
@@ -718,7 +718,7 @@ describe("ExperimentController > Elasticsearch", () => {
         result: {},
         query: {
           seq: "CAGTCCGTTTGTTCT",
-          threshold: 0.8
+          threshold: 80
         }
       };
       result.result[`${isolateId1}`] = { percent_kmers_found: 100 };
@@ -733,7 +733,7 @@ describe("ExperimentController > Elasticsearch", () => {
     describe("when no additional criteria provided", () => {
       it("should filter by experiments ids", done => {
         request(app)
-          .get("/experiments/search?q=GTCAGTCCGTTTGTTCTTGTGGCGAGTGTAGTA&threshold=0.9")
+          .get("/experiments/search?q=GTCAGTCCGTTTGTTCTTGTGGCGAGTGTAGTA&threshold=90")
           .set("Authorization", `Bearer ${token}`)
           .expect(httpStatus.OK)
           .end((err, res) => {
@@ -768,7 +768,7 @@ describe("ExperimentController > Elasticsearch", () => {
       it("should filter by experiments ids and search criteria", done => {
         request(app)
           .get(
-            "/experiments/search?q=GTCAGTCCGTTTGTTCTTGTGGCGAGTGTAGTA&threshold=0.9&metadata.patient.smoker=No"
+            "/experiments/search?q=GTCAGTCCGTTTGTTCTTGTGGCGAGTGTAGTA&threshold=90&metadata.patient.smoker=No"
           )
           .set("Authorization", `Bearer ${token}`)
           .expect(httpStatus.OK)
@@ -799,7 +799,7 @@ describe("ExperimentController > Elasticsearch", () => {
       it("should return empty experiments", done => {
         request(app)
           .get(
-            "/experiments/search?q=GTCAGTCCGTTTGTTCTTGTGGCGAGTGTAGTA&threshold=0.9&metadata.patient.smoker=Y"
+            "/experiments/search?q=GTCAGTCCGTTTGTTCTTGTGGCGAGTGTAGTA&threshold=90&metadata.patient.smoker=Y"
           )
           .set("Authorization", `Bearer ${token}`)
           .expect(httpStatus.OK)

@@ -10,7 +10,7 @@ const search = {
   type: "sequence",
   bigsi: {
     seq: "GTCAGTCCGTTTGTTCTTGTGGCGAGTGT",
-    threshold: 0.5
+    threshold: 50
   }
 };
 
