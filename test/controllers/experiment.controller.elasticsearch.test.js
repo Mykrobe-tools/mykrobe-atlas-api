@@ -1,8 +1,11 @@
+import moment from "moment";
 import request from "supertest";
 import httpStatus from "http-status";
 
 import { ElasticsearchHelper } from "makeandship-api-common/lib/modules/elasticsearch";
 import { experiment as experimentSchema } from "mykrobe-atlas-jsonschema";
+
+import Constants from "../../src/server/Constants";
 
 import { createApp } from "../setup";
 
@@ -587,7 +590,14 @@ describe("ExperimentController > Elasticsearch", () => {
           .end((err, res) => {
             expect(res.body.status).toEqual("success");
             expect(res.body.data.type).toEqual("sequence");
-            expect(res.body.data.bigsi.threshold).toEqual(1);
+            expect(res.body.data).toHaveProperty("type", "sequence");
+
+            expect(res.body.data).toHaveProperty("bigsi");
+            const bigsi = res.body.data.bigsi;
+            expect(bigsi).toHaveProperty("type", "sequence");
+            expect(bigsi).toHaveProperty("query");
+            const query = bigsi.query;
+            expect(query.threshold).toEqual(1);
             expect(res.body.data.id).toBeTruthy();
             done();
           });
@@ -600,23 +610,37 @@ describe("ExperimentController > Elasticsearch", () => {
           .end((err, res) => {
             expect(res.body.status).toEqual("success");
             expect(res.body.data.type).toEqual("sequence");
-            expect(res.body.data.bigsi.threshold).toEqual(0.8);
+            expect(res.body.data).toHaveProperty("type", "sequence");
+
+            expect(res.body.data).toHaveProperty("bigsi");
+            const bigsi = res.body.data.bigsi;
+            expect(bigsi).toHaveProperty("type", "sequence");
+            expect(bigsi).toHaveProperty("query");
+            const query = bigsi.query;
+            expect(query.threshold).toEqual(0.8);
             expect(res.body.data.id).toBeTruthy();
             done();
           });
       });
-      it("should return a result_id for protein variant search", done => {
+      it("should return a search_id for protein variant search", done => {
         request(app)
           .get("/experiments/search?q=rpoB_S450L")
           .set("Authorization", `Bearer ${token}`)
           .expect(httpStatus.OK)
           .end((err, res) => {
             expect(res.body.status).toEqual("success");
-            expect(res.body.data.type).toEqual("protein-variant");
-            expect(res.body.data.bigsi.gene).toEqual("rpoB");
-            expect(res.body.data.bigsi.ref).toEqual("S");
-            expect(res.body.data.bigsi.pos).toEqual(450);
-            expect(res.body.data.bigsi.alt).toEqual("L");
+            expect(res.body.data).toHaveProperty("type", "protein-variant");
+
+            expect(res.body.data).toHaveProperty("bigsi");
+            const bigsi = res.body.data.bigsi;
+            expect(bigsi).toHaveProperty("type", "protein-variant");
+            expect(bigsi).toHaveProperty("query");
+            const query = bigsi.query;
+            expect(query.gene).toEqual("rpoB");
+            expect(query.ref).toEqual("S");
+            expect(query.pos).toEqual(450);
+            expect(query.alt).toEqual("L");
+
             expect(res.body.data.id).toBeTruthy();
             done();
           });
@@ -629,9 +653,10 @@ describe("ExperimentController > Elasticsearch", () => {
           .end(async (err, res) => {
             const searchId = res.body.data.id;
             const search = await Search.get(searchId);
-            expect(search.type).toEqual("sequence");
+            expect(search).toHaveProperty("type", "sequence");
             const bigsi = search.get("bigsi");
-            expect(bigsi.threshold).toEqual(0.8);
+            const query = bigsi.query;
+            expect(query.threshold).toEqual(0.8);
             done();
           });
       });
@@ -642,11 +667,13 @@ describe("ExperimentController > Elasticsearch", () => {
           .expect(httpStatus.OK)
           .end((err, res) => {
             expect(res.body.status).toEqual("success");
-            expect(res.body.data.type).toEqual("sequence");
-            expect(res.body.data.bigsi.threshold).toEqual(1);
-            expect(res.body.data.id).toBeTruthy();
-            expect(res.body.data.users.length).toEqual(1);
-            expect(res.body.data.users[0].firstname).toEqual("David");
+
+            expect(res.body.data).toHaveProperty("type", "sequence");
+
+            const user = res.body.data.users.shift();
+            expect(user.firstname).toEqual("David");
+            expect(user.lastname).toEqual("Robin");
+            expect(user.email).toEqual("admin@nhs.co.uk");
             done();
           });
       });
@@ -657,12 +684,7 @@ describe("ExperimentController > Elasticsearch", () => {
           .expect(httpStatus.OK)
           .end((err, res) => {
             expect(res.body.status).toEqual("success");
-            expect(res.body.data.type).toEqual("sequence");
-            expect(res.body.data.bigsi.threshold).toEqual(1);
-            expect(res.body.data.id).toBeTruthy();
-            expect(res.body.data.users.length).toEqual(1);
-            expect(res.body.data.users[0].firstname).toEqual("David");
-            expect(res.body.data.status).toEqual(Search.constants().PENDING);
+            expect(res.body.data.status).toEqual(Constants.SEARCH_PENDING);
             done();
           });
       });
@@ -687,8 +709,10 @@ describe("ExperimentController > Elasticsearch", () => {
   describe("# GET /experiments/search", () => {
     beforeEach(async done => {
       const sequenceSearchData = new Search(searches.searchOnly.sequence);
-      const expires = new Date();
-      expires.setDate(expires.getDate() + 1);
+      const expires = moment();
+      expires.add(3, "days");
+      sequenceSearchData.expires = expires.toDate();
+
       const result = {
         type: "sequence",
         result: {},
@@ -701,9 +725,8 @@ describe("ExperimentController > Elasticsearch", () => {
       result.result[`${isolateId2}`] = { percent_kmers_found: 90 };
       sequenceSearchData.users.push(savedUser);
       sequenceSearchData.set("result", result);
-      sequenceSearchData.status = Search.constants().COMPLETE;
+      sequenceSearchData.status = Constants.SEARCH_COMPLETE;
 
-      sequenceSearchData.expires = expires;
       const sequenceSearch = await sequenceSearchData.save();
       done();
     });
@@ -756,7 +779,6 @@ describe("ExperimentController > Elasticsearch", () => {
             expect(data.type).toEqual("sequence");
             expect(data.bigsi).toBeTruthy();
             expect(data.users).toBeTruthy();
-            expect(data.result).toBeTruthy();
 
             const result = data.result;
             expect(result.type).toEqual("sequence");

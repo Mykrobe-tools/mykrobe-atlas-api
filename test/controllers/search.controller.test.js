@@ -2,6 +2,8 @@ import request from "supertest";
 import moment from "moment";
 import httpStatus from "http-status";
 
+import Constants from "../../src/server/Constants";
+
 import { createApp } from "../setup";
 
 import User from "../../src/server/models/user.model";
@@ -75,14 +77,19 @@ describe("SearchController", () => {
             const data = res.body.data;
 
             expect(data).toHaveProperty("type", "sequence");
-            expect(data).toHaveProperty("bigsi", {
-              seq: "GTCAGTCCGTTTGTTCTTGTGGCGAGTGTAGTA",
-              threshold: 0.9
-            });
+            expect(data).toHaveProperty("bigsi");
+            const bigsi = data.bigsi;
+            expect(bigsi).toHaveProperty("type", "sequence");
+            expect(bigsi).toHaveProperty("query");
+            const query = bigsi.query;
+            expect(query).toHaveProperty("seq", "GTCAGTCCGTTTGTTCTTGTGGCGAGTGTAGTA");
+            expect(query).toHaveProperty("threshold", 0.9);
+
             expect(data).toHaveProperty("users");
             expect(data.users.length).toEqual(0);
 
             expect(data).toHaveProperty("result");
+
             const container = data.result;
             expect(container).toHaveProperty("result");
             const result = container.result;
@@ -112,7 +119,7 @@ describe("SearchController", () => {
             done();
           });
       });
-      it("should set the status to complete and update the date", done => {
+      it("should set the status to complete", done => {
         request(app)
           .put(`/searches/${sequenceSearchId}/results`)
           .send(searches.results.sequence)
@@ -123,7 +130,23 @@ describe("SearchController", () => {
 
             const data = res.body.data;
 
-            expect(data).toHaveProperty("status", Search.constants().COMPLETE);
+            expect(data).toHaveProperty("status", Constants.SEARCH_COMPLETE);
+
+            done();
+          });
+      });
+      it("should update the expiration date", done => {
+        request(app)
+          .put(`/searches/${sequenceSearchId}/results`)
+          .send(searches.results.sequence)
+          .expect(httpStatus.OK)
+          .end(async (err, res) => {
+            expect(res.body).toHaveProperty("status", "success");
+            expect(res.body).toHaveProperty("data");
+
+            const data = res.body.data;
+
+            expect(data).toHaveProperty("status", Constants.SEARCH_COMPLETE);
 
             const foundSearch = await Search.get(sequenceSearchId);
 
@@ -151,7 +174,7 @@ describe("SearchController", () => {
 
             const data = res.body.data;
 
-            expect(data).toHaveProperty("status", Search.constants().COMPLETE);
+            expect(data).toHaveProperty("status", Constants.SEARCH_COMPLETE);
 
             expect(mockCallback.mock.calls.length).toEqual(1);
             const calls = mockCallback.mock.calls;
@@ -189,12 +212,15 @@ describe("SearchController", () => {
 
             const data = res.body.data;
             expect(data).toHaveProperty("type", "protein-variant");
-            expect(data).toHaveProperty("bigsi", {
-              ref: "S",
-              alt: "L",
-              pos: 450,
-              gene: "rpoB"
-            });
+            expect(data).toHaveProperty("bigsi");
+            const bigsi = data.bigsi;
+            expect(bigsi).toHaveProperty("query");
+            const query = bigsi.query;
+            expect(query).toHaveProperty("ref", "S");
+            expect(query).toHaveProperty("alt", "L");
+            expect(query).toHaveProperty("pos", 450);
+            expect(query).toHaveProperty("gene", "rpoB");
+
             expect(data).toHaveProperty("created");
             expect(data).toHaveProperty("modified");
             expect(data).toHaveProperty("users");

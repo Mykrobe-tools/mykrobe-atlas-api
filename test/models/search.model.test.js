@@ -1,6 +1,11 @@
 import moment from "moment";
+
+import SearchHelper from "../../src/server/helpers/SearchHelper";
+
 import Search from "../../src/server/models/search.model";
 import User from "../../src/server/models/user.model";
+
+import Constants from "../../src/server/Constants";
 
 import setup from "../setup";
 
@@ -17,7 +22,6 @@ beforeEach(async () => {
   searchData.expires = expires.toISOString();
 
   const search = await searchData.save();
-
   id = search.id;
 });
 
@@ -33,25 +37,62 @@ describe("Search", () => {
         const newSearchData = new Search({
           type: "sequence",
           bigsi: {
-            seq: "GTCAGTCCGTTTGTTCTTGTGGCGAGTGT",
-            threshold: 0.3
+            type: "sequence",
+            query: {
+              seq: "GTCAGTCCGTTTGTTCTTGTGGCGAGTGT",
+              threshold: 0.3
+            }
           },
-          status: Search.constants().PENDING,
-          hash: "2312edsdcasqwr12e"
+          status: Constants.SEARCH_PENDING
+        });
+        const hash = SearchHelper.generateHash({
+          type: "sequence",
+          bigsi: {
+            type: "sequence",
+            query: {
+              seq: "GTCAGTCCGTTTGTTCTTGTGGCGAGTGT",
+              threshold: 0.3
+            }
+          }
         });
         try {
           const savedSearchData = await newSearchData.save();
 
           expect(savedSearchData.id).toBeTruthy();
-          expect(savedSearchData.type).toEqual("sequence");
-          expect(savedSearchData.bigsi.seq).toEqual("GTCAGTCCGTTTGTTCTTGTGGCGAGTGT");
-          expect(savedSearchData.bigsi.threshold).toEqual(0.3);
-          expect(savedSearchData.status).toEqual(Search.constants().PENDING);
-          expect(savedSearchData.hash).toEqual("2312edsdcasqwr12e");
+          expect(savedSearchData).toHaveProperty("type", "sequence");
+          expect(savedSearchData.status).toEqual(Constants.SEARCH_PENDING);
+          expect(savedSearchData.hash).toEqual(hash);
+
+          expect(savedSearchData).toHaveProperty("bigsi");
+          const bigsi = savedSearchData.get("bigsi");
+
+          expect(bigsi).toHaveProperty("type", "sequence");
+          expect(bigsi).toHaveProperty("query");
+          const query = bigsi.query;
+          expect(query.seq).toEqual("GTCAGTCCGTTTGTTCTTGTGGCGAGTGT");
+          expect(query.threshold).toEqual(0.3);
+
           done();
         } catch (e) {
-          fail();
+          fail(e);
         }
+      });
+      it("should set the hash", async done => {
+        const search = new Search({
+          type: "sequence",
+          bigsi: {
+            type: "sequence",
+            query: {
+              seq: "GTCAGTCCGTTTGTTCTTGTGGCGAGTGT",
+              threshold: 0.3
+            }
+          },
+          status: Constants.SEARCH_PENDING
+        });
+
+        const savedSearch = await search.save();
+        expect(savedSearch.hash).toBeTruthy();
+        done();
       });
     });
     describe("when the search already exists", () => {
@@ -80,6 +121,7 @@ describe("Search", () => {
     describe("when overriding default TTL", () => {
       it("should save with the overriden TTL", async done => {
         const foundSearch = await Search.get(id);
+        const hash = foundSearch.hash;
 
         const updatedSearch = await foundSearch.updateAndSetExpiry(
           {
@@ -100,8 +142,8 @@ describe("Search", () => {
         expect(expires.month()).toEqual(newExpirationDate.month());
         expect(expires.year()).toEqual(newExpirationDate.year());
 
-        expect(updatedSearch.hash).toEqual("f13efe3c6fb77cac5fab23f8bd789050f3a52064");
-        expect(updatedSearch.status).toEqual(Search.constants().COMPLETE);
+        expect(updatedSearch.hash).toEqual(hash);
+        expect(updatedSearch.status).toEqual(Constants.SEARCH_COMPLETE);
 
         const result = updatedSearch.get("result");
         expect(result.ERR017683.percent_kmers_found).toEqual(100);
@@ -112,6 +154,7 @@ describe("Search", () => {
     describe("when using default TTL", () => {
       it("should save with the default TTL", async done => {
         const foundSearch = await Search.get(id);
+        const hash = foundSearch.hash;
 
         const updatedSearch = await foundSearch.updateAndSetExpiry({
           ERR017683: {
@@ -129,8 +172,8 @@ describe("Search", () => {
         expect(expires.month()).toEqual(newExpirationDate.month());
         expect(expires.year()).toEqual(newExpirationDate.year());
 
-        expect(updatedSearch.hash).toEqual("f13efe3c6fb77cac5fab23f8bd789050f3a52064");
-        expect(updatedSearch.status).toEqual(Search.constants().COMPLETE);
+        expect(updatedSearch.hash).toEqual(hash);
+        expect(updatedSearch.status).toEqual(Constants.SEARCH_COMPLETE);
 
         const result = updatedSearch.get("result");
         expect(result.ERR017683.percent_kmers_found).toEqual(100);
@@ -162,18 +205,6 @@ describe("Search", () => {
         await foundSearch.clearUsers();
         expect(foundSearch.users.length).toEqual(0);
         done();
-      });
-    });
-    describe("#isPending", () => {
-      describe("when the search is pending", () => {
-        it("should mark is as pending", async done => {
-          const foundSearch = await Search.get(id);
-          const isPending = foundSearch.isPending();
-
-          expect(isPending).toBe(true);
-
-          done();
-        });
       });
     });
     describe("#userExists", () => {
@@ -213,10 +244,14 @@ describe("Search", () => {
 
         expect(foundSearch.id).toEqual(id);
         expect(foundSearch.type).toEqual("sequence");
-        expect(bigsi.seq).toEqual("GTCAGTCCGTTTGTTCTTGTGGCGAGTGTAGTA");
-        expect(bigsi.threshold).toEqual(0.9);
-        expect(foundSearch.status).toEqual(Search.constants().PENDING);
-        expect(foundSearch.hash).toEqual("f13efe3c6fb77cac5fab23f8bd789050f3a52064");
+        expect(bigsi).toHaveProperty("type", "sequence");
+        expect(bigsi).toHaveProperty("query");
+
+        const query = bigsi.query;
+        expect(query.seq).toEqual("GTCAGTCCGTTTGTTCTTGTGGCGAGTGTAGTA");
+        expect(query.threshold).toEqual(0.9);
+        expect(foundSearch.status).toEqual(Constants.SEARCH_PENDING);
+        expect(foundSearch.hash).toBeTruthy();
 
         done();
       });
@@ -224,11 +259,19 @@ describe("Search", () => {
         const foundSearch = await Search.get(id);
         const json = foundSearch.toJSON();
 
-        expect(json.type).toEqual("sequence");
-        expect(json.bigsi.seq).toEqual("GTCAGTCCGTTTGTTCTTGTGGCGAGTGTAGTA");
-        expect(json.bigsi.threshold).toEqual(0.9);
-        expect(json.status).toEqual(Search.constants().PENDING);
-        expect(json.hash).toEqual("f13efe3c6fb77cac5fab23f8bd789050f3a52064");
+        expect(json).toHaveProperty("type", "sequence");
+        expect(json).toHaveProperty("status", Constants.SEARCH_PENDING);
+        expect(json.hash).toBeTruthy();
+
+        expect(json).toHaveProperty("bigsi");
+        const bigsi = json.bigsi;
+
+        expect(bigsi).toHaveProperty("type", "sequence");
+
+        expect(bigsi).toHaveProperty("query");
+        const query = bigsi.query;
+        expect(query).toHaveProperty("seq", "GTCAGTCCGTTTGTTCTTGTGGCGAGTGTAGTA");
+        expect(query).toHaveProperty("threshold", 0.9);
 
         done();
       });
@@ -275,15 +318,28 @@ describe("Search", () => {
   describe("#findByHash", () => {
     describe("when a search exists with the hash", () => {
       it("should return the search", async done => {
-        const foundSearch = await Search.findByHash("f13efe3c6fb77cac5fab23f8bd789050f3a52064");
-        const bigsi = foundSearch.get("bigsi");
-
+        const hash = SearchHelper.generateHash({
+          type: "sequence",
+          bigsi: {
+            type: "sequence",
+            query: {
+              seq: "GTCAGTCCGTTTGTTCTTGTGGCGAGTGTAGTA",
+              threshold: 0.9
+            }
+          }
+        });
+        const foundSearch = await Search.findByHash(hash);
         expect(foundSearch.id).toEqual(id);
         expect(foundSearch.type).toEqual("sequence");
-        expect(bigsi.seq).toEqual("GTCAGTCCGTTTGTTCTTGTGGCGAGTGTAGTA");
-        expect(bigsi.threshold).toEqual(0.9);
-        expect(foundSearch.status).toEqual(Search.constants().PENDING);
-        expect(foundSearch.hash).toEqual("f13efe3c6fb77cac5fab23f8bd789050f3a52064");
+        expect(foundSearch.status).toEqual(Constants.SEARCH_PENDING);
+        expect(foundSearch.hash).toEqual(hash);
+
+        const bigsi = foundSearch.get("bigsi");
+        expect(bigsi).toHaveProperty("type", "sequence");
+        expect(bigsi).toHaveProperty("query");
+        const query = bigsi.query;
+        expect(query).toHaveProperty("seq", "GTCAGTCCGTTTGTTCTTGTGGCGAGTGTAGTA");
+        expect(query).toHaveProperty("threshold", 0.9);
 
         done();
       });
@@ -292,6 +348,74 @@ describe("Search", () => {
       it("should return an null", async done => {
         const search = await Search.findByHash("66b7d7e64871aa9fda1bdc8e88a28df797648");
         expect(search).toBe(null);
+        done();
+      });
+    });
+  });
+  describe("#isPending", () => {
+    describe("when status is pending", () => {
+      it("should return true", async done => {
+        const search = new Search(searches.searchOnly.pendingSearch);
+        const savedSearch = await search.save();
+
+        expect(savedSearch.isPending()).toEqual(true);
+
+        done();
+      });
+    });
+    describe("when status is complete", () => {
+      it("should return false", async done => {
+        const search = new Search(searches.searchOnly.completeSearch);
+        const savedSearch = await search.save();
+
+        expect(savedSearch.isPending()).toEqual(false);
+
+        done();
+      });
+    });
+  });
+  describe("#isComplete", () => {
+    describe("when status is pending", () => {
+      it("should return false", async () => {
+        const search = new Search(searches.searchOnly.pendingSearch);
+        const savedSearch = await search.save();
+
+        expect(savedSearch.isComplete()).toEqual(false);
+      });
+    });
+    describe("when status is complete", () => {
+      it("should return true", async done => {
+        const search = new Search(searches.searchOnly.completeSearch);
+        const savedSearch = await search.save();
+
+        expect(savedSearch.isComplete()).toEqual(true);
+
+        done();
+      });
+    });
+  });
+  describe("#isExpired", () => {
+    describe("when the expiry date has passed", () => {
+      it("should return true", async done => {
+        const search = new Search(searches.searchOnly.expiredSearch);
+        const savedSearch = await search.save();
+
+        expect(savedSearch.isExpired()).toEqual(true);
+
+        done();
+      });
+    });
+    describe("when the expiry date has not passed", () => {
+      it("should return false", async done => {
+        const search = new Search(searches.searchOnly.expiredSearch);
+        const expires = moment();
+        expires.add(1, "day");
+        search.expires = expires.toISOString();
+
+        const savedSearch = await search.save();
+
+        expect(savedSearch.isExpired()).toEqual(false);
+
         done();
       });
     });

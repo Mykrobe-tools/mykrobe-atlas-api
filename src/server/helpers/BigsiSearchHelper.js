@@ -1,7 +1,10 @@
-import hash from "object-hash";
 import flatten from "flat";
 
 import { ElasticsearchHelper } from "makeandship-api-common/lib/modules/elasticsearch/";
+
+import Constants from "../Constants";
+
+import SearchHelper from "./SearchHelper";
 
 import Search from "../models/search.model";
 import Audit from "../models/audit.model";
@@ -31,12 +34,14 @@ class BigsiSearchHelper {
       type: bigsi.type,
       bigsi: bigsi
     };
-    const searchHash = hash(searchData);
+
+    const searchHash = SearchHelper.generateHash(searchData);
     const search = await Search.findByHash(searchHash);
+
     if (search && (!search.isExpired() || search.isPending())) {
       return this.returnCachedResults(search, query, user);
     } else {
-      return this.triggerBigsiSearch(search, user, searchHash, searchData);
+      return this.triggerBigsiSearch(search, user, searchData);
     }
   }
 
@@ -68,11 +73,11 @@ class BigsiSearchHelper {
    * @param {*} searchHash
    * @param {*} searchData
    */
-  static async triggerBigsiSearch(search, user, searchHash, searchData) {
-    const newSearch = search || new Search({ hash: searchHash, ...searchData });
+  static async triggerBigsiSearch(search, user, searchData) {
+    const newSearch = search || new Search(searchData);
 
     // set status to pending and clear old result
-    newSearch.status = Search.constants().PENDING;
+    newSearch.status = Constants.SEARCH_PENDING;
     newSearch.set("result", {});
 
     const savedSearch = await newSearch.save();
