@@ -6,7 +6,7 @@ import config from "../../../config/env";
  */
 const SEQUENCE_REGEX = /^[ACGT]+$/;
 const PROTEIN_VARIANT_REGEX = /([a-zA-Z]+)_([A-Z])([-0-9]+)([A-Z])/;
-const DNA_VARIANT_REGEX = /([ACGTX])([-0-9]+)([ACGTX])/;
+const DNA_VARIANT_REGEX = /([ACGTX]+)([-0-9]+)([ACGTX]+)/;
 
 /**
  * Search types constants
