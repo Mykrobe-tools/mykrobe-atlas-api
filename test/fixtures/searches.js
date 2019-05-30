@@ -16,7 +16,7 @@ export default {
       },
       bigsi: {
         seq: "GTCAGTCCGTTTGTTCTTGTGGCGAGTGTAGTA",
-        threshold: 0.9
+        threshold: 90
       },
       status: "complete",
       expires: new Date()
@@ -80,7 +80,7 @@ export default {
         type: "sequence",
         query: {
           seq: "GTCAGTCCGTTTGTTCTTGTGGCGAGTGT",
-          threshold: 0.5
+          threshold: 50
         }
       }
     }

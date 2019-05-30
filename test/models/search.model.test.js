@@ -40,7 +40,7 @@ describe("Search", () => {
             type: "sequence",
             query: {
               seq: "GTCAGTCCGTTTGTTCTTGTGGCGAGTGT",
-              threshold: 0.3
+              threshold: 30
             }
           },
           status: Constants.SEARCH_PENDING
@@ -51,7 +51,7 @@ describe("Search", () => {
             type: "sequence",
             query: {
               seq: "GTCAGTCCGTTTGTTCTTGTGGCGAGTGT",
-              threshold: 0.3
+              threshold: 30
             }
           }
         });
@@ -70,7 +70,7 @@ describe("Search", () => {
           expect(bigsi).toHaveProperty("query");
           const query = bigsi.query;
           expect(query.seq).toEqual("GTCAGTCCGTTTGTTCTTGTGGCGAGTGT");
-          expect(query.threshold).toEqual(0.3);
+          expect(query.threshold).toEqual(30);
 
           done();
         } catch (e) {
@@ -84,7 +84,7 @@ describe("Search", () => {
             type: "sequence",
             query: {
               seq: "GTCAGTCCGTTTGTTCTTGTGGCGAGTGT",
-              threshold: 0.3
+              threshold: 30
             }
           },
           status: Constants.SEARCH_PENDING

@@ -36,7 +36,7 @@ const router = express.Router();
  *               seq:
  *                 type: string
  *               threshold:
- *                 type: number
+ *                 type: integer
  *           result:
  *             type: object
  *           id:
