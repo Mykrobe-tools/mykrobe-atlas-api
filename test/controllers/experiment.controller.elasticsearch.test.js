@@ -389,7 +389,7 @@ describe("ExperimentController > Elasticsearch", () => {
             expect(result).toHaveProperty("metadata");
             expect(result).toHaveProperty("created");
             expect(result).toHaveProperty("modified");
-            expect(result).toHaveProperty("relevance", 5);
+            expect(result).toHaveProperty("relevance");
           });
 
           done();
@@ -408,15 +408,15 @@ describe("ExperimentController > Elasticsearch", () => {
           done();
         });
     });
-    it.only("should match the relevance to the score from elasticsearch", done => {
+    it("should match the relevance to the score from elasticsearch", done => {
       request(app)
-        .get("/experiments/search?metadata.patient.smoker=Yes&metadata.patient.imprisoned=No")
+        .get("/experiments/search?q=insulin")
         .set("Authorization", `Bearer ${token}`)
         .expect(httpStatus.OK)
         .end((err, res) => {
-          expect(res.body.data.metadata.maxRelevance).toEqual(5);
+          expect(res.body.data.metadata.maxRelevance).toEqual(3.8100972);
           res.body.data.results.forEach(result => {
-            expect(result).toHaveProperty("relevance", 2);
+            expect(result).toHaveProperty("relevance", 3.8100972);
           });
           done();
         });
