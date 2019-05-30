@@ -30,6 +30,7 @@ const load = async (req, res, next, id) => {
  */
 const saveResult = async (req, res) => {
   const { body, search } = req;
+
   try {
     const parser = await ResultsParserFactory.create(body);
     if (!parser) {

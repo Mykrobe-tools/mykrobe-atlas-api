@@ -11,7 +11,22 @@ class SequenceResultParser extends ResultParser {
       received: new Date()
     };
     if (this.namedResult && this.namedResult.result) {
-      result.result = this.namedResult.result;
+      const container = this.namedResult.result;
+      result.seq = container.seq;
+      result.threshold = container.threshold;
+      result.completedBigsiQueries = container.completed_bigsi_queries;
+      result.totalBigsiQueries = container.total_bigsi_queries;
+
+      delete container.query;
+
+      const hits = container.results.map(hit => {
+        return {
+          "metadata.sample.isolateId": hit.sample_name,
+          percentKmersFound: hit.percent_kmers_found
+        };
+      });
+
+      result.results = hits;
     }
 
     return result;

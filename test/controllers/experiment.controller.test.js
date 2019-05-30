@@ -2524,9 +2524,12 @@ describe("ExperimentController", () => {
         let searchId = null;
         beforeEach(async done => {
           const searchData = new Search(searches.full.proteinVariant);
+
+          // make the search unexpired
           const expires = new Date();
           expires.setDate(expires.getDate() + 1);
           searchData.expires = expires;
+
           const savedSearch = await searchData.save();
           searchId = savedSearch.id;
           const auditData = new Audit({
@@ -2564,6 +2567,58 @@ describe("ExperimentController", () => {
               expect(res.body.data.id).toEqual(searchId);
               expect(mockCallback.mock.calls.length).toEqual(0);
               done();
+            });
+        });
+        it("should return cached search results", async done => {
+          // make sure this is the only rpob_S450L search
+          await Search.remove({});
+
+          // clear any existing results
+          const data = searches.searchOnly.proteinVariant;
+          const search = new Search(data);
+          const savedSearch = await search.save();
+
+          // audit for the sequence search
+          const proteinVariantAudit = new Audit({
+            searchId: search.id,
+            attempts: 1,
+            status: "Success"
+          });
+          await proteinVariantAudit.save();
+
+          const experiment = await Experiment.get(id);
+          const isolateId = experiment.get("metadata.sample.isolateId");
+
+          const proteinVariant = Object.assign({}, searches.results.proteinVariant);
+          proteinVariant.result.results[0].sample_name = isolateId;
+
+          // store some results
+          request(app)
+            .put(`/searches/${search.id}/results`)
+            .send(proteinVariant)
+            .expect(httpStatus.OK)
+            .end(async (err, res) => {
+              // search for the results
+              request(app)
+                .get("/experiments/search?q=rpoB_S450L")
+                .set("Authorization", `Bearer ${token}`)
+                .expect(httpStatus.OK)
+                .end(async (err, res) => {
+                  expect(res.body).toHaveProperty("status", "success");
+                  expect(res.body).toHaveProperty("data");
+
+                  const data = res.body.data;
+                  expect(data).toHaveProperty("bigsi");
+                  expect(data).toHaveProperty("status", "complete");
+                  expect(data).toHaveProperty("type", "protein-variant");
+                  expect(data).toHaveProperty("results");
+                  expect(data.results.length).toEqual(1);
+
+                  expect(data).toHaveProperty("total", 1);
+                  expect(data).toHaveProperty("pagination");
+
+                  done();
+                });
             });
         });
       });
