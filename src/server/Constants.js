@@ -3,7 +3,7 @@ export default {
   SEARCH_COMPLETE: "complete",
 
   DEFAULT_SEARCH_EXPIRY_DAYS: 3,
-  LIBRARY_PROJECTION: {
+  DISTANCE_PROJECTION: {
     _id: 1,
     "metadata.sample.isolateId": 1,
     "metadata.sample.longitudeIsolate": 1,

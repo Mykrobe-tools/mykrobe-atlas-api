@@ -69,7 +69,7 @@ const get = async (req, res) => {
     const keys = Object.keys(experiment.results);
     keys.forEach(key => {
       const result = experiment.results[key];
-      promises[key] = inflateResult(result, Constants.LIBRARY_PROJECTION);
+      promises[key] = inflateResult(result, Constants.DISTANCE_PROJECTION);
     });
 
     experiment.results = await Promise.props(promises);
