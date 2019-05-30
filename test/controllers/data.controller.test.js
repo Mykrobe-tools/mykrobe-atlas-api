@@ -113,9 +113,12 @@ describe("DataController", () => {
 
           const hasPredictor = keys.includes("predictor");
           const hasDistance = keys.includes("distance");
-          const hasNearestNeighbours = keys.includes("nearestNeighbours");
+          const hasNearestNeighbour = keys.includes("distance-nearest-neighbour");
+          const hasTreeDistance = keys.includes("distance-tree-distance");
 
-          expect(hasPredictor || hasDistance || hasNearestNeighbours).toEqual(true);
+          expect(hasPredictor || hasDistance || hasNearestNeighbour || hasTreeDistance).toEqual(
+            true
+          );
 
           done();
         });
