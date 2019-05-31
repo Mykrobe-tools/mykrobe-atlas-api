@@ -223,7 +223,8 @@ describe("ExperimentController", () => {
           const experimentResults = [];
           experimentResults.push(results.mdr);
           experiment.set("results", experimentResults);
-          await experiment.save();
+          const savedExperiment = await experiment.save();
+
           done();
         });
         it("should return the results per type", done => {
@@ -246,6 +247,29 @@ describe("ExperimentController", () => {
               expect(predictor.type).toEqual("predictor");
               expect(predictor.variantCalls).toBeUndefined();
               expect(predictor.sequenceCalls).toBeUndefined();
+              done();
+            });
+        });
+        it("should include calledBy", done => {
+          request(app)
+            .get(`/experiments/${id}`)
+            .set("Authorization", `Bearer ${token}`)
+            .expect(httpStatus.OK)
+            .end((err, res) => {
+              expect(res.body.status).toEqual("success");
+              expect(res.body.data).toHaveProperty("results");
+
+              const results = res.body.data.results;
+              expect(results).toHaveProperty("predictor");
+
+              const predictor = results.predictor;
+              expect(predictor).toHaveProperty("susceptibility");
+              const susceptibility = predictor.susceptibility;
+              expect(susceptibility).toHaveProperty("Isoniazid");
+              expect(susceptibility.Isoniazid).toHaveProperty("calledBy");
+              expect(susceptibility).toHaveProperty("Rifampicin");
+              expect(susceptibility.Rifampicin).toHaveProperty("calledBy");
+
               done();
             });
         });

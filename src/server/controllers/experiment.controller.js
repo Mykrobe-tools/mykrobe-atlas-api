@@ -65,21 +65,24 @@ const load = async (req, res, next, id) => {
  * @returns {Experiment}
  */
 const get = async (req, res) => {
-  const experiment = req.experiment.toJSON();
+  const experimentJSON = new ExperimentJSONTransformer().transform(req.experiment, {
+    calledBy: true
+  });
 
-  if (experiment.results) {
+  const results = experimentJSON.results;
+  if (results) {
     const promises = {};
 
-    const keys = Object.keys(experiment.results);
+    const keys = Object.keys(results);
     keys.forEach(key => {
-      const result = experiment.results[key];
+      const result = results[key];
       promises[key] = inflateResult(result, Constants.DISTANCE_PROJECTION);
     });
 
-    experiment.results = await Promise.props(promises);
+    experimentJSON.results = await Promise.props(promises);
   }
 
-  return res.jsend(experiment);
+  return res.jsend(experimentJSON);
 };
 
 /**

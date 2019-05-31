@@ -21,7 +21,7 @@ class SearchJSONTransformer extends ModelJSONTransformer {
     res = new BlacklistTransformer().transform(res, { blacklist: BLACKLIST });
 
     if (res.user && options.includeUser) {
-      res.user = new UserJSONTransformer().transform(res.user);
+      res.user = new UserJSONTransformer().transform(res.user, options);
     }
 
     const status = res.status;
