@@ -12,11 +12,11 @@ class UserJSONTransformer extends ModelJSONTransformer {
   /**
    * The transformation engine
    */
-  transform(o) {
-    let res = super.transform(o, {});
+  transform(o, options = {}) {
+    let res = super.transform(o, options);
     res = new BlacklistTransformer().transform(res, { blacklist: BLACKLIST });
     if (res.organisation) {
-      res.organisation = new OrganisationJSONTransformer().transform(res.organisation);
+      res.organisation = new OrganisationJSONTransformer().transform(res.organisation, options);
     }
     return res;
   }

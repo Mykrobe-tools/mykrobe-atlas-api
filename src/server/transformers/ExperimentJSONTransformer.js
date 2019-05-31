@@ -17,20 +17,21 @@ class ExperimentJSONTransformer extends ModelJSONTransformer {
   /**
    * The transformation engine
    */
-  transform(o) {
-    let res = super.transform(o, {});
+  transform(o, options = {}) {
+    let res = super.transform(o, options);
     res = new BlacklistTransformer().transform(res, { blacklist: BLACKLIST });
     if (res.owner) {
-      res.owner = new UserJSONTransformer().transform(res.owner);
+      res.owner = new UserJSONTransformer().transform(res.owner, options);
     }
 
     if (res.metadata) {
-      res.metadata = new MetadataJSONTransformer().transform(res.metadata);
+      res.metadata = new MetadataJSONTransformer().transform(res.metadata, options);
     }
 
     if (res.results) {
-      res.results = new ExperimentResultsPerTypeJSONTransformer().transform(res.results, {});
+      res.results = new ExperimentResultsPerTypeJSONTransformer().transform(res.results, options);
     }
+
     return res;
   }
 }
