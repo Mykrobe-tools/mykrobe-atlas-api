@@ -73,8 +73,8 @@ beforeAll(async done => {
 }, 60000);
 
 afterAll(async done => {
-  //await ElasticsearchHelper.deleteIndexIfExists(config);
-  //await ElasticsearchHelper.createIndex(config, experimentSearchSchema, "experiment");
+  await ElasticsearchHelper.deleteIndexIfExists(config);
+  await ElasticsearchHelper.createIndex(config, experimentSearchSchema, "experiment");
   await Experiment.remove({});
   done();
 });
@@ -82,16 +82,14 @@ afterAll(async done => {
 describe("ExperimentController > Elasticsearch", () => {
   describe("# GET /experiments/choices", () => {
     // POST.c40633601de3b1ca1d7aa77ad5fbd6284a20781f.mock
-    it.only("should return choices and counts for enums", done => {
+    it("should return choices and counts for enums", done => {
       request(app)
         .get("/experiments/choices")
         .set("Authorization", `Bearer ${token}`)
         .expect(httpStatus.OK)
         .end((err, res) => {
-          /*
           expect(res.body.status).toEqual("success");
           const data = res.body.data;
-          console.log("data --> "+JSON.stringify(data));
 
           // use country as a sample enum
           expect(data["metadata.sample.countryIsolate"]).toBeTruthy();
@@ -112,8 +110,52 @@ describe("ExperimentController > Elasticsearch", () => {
                 break;
             }
           });
-          */
-          console.log(JSON.stringify(res.body));
+
+          done();
+        });
+    });
+    it("should return choices for susceptibility and resistance", done => {
+      request(app)
+        .get("/experiments/choices")
+        .set("Authorization", `Bearer ${token}`)
+        .expect(httpStatus.OK)
+        .end((err, res) => {
+          expect(res.body.status).toEqual("success");
+          const data = res.body.data;
+
+          // use Rifampicin as a sample enum
+          expect(data["results.predictor.susceptibility.Rifampicin.prediction"]).toBeTruthy();
+          const susceptibility = data["results.predictor.susceptibility.Rifampicin.prediction"];
+
+          expect(susceptibility).toHaveProperty("choices");
+          expect(susceptibility.choices.length).toEqual(1);
+
+          expect(susceptibility.choices[0].key).toEqual("R");
+          expect(susceptibility.choices[0].count).toEqual(1);
+
+          done();
+        });
+    });
+    it("should return choices for predictor flags", done => {
+      request(app)
+        .get("/experiments/choices")
+        .set("Authorization", `Bearer ${token}`)
+        .expect(httpStatus.OK)
+        .end((err, res) => {
+          expect(res.body.status).toEqual("success");
+          const data = res.body.data;
+
+          const mdr = data["results.predictor.mdr"];
+          const xdr = data["results.predictor.xdr"];
+
+          expect(mdr).toHaveProperty("choices");
+          expect(mdr.choices.length).toEqual(1);
+
+          expect(mdr.choices[0].key).toEqual(1);
+          expect(mdr.choices[0].count).toEqual(1);
+
+          expect(xdr.choices[0].key).toEqual(0);
+          expect(xdr.choices[0].count).toEqual(1);
 
           done();
         });
@@ -208,7 +250,6 @@ describe("ExperimentController > Elasticsearch", () => {
             "Genotyping",
             "HAIN AM"
           ]);
-          expect(data["results.kmer"].titles).toEqual(["Results", "K-mer"]);
 
           done();
         });
@@ -432,7 +473,41 @@ describe("ExperimentController > Elasticsearch", () => {
           done();
         });
     });
-    it.skip("should match the relevance to the score from elasticsearch", done => {
+    it("should filter by susceptibility fields", done => {
+      request(app)
+        .get("/experiments/search?results.predictor.susceptibility.Rifampicin.prediction=R")
+        .set("Authorization", `Bearer ${token}`)
+        .expect(httpStatus.OK)
+        .end((err, res) => {
+          expect(res.body.status).toEqual("success");
+          expect(res.body.data).toHaveProperty("total", 1);
+          expect(res.body.data).toHaveProperty("results");
+          expect(res.body.data.results.length).toEqual(1);
+
+          const susceptibility = res.body.data.results[0].results.predictor.susceptibility;
+          expect(susceptibility.Rifampicin.prediction).toEqual("R");
+
+          done();
+        });
+    });
+    it("should filter by predictor flags", done => {
+      request(app)
+        .get("/experiments/search?results.predictor.mdr=true")
+        .set("Authorization", `Bearer ${token}`)
+        .expect(httpStatus.OK)
+        .end((err, res) => {
+          expect(res.body.status).toEqual("success");
+          expect(res.body.data).toHaveProperty("total", 1);
+          expect(res.body.data).toHaveProperty("results");
+          expect(res.body.data.results.length).toEqual(1);
+
+          const predictor = res.body.data.results[0].results.predictor;
+          expect(predictor.mdr).toEqual(true);
+
+          done();
+        });
+    });
+    it("should match the relevance to the score from elasticsearch", done => {
       request(app)
         .get("/experiments/search?q=insulin")
         .set("Authorization", `Bearer ${token}`)

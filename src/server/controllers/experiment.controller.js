@@ -10,7 +10,10 @@ import SearchQueryJSONTransformer from "makeandship-api-common/lib/modules/elast
 import ChoicesJSONTransformer from "makeandship-api-common/lib/modules/elasticsearch/transformers/ChoicesJSONTransformer";
 import { util as jsonschemaUtil } from "makeandship-api-common/lib/modules/jsonschema";
 
-import { experiment as experimentSchema, experimentSearch as experimentSearchSchema } from "mykrobe-atlas-jsonschema";
+import {
+  experiment as experimentSchema,
+  experimentSearch as experimentSearchSchema
+} from "mykrobe-atlas-jsonschema";
 
 import Audit from "../models/audit.model";
 import Experiment from "../models/experiment.model";
@@ -37,7 +40,7 @@ import Constants from "../Constants";
 import SearchJSONTransformer from "../transformers/SearchJSONTransformer";
 
 // sort whitelist
-const sortWhitelist = ElasticsearchHelper.getSortWhitelist(experimentSchema, "experiment");
+const sortWhitelist = ElasticsearchHelper.getSortWhitelist(experimentSearchSchema, "experiment");
 
 // distance types
 const NEAREST_NEIGHBOUR = "nearest-neighbour";
@@ -382,7 +385,12 @@ const choices = async (req, res) => {
     const container = parseQuery(clone);
     const query = container.query;
 
-    const resp = await ElasticsearchHelper.aggregate(config, experimentSearchSchema, query, "experiment");
+    const resp = await ElasticsearchHelper.aggregate(
+      config,
+      experimentSearchSchema,
+      query,
+      "experiment"
+    );
     const titles = jsonschemaUtil.schemaTitles(experimentSearchSchema);
     const choices = new ChoicesJSONTransformer().transform(resp, { titles });
 
