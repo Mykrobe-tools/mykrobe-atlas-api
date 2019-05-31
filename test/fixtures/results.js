@@ -358,6 +358,8 @@ export default {
     },
     sequenceCalls: {
       a: "b"
-    }
+    },
+    mdr: true,
+    xdr: false
   }
 };
