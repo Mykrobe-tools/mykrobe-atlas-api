@@ -1,7 +1,7 @@
 import ArrayJSONTransformer from "makeandship-api-common/lib/transformers/ArrayJSONTransformer";
 import ModelJSONTransformer from "makeandship-api-common/lib/transformers/ModelJSONTransformer";
 import BlacklistTransformer from "makeandship-api-common/lib/transformers/BlacklistJSONTransformer";
-import ExperimentJSONTransformer from "./ExperimentJSONTransformer";
+import SearchExperimentJSONTransformer from "./SearchExperimentJSONTransformer";
 import UserJSONTransformer from "./UserJSONTransformer";
 
 import Constants from "../Constants";
@@ -45,7 +45,7 @@ class SearchJSONTransformer extends ModelJSONTransformer {
       if (results) {
         const transformer = new ArrayJSONTransformer();
         const experiments = transformer.transform(results, {
-          transformer: ExperimentJSONTransformer
+          transformer: SearchExperimentJSONTransformer
         });
         res.results = experiments;
         // pagination
