@@ -151,10 +151,10 @@ describe("ExperimentController > Elasticsearch", () => {
           expect(mdr).toHaveProperty("choices");
           expect(mdr.choices.length).toEqual(1);
 
-          expect(mdr.choices[0].key).toEqual(1);
+          expect(mdr.choices[0].key).toEqual(true);
           expect(mdr.choices[0].count).toEqual(1);
 
-          expect(xdr.choices[0].key).toEqual(0);
+          expect(xdr.choices[0].key).toEqual(false);
           expect(xdr.choices[0].count).toEqual(1);
 
           done();
