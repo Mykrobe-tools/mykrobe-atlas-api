@@ -1,4 +1,5 @@
 import flatten from "flat";
+import deepmerge from "deepmerge";
 
 import { ElasticsearchHelper } from "makeandship-api-common/lib/modules/elasticsearch/";
 
@@ -136,7 +137,7 @@ class BigsiSearchHelper {
         : [];
 
     // filter by isolateIds
-    const isolateQuery = { "metadata.sample.isolateId": isolateIds };
+    const isolateQuery = { "metadata.sample.isolateId": isolateIds, per: isolateIds.length };
 
     // include any elasticsearch side query filters
     const elasticQuery =
@@ -166,7 +167,7 @@ class BigsiSearchHelper {
 
       // merge result data and handle nulls
       if (match && bigsi) {
-        const hit = Object.assign({}, bigsi, match);
+        const hit = deepmerge(bigsi, match);
         hits.push(hit);
       }
     });
