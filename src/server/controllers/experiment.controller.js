@@ -10,7 +10,7 @@ import SearchQueryJSONTransformer from "makeandship-api-common/lib/modules/elast
 import ChoicesJSONTransformer from "makeandship-api-common/lib/modules/elasticsearch/transformers/ChoicesJSONTransformer";
 import { util as jsonschemaUtil } from "makeandship-api-common/lib/modules/jsonschema";
 
-import { experiment as experimentSchema } from "mykrobe-atlas-jsonschema";
+import { experiment as experimentSchema, experimentSearch as experimentSearchSchema } from "mykrobe-atlas-jsonschema";
 
 import Audit from "../models/audit.model";
 import Experiment from "../models/experiment.model";
@@ -333,7 +333,7 @@ const reindex = async (req, res) => {
 
     // recreate the index
     await ElasticsearchHelper.deleteIndexIfExists(config);
-    await ElasticsearchHelper.createIndex(config, experimentSchema, "experiment", {
+    await ElasticsearchHelper.createIndex(config, experimentSearchSchema, "experiment", {
       settings: {
         "index.mapping.total_fields.limit": 2000
       }
@@ -382,8 +382,8 @@ const choices = async (req, res) => {
     const container = parseQuery(clone);
     const query = container.query;
 
-    const resp = await ElasticsearchHelper.aggregate(config, experimentSchema, query, "experiment");
-    const titles = jsonschemaUtil.schemaTitles(experimentSchema);
+    const resp = await ElasticsearchHelper.aggregate(config, experimentSearchSchema, query, "experiment");
+    const titles = jsonschemaUtil.schemaTitles(experimentSearchSchema);
     const choices = new ChoicesJSONTransformer().transform(resp, { titles });
 
     return res.jsend(choices);

@@ -1,5 +1,5 @@
 import _ from "lodash";
-const mockedEsPort = _.random(10000, 65535);
+const mockedEsPort = 9200; //_.random(10000, 65535);
 const mockedKeycloakPort = _.random(10000, 65535);
 
 export default {
