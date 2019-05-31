@@ -144,9 +144,9 @@ class BigsiSearchHelper {
       query && Object.keys(query).length > 0
         ? Object.assign(isolateQuery, flatten(query))
         : isolateQuery;
-    console.log(`elasticQuery: ${JSON.stringify(elasticQuery, null, 2)}`);
+
     const resp = await ElasticsearchHelper.search(config, elasticQuery, "experiment");
-    console.log(`resp: ${JSON.stringify(resp, null, 2)}`);
+
     const experiments = new ExperimentsResultJSONTransformer().transform(resp, {});
 
     // merge results in order
