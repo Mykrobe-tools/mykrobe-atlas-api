@@ -229,4 +229,35 @@ describe("bigsi", () => {
       });
     });
   });
+  describe("#createQuery", () => {
+    describe("when input is valid", () => {
+      describe("when a sequence query", done => {
+        it("should return a free-text query", done => {
+          done();
+        });
+      });
+      describe("when a dna variant query", done => {
+        it("should return a free-text query", done => {
+          done();
+        });
+      });
+      describe("when a protein variant query", done => {
+        it("should return a free-text query", done => {
+          done();
+        });
+      });
+    });
+    describe("when input is not valid", () => {
+      describe("when type is null", () => {
+        it("should return null", done => {
+          done();
+        });
+      });
+      describe("when type is not recognised", done => {
+        it("should return null", done => {
+          done();
+        });
+      });
+    });
+  });
 });

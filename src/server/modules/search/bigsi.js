@@ -93,6 +93,37 @@ const isSequenceQuery = (query, options) => {
 };
 
 /**
+ * Build a free-text query string for a given type of search
+ * @param type
+ * @param bigsi
+ *
+ * @return query containing free text query
+ */
+const createQuery = (type, bigsi) => {
+  if (type) {
+    switch (type) {
+      case SEQUENCE:
+        return {
+          q: `${bigsi.ref}${bigsi.pos}${bigsi.alt}`
+        };
+        break;
+      case PROTEIN_VARIANT:
+        return {
+          q: `${bigsi.gene}_${bigsi.ref}${bigsi.pos}${bigsi.alt}`
+        };
+        break;
+      case DNA_VARIANT:
+        return {
+          q: `${bigsi.seq}`
+        };
+        break;
+    }
+  }
+
+  return null;
+};
+
+/**
  * Create a search query for BIGSI
  *
  * @param {object} query
