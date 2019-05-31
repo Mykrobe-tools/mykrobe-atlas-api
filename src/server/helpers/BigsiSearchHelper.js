@@ -1,4 +1,5 @@
 import flatten from "flat";
+import deepmerge from "deepmerge";
 
 import { ElasticsearchHelper } from "makeandship-api-common/lib/modules/elasticsearch/";
 
@@ -136,16 +137,16 @@ class BigsiSearchHelper {
         : [];
 
     // filter by isolateIds
-    const isolateQuery = { "metadata.sample.isolateId": isolateIds };
+    const isolateQuery = { "metadata.sample.isolateId": isolateIds, per: isolateIds.length };
 
     // include any elasticsearch side query filters
     const elasticQuery =
       query && Object.keys(query).length > 0
         ? Object.assign(isolateQuery, flatten(query))
         : isolateQuery;
-
+    console.log(`elasticQuery: ${JSON.stringify(elasticQuery, null, 2)}`);
     const resp = await ElasticsearchHelper.search(config, elasticQuery, "experiment");
-
+    console.log(`resp: ${JSON.stringify(resp, null, 2)}`);
     const experiments = new ExperimentsResultJSONTransformer().transform(resp, {});
 
     // merge results in order
@@ -166,7 +167,7 @@ class BigsiSearchHelper {
 
       // merge result data and handle nulls
       if (match && bigsi) {
-        const hit = Object.assign({}, bigsi, match);
+        const hit = deepmerge(bigsi, match);
         hits.push(hit);
       }
     });
