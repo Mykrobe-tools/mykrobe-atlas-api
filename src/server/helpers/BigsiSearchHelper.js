@@ -58,17 +58,47 @@ class BigsiSearchHelper {
     if (search.isPending() && !search.userExists(user)) {
       await this.addAndNotifyUser(search, user);
     } else if (!search.isPending()) {
-      const result = search.get("result");
+      const type = search.type;
 
+      const result = search.get("result");
       const results = result.results;
 
-      const experiments = await this.enhanceBigsiResultsWithExperiments(results, query);
+      const filteredResults = this.filter(type, results);
+
+      const experiments = await this.enhanceBigsiResultsWithExperiments(filteredResults, query);
       result.results = experiments;
 
       search.set("result", result);
     }
 
     return search;
+  }
+
+  /**
+   * Filter results to remove any non matches
+   *
+   * @param type
+   * @param results
+   *
+   * @return filtered results
+   */
+  static filter(type, results) {
+    if (type && results) {
+      switch (type) {
+        case "protein-variant":
+          return results.filter(result => {
+            return !result.genotype || result.genotype !== "0/0";
+          });
+          break;
+        case "dna-variant":
+          return results.filter(result => {
+            return !result.genotype || result.genotype !== "0/0";
+          });
+          break;
+      }
+    }
+
+    return results;
   }
 
   /**
