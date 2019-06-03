@@ -2064,7 +2064,7 @@ describe("ExperimentController", () => {
     });
   });
   describe("# POST /experiments/reindex", () => {
-    it("should reindex all experiments to ES", done => {
+    it("should reindex all experiments", done => {
       request(app)
         .post("/experiments/reindex")
         .set("Authorization", `Bearer ${token}`)
@@ -2593,57 +2593,117 @@ describe("ExperimentController", () => {
               done();
             });
         });
-        it("should return cached search results", async done => {
-          // make sure this is the only rpob_S450L search
-          await Search.remove({});
+        describe("when results contain genotype 1/1", () => {
+          it("should return cached search results", async done => {
+            // make sure this is the only rpob_S450L search
+            await Search.remove({});
 
-          // clear any existing results
-          const data = searches.searchOnly.proteinVariant;
-          const search = new Search(data);
-          const savedSearch = await search.save();
+            // clear any existing results
+            const data = searches.searchOnly.proteinVariant;
+            const search = new Search(data);
+            const savedSearch = await search.save();
 
-          // audit for the sequence search
-          const proteinVariantAudit = new Audit({
-            searchId: search.id,
-            attempts: 1,
-            status: "Success"
-          });
-          await proteinVariantAudit.save();
-
-          const experiment = await Experiment.get(id);
-          const isolateId = experiment.get("metadata.sample.isolateId");
-
-          const proteinVariant = Object.assign({}, searches.results.proteinVariant);
-          proteinVariant.result.results[0].sample_name = isolateId;
-
-          // store some results
-          request(app)
-            .put(`/searches/${search.id}/results`)
-            .send(proteinVariant)
-            .expect(httpStatus.OK)
-            .end(async (err, res) => {
-              // search for the results
-              request(app)
-                .get("/experiments/search?q=rpoB_S450L")
-                .set("Authorization", `Bearer ${token}`)
-                .expect(httpStatus.OK)
-                .end(async (err, res) => {
-                  expect(res.body).toHaveProperty("status", "success");
-                  expect(res.body).toHaveProperty("data");
-
-                  const data = res.body.data;
-                  expect(data).toHaveProperty("bigsi");
-                  expect(data).toHaveProperty("status", "complete");
-                  expect(data).toHaveProperty("type", "protein-variant");
-                  expect(data).toHaveProperty("results");
-                  expect(data.results.length).toEqual(1);
-
-                  expect(data).toHaveProperty("total", 1);
-                  expect(data).toHaveProperty("pagination");
-
-                  done();
-                });
+            // audit for the sequence search
+            const proteinVariantAudit = new Audit({
+              searchId: search.id,
+              attempts: 1,
+              status: "Success"
             });
+            await proteinVariantAudit.save();
+
+            const experiment = await Experiment.get(id);
+            const isolateId = experiment.get("metadata.sample.isolateId");
+
+            const proteinVariant = Object.assign({}, searches.results.proteinVariant);
+            proteinVariant.result.results[0].sample_name = isolateId;
+
+            // store some results
+            request(app)
+              .put(`/searches/${search.id}/results`)
+              .send(proteinVariant)
+              .expect(httpStatus.OK)
+              .end(async (err, res) => {
+                // search for the results
+                request(app)
+                  .get("/experiments/search?q=rpoB_S450L")
+                  .set("Authorization", `Bearer ${token}`)
+                  .expect(httpStatus.OK)
+                  .end(async (err, res) => {
+                    expect(res.body).toHaveProperty("status", "success");
+                    expect(res.body).toHaveProperty("data");
+
+                    const data = res.body.data;
+                    expect(data).toHaveProperty("bigsi");
+                    expect(data).toHaveProperty("status", "complete");
+                    expect(data).toHaveProperty("type", "protein-variant");
+                    expect(data).toHaveProperty("results");
+                    expect(data.results.length).toEqual(1);
+
+                    expect(data).toHaveProperty("total", 1);
+                    expect(data).toHaveProperty("pagination");
+
+                    done();
+                  });
+              });
+          });
+        });
+        describe("when results contain genotype 0/0", () => {
+          it("should return cached search results", async done => {
+            // make sure this is the only rpob_S450L search
+            await Search.remove({});
+
+            // clear any existing results
+            const data = searches.searchOnly.proteinVariant;
+            const search = new Search(data);
+            const savedSearch = await search.save();
+
+            // audit for the sequence search
+            const proteinVariantAudit = new Audit({
+              searchId: search.id,
+              attempts: 1,
+              status: "Success"
+            });
+            await proteinVariantAudit.save();
+
+            const experiment = await Experiment.get(id);
+            const isolateId = experiment.get("metadata.sample.isolateId");
+
+            const proteinVariantWith0Genotype = Object.assign(
+              {},
+              searches.results.proteinVariantWith0Genotype
+            );
+            proteinVariantWith0Genotype.result.results[2].sample_name = isolateId;
+
+            // store some results
+            request(app)
+              .put(`/searches/${search.id}/results`)
+              .send(proteinVariantWith0Genotype)
+              .expect(httpStatus.OK)
+              .end(async (err, res) => {
+                // search for the results
+                request(app)
+                  .get("/experiments/search?q=rpoB_S450L")
+                  .set("Authorization", `Bearer ${token}`)
+                  .expect(httpStatus.OK)
+                  .end(async (err, res) => {
+                    expect(res.body).toHaveProperty("status", "success");
+                    expect(res.body).toHaveProperty("data");
+
+                    const data = res.body.data;
+                    expect(data).toHaveProperty("bigsi");
+                    expect(data).toHaveProperty("status", "complete");
+                    expect(data).toHaveProperty("type", "protein-variant");
+
+                    expect(data).toHaveProperty("results");
+                    expect(data.results.length).toEqual(0);
+                    expect(data).toHaveProperty("total", 0);
+
+                    expect(data).toHaveProperty("pagination");
+
+                    done();
+                  });
+              });
+          });
         });
       });
       describe("when a results are expired", () => {
