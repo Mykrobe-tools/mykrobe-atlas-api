@@ -3,6 +3,7 @@ import ModelJSONTransformer from "makeandship-api-common/lib/transformers/ModelJ
 import BlacklistTransformer from "makeandship-api-common/lib/transformers/BlacklistJSONTransformer";
 import SearchExperimentJSONTransformer from "./SearchExperimentJSONTransformer";
 import UserJSONTransformer from "./UserJSONTransformer";
+import SearchHelper from "../helpers/SearchHelper";
 
 import Constants from "../Constants";
 
@@ -22,6 +23,10 @@ class SearchJSONTransformer extends ModelJSONTransformer {
 
     if (res.user && options.includeUser) {
       res.user = new UserJSONTransformer().transform(res.user, options);
+    }
+
+    if (res.bigsi && res.bigsi.query) {
+      this.enrichSearchQuery(res);
     }
 
     const status = res.status;
@@ -70,6 +75,13 @@ class SearchJSONTransformer extends ModelJSONTransformer {
   }
 
   transformPending(res) {}
+
+  enrichSearchQuery(res) {
+    const { ref, pos, alt, gene } = res.bigsi.query;
+    const queryString = SearchHelper.getQueryString(ref, pos, alt, gene);
+
+    res.query = { q: queryString };
+  }
 }
 
 export default SearchJSONTransformer;
