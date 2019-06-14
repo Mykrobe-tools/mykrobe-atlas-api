@@ -123,6 +123,7 @@ class BigsiSearchHelper {
       await savedSearch.addUser(user);
     }
     const searchJson = new SearchJSONTransformer().transform(savedSearch);
+    this.reconstructFreeTextQuery(searchJson);
     const userJson = new UserJSONTransformer().transform(user);
     // call bigsi via agenda to support retries
     await schedule("now", "call search api", {
@@ -142,6 +143,7 @@ class BigsiSearchHelper {
     await search.addUser(user);
     const audit = await Audit.getBySearchId(search.id);
     const searchJson = new SearchJSONTransformer().transform(search);
+    this.reconstructFreeTextQuery(searchJson);
     const userJson = new UserJSONTransformer().transform(user);
     if (audit) {
       const auditJson = new AuditJSONTransformer().transform(audit);
@@ -203,6 +205,21 @@ class BigsiSearchHelper {
     });
 
     return hits;
+  }
+
+  /**
+   * Reconstruct free-text query in bigsi search
+   * @param {*} searchJson
+   */
+  static reconstructFreeTextQuery(searchJson) {
+    if (searchJson.bigsi && searchJson.bigsi.query) {
+      const query = searchJson.bigsi.query;
+      if (query.gene) {
+        searchJson.query = { q: `${query.gene}_${query.ref}${query.pos}${query.alt}` };
+      } else {
+        searchJson.query = { q: `${query.ref}${query.pos}${query.alt}` };
+      }
+    }
   }
 }
 

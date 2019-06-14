@@ -2543,6 +2543,27 @@ describe("ExperimentController", () => {
               done();
             });
         });
+        it("should reconstruct the free-text query", done => {
+          const mockCallback = jest.fn();
+          userEventEmitter.on("protein-variant-search-started", mockCallback);
+          request(app)
+            .get("/experiments/search?q=rpoB_S450L")
+            .set("Authorization", `Bearer ${token}`)
+            .expect(httpStatus.OK)
+            .end(async (err, res) => {
+              expect(res.body.status).toEqual("success");
+              expect(res.body.data.id).toEqual(searchId);
+              expect(mockCallback.mock.calls.length).toEqual(1);
+              const calls = mockCallback.mock.calls;
+
+              expect(mockCallback.mock.calls[0].length).toEqual(1);
+              const object = mockCallback.mock.calls[0][0];
+
+              expect(object.search.query.q).toEqual("rpoB_S450L");
+
+              done();
+            });
+        });
       });
       describe("when a results are available and not expired", () => {
         let searchId = null;
