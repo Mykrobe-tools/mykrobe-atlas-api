@@ -353,18 +353,29 @@ const choices = async (req, res) => {
   try {
     const clone = Object.assign({}, req.query);
     const container = parseQuery(clone);
+
+    const bigsi = container.bigsi;
     const query = container.query;
 
-    const resp = await ElasticsearchHelper.aggregate(
-      config,
-      experimentSearchSchema,
-      query,
-      "experiment"
-    );
-    const titles = jsonschemaUtil.schemaTitles(experimentSearchSchema);
-    const choices = new ChoicesJSONTransformer().transform(resp, { titles });
+    if (bigsi) {
+      const resp = await BigsiSearchHelper.aggregate(bigsi, query, req.dbUser);
 
-    return res.jsend(choices);
+      const titles = jsonschemaUtil.schemaTitles(experimentSearchSchema);
+      const choices = new ChoicesJSONTransformer().transform(resp, { titles });
+
+      return res.jsend(choices);
+    } else {
+      const resp = await ElasticsearchHelper.aggregate(
+        config,
+        experimentSearchSchema,
+        query,
+        "experiment"
+      );
+      const titles = jsonschemaUtil.schemaTitles(experimentSearchSchema);
+      const choices = new ChoicesJSONTransformer().transform(resp, { titles });
+
+      return res.jsend(choices);
+    }
   } catch (e) {
     return res.jerror(new errors.SearchMetadataValuesError(e.message));
   }

@@ -22,6 +22,29 @@ const config = require("../../config/env");
 
 class BigsiSearchHelper {
   /**
+   * Run an aggregation using bigsi search results as a filter
+   * @param {*} bigsi
+   * @param {*} query
+   * @param {*} user
+   */
+  static async aggregate(bigsi, query, user) {
+    const searchData = {
+      type: bigsi.type,
+      bigsi: bigsi
+    };
+
+    const searchHash = SearchHelper.generateHash(searchData);
+    const search = await Search.findByHash(searchHash);
+
+    if (search && (!search.isExpired() || search.isPending())) {
+      return this.returnCachedChoices(search, query, user);
+    } else {
+      // don't return choices when search is pending - search endpoint is responsible
+      return {};
+    }
+  }
+
+  /**
    * The search engine
    * Return from remote when there is no search object with the same hash
    * Return from remote when there is a complete search object but expired
@@ -66,6 +89,32 @@ class BigsiSearchHelper {
       const filteredResults = this.filter(type, results);
 
       const experiments = await this.enhanceBigsiResultsWithExperiments(filteredResults, query);
+      result.results = experiments;
+
+      search.set("result", result);
+    }
+
+    return search;
+  }
+
+  /**
+   * The cache search engine
+   * Return whatever we have in the cache
+   * Notify a user if the search is pending and the user wasnt already notified
+   * If result is complete merge it with experiments
+   * @param {*} search
+   * @param {*} user
+   */
+  static async returnCachedChoices(search, query, user) {
+    if (!search.isPending()) {
+      const type = search.type;
+
+      const result = search.get("result");
+      const results = result.results;
+
+      const filteredResults = this.filter(type, results);
+
+      const experiments = await this.enhanceBigsiResultsWithChoices(filteredResults, query);
       result.results = experiments;
 
       search.set("result", result);
