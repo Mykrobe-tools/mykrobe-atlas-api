@@ -81,7 +81,6 @@ afterAll(async done => {
 
 describe("ExperimentController > Elasticsearch", () => {
   describe("# GET /experiments/choices", () => {
-    // POST.c40633601de3b1ca1d7aa77ad5fbd6284a20781f.mock
     it("should return choices and counts for enums", done => {
       request(app)
         .get("/experiments/choices")
@@ -160,7 +159,6 @@ describe("ExperimentController > Elasticsearch", () => {
           done();
         });
     });
-    // POST.c40633601de3b1ca1d7aa77ad5fbd6284a20781f.mock
     it("should return min and max dates", done => {
       request(app)
         .get("/experiments/choices")
@@ -175,7 +173,6 @@ describe("ExperimentController > Elasticsearch", () => {
           done();
         });
     });
-    // POST.c40633601de3b1ca1d7aa77ad5fbd6284a20781f.mock
     it("should include the titles", done => {
       request(app)
         .get("/experiments/choices")
@@ -202,7 +199,6 @@ describe("ExperimentController > Elasticsearch", () => {
           done();
         });
     });
-    // POST.c40633601de3b1ca1d7aa77ad5fbd6284a20781f.mock
     it("should include the titles array", done => {
       request(app)
         .get("/experiments/choices")
@@ -254,7 +250,6 @@ describe("ExperimentController > Elasticsearch", () => {
           done();
         });
     });
-    // POST.c40633601de3b1ca1d7aa77ad5fbd6284a20781f.mock
     it("should return min and max bmi values", done => {
       request(app)
         .get("/experiments/choices")
@@ -268,7 +263,6 @@ describe("ExperimentController > Elasticsearch", () => {
           done();
         });
     });
-    // POST.c40633601de3b1ca1d7aa77ad5fbd6284a20781f.mock
     it("should return min and max patient age", done => {
       request(app)
         .get("/experiments/choices")
@@ -282,7 +276,6 @@ describe("ExperimentController > Elasticsearch", () => {
           done();
         });
     });
-    // POST.287e3ec4e46a5b7f9803be03f252c29284f56572.mock
     it("should filter the choices", done => {
       request(app)
         .get("/experiments/choices?metadata.patient.patientId=9bd049c5-7407-4129-a973-17291ccdd2cc")
@@ -301,8 +294,6 @@ describe("ExperimentController > Elasticsearch", () => {
           done();
         });
     });
-    // POST.30f98efc12e95978db30d97497fc490d27058009.mock
-    // new POST.8c0d09b2058ddc4583b0cb05a9a3a614a062cc1e.mock
     it("should apply a free text query to choices - male", done => {
       request(app)
         .get("/experiments/choices?q=Male")
@@ -322,7 +313,6 @@ describe("ExperimentController > Elasticsearch", () => {
           done();
         });
     });
-    // POST.2913e48e54ced7c197a2fdd88702dd1a9ae1983f.mock
     it("should apply a free text query to choices - female", done => {
       request(app)
         .get("/experiments/choices?q=Female")
@@ -342,7 +332,6 @@ describe("ExperimentController > Elasticsearch", () => {
           done();
         });
     });
-    // POST.4d725fbbca4c98531075480ee54680326418211f.mock
     it("should apply case insensitive free text query to choices", done => {
       request(app)
         .get("/experiments/choices?q=INSU")
@@ -361,7 +350,6 @@ describe("ExperimentController > Elasticsearch", () => {
           done();
         });
     });
-    // POST.114cdd30775d2652ad5e5ad9d9e42942812e23c4.mock
     it("should apply case insensitive free text query to choices", done => {
       request(app)
         .get("/experiments/choices?q=nSuL")
@@ -380,7 +368,6 @@ describe("ExperimentController > Elasticsearch", () => {
           done();
         });
     });
-    // POST.3b76a1019f239ceed5f8ea6f9034d80de307efd0.mock
     it("should apply partial match free text queries", done => {
       request(app)
         .get("/experiments/choices?q=emale")
@@ -513,9 +500,9 @@ describe("ExperimentController > Elasticsearch", () => {
         .set("Authorization", `Bearer ${token}`)
         .expect(httpStatus.OK)
         .end((err, res) => {
-          expect(res.body.data.metadata.maxRelevance).toEqual(3.8100972);
+          expect(res.body.data.metadata.maxRelevance).toEqual(3.7886243);
           res.body.data.results.forEach(result => {
-            expect(result).toHaveProperty("relevance", 3.8100972);
+            expect(result).toHaveProperty("relevance", 3.7886243);
           });
           done();
         });
@@ -595,6 +582,23 @@ describe("ExperimentController > Elasticsearch", () => {
           expect(res.body.data).toHaveProperty("search");
           expect(res.body.data.search).toHaveProperty("q", "Female");
           expect(res.body.data.search["metadata.patient.smoker"]).toEqual("No");
+
+          done();
+        });
+    });
+    it("should allow filters and query", done => {
+      request(app)
+        .get("/experiments/search?metadata.patient.smoker=Yes&q=male")
+        .set("Authorization", `Bearer ${token}`)
+        .expect(httpStatus.OK)
+        .end((err, res) => {
+          expect(res.body.status).toEqual("success");
+          expect(res.body.data).toHaveProperty("total", 1);
+          expect(res.body.data).toHaveProperty("results");
+          expect(res.body.data.results.length).toEqual(1);
+          expect(res.body.data).toHaveProperty("search");
+          expect(res.body.data.search).toHaveProperty("q", "male");
+          expect(res.body.data.search["metadata.patient.smoker"]).toEqual("Yes");
 
           done();
         });

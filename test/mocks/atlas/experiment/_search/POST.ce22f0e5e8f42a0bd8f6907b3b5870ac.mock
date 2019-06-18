@@ -11,86 +11,14 @@ Content-Type: application/json; charset=utf-8
         "failed": 0
     },
     "hits": {
-        "total": 2,
-        "max_score": 0,
+        "total": 1,
+        "max_score": 1.3539357,
         "hits": [
             {
                 "_index": "atlas",
                 "_type": "experiment",
-                "_id": "5ced0653104a7d121f150963",
-                "_score": 0,
-                "_source": {
-                    "metadata": {
-                        "patient": {
-                            "patientId": "eff2fa6a-9d79-41ab-a307-b620cedf7293",
-                            "siteId": "a2a910e3-25ef-475c-bdf9-f6fe215d949f",
-                            "genderAtBirth": "Male",
-                            "countryOfBirth": "IN",
-                            "age": 43,
-                            "bmi": 25.3,
-                            "injectingDrugUse": "No",
-                            "homeless": "No",
-                            "imprisoned": "No",
-                            "smoker": "Yes",
-                            "diabetic": "Insulin",
-                            "hivStatus": "Not tested"
-                        },
-                        "sample": {
-                            "labId": "d19637ed-e5b4-4ca7-8418-8713646a3359",
-                            "isolateId": "9c0c00f2-8cb1-4254-bf53-3271f35ce696",
-                            "collectionDate": "2018-10-19T00:00:00.000Z",
-                            "prospectiveIsolate": "Yes",
-                            "countryIsolate": "IN",
-                            "cityIsolate": "Mumbai",
-                            "dateArrived": "2018-09-01T00:00:00.000Z",
-                            "anatomicalOrigin": "Respiratory",
-                            "smear": "Not known",
-                            "latitudeIsolate": 19.0759837,
-                            "longitudeIsolate": 72.8776559
-                        },
-                        "genotyping": {
-                            "wgsPlatform": "MiSeq",
-                            "otherGenotypeInformation": "Yes",
-                            "genexpert": "Not tested",
-                            "hain": "INH/RIF test",
-                            "hainRif": "RIF resistant",
-                            "hainInh": "INH sensitive",
-                            "hainFl": "Not tested",
-                            "hainAm": "Not tested",
-                            "hainEth": "Not tested"
-                        },
-                        "phenotyping": {
-                            "rifampicin": {
-                                "susceptibility": "Resistant",
-                                "method": "Not known"
-                            },
-                            "ethambutol": {
-                                "susceptibility": "Sensitive",
-                                "method": "Not known"
-                            },
-                            "pyrazinamide": {
-                                "susceptibility": "Sensitive",
-                                "method": "Not known"
-                            },
-                            "isoniazid": {
-                                "susceptibility": "Sensitive",
-                                "method": "Not known"
-                            },
-                            "phenotypeInformationFirstLineDrugs": "Yes",
-                            "phenotypeInformationOtherDrugs": "No"
-                        }
-                    },
-                    "results": {},
-                    "created": "2019-05-28T09:58:44.369Z",
-                    "modified": "2019-05-28T09:58:44.369Z",
-                    "id": "5ced0653104a7d121f150963"
-                }
-            },
-            {
-                "_index": "atlas",
-                "_type": "experiment",
-                "_id": "5ced0653104a7d121f150964",
-                "_score": 0,
+                "_id": "5d08dc151ac72408dc85fb6c",
+                "_score": 1.3539357,
                 "_source": {
                     "metadata": {
                         "patient": {
@@ -255,9 +183,9 @@ Content-Type: application/json; charset=utf-8
                         }
                     },
                     "results": {},
-                    "created": "2019-05-28T09:58:45.283Z",
-                    "modified": "2019-05-28T09:58:45.283Z",
-                    "id": "5ced0653104a7d121f150964"
+                    "created": "2019-06-18T12:41:59.397Z",
+                    "modified": "2019-06-18T12:41:59.397Z",
+                    "id": "5d08dc151ac72408dc85fb6c"
                 }
             }
         ]
