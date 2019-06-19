@@ -2,7 +2,7 @@ HTTP/1.1 200 OK
 Content-Type: application/json; charset=utf-8
 
 {
-    "took": 120,
+    "took": 95,
     "timed_out": false,
     "_shards": {
         "total": 5,
@@ -12,13 +12,13 @@ Content-Type: application/json; charset=utf-8
     },
     "hits": {
         "total": 1,
-        "max_score": 1,
+        "max_score": 0,
         "hits": [
             {
                 "_index": "atlas",
                 "_type": "experiment",
-                "_id": "5cf0fb69ecc3aa273ae8f166",
-                "_score": 1,
+                "_id": "5d08dc151ac72408dc85fb6c",
+                "_score": 0,
                 "_source": {
                     "metadata": {
                         "patient": {
@@ -183,9 +183,9 @@ Content-Type: application/json; charset=utf-8
                         }
                     },
                     "results": {},
-                    "created": "2019-05-31T10:01:15.412Z",
-                    "modified": "2019-05-31T10:01:15.412Z",
-                    "id": "5cf0fb69ecc3aa273ae8f166"
+                    "created": "2019-06-18T12:41:59.397Z",
+                    "modified": "2019-06-18T12:41:59.397Z",
+                    "id": "5d08dc151ac72408dc85fb6c"
                 }
             }
         ]

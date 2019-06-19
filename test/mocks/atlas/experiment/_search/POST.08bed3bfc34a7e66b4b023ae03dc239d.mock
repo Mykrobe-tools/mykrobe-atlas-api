@@ -2,7 +2,7 @@ HTTP/1.1 200 OK
 Content-Type: application/json; charset=utf-8
 
 {
-    "took": 79,
+    "took": 1,
     "timed_out": false,
     "_shards": {
         "total": 5,
@@ -12,20 +12,20 @@ Content-Type: application/json; charset=utf-8
     },
     "hits": {
         "total": 1,
-        "max_score": 1,
+        "max_score": 3.465736,
         "hits": [
             {
                 "_index": "atlas",
                 "_type": "experiment",
-                "_id": "5c9b4d0ca9c34c19406d01ff",
-                "_score": 1,
+                "_id": "5d08dc151ac72408dc85fb6c",
+                "_score": 3.465736,
                 "_source": {
                     "metadata": {
                         "patient": {
                             "patientId": "9bd049c5-7407-4129-a973-17291ccdd2cc",
                             "siteId": "ccc4e687-a094-4533-b136-c507fe00a9a8",
                             "genderAtBirth": "Female",
-                            "countryOfBirth": "China",
+                            "countryOfBirth": "CN",
                             "age": 32,
                             "bmi": 33.1,
                             "injectingDrugUse": "No",
@@ -38,11 +38,11 @@ Content-Type: application/json; charset=utf-8
                         "sample": {
                             "labId": "f134b514-d2ac-460c-808b-9c5fd9cb9859",
                             "isolateId": "820a78d6-b5b9-45c4-95d1-9463e6bdb14a",
-                            "collectionDate": "2018-07-22",
+                            "collectionDate": "2018-07-22T00:00:00.000Z",
                             "prospectiveIsolate": "Yes",
-                            "countryIsolate": "China",
+                            "countryIsolate": "CH",
                             "cityIsolate": "Chongqing",
-                            "dateArrived": "2017-11-05",
+                            "dateArrived": "2017-11-05T00:00:00.000Z",
                             "anatomicalOrigin": "Respiratory",
                             "smear": "Not known"
                         },
@@ -58,7 +58,6 @@ Content-Type: application/json; charset=utf-8
                             "hainEth": "Not tested"
                         },
                         "phenotyping": {
-                            "phenotypeInformationFirstLineDrugs": "Yes",
                             "rifampicin": {
                                 "susceptibility": "Resistant",
                                 "method": "Not known"
@@ -75,7 +74,6 @@ Content-Type: application/json; charset=utf-8
                                 "susceptibility": "Sensitive",
                                 "method": "Not known"
                             },
-                            "phenotypeInformationOtherDrugs": "Yes",
                             "rifabutin": {
                                 "susceptibility": "Sensitive",
                                 "method": "Not known"
@@ -179,13 +177,15 @@ Content-Type: application/json; charset=utf-8
                             "pretomanid": {
                                 "susceptibility": "Sensitive",
                                 "method": "Not known"
-                            }
+                            },
+                            "phenotypeInformationFirstLineDrugs": "Yes",
+                            "phenotypeInformationOtherDrugs": "Yes"
                         }
                     },
                     "results": {},
-                    "created": "2019-03-27T10:14:36.546Z",
-                    "modified": "2019-03-27T10:14:36.546Z",
-                    "id": "5c9b4d0ca9c34c19406d01ff"
+                    "created": "2019-06-18T12:41:59.397Z",
+                    "modified": "2019-06-18T12:41:59.397Z",
+                    "id": "5d08dc151ac72408dc85fb6c"
                 }
             }
         ]

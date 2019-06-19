@@ -72,7 +72,6 @@ describe("UserController", () => {
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
-          expect(res.body.code).toEqual(10005);
           expect(res.body.data.errors[""].message).toEqual(
             "should have required property 'username'"
           );
@@ -457,7 +456,6 @@ describe("UserController", () => {
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
-          expect(res.body.message).toEqual("Failed to reset the password.");
           expect(res.body.data.errors[""].message).toEqual("should have required property 'email'");
           done();
         });
@@ -472,7 +470,6 @@ describe("UserController", () => {
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
-          expect(res.body.message).toEqual("Failed to reset the password.");
           expect(res.body.data.errors.email.message).toEqual('should match format "email"');
           done();
         });
@@ -512,7 +509,6 @@ describe("UserController", () => {
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
-          expect(res.body.message).toEqual("Failed to resend the notification.");
           expect(res.body.data.errors[""].message).toEqual("should have required property 'email'");
           done();
         });
@@ -524,7 +520,6 @@ describe("UserController", () => {
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
-          expect(res.body.message).toEqual("Failed to resend the notification.");
           expect(res.body.data.errors.email.message).toEqual('should match format "email"');
           done();
         });

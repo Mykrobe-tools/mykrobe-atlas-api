@@ -17,7 +17,7 @@ Content-Type: application/json; charset=utf-8
             {
                 "_index": "atlas",
                 "_type": "experiment",
-                "_id": "5ced0653104a7d121f150963",
+                "_id": "5d08dc151ac72408dc85fb64",
                 "_score": 0,
                 "_source": {
                     "metadata": {
@@ -80,10 +80,60 @@ Content-Type: application/json; charset=utf-8
                             "phenotypeInformationOtherDrugs": "No"
                         }
                     },
-                    "results": {},
-                    "created": "2019-05-28T09:58:44.369Z",
-                    "modified": "2019-05-28T09:58:44.369Z",
-                    "id": "5ced0653104a7d121f150963"
+                    "results": {
+                        "predictor": {
+                            "probeSets": [
+                                "/home/admin/git/mykrobe-atlas-cli/src/mykrobe/data/panels/tb-species-170421.fasta.gz",
+                                "/home/admin/git/mykrobe-atlas-cli/src/mykrobe/data/panels/tb-walker-probe-set-feb-09-2017.fasta.gz"
+                            ],
+                            "susceptibility": {
+                                "Isoniazid": {
+                                    "prediction": "R"
+                                },
+                                "Pyrazinamide": {
+                                    "prediction": "S"
+                                },
+                                "Rifampicin": {
+                                    "prediction": "R"
+                                },
+                                "Amikacin": {
+                                    "prediction": "S"
+                                }
+                            },
+                            "phylogenetics": {
+                                "complex": {
+                                    "Mycobacterium_tuberculosis_complex": {
+                                        "percentCoverage": 99.631,
+                                        "medianDepth": 55
+                                    }
+                                },
+                                "sub-species": {
+                                    "European_American": {
+                                        "percentCoverage": 100,
+                                        "medianDepth": 47
+                                    }
+                                }
+                            },
+                            "files": [
+                                "/atlas/test-data/MDR.fastq.gz"
+                            ],
+                            "type": "predictor",
+                            "received": "2018-09-12T11:23:20.964Z",
+                            "analysed": "2018-09-12T11:23:20.964Z",
+                            "kmer": 21,
+                            "version": {
+                                "mykrobe-predictor": "v0.6.5",
+                                "mykrobe-atlas": "v0.6.5"
+                            },
+                            "genotypeModel": "median_depth",
+                            "mdr": true,
+                            "xdr": false,
+                            "id": "5d08dc151ac72408dc85fb65"
+                        }
+                    },
+                    "created": "2019-06-18T12:41:58.023Z",
+                    "modified": "2019-06-18T12:41:58.023Z",
+                    "id": "5d08dc151ac72408dc85fb64"
                 }
             }
         ]
