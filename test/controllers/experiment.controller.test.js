@@ -103,7 +103,7 @@ describe("ExperimentController", () => {
         });
     });
 
-    it.skip("should remove additional fields from the new experiment", done => {
+    it("should remove additional fields from the new experiment", done => {
       request(app)
         .post("/experiments")
         .set("Authorization", `Bearer ${token}`)

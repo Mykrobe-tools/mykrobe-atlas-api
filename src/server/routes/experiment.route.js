@@ -3417,6 +3417,7 @@ router
    */
   .post(
     keycloak.connect.protect(),
+    jsonschema.trim(schemas["experiment"]),
     jsonschema.schemaValidation(schemas["experiment"], errors, "CreateExperimentError", "all"),
     userController.loadCurrentUser,
     experimentController.create
