@@ -5031,9 +5031,9 @@ make-iterator@^1.0.0:
     tough-cookie "^3.0.1"
     url "^0.11.0"
 
-"makeandship-api-common@git+ssh://git@bitbucket.org:makeandship/makeandship-api-common.git#v0.0.78":
-  version "0.0.78"
-  resolved "git+ssh://git@bitbucket.org:makeandship/makeandship-api-common.git#a1a69b34f5b6a359a918fff7c247518e4fccf657"
+"makeandship-api-common@git+ssh://git@bitbucket.org:makeandship/makeandship-api-common.git#v0.0.80":
+  version "0.0.80"
+  resolved "git+ssh://git@bitbucket.org:makeandship/makeandship-api-common.git#1db6f46a2ef953599c3a2383d3eabc2f959a0026"
   dependencies:
     ajv "^6.5.0"
     axios "^0.18.0"

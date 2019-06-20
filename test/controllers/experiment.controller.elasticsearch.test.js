@@ -323,11 +323,11 @@ describe("ExperimentController > Elasticsearch", () => {
 
           const data = res.body.data;
           expect(data["metadata.patient.age"].min).toEqual(32);
-          expect(data["metadata.patient.age"].max).toEqual(32);
-          expect(data["metadata.patient.bmi"].min).toEqual(33.1);
+          expect(data["metadata.patient.age"].max).toEqual(43);
+          expect(data["metadata.patient.bmi"].min).toEqual(25.3);
           expect(data["metadata.patient.bmi"].max).toEqual(33.1);
           expect(data["metadata.sample.dateArrived"].min).toEqual("2017-11-05T00:00:00.000Z");
-          expect(data["metadata.sample.dateArrived"].max).toEqual("2017-11-05T00:00:00.000Z");
+          expect(data["metadata.sample.dateArrived"].max).toEqual("2018-09-01T00:00:00.000Z");
 
           done();
         });
@@ -381,11 +381,11 @@ describe("ExperimentController > Elasticsearch", () => {
 
           const data = res.body.data;
           expect(data["metadata.patient.age"].min).toEqual(32);
-          expect(data["metadata.patient.age"].max).toEqual(32);
-          expect(data["metadata.patient.bmi"].min).toEqual(33.1);
+          expect(data["metadata.patient.age"].max).toEqual(43);
+          expect(data["metadata.patient.bmi"].min).toEqual(25.3);
           expect(data["metadata.patient.bmi"].max).toEqual(33.1);
           expect(data["metadata.sample.dateArrived"].min).toEqual("2017-11-05T00:00:00.000Z");
-          expect(data["metadata.sample.dateArrived"].max).toEqual("2017-11-05T00:00:00.000Z");
+          expect(data["metadata.sample.dateArrived"].max).toEqual("2018-09-01T00:00:00.000Z");
 
           done();
         });
