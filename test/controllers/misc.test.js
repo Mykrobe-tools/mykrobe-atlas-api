@@ -71,7 +71,7 @@ describe("Misc", () => {
         .expect(httpStatus.BAD_REQUEST)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
-          expect(res.body.data.errors[""].message).toEqual(
+          expect(res.body.data.errors.username.message).toEqual(
             "should have required property 'username'"
           );
           done();

@@ -2,7 +2,7 @@ HTTP/1.1 200 OK
 Content-Type: application/json; charset=utf-8
 
 {
-    "took": 1,
+    "took": 43,
     "timed_out": false,
     "_shards": {
         "total": 5,
@@ -11,8 +11,8 @@ Content-Type: application/json; charset=utf-8
         "failed": 0
     },
     "hits": {
-        "total": 0,
-        "max_score": null,
+        "total": 2,
+        "max_score": 0,
         "hits": []
     }
 }
