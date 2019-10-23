@@ -244,9 +244,7 @@ const uploadFile = async (req, res) => {
       });
       downloader.download(async () => {
         await schedule("now", "call analysis api", {
-          file: `${config.express.uploadsLocation}/experiments/${experiment.id}/file/${
-            req.body.name
-          }`,
+          file: `${config.express.uploadsLocation}/experiments/${experiment.id}/file/${req.body.name}`,
           experiment_id: experiment.id,
           attempt: 0
         });
@@ -287,9 +285,7 @@ const uploadFile = async (req, res) => {
       });
       return resumable.reassembleChunks(experimentJson.id, resumableFilename, async () => {
         await schedule("now", "call analysis api", {
-          file: `${config.express.uploadsLocation}/experiments/${
-            experimentJson.id
-          }/file/${resumableFilename}`,
+          file: `${config.express.uploadsLocation}/experiments/${experimentJson.id}/file/${resumableFilename}`,
           experiment_id: experimentJson.id,
           attempt: 0,
           experiment: experimentJson

@@ -1,8 +1,9 @@
 import request from "supertest";
 
-import { experiment as experimentSchema } from "mykrobe-atlas-jsonschema";
-import { ElasticsearchHelper } from "makeandship-api-common/lib/modules/elasticsearch";
+import { experimentSearch as experimentSearchSchema } from "mykrobe-atlas-jsonschema";
+import { ElasticService } from "makeandship-api-common/lib/modules/elasticsearch/";
 
+import { SearchQuery } from "makeandship-api-common/lib/modules/elasticsearch/";
 import { config, createApp } from "../setup";
 
 import Experiment from "../../src/server/models/experiment.model";
@@ -11,6 +12,9 @@ import AgendaHelper from "../../src/server/helpers/AgendaHelper";
 
 import experiments from "../fixtures/experiments";
 import users from "../fixtures/users";
+
+const esConfig = { type: "experiment", ...config.elasticsearch };
+const elasticService = new ElasticService(esConfig, experimentSearchSchema);
 
 const app = createApp();
 
@@ -27,7 +31,7 @@ beforeEach(async () => {
 });
 
 afterEach(async () => {
-  await Experiment.remove({});
+  await Experiment.deleteMany({});
 });
 
 describe("AgendaHelper ", () => {
@@ -49,16 +53,16 @@ describe("AgendaHelper ", () => {
   });
   describe("#refresh elasticsearch", () => {
     beforeEach(async done => {
-      await ElasticsearchHelper.deleteIndexIfExists(config);
-      await ElasticsearchHelper.createIndex(config, experimentSchema, "experiment");
+      await elasticService.deleteIndex();
+      await elasticService.createIndex();
 
       // index to elasticsearch
       const experiments = await Experiment.list();
-      await ElasticsearchHelper.indexDocuments(config, experiments, "experiment");
+      await elasticService.indexDocuments(experiments);
 
-      let data = await ElasticsearchHelper.search(config, {}, "experiment");
+      let data = await elasticService.search(new SearchQuery({}), { type: "experiment" });
       while (data.hits.total < 1) {
-        data = await ElasticsearchHelper.search(config, {}, "experiment");
+        data = await elasticService.search(new SearchQuery({}), { type: "experiment" });
       }
 
       done();
@@ -66,11 +70,11 @@ describe("AgendaHelper ", () => {
     it("should update the elasticsearch index", async done => {
       await AgendaHelper.refreshIsolateId(null, jest.fn);
 
-      let resp = await ElasticsearchHelper.search(config, {}, "experiment");
+      let resp = await elasticService.search(new SearchQuery({}), { type: "experiment" });
       let metadataFromES = resp.hits.hits[0]._source.metadata;
 
       while (metadataFromES.sample.isolateId === isolateId) {
-        resp = await ElasticsearchHelper.search(config, {}, "experiment");
+        resp = await elasticService.search(new SearchQuery({}), { type: "experiment" });
         metadataFromES = resp.hits.hits[0]._source.metadata;
       }
 

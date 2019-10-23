@@ -16,7 +16,7 @@ beforeEach(async () => {
 });
 
 afterEach(async () => {
-  await User.remove({});
+  await User.deleteMany({});
 });
 
 describe("Misc", () => {

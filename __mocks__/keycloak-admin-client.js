@@ -1,7 +1,7 @@
-import winston from "winston";
+import logger from "../src/server/modules/winston";
 
 const create = (realm, keycloakUser) => {
-  winston.debug("keycloak-admin-client#create");
+  logger.log("debug", "keycloak-admin-client#create");
   const timestamp = new Date().getTime();
   return {
     id: "18562b88-eaed-4d9b-9e5f-35535557b676",
@@ -30,10 +30,10 @@ const create = (realm, keycloakUser) => {
   };
 };
 const executeActionsEmail = (realm, id, body) => {
-  winston.debug("keycloak-admin-client#executeActionsEmail");
+  logger.debug("keycloak-admin-client#executeActionsEmail");
 };
 const resetPassword = (realm, id, body) => {
-  winston.debug("keycloak-admin-client#resetPassword");
+  logger.debug("keycloak-admin-client#resetPassword");
 };
 
 const find = (realm, query) => {

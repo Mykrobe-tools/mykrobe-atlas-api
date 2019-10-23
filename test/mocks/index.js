@@ -1,6 +1,5 @@
 import nock from "nock";
 import uuid from "uuid";
-import { ElasticsearchHelper } from "makeandship-api-common/lib/modules/elasticsearch/";
 import config from "../../src/config/env";
 
 // mock third party calls

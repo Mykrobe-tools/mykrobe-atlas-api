@@ -28,8 +28,8 @@ beforeEach(async done => {
 });
 
 afterEach(async done => {
-  await User.remove({});
-  await Experiment.remove({});
+  await User.deleteMany({});
+  await Experiment.deleteMany({});
   done();
 });
 

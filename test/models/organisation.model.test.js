@@ -13,8 +13,8 @@ beforeEach(async done => {
   done();
 });
 
-afterEach(done => {
-  Organisation.remove({}, done);
+afterEach(async () => {
+  await Organisation.deleteMany({});
 });
 
 describe("## Organisations Functions", () => {
@@ -67,8 +67,8 @@ describe("## Organisations Functions", () => {
       });
     });
     describe("when no organisations exist", () => {
-      beforeEach(done => {
-        Organisation.remove({}, done);
+      beforeEach(async () => {
+        await Organisation.deleteMany({});
       });
       it("should return an empty array", async done => {
         const organisations = await Organisation.list();

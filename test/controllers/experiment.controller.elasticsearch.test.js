@@ -52,8 +52,8 @@ beforeEach(async done => {
 });
 
 afterEach(async done => {
-  await User.remove({});
-  await Search.remove({});
+  await User.deleteMany({});
+  await Search.deleteMany({});
   done();
 });
 
@@ -83,7 +83,7 @@ beforeAll(async done => {
 afterAll(async done => {
   await elasticService.deleteIndex();
   await elasticService.createIndex();
-  await Experiment.remove({});
+  await Experiment.deleteMany({});
   done();
 });
 
