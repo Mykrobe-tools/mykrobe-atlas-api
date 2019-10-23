@@ -60,9 +60,7 @@ describe("User", () => {
         } catch (e) {
           expect(e.name).toEqual("ValidationError");
           expect(e.message).toEqual("User validation failed");
-          expect(e.errors.username.message).toEqual(
-            "should have required property 'username'"
-          );
+          expect(e.errors.username.message).toEqual("should have required property 'username'");
           done();
         }
       });

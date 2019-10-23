@@ -1,7 +1,9 @@
 import flatten from "flat";
 import deepmerge from "deepmerge";
 
-import { ElasticsearchHelper } from "makeandship-api-common/lib/modules/elasticsearch/";
+import { ElasticService } from "makeandship-api-common/lib/modules/elasticsearch/";
+import { SearchQuery } from "makeandship-api-common/lib/modules/elasticsearch/";
+import { experimentSearch as experimentSearchSchema } from "mykrobe-atlas-jsonschema";
 
 import Constants from "../Constants";
 
@@ -19,6 +21,9 @@ import { userEventEmitter } from "../modules/events";
 import { schedule } from "../modules/agenda";
 
 const config = require("../../config/env");
+
+const esConfig = { type: "experiment", ...config.elasticsearch };
+const elasticService = new ElasticService(esConfig, experimentSearchSchema);
 
 class BigsiSearchHelper {
   /**
@@ -175,7 +180,7 @@ class BigsiSearchHelper {
         ? Object.assign(isolateQuery, flatten(query))
         : isolateQuery;
 
-    const resp = await ElasticsearchHelper.search(config, elasticQuery, "experiment");
+    const resp = await elasticService.search(new SearchQuery(elasticQuery), { type: "experiment" });
 
     const experiments = new ExperimentsResultJSONTransformer().transform(resp, {});
 

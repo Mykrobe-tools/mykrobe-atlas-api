@@ -19,6 +19,9 @@ import Audit from "../models/audit.model";
 import Experiment from "../models/experiment.model";
 import Tree from "../models/tree.model";
 
+import SearchQueryDecorator from "../modules/search/search-query-decorator";
+import RequestSearchQueryParser from "../modules/search/request-search-query-parser";
+
 import resumable from "../modules/resumable";
 import { schedule } from "../modules/agenda";
 import { experimentEventEmitter, userEventEmitter } from "../modules/events";
@@ -95,7 +98,7 @@ const create = async (req, res) => {
 
   try {
     const savedExperiment = await experiment.save();
-    await ElasticsearchHelper.indexDocument(config, savedExperiment, "experiment");
+    await elasticService.indexDocument(savedExperiment);
     return res.jsend(savedExperiment);
   } catch (e) {
     return res.jerror(new errors.CreateExperimentError(e.message));
@@ -117,7 +120,7 @@ const update = async (req, res) => {
 
   try {
     const savedExperiment = await experiment.save();
-    await ElasticsearchHelper.updateDocument(config, savedExperiment, "experiment");
+    await elasticService.updateDocument(savedExperiment);
     return res.jsend(savedExperiment);
   } catch (e) {
     return res.jerror(new errors.UpdateExperimentError(e.message));
@@ -150,7 +153,7 @@ const remove = async (req, res) => {
   const experiment = req.experiment;
   try {
     await experiment.remove();
-    await ElasticsearchHelper.deleteDocument(config, experiment.id, "experiment");
+    await elasticService.deleteDocument(experiment.id);
     return res.jsend("Experiment was successfully deleted.");
   } catch (e) {
     return res.jerror(e);
@@ -168,7 +171,7 @@ const metadata = async (req, res) => {
 
   try {
     const savedExperiment = await experiment.save();
-    await ElasticsearchHelper.updateDocument(config, savedExperiment, "experiment");
+    await elasticService.updateDocument(savedExperiment);
     return res.jsend(savedExperiment);
   } catch (e) {
     return res.jerror(new errors.UpdateExperimentError(e.message));
@@ -203,7 +206,7 @@ const results = async (req, res) => {
   try {
     const savedExperiment = await experiment.save();
 
-    await ElasticsearchHelper.updateDocument(config, savedExperiment, "experiment");
+    await elasticService.updateDocument(savedExperiment);
 
     const audit = await Audit.getByExperimentId(savedExperiment.id);
 
@@ -335,12 +338,30 @@ const uploadStatus = async (req, res) => {
  */
 const reindex = async (req, res) => {
   try {
-    const total = await ElasticsearchHelper.reindex(config, experimentSearchSchema, {
-      type: "experiment",
-      model: Experiment,
-      size: req.body.size || req.query.size
-    });
-    return res.jsend(`All ${total} experiment(s) have been indexed.`);
+    const { indexSizeLimit } = config.elasticsearch;
+    const size = req.body.size || req.query.size || indexSizeLimit;
+
+    await elasticService.deleteIndex();
+    await elasticService.createIndex();
+    // index in batches
+    const pagination = {
+      count: 0,
+      more: true,
+      id: null
+    };
+    while (pagination.more) {
+      const data = await Experiment.since(pagination.id, parseInt(size));
+      const result = await elasticService.indexDocuments(data);
+
+      if (data.length === parseInt(size)) {
+        pagination.more = true;
+        pagination.id = data[data.length - 1]._id;
+      } else {
+        pagination.more = false;
+      }
+      pagination.count = pagination.count + data.length;
+    }
+    return res.jsend(`All ${pagination.count} experiment(s) have been indexed.`);
   } catch (e) {
     return res.jerror(e.message);
   }
@@ -355,14 +376,16 @@ const choices = async (req, res) => {
     const container = parseQuery(clone);
     const query = container.query;
 
-    const resp = await ElasticsearchHelper.aggregate(
-      config,
-      experimentSearchSchema,
-      query,
-      "experiment"
-    );
+    // parse the query
+    const parsedQuery = new RequestSearchQueryParser(req.originalUrl).parse(query);
+
+    // apply status and organisation filters
+    const searchQuery = new SearchQueryDecorator(req.originalUrl, req.user).decorate(parsedQuery);
+    const elasticsearchResults = await elasticService.search(searchQuery, { type: "experiment" });
+
     const titles = jsonschemaUtil.schemaTitles(experimentSearchSchema);
-    const choices = new ChoicesJSONTransformer().transform(resp, { titles });
+
+    const choices = await new ChoicesJSONTransformer().transform(elasticsearchResults, { titles });
 
     return res.jsend(choices);
   } catch (e) {
@@ -406,7 +429,10 @@ const search = async (req, res) => {
 
       if (results) {
         // augment with hits (project specific transformation)
-        results.results = new ExperimentsResultJSONTransformer().transform(elasticsearchResults, {});
+        results.results = new ExperimentsResultJSONTransformer().transform(
+          elasticsearchResults,
+          {}
+        );
         // augment with the original search query
         results.search = new SearchQueryJSONTransformer().transform(searchQuery, {});
       }
@@ -416,53 +442,6 @@ const search = async (req, res) => {
     return res.jerror(new errors.SearchMetadataValuesError(e.message));
   }
 };
-
-/**
- * Get experiments list from ES.
- * @returns {Experiment[]}
- */
-/*
-const search = async (req, res) => {
-  try {
-    const clone = Object.assign({}, req.query);
-    const container = parseQuery(clone);
-
-    const bigsi = container.bigsi;
-    const query = container.query;
-
-    if (bigsi) {
-      const search = await BigsiSearchHelper.search(bigsi, query, req.dbUser);
-      const searchJson = new SearchJSONTransformer().transform(search);
-
-      searchJson.search = new SearchQueryJSONTransformer().transform(req.query, {});
-
-      return res.jsend(searchJson);
-    } else {
-      clone.whitelist = sortWhitelist;
-
-      const resp = await ElasticsearchHelper.search(config, clone, "experiment");
-
-      // generate the core elastic search structure
-      const options = {
-        per: query.per || config.elasticsearch.resultsPerPage,
-        page: query.page || 1
-      };
-
-      const results = new SearchResultsJSONTransformer().transform(resp, options);
-      if (results) {
-        // augment with hits (project specific transformation)
-        results.results = new ExperimentsResultJSONTransformer().transform(resp, {});
-
-        // augment with the original search query
-        results.search = new SearchQueryJSONTransformer().transform(req.query, {});
-      }
-      return res.jsend(results);
-    }
-  } catch (e) {
-    return res.jerror(new errors.SearchMetadataValuesError(e.message));
-  }
-};
-*/
 
 /**
  * List experiment results
