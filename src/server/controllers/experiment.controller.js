@@ -3,7 +3,7 @@ import httpStatus from "http-status";
 import mkdirp from "mkdirp-promise";
 import Promise from "bluebird";
 
-import { ElasticsearchHelper } from "makeandship-api-common/lib/modules/elasticsearch/";
+import { ElasticService } from "makeandship-api-common/lib/modules/elasticsearch/";
 import ArrayJSONTransformer from "makeandship-api-common/lib/transformers/ArrayJSONTransformer";
 import SearchResultsJSONTransformer from "makeandship-api-common/lib/modules/elasticsearch/transformers/SearchResultsJSONTransformer";
 import SearchQueryJSONTransformer from "makeandship-api-common/lib/modules/elasticsearch/transformers/SearchQueryJSONTransformer";
@@ -39,8 +39,8 @@ import config from "../../config/env";
 import Constants from "../Constants";
 import SearchJSONTransformer from "../transformers/SearchJSONTransformer";
 
-// sort whitelist
-const sortWhitelist = ElasticsearchHelper.getSortWhitelist(experimentSearchSchema, "experiment");
+const esConfig = { type: "experiment", ...config.elasticsearch };
+const elasticService = new ElasticService(esConfig, experimentSearchSchema);
 
 // distance types
 const NEAREST_NEIGHBOUR = "nearest-neighbour";
@@ -371,9 +371,57 @@ const choices = async (req, res) => {
 };
 
 /**
+ * Get experiment list.
+ * @returns {Experiment[]}
+ */
+const search = async (req, res) => {
+  try {
+    const clone = Object.assign({}, req.query);
+    const container = parseQuery(clone);
+
+    const bigsi = container.bigsi;
+    const query = container.query;
+
+    if (bigsi) {
+      const search = await BigsiSearchHelper.search(bigsi, query, req.dbUser);
+      const searchJson = new SearchJSONTransformer().transform(search);
+
+      searchJson.search = new SearchQueryJSONTransformer().transform(req.query, {});
+
+      return res.jsend(searchJson);
+    } else {
+      // parse the query
+      const parsedQuery = new RequestSearchQueryParser(req.originalUrl).parse(clone);
+
+      // apply status and organisation filters
+      const searchQuery = new SearchQueryDecorator(req.originalUrl, req.user).decorate(parsedQuery);
+      const elasticsearchResults = await elasticService.search(searchQuery, { type: "experiment" });
+
+      // generate the core elastic search structure
+      const options = {
+        per: req.query.per || config.elasticsearch.resultsPerPage,
+        page: req.query.page || 1
+      };
+      const results = new SearchResultsJSONTransformer().transform(elasticsearchResults, options);
+
+      if (results) {
+        // augment with hits (project specific transformation)
+        results.results = new ExperimentsResultJSONTransformer().transform(elasticsearchResults, {});
+        // augment with the original search query
+        results.search = new SearchQueryJSONTransformer().transform(searchQuery, {});
+      }
+      return res.jsend(results);
+    }
+  } catch (e) {
+    return res.jerror(new errors.SearchMetadataValuesError(e.message));
+  }
+};
+
+/**
  * Get experiments list from ES.
  * @returns {Experiment[]}
  */
+/*
 const search = async (req, res) => {
   try {
     const clone = Object.assign({}, req.query);
@@ -414,6 +462,7 @@ const search = async (req, res) => {
     return res.jerror(new errors.SearchMetadataValuesError(e.message));
   }
 };
+*/
 
 /**
  * List experiment results
