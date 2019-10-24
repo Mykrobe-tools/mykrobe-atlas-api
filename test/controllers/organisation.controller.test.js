@@ -30,8 +30,8 @@ beforeEach(async done => {
 });
 
 afterEach(async done => {
-  await User.remove({});
-  await Organisation.remove({});
+  await User.deleteMany({});
+  await Organisation.deleteMany({});
   done();
 });
 

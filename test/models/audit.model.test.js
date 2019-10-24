@@ -13,7 +13,7 @@ describe("Audit", () => {
     done();
   });
   afterEach(async done => {
-    await Audit.remove({});
+    await Audit.deleteMany({});
     done();
   });
 

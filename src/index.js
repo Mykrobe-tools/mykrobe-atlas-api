@@ -16,7 +16,7 @@ Promise = require("bluebird"); // eslint-disable-line no-global-assign
 mongoose.Promise = Promise;
 
 // connect to mongo db
-mongoose.connect(config.db.uri);
+mongoose.connect(config.db.uri, {});
 mongoose.connection.on("error", () => {
   throw new Error(`unable to connect to database: ${config.db.uri}`);
 });

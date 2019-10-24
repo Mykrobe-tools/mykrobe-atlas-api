@@ -49,8 +49,8 @@ const experimentRandomizer = new Randomizer(schemas.experiment, {
  * @returns {*}
  */
 const clean = async (req, res) => {
-  await User.remove({});
-  await Experiment.remove({});
+  await User.deleteMany({});
+  await Experiment.deleteMany({});
   return res.jsend("data cleared successfully");
 };
 

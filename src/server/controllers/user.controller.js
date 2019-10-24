@@ -2,7 +2,6 @@ import passwordHash from "password-hash";
 import errors from "errors";
 import flatten from "flat";
 
-import { ElasticsearchHelper } from "makeandship-api-common/lib/modules/elasticsearch/";
 import ArrayJSONTransformer from "makeandship-api-common/lib/transformers/ArrayJSONTransformer";
 
 import { userEventEmitter } from "../modules/events";

@@ -204,7 +204,7 @@ class DataHelper {
    */
   static getCache() {
     if (!geo.initialised) {
-      logger.info(`Loading geocache from ${process.env.PWD}/geoCache.json`);
+      logger.debug(`Loading geocache from ${process.env.PWD}/geoCache.json`);
       const localGeoCache = JSON.parse(fs.readFileSync(`${process.env.PWD}/geoCache.json`));
       Object.keys(localGeoCache).forEach(key => {
         geo.cache[key] = localGeoCache[key];
@@ -461,11 +461,11 @@ class DataHelper {
               return bothMatch || countryOnlyMatch;
             });
             if (typeof geo === "undefined") {
-              logger.info(
+              logger.debug(
                 `No match for ${cityIsolate} in ${countryIsolate} - ${matches.length} matches`
               );
               if (matches.length > 0) {
-                logger.info(
+                logger.debug(
                   `Possible match: ${matches[0].city} in ${matches[0].state}, ${matches[0].country}`
                 );
               }
@@ -474,7 +474,7 @@ class DataHelper {
             return geo;
           }
         } catch (e) {
-          logger.info(`Exception reading geocode for ${JSON.stringify(address)}`);
+          logger.debug(`Exception reading geocode for ${JSON.stringify(address)}`);
         }
       }
     }
@@ -512,7 +512,7 @@ class DataHelper {
    */
   static async process(filepath) {
     const rows = await this.loadDataSet(filepath);
-    logger.info(`${filepath} has ${rows.length} to process`);
+    logger.debug(`${filepath} has ${rows.length} to process`);
     const structuredRows = this.transform(rows);
 
     const citiesAndCountries = this.getCitiesAndCountries(structuredRows);
@@ -522,12 +522,12 @@ class DataHelper {
     );
 
     const experiments = this.getExperiments(structuredRowsWithGeoData);
-    logger.info(`${filepath} has ${experiments.length} experiments to store`);
+    logger.debug(`${filepath} has ${experiments.length} experiments to store`);
     const experimentChunks = this.chunk(experiments, BULK_INSERT_LIMIT);
 
     for (let experimentChunk of experimentChunks) {
       await Experiment.insertMany(experimentChunk);
-      logger.info(`Stored ${experimentChunk.length} experiments of ${rows.length}`);
+      logger.debug(`Stored ${experimentChunk.length} experiments of ${rows.length}`);
     }
 
     return {

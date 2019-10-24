@@ -3,7 +3,7 @@ import httpStatus from "http-status";
 import mkdirp from "mkdirp-promise";
 import Promise from "bluebird";
 
-import { ElasticsearchHelper } from "makeandship-api-common/lib/modules/elasticsearch/";
+import { ElasticService } from "makeandship-api-common/lib/modules/elasticsearch/";
 import ArrayJSONTransformer from "makeandship-api-common/lib/transformers/ArrayJSONTransformer";
 import SearchResultsJSONTransformer from "makeandship-api-common/lib/modules/elasticsearch/transformers/SearchResultsJSONTransformer";
 import SearchQueryJSONTransformer from "makeandship-api-common/lib/modules/elasticsearch/transformers/SearchQueryJSONTransformer";
@@ -18,6 +18,9 @@ import {
 import Audit from "../models/audit.model";
 import Experiment from "../models/experiment.model";
 import Tree from "../models/tree.model";
+
+import SearchQueryDecorator from "../modules/search/search-query-decorator";
+import RequestSearchQueryParser from "../modules/search/request-search-query-parser";
 
 import resumable from "../modules/resumable";
 import { schedule } from "../modules/agenda";
@@ -39,8 +42,8 @@ import config from "../../config/env";
 import Constants from "../Constants";
 import SearchJSONTransformer from "../transformers/SearchJSONTransformer";
 
-// sort whitelist
-const sortWhitelist = ElasticsearchHelper.getSortWhitelist(experimentSearchSchema, "experiment");
+const esConfig = { type: "experiment", ...config.elasticsearch };
+const elasticService = new ElasticService(esConfig, experimentSearchSchema);
 
 // distance types
 const NEAREST_NEIGHBOUR = "nearest-neighbour";
@@ -95,7 +98,7 @@ const create = async (req, res) => {
 
   try {
     const savedExperiment = await experiment.save();
-    await ElasticsearchHelper.indexDocument(config, savedExperiment, "experiment");
+    await elasticService.indexDocument(savedExperiment);
     return res.jsend(savedExperiment);
   } catch (e) {
     return res.jerror(new errors.CreateExperimentError(e.message));
@@ -117,7 +120,7 @@ const update = async (req, res) => {
 
   try {
     const savedExperiment = await experiment.save();
-    await ElasticsearchHelper.updateDocument(config, savedExperiment, "experiment");
+    await elasticService.updateDocument(savedExperiment);
     return res.jsend(savedExperiment);
   } catch (e) {
     return res.jerror(new errors.UpdateExperimentError(e.message));
@@ -150,7 +153,7 @@ const remove = async (req, res) => {
   const experiment = req.experiment;
   try {
     await experiment.remove();
-    await ElasticsearchHelper.deleteDocument(config, experiment.id, "experiment");
+    await elasticService.deleteDocument(experiment.id);
     return res.jsend("Experiment was successfully deleted.");
   } catch (e) {
     return res.jerror(e);
@@ -168,7 +171,7 @@ const metadata = async (req, res) => {
 
   try {
     const savedExperiment = await experiment.save();
-    await ElasticsearchHelper.updateDocument(config, savedExperiment, "experiment");
+    await elasticService.updateDocument(savedExperiment);
     return res.jsend(savedExperiment);
   } catch (e) {
     return res.jerror(new errors.UpdateExperimentError(e.message));
@@ -203,7 +206,7 @@ const results = async (req, res) => {
   try {
     const savedExperiment = await experiment.save();
 
-    await ElasticsearchHelper.updateDocument(config, savedExperiment, "experiment");
+    await elasticService.updateDocument(savedExperiment);
 
     const audit = await Audit.getByExperimentId(savedExperiment.id);
 
@@ -241,9 +244,7 @@ const uploadFile = async (req, res) => {
       });
       downloader.download(async () => {
         await schedule("now", "call analysis api", {
-          file: `${config.express.uploadsLocation}/experiments/${experiment.id}/file/${
-            req.body.name
-          }`,
+          file: `${config.express.uploadsLocation}/experiments/${experiment.id}/file/${req.body.name}`,
           experiment_id: experiment.id,
           attempt: 0
         });
@@ -284,9 +285,7 @@ const uploadFile = async (req, res) => {
       });
       return resumable.reassembleChunks(experimentJson.id, resumableFilename, async () => {
         await schedule("now", "call analysis api", {
-          file: `${config.express.uploadsLocation}/experiments/${
-            experimentJson.id
-          }/file/${resumableFilename}`,
+          file: `${config.express.uploadsLocation}/experiments/${experimentJson.id}/file/${resumableFilename}`,
           experiment_id: experimentJson.id,
           attempt: 0,
           experiment: experimentJson
@@ -335,12 +334,30 @@ const uploadStatus = async (req, res) => {
  */
 const reindex = async (req, res) => {
   try {
-    const total = await ElasticsearchHelper.reindex(config, experimentSearchSchema, {
-      type: "experiment",
-      model: Experiment,
-      size: req.body.size || req.query.size
-    });
-    return res.jsend(`All ${total} experiment(s) have been indexed.`);
+    const { indexSizeLimit } = config.elasticsearch;
+    const size = req.body.size || req.query.size || indexSizeLimit;
+
+    await elasticService.deleteIndex();
+    await elasticService.createIndex();
+    // index in batches
+    const pagination = {
+      count: 0,
+      more: true,
+      id: null
+    };
+    while (pagination.more) {
+      const data = await Experiment.since(pagination.id, parseInt(size));
+      const result = await elasticService.indexDocuments(data);
+
+      if (data.length === parseInt(size)) {
+        pagination.more = true;
+        pagination.id = data[data.length - 1]._id;
+      } else {
+        pagination.more = false;
+      }
+      pagination.count = pagination.count + data.length;
+    }
+    return res.jsend(`All ${pagination.count} experiment(s) have been indexed.`);
   } catch (e) {
     return res.jerror(e.message);
   }
@@ -355,14 +372,16 @@ const choices = async (req, res) => {
     const container = parseQuery(clone);
     const query = container.query;
 
-    const resp = await ElasticsearchHelper.aggregate(
-      config,
-      experimentSearchSchema,
-      query,
-      "experiment"
-    );
+    // parse the query
+    const parsedQuery = new RequestSearchQueryParser(req.originalUrl).parse(query);
+
+    // apply status and organisation filters
+    const searchQuery = new SearchQueryDecorator(req.originalUrl, req.user).decorate(parsedQuery);
+    const elasticsearchResults = await elasticService.search(searchQuery, { type: "experiment" });
+
     const titles = jsonschemaUtil.schemaTitles(experimentSearchSchema);
-    const choices = new ChoicesJSONTransformer().transform(resp, { titles });
+
+    const choices = await new ChoicesJSONTransformer().transform(elasticsearchResults, { titles });
 
     return res.jsend(choices);
   } catch (e) {
@@ -371,7 +390,7 @@ const choices = async (req, res) => {
 };
 
 /**
- * Get experiments list from ES.
+ * Get experiment list.
  * @returns {Experiment[]}
  */
 const search = async (req, res) => {
@@ -390,23 +409,28 @@ const search = async (req, res) => {
 
       return res.jsend(searchJson);
     } else {
-      clone.whitelist = sortWhitelist;
+      // parse the query
+      const parsedQuery = new RequestSearchQueryParser(req.originalUrl).parse(clone);
 
-      const resp = await ElasticsearchHelper.search(config, clone, "experiment");
+      // apply status and organisation filters
+      const searchQuery = new SearchQueryDecorator(req.originalUrl, req.user).decorate(parsedQuery);
+      const elasticsearchResults = await elasticService.search(searchQuery, { type: "experiment" });
 
       // generate the core elastic search structure
       const options = {
-        per: query.per || config.elasticsearch.resultsPerPage,
-        page: query.page || 1
+        per: req.query.per || config.elasticsearch.resultsPerPage,
+        page: req.query.page || 1
       };
+      const results = new SearchResultsJSONTransformer().transform(elasticsearchResults, options);
 
-      const results = new SearchResultsJSONTransformer().transform(resp, options);
       if (results) {
         // augment with hits (project specific transformation)
-        results.results = new ExperimentsResultJSONTransformer().transform(resp, {});
-
+        results.results = new ExperimentsResultJSONTransformer().transform(
+          elasticsearchResults,
+          {}
+        );
         // augment with the original search query
-        results.search = new SearchQueryJSONTransformer().transform(req.query, {});
+        results.search = new SearchQueryJSONTransformer().transform(searchQuery, {});
       }
       return res.jsend(results);
     }

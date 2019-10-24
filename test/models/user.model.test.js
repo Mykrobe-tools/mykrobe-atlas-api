@@ -13,7 +13,7 @@ beforeEach(async done => {
 });
 
 afterEach(async done => {
-  await User.remove({});
+  await User.deleteMany({});
   done();
 });
 
@@ -58,10 +58,8 @@ describe("User", () => {
         try {
           await userData.save();
         } catch (e) {
-          expect(e.code).toEqual("ValidationError");
-          expect(e.data.errors.username.message).toEqual(
-            "should have required property 'username'"
-          );
+          expect(e.name).toEqual("ValidationError");
+          expect(e.errors.username.message).toEqual("should have required property 'username'");
           done();
         }
       });

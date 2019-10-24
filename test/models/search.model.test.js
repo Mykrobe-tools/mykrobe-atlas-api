@@ -26,8 +26,8 @@ beforeEach(async () => {
 });
 
 afterEach(async () => {
-  await Search.remove({});
-  await User.remove({});
+  await Search.deleteMany({});
+  await User.deleteMany({});
 });
 
 describe("Search", () => {

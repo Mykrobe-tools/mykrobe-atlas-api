@@ -24,9 +24,9 @@ beforeEach(async done => {
 });
 
 afterEach(async done => {
-  await Experiment.remove({});
-  await Organisation.remove({});
-  await User.remove({});
+  await Experiment.deleteMany({});
+  await Organisation.deleteMany({});
+  await User.deleteMany({});
   done();
 });
 
@@ -148,8 +148,8 @@ describe("Experiment", () => {
     });
     describe("when experiments do not exist", () => {
       beforeEach(async done => {
-        await Experiment.remove({});
-        await Organisation.remove({});
+        await Experiment.deleteMany({});
+        await Organisation.deleteMany({});
         done();
       });
       it("should return an empty array", async done => {

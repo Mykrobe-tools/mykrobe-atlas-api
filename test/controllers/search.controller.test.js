@@ -70,9 +70,9 @@ beforeEach(async done => {
   done();
 });
 afterEach(async done => {
-  await Search.remove({});
-  await User.remove({});
-  await Audit.remove({});
+  await Search.deleteMany({});
+  await User.deleteMany({});
+  await Audit.deleteMany({});
   done();
 });
 

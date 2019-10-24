@@ -2,7 +2,7 @@ HTTP/1.1 200 OK
 Content-Type: application/json; charset=utf-8
 
 {
-    "took": 140,
+    "took": 9,
     "timed_out": false,
     "_shards": {
         "total": 5,
@@ -11,14 +11,14 @@ Content-Type: application/json; charset=utf-8
         "failed": 0
     },
     "hits": {
-        "total": 1,
-        "max_score": 0,
+        "total": 2,
+        "max_score": 0.72135645,
         "hits": [
             {
                 "_index": "atlas",
                 "_type": "experiment",
-                "_id": "5d08dc151ac72408dc85fb6c",
-                "_score": 0,
+                "_id": "5db01b5183babb16c8a31f37",
+                "_score": 0.72135645,
                 "_source": {
                     "metadata": {
                         "patient": {
@@ -183,9 +183,131 @@ Content-Type: application/json; charset=utf-8
                         }
                     },
                     "results": {},
-                    "created": "2019-06-18T12:41:59.397Z",
-                    "modified": "2019-06-18T12:41:59.397Z",
-                    "id": "5d08dc151ac72408dc85fb6c"
+                    "created": "2019-10-23T09:20:18.795Z",
+                    "modified": "2019-10-23T09:20:18.795Z",
+                    "id": "5db01b5183babb16c8a31f37"
+                }
+            },
+            {
+                "_index": "atlas",
+                "_type": "experiment",
+                "_id": "5db01b5183babb16c8a31f2f",
+                "_score": 0.61080873,
+                "_source": {
+                    "metadata": {
+                        "patient": {
+                            "patientId": "eff2fa6a-9d79-41ab-a307-b620cedf7293",
+                            "siteId": "a2a910e3-25ef-475c-bdf9-f6fe215d949f",
+                            "genderAtBirth": "Male",
+                            "countryOfBirth": "IN",
+                            "age": 43,
+                            "bmi": 25.3,
+                            "injectingDrugUse": "No",
+                            "homeless": "No",
+                            "imprisoned": "No",
+                            "smoker": "Yes",
+                            "diabetic": "Insulin",
+                            "hivStatus": "Not tested"
+                        },
+                        "sample": {
+                            "labId": "d19637ed-e5b4-4ca7-8418-8713646a3359",
+                            "isolateId": "9c0c00f2-8cb1-4254-bf53-3271f35ce696",
+                            "collectionDate": "2018-10-19T00:00:00.000Z",
+                            "prospectiveIsolate": "Yes",
+                            "countryIsolate": "IN",
+                            "cityIsolate": "Mumbai",
+                            "dateArrived": "2018-09-01T00:00:00.000Z",
+                            "anatomicalOrigin": "Respiratory",
+                            "smear": "Not known",
+                            "latitudeIsolate": 19.0759837,
+                            "longitudeIsolate": 72.8776559
+                        },
+                        "genotyping": {
+                            "wgsPlatform": "MiSeq",
+                            "otherGenotypeInformation": "Yes",
+                            "genexpert": "Not tested",
+                            "hain": "INH/RIF test",
+                            "hainRif": "RIF resistant",
+                            "hainInh": "INH sensitive",
+                            "hainFl": "Not tested",
+                            "hainAm": "Not tested",
+                            "hainEth": "Not tested"
+                        },
+                        "phenotyping": {
+                            "rifampicin": {
+                                "susceptibility": "Resistant",
+                                "method": "Not known"
+                            },
+                            "ethambutol": {
+                                "susceptibility": "Sensitive",
+                                "method": "Not known"
+                            },
+                            "pyrazinamide": {
+                                "susceptibility": "Sensitive",
+                                "method": "Not known"
+                            },
+                            "isoniazid": {
+                                "susceptibility": "Sensitive",
+                                "method": "Not known"
+                            },
+                            "phenotypeInformationFirstLineDrugs": "Yes",
+                            "phenotypeInformationOtherDrugs": "No"
+                        }
+                    },
+                    "results": {
+                        "predictor": {
+                            "probeSets": [
+                                "/home/admin/git/mykrobe-atlas-cli/src/mykrobe/data/panels/tb-species-170421.fasta.gz",
+                                "/home/admin/git/mykrobe-atlas-cli/src/mykrobe/data/panels/tb-walker-probe-set-feb-09-2017.fasta.gz"
+                            ],
+                            "susceptibility": {
+                                "Isoniazid": {
+                                    "prediction": "R"
+                                },
+                                "Pyrazinamide": {
+                                    "prediction": "S"
+                                },
+                                "Rifampicin": {
+                                    "prediction": "R"
+                                },
+                                "Amikacin": {
+                                    "prediction": "S"
+                                }
+                            },
+                            "phylogenetics": {
+                                "complex": {
+                                    "Mycobacterium_tuberculosis_complex": {
+                                        "percentCoverage": 99.631,
+                                        "medianDepth": 55
+                                    }
+                                },
+                                "sub-species": {
+                                    "European_American": {
+                                        "percentCoverage": 100,
+                                        "medianDepth": 47
+                                    }
+                                }
+                            },
+                            "files": [
+                                "/atlas/test-data/MDR.fastq.gz"
+                            ],
+                            "type": "predictor",
+                            "received": "2018-09-12T11:23:20.964Z",
+                            "analysed": "2018-09-12T11:23:20.964Z",
+                            "kmer": 21,
+                            "version": {
+                                "mykrobe-predictor": "v0.6.5",
+                                "mykrobe-atlas": "v0.6.5"
+                            },
+                            "genotypeModel": "median_depth",
+                            "mdr": true,
+                            "xdr": false,
+                            "id": "5db01b5183babb16c8a31f30"
+                        }
+                    },
+                    "created": "2019-10-23T09:20:18.520Z",
+                    "modified": "2019-10-23T09:20:18.520Z",
+                    "id": "5db01b5183babb16c8a31f2f"
                 }
             }
         ]
@@ -210,7 +332,7 @@ Content-Type: application/json; charset=utf-8
             "buckets": [
                 {
                     "key": "Yes",
-                    "doc_count": 1
+                    "doc_count": 2
                 }
             ]
         },
@@ -224,12 +346,17 @@ Content-Type: application/json; charset=utf-8
             "value": null
         },
         "min_metadata.sample.latitudeIsolate": {
-            "value": null
+            "value": 19.0759837
         },
         "results.predictor.type": {
             "doc_count_error_upper_bound": 0,
             "sum_other_doc_count": 0,
-            "buckets": []
+            "buckets": [
+                {
+                    "key": "predictor",
+                    "doc_count": 1
+                }
+            ]
         },
         "max_metadata.treatment.outsideStandardPhaseTerizidone.stop": {
             "value": null
@@ -238,6 +365,10 @@ Content-Type: application/json; charset=utf-8
             "doc_count_error_upper_bound": 0,
             "sum_other_doc_count": 0,
             "buckets": [
+                {
+                    "key": "Insulin",
+                    "doc_count": 1
+                },
                 {
                     "key": "Not known",
                     "doc_count": 1
@@ -295,7 +426,8 @@ Content-Type: application/json; charset=utf-8
             ]
         },
         "max_results.predictor.received": {
-            "value": null
+            "value": 1536751400964,
+            "value_as_string": "2018-09-12T11:23:20.964Z"
         },
         "metadata.phenotyping.gentamicin.method": {
             "doc_count_error_upper_bound": 0,
@@ -325,7 +457,12 @@ Content-Type: application/json; charset=utf-8
         "results.predictor.susceptibility.Rifampicin.prediction": {
             "doc_count_error_upper_bound": 0,
             "sum_other_doc_count": 0,
-            "buckets": []
+            "buckets": [
+                {
+                    "key": "R",
+                    "doc_count": 1
+                }
+            ]
         },
         "min_metadata.treatment.outsideStandardPhaseStreptomycin.start": {
             "value": null
@@ -339,7 +476,7 @@ Content-Type: application/json; charset=utf-8
             "buckets": [
                 {
                     "key": "Not tested",
-                    "doc_count": 1
+                    "doc_count": 2
                 }
             ]
         },
@@ -354,7 +491,12 @@ Content-Type: application/json; charset=utf-8
         "results.predictor.susceptibility.Isoniazid.prediction": {
             "doc_count_error_upper_bound": 0,
             "sum_other_doc_count": 0,
-            "buckets": []
+            "buckets": [
+                {
+                    "key": "R",
+                    "doc_count": 1
+                }
+            ]
         },
         "metadata.treatment.nonStandardTreatment": {
             "doc_count_error_upper_bound": 0,
@@ -404,12 +546,13 @@ Content-Type: application/json; charset=utf-8
             "buckets": [
                 {
                     "key": "Yes",
-                    "doc_count": 1
+                    "doc_count": 2
                 }
             ]
         },
         "min_results.predictor.received": {
-            "value": null
+            "value": 1536751400964,
+            "value_as_string": "2018-09-12T11:23:20.964Z"
         },
         "results.predictor.susceptibility.Kanamycin.prediction": {
             "doc_count_error_upper_bound": 0,
@@ -432,7 +575,7 @@ Content-Type: application/json; charset=utf-8
             "buckets": [
                 {
                     "key": "Sensitive",
-                    "doc_count": 1
+                    "doc_count": 2
                 }
             ]
         },
@@ -442,7 +585,7 @@ Content-Type: application/json; charset=utf-8
             "buckets": [
                 {
                     "key": "Not known",
-                    "doc_count": 1
+                    "doc_count": 2
                 }
             ]
         },
@@ -471,7 +614,7 @@ Content-Type: application/json; charset=utf-8
             "buckets": []
         },
         "max_metadata.sample.latitudeIsolate": {
-            "value": null
+            "value": 19.0759837
         },
         "max_metadata.treatment.outsideStandardPhasePyrazinamide.start": {
             "value": null
@@ -485,7 +628,12 @@ Content-Type: application/json; charset=utf-8
         "results.predictor.susceptibility.Pyrazinamide.prediction": {
             "doc_count_error_upper_bound": 0,
             "sum_other_doc_count": 0,
-            "buckets": []
+            "buckets": [
+                {
+                    "key": "S",
+                    "doc_count": 1
+                }
+            ]
         },
         "metadata.phenotyping.rerizidone.susceptibility": {
             "doc_count_error_upper_bound": 0,
@@ -515,7 +663,12 @@ Content-Type: application/json; charset=utf-8
         "results.predictor.susceptibility.Amikacin.prediction": {
             "doc_count_error_upper_bound": 0,
             "sum_other_doc_count": 0,
-            "buckets": []
+            "buckets": [
+                {
+                    "key": "S",
+                    "doc_count": 1
+                }
+            ]
         },
         "min_metadata.treatment.outsideStandardPhaseLinezolid.start": {
             "value": null
@@ -529,7 +682,7 @@ Content-Type: application/json; charset=utf-8
             "buckets": [
                 {
                     "key": "No",
-                    "doc_count": 1
+                    "doc_count": 2
                 }
             ]
         },
@@ -540,6 +693,10 @@ Content-Type: application/json; charset=utf-8
             "doc_count_error_upper_bound": 0,
             "sum_other_doc_count": 0,
             "buckets": [
+                {
+                    "key": "No",
+                    "doc_count": 1
+                },
                 {
                     "key": "Yes",
                     "doc_count": 1
@@ -567,6 +724,10 @@ Content-Type: application/json; charset=utf-8
             "buckets": [
                 {
                     "key": "Not known",
+                    "doc_count": 1
+                },
+                {
+                    "key": "Not tested",
                     "doc_count": 1
                 }
             ]
@@ -616,7 +777,13 @@ Content-Type: application/json; charset=utf-8
         "results.predictor.mdr": {
             "doc_count_error_upper_bound": 0,
             "sum_other_doc_count": 0,
-            "buckets": []
+            "buckets": [
+                {
+                    "key": 1,
+                    "key_as_string": "true",
+                    "doc_count": 1
+                }
+            ]
         },
         "metadata.genotyping.genexpert": {
             "doc_count_error_upper_bound": 0,
@@ -624,7 +791,7 @@ Content-Type: application/json; charset=utf-8
             "buckets": [
                 {
                     "key": "Not tested",
-                    "doc_count": 1
+                    "doc_count": 2
                 }
             ]
         },
@@ -663,6 +830,10 @@ Content-Type: application/json; charset=utf-8
                 {
                     "key": "HiSeq",
                     "doc_count": 1
+                },
+                {
+                    "key": "MiSeq",
+                    "doc_count": 1
                 }
             ]
         },
@@ -685,12 +856,12 @@ Content-Type: application/json; charset=utf-8
             "buckets": [
                 {
                     "key": "RIF resistant",
-                    "doc_count": 1
+                    "doc_count": 2
                 }
             ]
         },
         "max_metadata.sample.longitudeIsolate": {
-            "value": null
+            "value": 72.8776559
         },
         "max_metadata.treatment.outsideStandardPhaseEthambutol.start": {
             "value": null
@@ -720,7 +891,7 @@ Content-Type: application/json; charset=utf-8
             "buckets": [
                 {
                     "key": "Not tested",
-                    "doc_count": 1
+                    "doc_count": 2
                 }
             ]
         },
@@ -732,7 +903,7 @@ Content-Type: application/json; charset=utf-8
             "value_as_string": "2018-07-22T00:00:00.000Z"
         },
         "min_metadata.patient.bmi": {
-            "value": 33.1
+            "value": 25.3
         },
         "max_metadata.treatment.outsideStandardPhasePyrazinamide.stop": {
             "value": null
@@ -744,8 +915,8 @@ Content-Type: application/json; charset=utf-8
             "value": null
         },
         "max_metadata.sample.collectionDate": {
-            "value": 1532217600000,
-            "value_as_string": "2018-07-22T00:00:00.000Z"
+            "value": 1539907200000,
+            "value_as_string": "2018-10-19T00:00:00.000Z"
         },
         "metadata.phenotyping.pas.method": {
             "doc_count_error_upper_bound": 0,
@@ -815,6 +986,10 @@ Content-Type: application/json; charset=utf-8
                 {
                     "key": "Female",
                     "doc_count": 1
+                },
+                {
+                    "key": "Male",
+                    "doc_count": 1
                 }
             ]
         },
@@ -830,7 +1005,7 @@ Content-Type: application/json; charset=utf-8
             "buckets": [
                 {
                     "key": "Respiratory",
-                    "doc_count": 1
+                    "doc_count": 2
                 }
             ]
         },
@@ -900,6 +1075,10 @@ Content-Type: application/json; charset=utf-8
             "sum_other_doc_count": 0,
             "buckets": [
                 {
+                    "key": "No",
+                    "doc_count": 1
+                },
+                {
                     "key": "Yes",
                     "doc_count": 1
                 }
@@ -926,7 +1105,8 @@ Content-Type: application/json; charset=utf-8
             ]
         },
         "max_results.predictor.analysed": {
-            "value": null
+            "value": 1536751400964,
+            "value_as_string": "2018-09-12T11:23:20.964Z"
         },
         "metadata.phenotyping.highDoseIsoniazid.susceptibility": {
             "doc_count_error_upper_bound": 0,
@@ -964,7 +1144,7 @@ Content-Type: application/json; charset=utf-8
             "buckets": [
                 {
                     "key": "Sensitive",
-                    "doc_count": 1
+                    "doc_count": 2
                 }
             ]
         },
@@ -977,7 +1157,7 @@ Content-Type: application/json; charset=utf-8
             "buckets": [
                 {
                     "key": "Resistant",
-                    "doc_count": 1
+                    "doc_count": 2
                 }
             ]
         },
@@ -1020,7 +1200,7 @@ Content-Type: application/json; charset=utf-8
             "buckets": [
                 {
                     "key": "Not known",
-                    "doc_count": 1
+                    "doc_count": 2
                 }
             ]
         },
@@ -1078,8 +1258,8 @@ Content-Type: application/json; charset=utf-8
             ]
         },
         "max_metadata.sample.dateArrived": {
-            "value": 1509840000000,
-            "value_as_string": "2017-11-05T00:00:00.000Z"
+            "value": 1535760000000,
+            "value_as_string": "2018-09-01T00:00:00.000Z"
         },
         "max_metadata.treatment.continuation.stop": {
             "value": null
@@ -1103,7 +1283,13 @@ Content-Type: application/json; charset=utf-8
         "results.predictor.xdr": {
             "doc_count_error_upper_bound": 0,
             "sum_other_doc_count": 0,
-            "buckets": []
+            "buckets": [
+                {
+                    "key": 0,
+                    "key_as_string": "false",
+                    "doc_count": 1
+                }
+            ]
         },
         "metadata.genotyping.hainEth": {
             "doc_count_error_upper_bound": 0,
@@ -1111,12 +1297,12 @@ Content-Type: application/json; charset=utf-8
             "buckets": [
                 {
                     "key": "Not tested",
-                    "doc_count": 1
+                    "doc_count": 2
                 }
             ]
         },
         "min_metadata.sample.longitudeIsolate": {
-            "value": null
+            "value": 72.8776559
         },
         "metadata.phenotyping.ethambutol.susceptibility": {
             "doc_count_error_upper_bound": 0,
@@ -1124,6 +1310,10 @@ Content-Type: application/json; charset=utf-8
             "buckets": [
                 {
                     "key": "Resistant",
+                    "doc_count": 1
+                },
+                {
+                    "key": "Sensitive",
                     "doc_count": 1
                 }
             ]
@@ -1207,7 +1397,7 @@ Content-Type: application/json; charset=utf-8
             "buckets": [
                 {
                     "key": "Not known",
-                    "doc_count": 1
+                    "doc_count": 2
                 }
             ]
         },
@@ -1231,7 +1421,7 @@ Content-Type: application/json; charset=utf-8
             "value": null
         },
         "max_metadata.patient.age": {
-            "value": 32
+            "value": 43
         },
         "metadata.patient.injectingDrugUse": {
             "doc_count_error_upper_bound": 0,
@@ -1239,7 +1429,7 @@ Content-Type: application/json; charset=utf-8
             "buckets": [
                 {
                     "key": "No",
-                    "doc_count": 1
+                    "doc_count": 2
                 }
             ]
         },
@@ -1249,6 +1439,10 @@ Content-Type: application/json; charset=utf-8
             "buckets": [
                 {
                     "key": "CN",
+                    "doc_count": 1
+                },
+                {
+                    "key": "IN",
                     "doc_count": 1
                 }
             ]
@@ -1305,7 +1499,7 @@ Content-Type: application/json; charset=utf-8
             "buckets": [
                 {
                     "key": "Not known",
-                    "doc_count": 1
+                    "doc_count": 2
                 }
             ]
         },
@@ -1316,6 +1510,10 @@ Content-Type: application/json; charset=utf-8
                 {
                     "key": "INH resistant",
                     "doc_count": 1
+                },
+                {
+                    "key": "INH sensitive",
+                    "doc_count": 1
                 }
             ]
         },
@@ -1325,6 +1523,10 @@ Content-Type: application/json; charset=utf-8
             "buckets": [
                 {
                     "key": "No",
+                    "doc_count": 1
+                },
+                {
+                    "key": "Yes",
                     "doc_count": 1
                 }
             ]
@@ -1398,7 +1600,7 @@ Content-Type: application/json; charset=utf-8
             "buckets": [
                 {
                     "key": "INH/RIF test",
-                    "doc_count": 1
+                    "doc_count": 2
                 }
             ]
         },
@@ -1409,6 +1611,10 @@ Content-Type: application/json; charset=utf-8
                 {
                     "key": "CH",
                     "doc_count": 1
+                },
+                {
+                    "key": "IN",
+                    "doc_count": 1
                 }
             ]
         },
@@ -1418,7 +1624,7 @@ Content-Type: application/json; charset=utf-8
             "buckets": [
                 {
                     "key": "Not known",
-                    "doc_count": 1
+                    "doc_count": 2
                 }
             ]
         },
@@ -1456,7 +1662,7 @@ Content-Type: application/json; charset=utf-8
             "buckets": [
                 {
                     "key": "Yes",
-                    "doc_count": 1
+                    "doc_count": 2
                 }
             ]
         },
@@ -1487,7 +1693,8 @@ Content-Type: application/json; charset=utf-8
             "value": null
         },
         "min_results.predictor.analysed": {
-            "value": null
+            "value": 1536751400964,
+            "value_as_string": "2018-09-12T11:23:20.964Z"
         },
         "metadata.phenotyping.rifabutin.susceptibility": {
             "doc_count_error_upper_bound": 0,

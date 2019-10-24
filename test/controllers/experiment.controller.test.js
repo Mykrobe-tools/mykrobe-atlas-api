@@ -1033,7 +1033,7 @@ describe("ExperimentController", () => {
 
             expect(experiment.id).toEqual(id);
             expect(status.provider).toEqual("dropbox");
-            expect(status.totalSize).toEqual(23);
+            expect(status.totalSize).toEqual("23");
             expect(status.fileLocation).toEqual("/1/view/1234");
 
             done();

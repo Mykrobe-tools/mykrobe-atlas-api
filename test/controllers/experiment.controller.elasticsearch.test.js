@@ -2,7 +2,11 @@ import moment from "moment";
 import request from "supertest";
 import httpStatus from "http-status";
 
-import { ElasticsearchHelper } from "makeandship-api-common/lib/modules/elasticsearch";
+import { ElasticService } from "makeandship-api-common/lib/modules/elasticsearch/";
+import {
+  SearchQuery,
+  AggregationSearchQuery
+} from "makeandship-api-common/lib/modules/elasticsearch/";
 import { experimentSearch as experimentSearchSchema } from "mykrobe-atlas-jsonschema";
 
 import Constants from "../../src/server/Constants";
@@ -22,6 +26,10 @@ import searches from "../fixtures/searches";
 const app = createApp();
 
 let token = null;
+
+// constants
+const esConfig = { type: "experiment", ...config.elasticsearch };
+const elasticService = new ElasticService(esConfig, experimentSearchSchema);
 
 const experimentWithMetadata = new Experiment(experiments.tbUploadMetadataPredictorResults);
 const experimentWithChineseMetadata = new Experiment(experiments.tbUploadMetadataChinese);
@@ -44,14 +52,14 @@ beforeEach(async done => {
 });
 
 afterEach(async done => {
-  await User.remove({});
-  await Search.remove({});
+  await User.deleteMany({});
+  await Search.deleteMany({});
   done();
 });
 
 beforeAll(async done => {
-  await ElasticsearchHelper.deleteIndexIfExists(config);
-  await ElasticsearchHelper.createIndex(config, experimentSearchSchema, "experiment");
+  await elasticService.deleteIndex();
+  await elasticService.createIndex();
 
   const experiment1 = await experimentWithMetadata.save();
   const experiment2 = await experimentWithChineseMetadata.save();
@@ -64,18 +72,18 @@ beforeAll(async done => {
 
   // index to elasticsearch
   const experiments = await Experiment.list();
-  await ElasticsearchHelper.indexDocuments(config, experiments, "experiment");
-  let data = await ElasticsearchHelper.search(config, {}, "experiment");
+  await elasticService.indexDocuments(experiments);
+  let data = await elasticService.search(new SearchQuery({}), { type: "experiment" });
   while (data.hits.total < 2) {
-    data = await ElasticsearchHelper.search(config, {}, "experiment");
+    data = await await elasticService.search(new SearchQuery({}), { type: "experiment" });
   }
   done();
 }, 60000);
 
 afterAll(async done => {
-  await ElasticsearchHelper.deleteIndexIfExists(config);
-  await ElasticsearchHelper.createIndex(config, experimentSearchSchema, "experiment");
-  await Experiment.remove({});
+  await elasticService.deleteIndex();
+  await elasticService.createIndex();
+  await Experiment.deleteMany({});
   done();
 });
 
@@ -291,6 +299,7 @@ describe("ExperimentController > Elasticsearch", () => {
           expect(data["metadata.patient.bmi"].max).toEqual(33.1);
           expect(data["metadata.sample.dateArrived"].min).toEqual("2017-11-05T00:00:00.000Z");
           expect(data["metadata.sample.dateArrived"].max).toEqual("2017-11-05T00:00:00.000Z");
+
           done();
         });
     });

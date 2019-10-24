@@ -1,6 +1,5 @@
 import nock from "nock";
 import uuid from "uuid";
-import { ElasticsearchHelper } from "makeandship-api-common/lib/modules/elasticsearch/";
 import config from "../config/env";
 
 const stubAnalysisApi = () => {

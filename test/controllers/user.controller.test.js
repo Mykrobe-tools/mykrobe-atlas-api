@@ -30,8 +30,8 @@ beforeEach(async done => {
 });
 
 afterEach(async done => {
-  await User.remove({});
-  await Organisation.remove({});
+  await User.deleteMany({});
+  await Organisation.deleteMany({});
   done();
 });
 
@@ -72,7 +72,7 @@ describe("UserController", () => {
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
-          expect(res.body.data.errors[""].message).toEqual(
+          expect(res.body.data.errors.username.message).toEqual(
             "should have required property 'username'"
           );
           done();
@@ -389,7 +389,7 @@ describe("UserController", () => {
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
           expect(res.body.code).toEqual("ValidationError");
-          expect(res.body.data.errors.email.message).toEqual('should match format "email"');
+          expect(res.body.message).toEqual("User validation failed");
           done();
         });
     });
@@ -456,7 +456,9 @@ describe("UserController", () => {
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
-          expect(res.body.data.errors[""].message).toEqual("should have required property 'email'");
+          expect(res.body.data.errors.email.message).toEqual(
+            "should have required property 'email'"
+          );
           done();
         });
     });
@@ -509,7 +511,9 @@ describe("UserController", () => {
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
-          expect(res.body.data.errors[""].message).toEqual("should have required property 'email'");
+          expect(res.body.data.errors.email.message).toEqual(
+            "should have required property 'email'"
+          );
           done();
         });
     });
