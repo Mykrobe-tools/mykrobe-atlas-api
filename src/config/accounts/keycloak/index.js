@@ -1,10 +1,11 @@
 export default {
   admin: {
-    baseUrl: "https://accounts.makeandship.com/auth",
+    baseUrl: "https://accounts-dev.makeandship.com/auth",
     username: "admin",
-    password: "admin",
+    password: "#9YtwJe=.WH/&ZkV",
     grantType: "password",
-    clientId: "admin-cli" // use for admin-level operations e.g. register new user
+    clientId: "admin-cli", // use for admin-level operations e.g. register new user
+    realmName: "master"
   },
   client: {
     clientId: "atlas-app", // use for app-level operations e.g. reset password email

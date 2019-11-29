@@ -157,8 +157,7 @@ describe("UserController", () => {
   describe("# GET /users/:id", () => {
     beforeEach(async done => {
       const org = new Organisation({
-        name: "Apex Entertainment",
-        template: "MODS"
+        name: "Apex Entertainment"
       });
       const savedOrg = await org.save();
       savedUser.organisation = savedOrg;
@@ -187,7 +186,7 @@ describe("UserController", () => {
           expect(res.body.data.firstname).toEqual(savedUser.firstname);
           expect(res.body.data.lastname).toEqual(savedUser.lastname);
           expect(res.body.data.organisation.name).toEqual("Apex Entertainment");
-          expect(res.body.data.organisation.template).toEqual("MODS");
+          expect(res.body.data.organisation.slug).toEqual("apex-entertainment");
           done();
         });
     });

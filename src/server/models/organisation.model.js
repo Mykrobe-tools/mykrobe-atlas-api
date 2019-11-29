@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import slugify from "slugify";
 import errors from "errors";
 
 import { organisation as organisationJsonSchema } from "mykrobe-atlas-jsonschema";
@@ -7,10 +8,37 @@ import JSONMongooseSchema from "./jsonschema.model";
 
 import OrganisationJSONTransformer from "../transformers/OrganisationJSONTransformer";
 
+import AccountsHelper from "../helpers/AccountsHelper";
+
+const keycloak = AccountsHelper.keycloakInstance();
+
 /**
  * Organisation Schema
  */
-const OrganisationSchema = new JSONMongooseSchema(organisationJsonSchema, {}, {});
+const OrganisationSchema = new JSONMongooseSchema(
+  organisationJsonSchema,
+  {
+    owners: [
+      {
+        type: "ObjectId",
+        ref: "User"
+      }
+    ],
+    members: [
+      {
+        type: "ObjectId",
+        ref: "User"
+      }
+    ],
+    unapprovedMembers: [
+      {
+        type: "ObjectId",
+        ref: "User"
+      }
+    ]
+  },
+  {}
+);
 
 /**
  * Add your
@@ -19,6 +47,19 @@ const OrganisationSchema = new JSONMongooseSchema(organisationJsonSchema, {}, {}
  * - virtuals
  * - plugins
  */
+
+OrganisationSchema.pre("save", async function() {
+  if (!this.slug) {
+    this.slug = slugify(this.name, { lower: true });
+    const membersGroup = await keycloak.createGroup(`${this.slug}-members`);
+    const ownersGroup = await keycloak.createGroup(`${this.slug}-owners`);
+    const role = await keycloak.createRole(this.slug);
+    this.membersGroupId = membersGroup.id;
+    this.ownersGroupId = ownersGroup.id;
+    await keycloak.createGroupRoleMapping(this.membersGroupId, role.roleName);
+    await keycloak.createGroupRoleMapping(this.ownersGroupId, role.roleName);
+  }
+});
 
 /**
  * Methods
@@ -36,7 +77,9 @@ OrganisationSchema.statics = {
    */
   async get(id) {
     try {
-      const organisation = await this.findById(id).exec();
+      const organisation = await this.findById(id)
+        .populate(["owners", "members", "unapprovedMembers"])
+        .exec();
       if (organisation) {
         return organisation;
       }
@@ -66,6 +109,7 @@ OrganisationSchema.statics = {
    */
   list({ skip = 0, limit = 50 } = {}) {
     return this.find()
+      .populate(["owners", "members", "unapprovedMembers"])
       .skip(skip)
       .limit(limit)
       .exec();

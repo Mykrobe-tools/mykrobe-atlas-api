@@ -28,6 +28,8 @@ const get = (req, res) => res.jsend(req.organisation);
  */
 const create = async (req, res) => {
   const organisation = new Organisation(req.body);
+  organisation.owners.push(req.dbUser);
+  organisation.members.push(req.dbUser);
   try {
     const savedOrganisation = await organisation.save();
     return res.jsend(savedOrganisation);
