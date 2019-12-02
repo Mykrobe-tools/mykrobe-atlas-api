@@ -528,7 +528,7 @@ describe("ExperimentController", () => {
             done();
           });
       });
-      it.skip("should return an permission error", done => {
+      it("should return an permission error", done => {
         request(app)
           .put(`/experiments/${id}`)
           .set("Authorization", `Bearer ${thomasToken}`)
@@ -688,7 +688,7 @@ describe("ExperimentController", () => {
             done();
           });
       });
-      it.skip("should return an permission error", done => {
+      it("should return an permission error", done => {
         request(app)
           .delete(`/experiments/${id}`)
           .set("Authorization", `Bearer ${thomasToken}`)
