@@ -1,10 +1,11 @@
 import Organisation from "../../src/server/models/organisation.model";
 
-import setup from "../setup";
+import { createApp } from "../setup";
 
 import organisations from "../fixtures/organisations";
 
 let id = null;
+createApp();
 
 beforeEach(async done => {
   const organisationData = new Organisation(organisations.apex);

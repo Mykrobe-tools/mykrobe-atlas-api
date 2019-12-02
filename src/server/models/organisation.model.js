@@ -10,8 +10,6 @@ import OrganisationJSONTransformer from "../transformers/OrganisationJSONTransfo
 
 import AccountsHelper from "../helpers/AccountsHelper";
 
-const keycloak = AccountsHelper.keycloakInstance();
-
 /**
  * Organisation Schema
  */
@@ -51,14 +49,8 @@ const OrganisationSchema = new JSONMongooseSchema(
 OrganisationSchema.pre("save", async function() {
   if (!this.slug) {
     this.slug = slugify(this.name, { lower: true });
-    const membersGroup = await keycloak.createGroup(`${this.slug}-members`);
-    const ownersGroup = await keycloak.createGroup(`${this.slug}-owners`);
-    const role = await keycloak.createRole(this.slug);
-    this.membersGroupId = membersGroup.id;
-    this.ownersGroupId = ownersGroup.id;
-    await keycloak.createGroupRoleMapping(this.membersGroupId, role.roleName);
-    await keycloak.createGroupRoleMapping(this.ownersGroupId, role.roleName);
   }
+  await AccountsHelper.setupGroupsAndRoles(this);
 });
 
 /**

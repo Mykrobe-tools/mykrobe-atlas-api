@@ -2,7 +2,7 @@ export default {
   admin: {
     baseUrl: "https://accounts-dev.makeandship.com/auth",
     username: "admin",
-    password: "#9YtwJe=.WH/&ZkV",
+    password: process.env.KEYCLOAK_ADMIN_PASSWORD,
     grantType: "password",
     clientId: "admin-cli", // use for admin-level operations e.g. register new user
     realmName: "master"
