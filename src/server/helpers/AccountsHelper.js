@@ -19,6 +19,17 @@ class AccountsHelper {
       apiError: APIError
     });
   }
+
+  static async setupGroupsAndRoles(organisation) {
+    const keycloak = this.keycloakInstance();
+    const membersGroup = await keycloak.createGroupIfMissing(`${organisation.slug}-members`);
+    const ownersGroup = await keycloak.createGroupIfMissing(`${organisation.slug}-owners`);
+    const roleName = await keycloak.createRoleIfMissing(organisation.slug);
+    organisation.membersGroupId = membersGroup.id;
+    organisation.ownersGroupId = ownersGroup.id;
+    await keycloak.createGroupRoleMapping(organisation.membersGroupId, roleName);
+    await keycloak.createGroupRoleMapping(organisation.ownersGroupId, roleName);
+  }
 }
 
 export default AccountsHelper;

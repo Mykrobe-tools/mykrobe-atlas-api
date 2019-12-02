@@ -1,6 +1,12 @@
 import express from "express";
+import errors from "errors";
+
+import { jsonschema } from "makeandship-api-common/lib/modules/express/middleware";
+import * as schemas from "mykrobe-atlas-jsonschema";
+
 import AccountsHelper from "../helpers/AccountsHelper";
 import organisationController from "../controllers/organisation.controller";
+import userController from "../controllers/user.controller";
 import config from "../../config/env";
 
 const router = express.Router(); // eslint-disable-line new-cap
@@ -18,15 +24,42 @@ const keycloak = AccountsHelper.keycloakInstance();
  *         properties:
  *           name:
  *             type: string
- *           template:
+ *           slug:
  *             type: string
+ *           groupId:
+ *             type: string
+ *           owners:
+ *             type: array
+ *           members:
+ *             type: array
+ *           unapprovedMembers:
+ *             type: array
  *           id:
  *             type: string
  *     example:
  *       status: success
  *       data:
  *         name: Apex Entertainment
- *         template: Apex template
+ *         slug: apex-entertainment
+ *         groupId: a842a3f45-ae66-41c5-b41c-798bc5e47a5b
+ *         owners:
+ *           - id: 890624089182796462cb1322
+ *             firtsname: Sam
+ *             lastname: Smith
+ *             email: sam@apex.com
+ *             username: sam@apex.com
+ *         members:
+ *           - id: 890624089182796462cb1322
+ *             firtsname: Sam
+ *             lastname: Smith
+ *             email: sam@apex.com
+ *             username: sam@apex.com
+ *         unapprovedMembers:
+ *           - id: 457624089182796462cgr666
+ *             firtsname: John
+ *             lastname: Thomas
+ *             email: john@apex.com
+ *             username: john@apex.com
  *         id: 588624076182796462cb133e
  */
 /**
@@ -43,15 +76,42 @@ const keycloak = AccountsHelper.keycloakInstance();
  *           properties:
  *             name:
  *               type: string
- *             template:
+ *             slug:
  *               type: string
+ *             groupId:
+ *               type: string
+ *             owners:
+ *               type: array
+ *             members:
+ *               type: array
+ *             unapprovedMembers:
+ *               type: array
  *             id:
  *               type: string
  *     example:
  *       status: success
  *       data:
  *         - name: Apex Entertainment
- *           template: Apex template
+ *           slug: apex-entertainment
+ *           groupId: a842a3f45-ae66-41c5-b41c-798bc5e47a5b
+ *           owners:
+ *             - id: 890624089182796462cb1322
+ *               firtsname: Sam
+ *               lastname: Smith
+ *               email: sam@apex.com
+ *               username: sam@apex.com
+ *           members:
+ *             - id: 890624089182796462cb1322
+ *               firtsname: Sam
+ *               lastname: Smith
+ *               email: sam@apex.com
+ *               username: sam@apex.com
+ *           unapprovedMembers:
+ *             - id: 457624089182796462cgr666
+ *               firtsname: John
+ *               lastname: Thomas
+ *               email: john@apex.com
+ *               username: john@apex.com
  *           id: 588624076182796462cb133e
  */
 router
@@ -98,18 +158,20 @@ router
    *           properties:
    *             name:
    *               type: string
-   *             template:
-   *               type: string
    *           example:
-   *             firstname: Apex Entertainment
-   *             lastname: Apex template
+   *             name: Apex Entertainment
    *     responses:
    *       200:
    *         description: Organisation data
    *         schema:
    *           $ref: '#/definitions/OrganisationResponse'
    */
-  .post(keycloak.connect.protect(), organisationController.create);
+  .post(
+    keycloak.connect.protect(),
+    jsonschema.schemaValidation(schemas["organisation"], errors, "CreateOrganisationError", "all"),
+    userController.loadCurrentUser,
+    organisationController.create
+  );
 
 router
   .route("/:id")
@@ -164,11 +226,8 @@ router
    *           properties:
    *             name:
    *               type: string
-   *             template:
-   *               type: string
    *           example:
    *             name: Apex Entertainment
-   *             template: Apex template
    *     responses:
    *       200:
    *         description: Organisation data

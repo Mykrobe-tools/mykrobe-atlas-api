@@ -1,10 +1,11 @@
 import Organisation from "../../src/server/models/organisation.model";
 
-import setup from "../setup";
+import { createApp } from "../setup";
 
 import organisations from "../fixtures/organisations";
 
 let id = null;
+createApp();
 
 beforeEach(async done => {
   const organisationData = new Organisation(organisations.apex);
@@ -24,6 +25,7 @@ describe("## Organisations Functions", () => {
         const organisationData = new Organisation(organisations.diagnostics);
         const savedOrganisation = await organisationData.save();
         expect(savedOrganisation.name).toEqual("Diagnostic systems");
+        expect(savedOrganisation.slug).toEqual("diagnostic-systems");
         done();
       });
     });
@@ -33,6 +35,7 @@ describe("## Organisations Functions", () => {
       it("should return the organisation", async done => {
         const foundOrganisation = await Organisation.get(id);
         expect(foundOrganisation.name).toEqual("Apex Entertainment");
+        expect(foundOrganisation.slug).toEqual("apex-entertainment");
         done();
       });
     });
@@ -54,6 +57,7 @@ describe("## Organisations Functions", () => {
       const foundOrganisation = await Organisation.get(id);
       const json = foundOrganisation.toJSON();
       expect(json.name).toEqual("Apex Entertainment");
+      expect(json.slug).toEqual("apex-entertainment");
       done();
     });
   });
@@ -63,6 +67,7 @@ describe("## Organisations Functions", () => {
         const organisations = await Organisation.list();
         expect(organisations.length).toEqual(1);
         expect(organisations[0].name).toEqual("Apex Entertainment");
+        expect(organisations[0].slug).toEqual("apex-entertainment");
         done();
       });
     });

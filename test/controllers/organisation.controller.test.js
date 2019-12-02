@@ -46,6 +46,8 @@ describe("OrganisationController", () => {
         .end((err, res) => {
           expect(res.body.status).toEqual("success");
           expect(res.body.data.name).toEqual("Make and Ship");
+          expect(res.body.data.slug).toEqual("make-and-ship");
+          expect(res.body.data.ownersGroupId).toEqual("46e23392-1773-4ab0-9f54-14eb2200d077");
           done();
         });
     });
@@ -129,9 +131,9 @@ describe("OrganisationController", () => {
           done();
         });
     });
-    it("should update organisation template", done => {
+    it("should not update organisation slug", done => {
       const data = {
-        template: "Microtitre plate"
+        name: "Make and Ship"
       };
       request(app)
         .put(`/organisations/${id}`)
@@ -140,8 +142,8 @@ describe("OrganisationController", () => {
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("success");
-          expect(res.body.data.name).toEqual("Apex Entertainment");
-          expect(res.body.data.template).toEqual("Microtitre plate");
+          expect(res.body.data.name).toEqual("Make and Ship");
+          expect(res.body.data.slug).toEqual("apex-entertainment");
           done();
         });
     });

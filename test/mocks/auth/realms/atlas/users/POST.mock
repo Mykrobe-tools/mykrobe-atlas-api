@@ -1,0 +1,5 @@
+HTTP/1.1 201 OK
+Content-Type: application/json; charset=utf-8
+Location: https://accounts-dev.makeandship.com/auth/admin/realms/atlas/users/46e23392-1773-4ab0-9f54-14eb2200d077
+
+{}

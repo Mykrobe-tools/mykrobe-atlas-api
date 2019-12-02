@@ -98,7 +98,6 @@ describe("ExperimentController", () => {
           expect(metadata).toHaveProperty("phenotyping");
           expect(metadata).not.toHaveProperty("treatment");
           expect(metadata).not.toHaveProperty("outcome");
-
           done();
         });
     });

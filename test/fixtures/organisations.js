@@ -1,9 +1,10 @@
 export default {
   apex: {
     name: "Apex Entertainment",
-    template: "MODS"
+    slug: "apex-entertainment"
   },
   diagnostics: {
-    name: "Diagnostic systems"
+    name: "Diagnostic systems",
+    slug: "diagnostic-systems"
   }
 };
