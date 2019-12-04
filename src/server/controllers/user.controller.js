@@ -11,11 +11,13 @@ import Audit from "../models/audit.model";
 import Experiment from "../models/experiment.model";
 import Search from "../models/search.model";
 import User from "../models/user.model";
+import Event from "../models/event.model";
 
 import AuditJSONTransformer from "../transformers/AuditJSONTransformer";
 import UserJSONTransformer from "../transformers/UserJSONTransformer";
 import ExperimentJSONTransformer from "../transformers/ExperimentJSONTransformer";
 import ExperimentsResultJSONTransformer from "../transformers/es/ExperimentsResultJSONTransformer";
+import EventJSONTransformer from "../transformers/EventJSONTransformer";
 
 import AccountsHelper from "../helpers/AccountsHelper";
 import EmailHelper from "../helpers/EmailHelper";
@@ -178,6 +180,19 @@ const events = async (req, res) => {
   channel.addClient(req, res);
 };
 
+/**
+ * Get user events status
+ */
+const eventsStatus = async (req, res) => {
+  const user = req.dbUser;
+  try {
+    const event = await Event.getByUserId(user.id);
+    return res.jsend(new EventJSONTransformer().transform(event));
+  } catch (e) {
+    return res.jerror(e);
+  }
+};
+
 export default {
   load,
   get,
@@ -187,5 +202,6 @@ export default {
   remove,
   assignRole,
   loadCurrentUser,
-  events
+  events,
+  eventsStatus
 };

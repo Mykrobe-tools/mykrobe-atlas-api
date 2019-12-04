@@ -2,6 +2,7 @@ import https from "https";
 import fs from "fs";
 import winston from "winston";
 import { experimentEventEmitter } from "../modules/events";
+import EventHelper from "../helpers/EventHelper";
 
 /**
  * A class to download large files from a url
@@ -20,7 +21,7 @@ class Downloader {
       let downloaded = 0;
       const totalSize = res.headers["content-length"];
       res
-        .on("data", chunk => {
+        .on("data", async chunk => {
           file.write(chunk);
           downloaded += chunk.length;
 
@@ -32,12 +33,13 @@ class Downloader {
             fileLocation: this.options.path
           };
 
+          await EventHelper.updateUploadsState(this.data.user.id, experiment.id, status);
           experimentEventEmitter.emit("3rd-party-upload-progress", {
             experiment,
             status
           });
         })
-        .on("end", () => {
+        .on("end", async () => {
           if (done) {
             done();
           }
@@ -51,6 +53,7 @@ class Downloader {
             fileLocation: this.options.path
           };
 
+          await EventHelper.clearUploadsState(this.data.user.id, experiment.id);
           experimentEventEmitter.emit("3rd-party-upload-complete", {
             experiment,
             status

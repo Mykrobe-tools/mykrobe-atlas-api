@@ -201,4 +201,26 @@ router
    */
   .get(keycloak.connect.protect(), userController.loadCurrentUser, userController.events);
 
+router
+  .route("/events/status")
+  /**
+   * @swagger
+   * /user/events/status:
+   *   get:
+   *     tags:
+   *       - User
+   *     description: Notification State
+   *     operationId: userEventsStatus
+   *     produces:
+   *       - application/json
+   *     security:
+   *       - Bearer: []
+   *     responses:
+   *       200:
+   *         description: A jsend response
+   *         schema:
+   *           $ref: '#/definitions/BasicResponse'
+   */
+  .get(keycloak.connect.protect(), userController.loadCurrentUser, userController.eventsStatus);
+
 export default router;

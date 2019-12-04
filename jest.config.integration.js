@@ -1,5 +1,5 @@
 module.exports = {
-  testRegex: "(/test/(controllers|helpers)/.*?test).[jt]sx?$",
+  testRegex: "(/test/(controllers|helpers)/user.controller.test).[jt]sx?$",
   testPathIgnorePatterns: ["test/helpers/AgendaHelper.test.js"],
   collectCoverage: false,
   testEnvironment: "node",
