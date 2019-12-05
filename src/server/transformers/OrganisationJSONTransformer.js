@@ -25,9 +25,9 @@ class OrganisationJSONTransformer extends ModelJSONTransformer {
       res.members = res.members.map(member => new UserJSONTransformer().transform(member, options));
     }
 
-    if (res.awaitingApproval) {
-      res.awaitingApproval = res.awaitingApproval.map(awaitingMember =>
-        new UserJSONTransformer().transform(awaitingMember, options)
+    if (res.unapprovedMembers) {
+      res.unapprovedMembers = res.unapprovedMembers.map(unapprovedMember =>
+        new UserJSONTransformer().transform(unapprovedMember, options)
       );
     }
 

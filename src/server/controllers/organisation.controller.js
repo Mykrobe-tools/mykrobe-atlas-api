@@ -94,7 +94,7 @@ const remove = async (req, res) => {
 const join = async (req, res) => {
   const organisation = req.organisation;
   try {
-    organisation.awaitingApproval.push(req.dbUser);
+    organisation.unapprovedMembers.push(req.dbUser);
     await organisation.save();
     return res.jsend("Request sent, waiting for approval.");
   } catch (e) {

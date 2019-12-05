@@ -208,7 +208,7 @@ describe("OrganisationController", () => {
       });
     });
     describe("when the user is not part of any list", () => {
-      it("should add the user to the awaitingApproval list", done => {
+      it("should add the user to the unapprovedMembers list", done => {
         request(app)
           .post(`/organisations/${id}/join`)
           .set("Authorization", `Bearer ${token}`)
@@ -220,9 +220,9 @@ describe("OrganisationController", () => {
           });
       });
     });
-    describe("when the user is part awaitingApproval list", () => {
+    describe("when the user is part unapprovedMembers list", () => {
       beforeEach(async done => {
-        organisation.awaitingApproval.push(user);
+        organisation.unapprovedMembers.push(user);
         await organisation.save();
         done();
       });
@@ -233,18 +233,18 @@ describe("OrganisationController", () => {
           .expect(httpStatus.OK)
           .end((err, res) => {
             expect(res.body.status).toEqual("error");
-            expect(res.body.data).toEqual("You are already in the awaitingApproval list");
+            expect(res.body.data).toEqual("You are already in the unapprovedMembers list");
             done();
           });
       });
-      it("should not add the user to the awaitingApproval", done => {
+      it("should not add the user to the unapprovedMembers", done => {
         request(app)
           .post(`/organisations/${id}/join`)
           .set("Authorization", `Bearer ${token}`)
           .expect(httpStatus.OK)
           .end(async () => {
             const org = await Organisation.get(id);
-            expect(org.awaitingApproval.length).toEqual(1);
+            expect(org.unapprovedMembers.length).toEqual(1);
             done();
           });
       });
@@ -266,14 +266,14 @@ describe("OrganisationController", () => {
             done();
           });
       });
-      it("should not add the user to the awaitingApproval", done => {
+      it("should not add the user to the unapprovedMembers", done => {
         request(app)
           .post(`/organisations/${id}/join`)
           .set("Authorization", `Bearer ${token}`)
           .expect(httpStatus.OK)
           .end(async () => {
             const org = await Organisation.get(id);
-            expect(org.awaitingApproval.length).toEqual(0);
+            expect(org.unapprovedMembers.length).toEqual(0);
             done();
           });
       });
@@ -295,14 +295,14 @@ describe("OrganisationController", () => {
             done();
           });
       });
-      it("should not add the user to the awaitingApproval", done => {
+      it("should not add the user to the unapprovedMembers", done => {
         request(app)
           .post(`/organisations/${id}/join`)
           .set("Authorization", `Bearer ${token}`)
           .expect(httpStatus.OK)
           .end(async () => {
             const org = await Organisation.get(id);
-            expect(org.awaitingApproval.length).toEqual(0);
+            expect(org.unapprovedMembers.length).toEqual(0);
             done();
           });
       });

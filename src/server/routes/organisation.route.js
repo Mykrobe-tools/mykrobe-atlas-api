@@ -34,7 +34,7 @@ const keycloak = AccountsHelper.keycloakInstance();
  *             type: array
  *           members:
  *             type: array
- *           awaitingApproval:
+ *           unapprovedMembers:
  *             type: array
  *           rejectedMembers:
  *             type: array
@@ -58,7 +58,7 @@ const keycloak = AccountsHelper.keycloakInstance();
  *             lastname: Smith
  *             email: sam@apex.com
  *             username: sam@apex.com
- *         awaitingApproval:
+ *         unapprovedMembers:
  *           - id: 457624089182796462cgr666
  *             firtsname: John
  *             lastname: Thomas
@@ -94,7 +94,7 @@ const keycloak = AccountsHelper.keycloakInstance();
  *               type: array
  *             members:
  *               type: array
- *             awaitingApproval:
+ *             unapprovedMembers:
  *               type: array
  *             id:
  *               type: string
@@ -116,7 +116,7 @@ const keycloak = AccountsHelper.keycloakInstance();
  *               lastname: Smith
  *               email: sam@apex.com
  *               username: sam@apex.com
- *           awaitingApproval:
+ *           unapprovedMembers:
  *             - id: 457624089182796462cgr666
  *               firtsname: John
  *               lastname: Thomas
@@ -306,7 +306,7 @@ router
   .post(
     keycloak.connect.protect(),
     userController.loadCurrentUser,
-    OrganisationHelper.checkInLists(["awaitingApproval", "rejectedMembers", "members"]),
+    OrganisationHelper.checkInLists(["unapprovedMembers", "rejectedMembers", "members"]),
     organisationController.join
   );
 
