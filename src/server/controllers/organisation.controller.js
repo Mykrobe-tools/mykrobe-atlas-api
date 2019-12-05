@@ -87,11 +87,27 @@ const remove = async (req, res) => {
   }
 };
 
+/**
+ * Join organisation.
+ * @returns {Organisation}
+ */
+const join = async (req, res) => {
+  const organisation = req.organisation;
+  try {
+    organisation.unapprovedMembers.push(req.dbUser);
+    await organisation.save();
+    return res.jsend("Request sent, waiting for approval.");
+  } catch (e) {
+    return res.jerror(e);
+  }
+};
+
 export default {
   load,
   get,
   create,
   update,
   list,
-  remove
+  remove,
+  join
 };

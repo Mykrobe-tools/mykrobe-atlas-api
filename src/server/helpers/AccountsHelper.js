@@ -1,9 +1,11 @@
 import errors from "errors";
+import httpStatus from "http-status";
 import { Keycloak } from "makeandship-api-common/lib/modules/accounts";
+import { AuthError } from "makeandship-api-common/lib/modules/error";
 import config from "../../config/env";
 import User from "../models/user.model";
 import UserJSONTransformer from "../transformers/UserJSONTransformer";
-import APIError from "../helpers/APIError";
+import Constants from "../Constants";
 
 class AccountsHelper {
   static usePassword(config) {
@@ -16,7 +18,12 @@ class AccountsHelper {
       errors,
       userModel: User,
       userTransformer: UserJSONTransformer,
-      apiError: APIError
+      apiError: new AuthError(
+        Constants.ERRORS.INVALID_CREDENTIALS,
+        null,
+        null,
+        httpStatus.UNAUTHORIZED
+      )
     });
   }
 

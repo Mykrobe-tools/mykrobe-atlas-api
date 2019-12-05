@@ -31,6 +31,12 @@ class OrganisationJSONTransformer extends ModelJSONTransformer {
       );
     }
 
+    if (res.rejectedMembers) {
+      res.rejectedMembers = res.rejectedMembers.map(rejectedMember =>
+        new UserJSONTransformer().transform(rejectedMember, options)
+      );
+    }
+
     return res;
   }
 }

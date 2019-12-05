@@ -17,5 +17,18 @@ export default {
   EXPERIMENTS_URL_SUFFIX: "/experiments",
   CHOICES_URL_SUFFIX: "/choices",
 
-  INDEX_TYPE: "experiment"
+  INDEX_TYPE: "experiment",
+
+  // Error codes
+  ERRORS: {
+    INVALID_CREDENTIALS: 10002,
+    ROUTE_NOT_FOUND: 10001,
+    VALIDATION_ERROR: 10003,
+    RUNTIME_ERROR: 10004,
+    INVALID_USERNAME: 10009,
+    CREATE_USER: 10005,
+    LOAD_USER: 10007,
+    GET_SWAGGER_DOC: 10023,
+    OBJECT_NOT_FOUND: 10024
+  }
 };
