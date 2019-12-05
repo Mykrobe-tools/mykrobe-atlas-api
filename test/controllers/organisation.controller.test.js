@@ -193,7 +193,7 @@ describe("OrganisationController", () => {
     });
   });
 
-  describe.only("# POST /organisations/:id/join", () => {
+  describe("# POST /organisations/:id/join", () => {
     describe("when the user is not authenticated", () => {
       it("should return an error", done => {
         request(app)
