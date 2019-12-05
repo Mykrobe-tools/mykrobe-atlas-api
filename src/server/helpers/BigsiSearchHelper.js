@@ -19,6 +19,7 @@ import ExperimentsResultJSONTransformer from "../transformers/es/ExperimentsResu
 
 import { userEventEmitter } from "../modules/events";
 import { schedule } from "../modules/agenda";
+import EventHelper from "./EventHelper";
 
 const config = require("../../config/env");
 
@@ -129,6 +130,7 @@ class BigsiSearchHelper {
     }
     const searchJson = new SearchJSONTransformer().transform(savedSearch);
     const userJson = new UserJSONTransformer().transform(user);
+    await EventHelper.updateSearchesState(userJson.id, searchJson);
     // call bigsi via agenda to support retries
     await schedule("now", "call search api", {
       search: searchJson,

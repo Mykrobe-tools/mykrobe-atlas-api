@@ -4081,7 +4081,12 @@ router
    *         schema:
    *           $ref: '#/definitions/BasicResponse'
    */
-  .put(keycloak.connect.protect(), upload.single("file"), experimentController.uploadFile)
+  .put(
+    keycloak.connect.protect(),
+    upload.single("file"),
+    userController.loadCurrentUser,
+    experimentController.uploadFile
+  )
   /**
    * @swagger
    * /experiments/{id}/file:
@@ -4155,6 +4160,7 @@ router
     keycloak.connect.protect(),
     jsonschema.schemaValidation(schemas["uploadExperiment"], errors, "UploadExperimentError"),
     upload.single("file"),
+    userController.loadCurrentUser,
     experimentController.uploadFile
   );
 router

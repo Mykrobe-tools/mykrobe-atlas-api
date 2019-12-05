@@ -80,6 +80,125 @@ const keycloak = AccountsHelper.keycloakInstance();
  *           received: 2018-08-03T10:17:40.626Z
  *       event: Analysis complete
  */
+
+/**
+ * @swagger
+ * definitions:
+ *   UserEventsResponse:
+ *     properties:
+ *       status:
+ *         type: string
+ *       data:
+ *         type: object
+ *         properties:
+ *           userId:
+ *             type: string
+ *           openUploads:
+ *             type: array
+ *             items:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: string
+ *                 identifier:
+ *                   type: string
+ *                 chunkNumber:
+ *                   type: string
+ *                 totalChunks:
+ *                   type: string
+ *                 chunkSize:
+ *                   type: integer
+ *                 totalSize:
+ *                   type: integer
+ *                 filename:
+ *                   type: string
+ *                 originalFilename:
+ *                   type: string
+ *                 type:
+ *                   type: string
+ *                 checksum:
+ *                   type: string
+ *                 chunkFilename:
+ *                   type: string
+ *                 complete:
+ *                   type: boolean
+ *                 verifiedTotalChunks:
+ *                   type: integer
+ *                 percentageComplete:
+ *                   type: integer
+ *                 message:
+ *                   type: string
+ *                 provider:
+ *                   type: string
+ *                 size:
+ *                   type: integer
+ *                 fileLocation:
+ *                   type: string
+ *           openSearches:
+ *             type: array
+ *             items:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: string
+ *                 bigsi:
+ *                   type: object
+ *                   properties:
+ *                     query:
+ *                       type: object
+ *                       properties:
+ *                         gene:
+ *                           type: string
+ *                         ref:
+ *                           type: string
+ *                         pos:
+ *                           type: integer
+ *                         alt:
+ *                           type: string
+ *                 type:
+ *                   type: string
+ *                 status:
+ *                   type: string
+ *                 expires:
+ *                   type: string
+ *                   format: date-time
+ *           openAnalysis:
+ *             type: array
+ *             items:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: string
+ *                 fileLocation:
+ *                   type: string
+ *           id:
+ *             type: string
+ *     example:
+ *       status: success
+ *       data:
+ *         userId: 5b8d19173470371d9e49811d
+ *         openUploads:
+ *           - id: 5b98dc2068650b0d588ff560
+ *             provider: dropbox
+ *             size: 1423244
+ *             fileLocation: /tmp/files/upload/filename.zip
+ *             percentageComplete: 25
+ *         openSearches:
+ *           - id: 5b98dc2068650b0d588ff55f
+ *             bigsi:
+ *               query:
+ *                 gene: rpoB
+ *                 ref: S
+ *                 pos: 405
+ *                 alt: L
+ *             type:
+ *             status: pending
+ *             expires: 2019-12-19T09:17:14.565Z
+ *         openAnalysis:
+ *           - id: 5b98dc2068650b0d588ff55d
+ *             fileLocation: /tmp/files/upload/analysis.zip
+ *         id: 588624076182796462cb133e
+ */
 router
   .route("/")
   /**
@@ -200,5 +319,27 @@ router
    *             $ref: '#/definitions/analysisCompleteExample'
    */
   .get(keycloak.connect.protect(), userController.loadCurrentUser, userController.events);
+
+router
+  .route("/events/status")
+  /**
+   * @swagger
+   * /user/events/status:
+   *   get:
+   *     tags:
+   *       - User
+   *     description: Notification State
+   *     operationId: userEventsStatus
+   *     produces:
+   *       - application/json
+   *     security:
+   *       - Bearer: []
+   *     responses:
+   *       200:
+   *         description: A jsend response
+   *         schema:
+   *           $ref: '#/definitions/UserEventsResponse'
+   */
+  .get(keycloak.connect.protect(), userController.loadCurrentUser, userController.eventsStatus);
 
 export default router;
