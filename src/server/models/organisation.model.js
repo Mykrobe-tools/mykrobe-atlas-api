@@ -28,7 +28,13 @@ const OrganisationSchema = new JSONMongooseSchema(
         ref: "User"
       }
     ],
-    unapprovedMembers: [
+    awaitingApproval: [
+      {
+        type: "ObjectId",
+        ref: "User"
+      }
+    ],
+    rejectedMembers: [
       {
         type: "ObjectId",
         ref: "User"
@@ -70,7 +76,7 @@ OrganisationSchema.statics = {
   async get(id) {
     try {
       const organisation = await this.findById(id)
-        .populate(["owners", "members", "unapprovedMembers"])
+        .populate(["owners", "members", "awaitingApproval", "rejectedMembers"])
         .exec();
       if (organisation) {
         return organisation;
@@ -101,7 +107,7 @@ OrganisationSchema.statics = {
    */
   list({ skip = 0, limit = 50 } = {}) {
     return this.find()
-      .populate(["owners", "members", "unapprovedMembers"])
+      .populate(["owners", "members", "rejectedMembers", "awaitingApproval"])
       .skip(skip)
       .limit(limit)
       .exec();

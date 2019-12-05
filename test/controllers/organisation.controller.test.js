@@ -13,18 +13,20 @@ const organisations = require("../fixtures/organisations");
 
 let token = null;
 let id = null;
+let organisation = null;
+let user = null;
 
 beforeEach(async done => {
   const userData = new User(users.admin);
   const organisationData = new Organisation(organisations.apex);
-  await userData.save();
+  user = await userData.save();
   request(app)
     .post("/auth/login")
     .send({ username: "admin@nhs.co.uk", password: "password" })
     .end(async (err, res) => {
       token = res.body.data.access_token;
-      const savedOrganisation = await organisationData.save();
-      id = savedOrganisation.id;
+      organisation = await organisationData.save();
+      id = organisation.id;
       done();
     });
 });
@@ -188,6 +190,122 @@ describe("OrganisationController", () => {
           );
           done();
         });
+    });
+  });
+
+  describe.only("# POST /organisations/:id/join", () => {
+    describe("when the user is not authenticated", () => {
+      it("should return an error", done => {
+        request(app)
+          .post(`/organisations/${id}/join`)
+          .set("Authorization", "Bearer INVALID_TOKEN")
+          .expect(httpStatus.UNAUTHORIZED)
+          .end((err, res) => {
+            expect(res.body.status).toEqual("error");
+            expect(res.body.message).toEqual("Not Authorised");
+            done();
+          });
+      });
+    });
+    describe("when the user is not part of any list", () => {
+      it("should add the user to the awaitingApproval list", done => {
+        request(app)
+          .post(`/organisations/${id}/join`)
+          .set("Authorization", `Bearer ${token}`)
+          .expect(httpStatus.OK)
+          .end((err, res) => {
+            expect(res.body.status).toEqual("success");
+            expect(res.body.data).toEqual("Request sent, waiting for approval.");
+            done();
+          });
+      });
+    });
+    describe("when the user is part awaitingApproval list", () => {
+      beforeEach(async done => {
+        organisation.awaitingApproval.push(user);
+        await organisation.save();
+        done();
+      });
+      it("should return an error", done => {
+        request(app)
+          .post(`/organisations/${id}/join`)
+          .set("Authorization", `Bearer ${token}`)
+          .expect(httpStatus.OK)
+          .end((err, res) => {
+            expect(res.body.status).toEqual("error");
+            expect(res.body.data).toEqual("You are already in the awaitingApproval list");
+            done();
+          });
+      });
+      it("should not add the user to the awaitingApproval", done => {
+        request(app)
+          .post(`/organisations/${id}/join`)
+          .set("Authorization", `Bearer ${token}`)
+          .expect(httpStatus.OK)
+          .end(async () => {
+            const org = await Organisation.get(id);
+            expect(org.awaitingApproval.length).toEqual(1);
+            done();
+          });
+      });
+    });
+    describe("when the user is part rejectedMembers list", () => {
+      beforeEach(async done => {
+        organisation.rejectedMembers.push(user);
+        await organisation.save();
+        done();
+      });
+      it("should return an error", done => {
+        request(app)
+          .post(`/organisations/${id}/join`)
+          .set("Authorization", `Bearer ${token}`)
+          .expect(httpStatus.OK)
+          .end((err, res) => {
+            expect(res.body.status).toEqual("error");
+            expect(res.body.data).toEqual("You are already in the rejectedMembers list");
+            done();
+          });
+      });
+      it("should not add the user to the awaitingApproval", done => {
+        request(app)
+          .post(`/organisations/${id}/join`)
+          .set("Authorization", `Bearer ${token}`)
+          .expect(httpStatus.OK)
+          .end(async () => {
+            const org = await Organisation.get(id);
+            expect(org.awaitingApproval.length).toEqual(0);
+            done();
+          });
+      });
+    });
+    describe("when the user is already a member", () => {
+      beforeEach(async done => {
+        organisation.members.push(user);
+        await organisation.save();
+        done();
+      });
+      it("should return an error", done => {
+        request(app)
+          .post(`/organisations/${id}/join`)
+          .set("Authorization", `Bearer ${token}`)
+          .expect(httpStatus.OK)
+          .end((err, res) => {
+            expect(res.body.status).toEqual("error");
+            expect(res.body.data).toEqual("You are already in the members list");
+            done();
+          });
+      });
+      it("should not add the user to the awaitingApproval", done => {
+        request(app)
+          .post(`/organisations/${id}/join`)
+          .set("Authorization", `Bearer ${token}`)
+          .expect(httpStatus.OK)
+          .end(async () => {
+            const org = await Organisation.get(id);
+            expect(org.awaitingApproval.length).toEqual(0);
+            done();
+          });
+      });
     });
   });
 });

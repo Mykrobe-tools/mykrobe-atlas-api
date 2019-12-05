@@ -5,6 +5,8 @@ import { jsonschema } from "makeandship-api-common/lib/modules/express/middlewar
 import * as schemas from "mykrobe-atlas-jsonschema";
 
 import AccountsHelper from "../helpers/AccountsHelper";
+import OrganisationHelper from "../helpers/OrganisationHelper";
+
 import organisationController from "../controllers/organisation.controller";
 import userController from "../controllers/user.controller";
 import config from "../../config/env";
@@ -32,7 +34,9 @@ const keycloak = AccountsHelper.keycloakInstance();
  *             type: array
  *           members:
  *             type: array
- *           unapprovedMembers:
+ *           awaitingApproval:
+ *             type: array
+ *           rejectedMembers:
  *             type: array
  *           id:
  *             type: string
@@ -54,12 +58,18 @@ const keycloak = AccountsHelper.keycloakInstance();
  *             lastname: Smith
  *             email: sam@apex.com
  *             username: sam@apex.com
- *         unapprovedMembers:
+ *         awaitingApproval:
  *           - id: 457624089182796462cgr666
  *             firtsname: John
  *             lastname: Thomas
  *             email: john@apex.com
  *             username: john@apex.com
+ *         rejectedMembers:
+ *           - id: 457624089182796462cy7g66
+ *             firtsname: Ali
+ *             lastname: Wood
+ *             email: ali@apex.com
+ *             username: ali@apex.com
  *         id: 588624076182796462cb133e
  */
 /**
@@ -84,7 +94,7 @@ const keycloak = AccountsHelper.keycloakInstance();
  *               type: array
  *             members:
  *               type: array
- *             unapprovedMembers:
+ *             awaitingApproval:
  *               type: array
  *             id:
  *               type: string
@@ -106,12 +116,18 @@ const keycloak = AccountsHelper.keycloakInstance();
  *               lastname: Smith
  *               email: sam@apex.com
  *               username: sam@apex.com
- *           unapprovedMembers:
+ *           awaitingApproval:
  *             - id: 457624089182796462cgr666
  *               firtsname: John
  *               lastname: Thomas
  *               email: john@apex.com
  *               username: john@apex.com
+ *           rejectedMembers:
+ *             - id: 457624089182796462cy7g66
+ *               firtsname: Ali
+ *               lastname: Wood
+ *               email: ali@apex.com
+ *               username: ali@apex.com
  *           id: 588624076182796462cb133e
  */
 router
@@ -260,6 +276,39 @@ router
    *           $ref: '#/definitions/BasicResponse'
    */
   .delete(keycloak.connect.protect(), organisationController.remove);
+
+router
+  .route("/:id/join")
+  /**
+   * @swagger
+   * /organisations/{id}/join:
+   *   post:
+   *     tags:
+   *       - Organisations
+   *     description: Join an organisation
+   *     operationId: joinOrganisation
+   *     produces:
+   *       - application/json
+   *     security:
+   *       - Bearer: []
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         type: string
+   *         description: The organisation id
+   *     responses:
+   *       200:
+   *         description: A jsend response
+   *         schema:
+   *           $ref: '#/definitions/BasicResponse'
+   */
+  .post(
+    keycloak.connect.protect(),
+    userController.loadCurrentUser,
+    OrganisationHelper.checkInLists(["awaitingApproval", "rejectedMembers", "members"]),
+    organisationController.join
+  );
 
 /** Load user when API with id route parameter is hit */
 router.param("id", organisationController.load);
