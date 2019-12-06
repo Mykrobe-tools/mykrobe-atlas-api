@@ -8,6 +8,9 @@ import Member from "../models/member.model";
 import OrganisationJSONTransformer from "../transformers/OrganisationJSONTransformer";
 import UserJSONTransformer from "../transformers/UserJSONTransformer";
 import OrganisationHelper from "../helpers/OrganisationHelper";
+import AccountsHelper from "../helpers/AccountsHelper";
+
+const keycloak = AccountsHelper.keycloakInstance();
 
 /**
  * Load organisation and append to req.
@@ -128,6 +131,8 @@ const approve = async (req, res) => {
     const savedMember = await member.save();
     organisation.members.push(savedMember);
     await organisation.save();
+    const memberUser = await User.get(savedMember.userId);
+    await keycloak.addToGroup(organisation.membersGroupId, memberUser.keycloakId);
     return res.jsend("Request approved.");
   } catch (e) {
     return res.jerror(e);
