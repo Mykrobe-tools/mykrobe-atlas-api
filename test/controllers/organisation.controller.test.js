@@ -476,4 +476,139 @@ describe("OrganisationController", () => {
       });
     });
   });
+
+  describe("# POST /organisations/:id/members/:memberId/reject", () => {
+    let member = null;
+    beforeEach(async done => {
+      member = await OrganisationHelper.createMember(user);
+      done();
+    });
+    describe("when the user is not authenticated", () => {
+      it("should return an error", done => {
+        request(app)
+          .post(`/organisations/${id}/members/${member.id}/reject`)
+          .set("Authorization", "Bearer INVALID_TOKEN")
+          .expect(httpStatus.UNAUTHORIZED)
+          .end((err, res) => {
+            expect(res.body.status).toEqual("error");
+            expect(res.body.message).toEqual("Not Authorised");
+            done();
+          });
+      });
+    });
+    describe("when the user is not the owner", () => {
+      it("should return an error", done => {
+        request(app)
+          .post(`/organisations/${id}/members/${member.id}/reject`)
+          .set("Authorization", `Bearer ${token}`)
+          .expect(httpStatus.OK)
+          .end((err, res) => {
+            expect(res.body.status).toEqual("error");
+            expect(res.body.data).toEqual("You are not an owner of this organisation");
+            done();
+          });
+      });
+    });
+    describe("when the user is the owner", () => {
+      beforeEach(async done => {
+        organisation.owners.push(user);
+        await organisation.save();
+        done();
+      });
+      describe("when the member is not found in the waiting list", () => {
+        it("should return an error", done => {
+          request(app)
+            .post(`/organisations/${id}/members/${member.id}/reject`)
+            .set("Authorization", `Bearer ${token}`)
+            .expect(httpStatus.OK)
+            .end((err, res) => {
+              expect(res.body.status).toEqual("error");
+              expect(res.body.data).toEqual("No pending join request found for this user");
+              done();
+            });
+        });
+      });
+      describe("when the member is already a member", () => {
+        beforeEach(async done => {
+          organisation.members.push(member);
+          await organisation.save();
+          done();
+        });
+        it("should return an error", done => {
+          request(app)
+            .post(`/organisations/${id}/members/${member.id}/reject`)
+            .set("Authorization", `Bearer ${token}`)
+            .expect(httpStatus.OK)
+            .end((err, res) => {
+              expect(res.body.status).toEqual("error");
+              expect(res.body.data).toEqual("You are already in the members list");
+              done();
+            });
+        });
+      });
+      describe("when the member is already a rejected", () => {
+        beforeEach(async done => {
+          organisation.rejectedMembers.push(member);
+          await organisation.save();
+          done();
+        });
+        it("should return an error", done => {
+          request(app)
+            .post(`/organisations/${id}/members/${member.id}/reject`)
+            .set("Authorization", `Bearer ${token}`)
+            .expect(httpStatus.OK)
+            .end((err, res) => {
+              expect(res.body.status).toEqual("error");
+              expect(res.body.data).toEqual("You are already in the rejectedMembers list");
+              done();
+            });
+        });
+      });
+      describe("when the member is in the unapproved list", () => {
+        beforeEach(async done => {
+          organisation.unapprovedMembers.push(member);
+          await organisation.save();
+          done();
+        });
+        it("should reject the request", done => {
+          request(app)
+            .post(`/organisations/${id}/members/${member.id}/reject`)
+            .set("Authorization", `Bearer ${token}`)
+            .expect(httpStatus.OK)
+            .end((err, res) => {
+              expect(res.body.status).toEqual("success");
+              expect(res.body.data).toEqual("Request rejected.");
+              done();
+            });
+        });
+        it("should return add the member to the members list", done => {
+          request(app)
+            .post(`/organisations/${id}/members/${member.id}/reject`)
+            .set("Authorization", `Bearer ${token}`)
+            .expect(httpStatus.OK)
+            .end(async () => {
+              const org = await Organisation.get(id);
+              expect(org.rejectedMembers.length).toEqual(1);
+
+              const rejectedMember = org.rejectedMembers[0];
+              expect(rejectedMember.id).toEqual(member.id);
+              expect(rejectedMember.rejectedBy.userId).toEqual(user.id);
+              expect(rejectedMember.rejectedAt).toBeTruthy();
+              done();
+            });
+        });
+        it("should return remove the member from the unapproved list", done => {
+          request(app)
+            .post(`/organisations/${id}/members/${member.id}/reject`)
+            .set("Authorization", `Bearer ${token}`)
+            .expect(httpStatus.OK)
+            .end(async () => {
+              const org = await Organisation.get(id);
+              expect(org.unapprovedMembers.length).toEqual(0);
+              done();
+            });
+        });
+      });
+    });
+  });
 });
