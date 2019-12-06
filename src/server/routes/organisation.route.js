@@ -390,6 +390,45 @@ router
     organisationController.reject
   );
 
+router
+  .route("/:id/members/:memberId/remove")
+  /**
+   * @swagger
+   * /organisations/{id}/members/{memberId}/remove:
+   *   post:
+   *     tags:
+   *       - Organisations
+   *     description: Remove an organisation member
+   *     operationId: removeOrganisationMember
+   *     produces:
+   *       - application/json
+   *     security:
+   *       - Bearer: []
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         type: string
+   *         description: The organisation id
+   *       - in: path
+   *         name: memberId
+   *         required: true
+   *         type: string
+   *         description: The member id
+   *     responses:
+   *       200:
+   *         description: A jsend response
+   *         schema:
+   *           $ref: '#/definitions/BasicResponse'
+   */
+  .post(
+    keycloak.connect.protect(),
+    userController.loadCurrentUser,
+    OrganisationHelper.isOwner(),
+    OrganisationHelper.checkNotInLists(["members"]),
+    organisationController.removeMember
+  );
+
 /** Load user when API with id route parameter is hit */
 router.param("id", organisationController.load);
 

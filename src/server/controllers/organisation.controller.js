@@ -163,6 +163,23 @@ const reject = async (req, res) => {
   }
 };
 
+/**
+ * Remove a member.
+ * @returns {Organisation}
+ */
+const removeMember = async (req, res) => {
+  const organisation = req.organisation;
+  try {
+    const member = await Member.get(req.params.memberId);
+    const memberUser = await User.get(member.userId);
+    await keycloak.deleteFromGroup(organisation.membersGroupId, memberUser.keycloakId);
+    await organisation.save();
+    return res.jsend("Member removed successfully.");
+  } catch (e) {
+    return res.jerror(e);
+  }
+};
+
 export default {
   load,
   get,
@@ -172,5 +189,6 @@ export default {
   remove,
   join,
   approve,
-  reject
+  reject,
+  removeMember
 };

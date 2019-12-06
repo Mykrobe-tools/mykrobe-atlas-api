@@ -611,4 +611,87 @@ describe("OrganisationController", () => {
       });
     });
   });
+
+  describe("# POST /organisations/:id/members/:memberId/remove", () => {
+    let member = null;
+    beforeEach(async done => {
+      member = await OrganisationHelper.createMember(user);
+      done();
+    });
+    describe("when the user is not authenticated", () => {
+      it("should return an error", done => {
+        request(app)
+          .post(`/organisations/${id}/members/${member.id}/remove`)
+          .set("Authorization", "Bearer INVALID_TOKEN")
+          .expect(httpStatus.UNAUTHORIZED)
+          .end((err, res) => {
+            expect(res.body.status).toEqual("error");
+            expect(res.body.message).toEqual("Not Authorised");
+            done();
+          });
+      });
+    });
+    describe("when the user is not the owner", () => {
+      it("should return an error", done => {
+        request(app)
+          .post(`/organisations/${id}/members/${member.id}/remove`)
+          .set("Authorization", `Bearer ${token}`)
+          .expect(httpStatus.OK)
+          .end((err, res) => {
+            expect(res.body.status).toEqual("error");
+            expect(res.body.data).toEqual("You are not an owner of this organisation");
+            done();
+          });
+      });
+    });
+    describe("when the user is the owner", () => {
+      beforeEach(async done => {
+        organisation.owners.push(user);
+        await organisation.save();
+        done();
+      });
+      describe("when the user is not found in the organisation members", () => {
+        it("should return an error", done => {
+          request(app)
+            .post(`/organisations/${id}/members/${member.id}/remove`)
+            .set("Authorization", `Bearer ${token}`)
+            .expect(httpStatus.OK)
+            .end((err, res) => {
+              expect(res.body.status).toEqual("error");
+              expect(res.body.data).toEqual("No pending join request found for this user");
+              done();
+            });
+        });
+      });
+      describe("when the user is in the organisation members", () => {
+        beforeEach(async done => {
+          organisation.members.push(member);
+          await organisation.save();
+          done();
+        });
+        it("should return a successful response", done => {
+          request(app)
+            .post(`/organisations/${id}/members/${member.id}/remove`)
+            .set("Authorization", `Bearer ${token}`)
+            .expect(httpStatus.OK)
+            .end((err, res) => {
+              expect(res.body.status).toEqual("success");
+              expect(res.body.data).toEqual("Member removed successfully.");
+              done();
+            });
+        });
+        it("should return remove the user from the members list", done => {
+          request(app)
+            .post(`/organisations/${id}/members/${member.id}/remove`)
+            .set("Authorization", `Bearer ${token}`)
+            .expect(httpStatus.OK)
+            .end(async () => {
+              const org = await Organisation.get(id);
+              expect(org.members.length).toEqual(0);
+              done();
+            });
+        });
+      });
+    });
+  });
 });
