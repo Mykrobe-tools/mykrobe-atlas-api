@@ -350,6 +350,46 @@ router
     organisationController.approve
   );
 
+router
+  .route("/:id/members/:memberId/reject")
+  /**
+   * @swagger
+   * /organisations/{id}/members/{memberId}/reject:
+   *   post:
+   *     tags:
+   *       - Organisations
+   *     description: Reject a join organisation request
+   *     operationId: rejectJoinOrganisationRequest
+   *     produces:
+   *       - application/json
+   *     security:
+   *       - Bearer: []
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         type: string
+   *         description: The organisation id
+   *       - in: path
+   *         name: memberId
+   *         required: true
+   *         type: string
+   *         description: The member id
+   *     responses:
+   *       200:
+   *         description: A jsend response
+   *         schema:
+   *           $ref: '#/definitions/BasicResponse'
+   */
+  .post(
+    keycloak.connect.protect(),
+    userController.loadCurrentUser,
+    OrganisationHelper.isOwner(),
+    OrganisationHelper.checkInLists(["members", "rejectedMembers"]),
+    OrganisationHelper.checkNotInLists(["unapprovedMembers"]),
+    organisationController.reject
+  );
+
 /** Load user when API with id route parameter is hit */
 router.param("id", organisationController.load);
 

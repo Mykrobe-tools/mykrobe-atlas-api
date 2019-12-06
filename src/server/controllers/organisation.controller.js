@@ -134,6 +134,30 @@ const approve = async (req, res) => {
   }
 };
 
+/**
+ * Reject a request.
+ * @returns {Organisation}
+ */
+const reject = async (req, res) => {
+  const organisation = req.organisation;
+  try {
+    const userJson = {
+      userId: req.dbUser.id,
+      ...req.dbUser.toJSON()
+    };
+    delete userJson.id;
+    const member = await Member.get(req.params.memberId);
+    member.set("rejectedBy", userJson);
+    member.set("rejectedAt", new Date());
+    const savedMember = await member.save();
+    organisation.rejectedMembers.push(savedMember);
+    await organisation.save();
+    return res.jsend("Request rejected.");
+  } catch (e) {
+    return res.jerror(e);
+  }
+};
+
 export default {
   load,
   get,
@@ -142,5 +166,6 @@ export default {
   list,
   remove,
   join,
-  approve
+  approve,
+  reject
 };
