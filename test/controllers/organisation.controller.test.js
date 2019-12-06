@@ -361,7 +361,9 @@ describe("OrganisationController", () => {
             .expect(httpStatus.OK)
             .end((err, res) => {
               expect(res.body.status).toEqual("error");
-              expect(res.body.data).toEqual("No pending join request found for this user");
+              expect(res.body.data).toEqual(
+                "The provided member is not eligible for this operation"
+              );
               done();
             });
         });
@@ -523,7 +525,9 @@ describe("OrganisationController", () => {
             .expect(httpStatus.OK)
             .end((err, res) => {
               expect(res.body.status).toEqual("error");
-              expect(res.body.data).toEqual("No pending join request found for this user");
+              expect(res.body.data).toEqual(
+                "The provided member is not eligible for this operation"
+              );
               done();
             });
         });
@@ -658,7 +662,9 @@ describe("OrganisationController", () => {
             .expect(httpStatus.OK)
             .end((err, res) => {
               expect(res.body.status).toEqual("error");
-              expect(res.body.data).toEqual("No pending join request found for this user");
+              expect(res.body.data).toEqual(
+                "The provided member is not eligible for this operation"
+              );
               done();
             });
         });
