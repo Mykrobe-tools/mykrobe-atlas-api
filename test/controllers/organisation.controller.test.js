@@ -5,6 +5,8 @@ import { createApp } from "../setup";
 
 import User from "../../src/server/models/user.model";
 import Organisation from "../../src/server/models/organisation.model";
+import Member from "../../src/server/models/member.model";
+import OrganisationHelper from "../../src/server/helpers/OrganisationHelper";
 
 const app = createApp();
 
@@ -34,6 +36,7 @@ beforeEach(async done => {
 afterEach(async done => {
   await User.deleteMany({});
   await Organisation.deleteMany({});
+  await Member.deleteMany({});
   done();
 });
 
@@ -222,7 +225,8 @@ describe("OrganisationController", () => {
     });
     describe("when the user is part unapprovedMembers list", () => {
       beforeEach(async done => {
-        organisation.unapprovedMembers.push(user);
+        const member = await OrganisationHelper.createMember(user);
+        organisation.unapprovedMembers.push(member);
         await organisation.save();
         done();
       });
@@ -251,7 +255,8 @@ describe("OrganisationController", () => {
     });
     describe("when the user is part rejectedMembers list", () => {
       beforeEach(async done => {
-        organisation.rejectedMembers.push(user);
+        const member = await OrganisationHelper.createMember(user);
+        organisation.rejectedMembers.push(member);
         await organisation.save();
         done();
       });
@@ -280,7 +285,8 @@ describe("OrganisationController", () => {
     });
     describe("when the user is already a member", () => {
       beforeEach(async done => {
-        organisation.members.push(user);
+        const member = await OrganisationHelper.createMember(user);
+        organisation.members.push(member);
         await organisation.save();
         done();
       });
@@ -305,6 +311,168 @@ describe("OrganisationController", () => {
             expect(org.unapprovedMembers.length).toEqual(0);
             done();
           });
+      });
+    });
+  });
+
+  describe("# POST /organisations/:id/members/:memberId/approve", () => {
+    let member = null;
+    beforeEach(async done => {
+      member = await OrganisationHelper.createMember(user);
+      done();
+    });
+    describe("when the user is not authenticated", () => {
+      it("should return an error", done => {
+        request(app)
+          .post(`/organisations/${id}/members/${member.id}/approve`)
+          .set("Authorization", "Bearer INVALID_TOKEN")
+          .expect(httpStatus.UNAUTHORIZED)
+          .end((err, res) => {
+            expect(res.body.status).toEqual("error");
+            expect(res.body.message).toEqual("Not Authorised");
+            done();
+          });
+      });
+    });
+    describe("when the user is not the owner", () => {
+      it("should return an error", done => {
+        request(app)
+          .post(`/organisations/${id}/members/${member.id}/approve`)
+          .set("Authorization", `Bearer ${token}`)
+          .expect(httpStatus.OK)
+          .end((err, res) => {
+            expect(res.body.status).toEqual("error");
+            expect(res.body.data).toEqual("You are not an owner of this organisation");
+            done();
+          });
+      });
+    });
+    describe("when the user is the owner", () => {
+      beforeEach(async done => {
+        organisation.owners.push(user);
+        await organisation.save();
+        done();
+      });
+      describe("when the member is not found in the waiting list", () => {
+        it("should return an error", done => {
+          request(app)
+            .post(`/organisations/${id}/members/${member.id}/approve`)
+            .set("Authorization", `Bearer ${token}`)
+            .expect(httpStatus.OK)
+            .end((err, res) => {
+              expect(res.body.status).toEqual("error");
+              expect(res.body.data).toEqual("No pending join request found for this user");
+              done();
+            });
+        });
+      });
+      describe("when the member is already a member", () => {
+        beforeEach(async done => {
+          organisation.members.push(member);
+          await organisation.save();
+          done();
+        });
+        it("should return an error", done => {
+          request(app)
+            .post(`/organisations/${id}/members/${member.id}/approve`)
+            .set("Authorization", `Bearer ${token}`)
+            .expect(httpStatus.OK)
+            .end((err, res) => {
+              expect(res.body.status).toEqual("error");
+              expect(res.body.data).toEqual("You are already in the members list");
+              done();
+            });
+        });
+      });
+      describe("when the member is in the unapproved list", () => {
+        beforeEach(async done => {
+          organisation.unapprovedMembers.push(member);
+          await organisation.save();
+          done();
+        });
+        it("should approve the request", done => {
+          request(app)
+            .post(`/organisations/${id}/members/${member.id}/approve`)
+            .set("Authorization", `Bearer ${token}`)
+            .expect(httpStatus.OK)
+            .end((err, res) => {
+              expect(res.body.status).toEqual("success");
+              expect(res.body.data).toEqual("Request approved.");
+              done();
+            });
+        });
+        it("should return add the member to the members list", done => {
+          request(app)
+            .post(`/organisations/${id}/members/${member.id}/approve`)
+            .set("Authorization", `Bearer ${token}`)
+            .expect(httpStatus.OK)
+            .end(async () => {
+              const org = await Organisation.get(id);
+              expect(org.members.length).toEqual(1);
+
+              const approvedMember = org.members[0];
+              expect(approvedMember.id).toEqual(member.id);
+              expect(approvedMember.approvedBy.userId).toEqual(user.id);
+              expect(approvedMember.approvedAt).toBeTruthy();
+              done();
+            });
+        });
+        it("should return remove the member from the unapproved list", done => {
+          request(app)
+            .post(`/organisations/${id}/members/${member.id}/approve`)
+            .set("Authorization", `Bearer ${token}`)
+            .expect(httpStatus.OK)
+            .end(async () => {
+              const org = await Organisation.get(id);
+              expect(org.unapprovedMembers.length).toEqual(0);
+              done();
+            });
+        });
+      });
+      describe("when the member is in the rejected list", () => {
+        beforeEach(async done => {
+          organisation.rejectedMembers.push(member);
+          await organisation.save();
+          done();
+        });
+        it("should approve the request", done => {
+          request(app)
+            .post(`/organisations/${id}/members/${member.id}/approve`)
+            .set("Authorization", `Bearer ${token}`)
+            .expect(httpStatus.OK)
+            .end((err, res) => {
+              expect(res.body.status).toEqual("success");
+              expect(res.body.data).toEqual("Request approved.");
+              done();
+            });
+        });
+        it("should return add the member to the members list", done => {
+          request(app)
+            .post(`/organisations/${id}/members/${member.id}/approve`)
+            .set("Authorization", `Bearer ${token}`)
+            .expect(httpStatus.OK)
+            .end(async () => {
+              const org = await Organisation.get(id);
+              expect(org.members.length).toEqual(1);
+
+              const approvedMember = org.members[0];
+              expect(approvedMember.id).toEqual(member.id);
+              expect(approvedMember.approvedBy.userId).toEqual(user.id);
+              expect(approvedMember.approvedAt).toBeTruthy();
+              done();
+            });
+        });
+        it("should return remove the member from the rejected list", done => {
+          request(app)
+            .post(`/organisations/${id}/members/${member.id}/approve`)
+            .set("Authorization", `Bearer ${token}`)
+            .expect(httpStatus.OK)
+            .end(async () => {
+              const org = await Organisation.get(id);
+              expect(org.rejectedMembers.length).toEqual(0);
+              done();
+            });
+        });
       });
     });
   });

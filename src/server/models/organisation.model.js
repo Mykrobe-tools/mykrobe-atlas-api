@@ -25,19 +25,19 @@ const OrganisationSchema = new JSONMongooseSchema(
     members: [
       {
         type: "ObjectId",
-        ref: "User"
+        ref: "Member"
       }
     ],
     unapprovedMembers: [
       {
         type: "ObjectId",
-        ref: "User"
+        ref: "Member"
       }
     ],
     rejectedMembers: [
       {
         type: "ObjectId",
-        ref: "User"
+        ref: "Member"
       }
     ]
   },

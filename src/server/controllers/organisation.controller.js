@@ -1,7 +1,13 @@
 import errors from "errors";
 import ArrayJSONTransformer from "makeandship-api-common/lib/transformers/ArrayJSONTransformer";
+
 import Organisation from "../models/organisation.model";
+import User from "../models/user.model";
+import Member from "../models/member.model";
+
 import OrganisationJSONTransformer from "../transformers/OrganisationJSONTransformer";
+import UserJSONTransformer from "../transformers/UserJSONTransformer";
+import OrganisationHelper from "../helpers/OrganisationHelper";
 
 /**
  * Load organisation and append to req.
@@ -28,8 +34,9 @@ const get = (req, res) => res.jsend(req.organisation);
  */
 const create = async (req, res) => {
   const organisation = new Organisation(req.body);
+  const member = await OrganisationHelper.createMember(req.dbUser);
   organisation.owners.push(req.dbUser);
-  organisation.members.push(req.dbUser);
+  organisation.members.push(member);
   try {
     const savedOrganisation = await organisation.save();
     return res.jsend(savedOrganisation);
@@ -94,9 +101,34 @@ const remove = async (req, res) => {
 const join = async (req, res) => {
   const organisation = req.organisation;
   try {
-    organisation.unapprovedMembers.push(req.dbUser);
+    const member = await OrganisationHelper.createMember(req.dbUser);
+    organisation.unapprovedMembers.push(member);
     await organisation.save();
     return res.jsend("Request sent, waiting for approval.");
+  } catch (e) {
+    return res.jerror(e);
+  }
+};
+
+/**
+ * Approve a request.
+ * @returns {Organisation}
+ */
+const approve = async (req, res) => {
+  const organisation = req.organisation;
+  try {
+    const userJson = {
+      userId: req.dbUser.id,
+      ...req.dbUser.toJSON()
+    };
+    delete userJson.id;
+    const member = await Member.get(req.params.memberId);
+    member.set("approvedBy", userJson);
+    member.set("approvedAt", new Date());
+    const savedMember = await member.save();
+    organisation.members.push(savedMember);
+    await organisation.save();
+    return res.jsend("Request approved.");
   } catch (e) {
     return res.jerror(e);
   }
@@ -109,5 +141,6 @@ export default {
   update,
   list,
   remove,
-  join
+  join,
+  approve
 };
