@@ -49,7 +49,7 @@ class OrganisationHelper {
   }
 
   /**
-   * Check the current user is not any any of the lists provided
+   * Check the current user is not in any of the lists provided
    * If the user is found in one of the lists delete it and pass to the next step
    * Otherwise throw an error
    * @param {Array} lists
