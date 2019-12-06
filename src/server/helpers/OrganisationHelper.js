@@ -1,6 +1,12 @@
 import Member from "../models/member.model";
 
 class OrganisationHelper {
+  /**
+   * Express middleware to check the current user is in one of the passed lists
+   * If the user is in the lists return an error
+   * Otherwise move to the next
+   * @param {Array} lists
+   */
   static checkInLists(lists = []) {
     return async (req, res, next) => {
       let currentUserId;
@@ -25,6 +31,11 @@ class OrganisationHelper {
     };
   }
 
+  /**
+   * Express middlware to check if the current user is the owner of the current organisation
+   * If the user is the owner go to the next
+   * Otherwise throw an error
+   */
   static isOwner() {
     return async (req, res, next) => {
       const organisation = req.organisation;
@@ -37,6 +48,12 @@ class OrganisationHelper {
     };
   }
 
+  /**
+   * Check the current user is not in any of the lists provided
+   * If the user is found in one of the lists delete it and pass to the next step
+   * Otherwise throw an error
+   * @param {Array} lists
+   */
   static checkNotInLists(lists = []) {
     return async (req, res, next) => {
       const organisation = req.organisation;
@@ -49,10 +66,14 @@ class OrganisationHelper {
           return next();
         }
       }
-      return res.jerror("No pending join request found for this user");
+      return res.jerror("The provided member is not eligible for this operation");
     };
   }
 
+  /**
+   * Creates a member from a user
+   * @param {User} user
+   */
   static async createMember(user) {
     const userJson = {
       userId: user.id,
