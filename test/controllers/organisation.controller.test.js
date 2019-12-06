@@ -477,7 +477,7 @@ describe("OrganisationController", () => {
     });
   });
 
-  describe.only("# POST /organisations/:id/members/:memberId/reject", () => {
+  describe("# POST /organisations/:id/members/:memberId/reject", () => {
     let member = null;
     beforeEach(async done => {
       member = await OrganisationHelper.createMember(user);
