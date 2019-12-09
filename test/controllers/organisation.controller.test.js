@@ -349,7 +349,7 @@ describe("OrganisationController", () => {
     });
     describe("when the user is the owner", () => {
       beforeEach(async done => {
-        organisation.owners.push(user);
+        organisation.owners.push(member);
         await organisation.save();
         done();
       });
@@ -414,8 +414,9 @@ describe("OrganisationController", () => {
 
               const approvedMember = org.members[0];
               expect(approvedMember.id).toEqual(member.id);
-              expect(approvedMember.approvedBy.userId).toEqual(user.id);
-              expect(approvedMember.approvedAt).toBeTruthy();
+              expect(approvedMember.actionedBy.userId).toEqual(user.id);
+              expect(approvedMember.actionedAt).toBeTruthy();
+              expect(approvedMember.action).toEqual("approve");
               done();
             });
         });
@@ -459,8 +460,9 @@ describe("OrganisationController", () => {
 
               const approvedMember = org.members[0];
               expect(approvedMember.id).toEqual(member.id);
-              expect(approvedMember.approvedBy.userId).toEqual(user.id);
-              expect(approvedMember.approvedAt).toBeTruthy();
+              expect(approvedMember.actionedBy.userId).toEqual(user.id);
+              expect(approvedMember.actionedAt).toBeTruthy();
+              expect(approvedMember.action).toEqual("approve");
               done();
             });
         });
@@ -513,7 +515,7 @@ describe("OrganisationController", () => {
     });
     describe("when the user is the owner", () => {
       beforeEach(async done => {
-        organisation.owners.push(user);
+        organisation.owners.push(member);
         await organisation.save();
         done();
       });
@@ -596,8 +598,9 @@ describe("OrganisationController", () => {
 
               const rejectedMember = org.rejectedMembers[0];
               expect(rejectedMember.id).toEqual(member.id);
-              expect(rejectedMember.rejectedBy.userId).toEqual(user.id);
-              expect(rejectedMember.rejectedAt).toBeTruthy();
+              expect(rejectedMember.actionedBy.userId).toEqual(user.id);
+              expect(rejectedMember.actionedAt).toBeTruthy();
+              expect(rejectedMember.action).toEqual("reject");
               done();
             });
         });
@@ -650,7 +653,7 @@ describe("OrganisationController", () => {
     });
     describe("when the user is the owner", () => {
       beforeEach(async done => {
-        organisation.owners.push(user);
+        organisation.owners.push(member);
         await organisation.save();
         done();
       });

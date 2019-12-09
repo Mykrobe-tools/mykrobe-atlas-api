@@ -19,7 +19,7 @@ const OrganisationSchema = new JSONMongooseSchema(
     owners: [
       {
         type: "ObjectId",
-        ref: "User"
+        ref: "Member"
       }
     ],
     members: [

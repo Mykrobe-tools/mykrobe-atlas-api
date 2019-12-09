@@ -38,10 +38,10 @@ const get = (req, res) => res.jsend(req.organisation);
 const create = async (req, res) => {
   const organisation = new Organisation(req.body);
   const member = await OrganisationHelper.createMember(req.dbUser);
-  organisation.owners.push(req.dbUser);
-  organisation.members.push(member);
+  organisation.owners.push(member);
   try {
     const savedOrganisation = await organisation.save();
+    await keycloak.addToGroup(savedOrganisation.ownersGroupId, req.dbUser.keycloakId);
     return res.jsend(savedOrganisation);
   } catch (e) {
     return res.jerror(new errors.CreateOrganisationError(e.message));
@@ -126,8 +126,9 @@ const approve = async (req, res) => {
     };
     delete userJson.id;
     const member = await Member.get(req.params.memberId);
-    member.set("approvedBy", userJson);
-    member.set("approvedAt", new Date());
+    member.set("actionedBy", userJson);
+    member.set("actionedAt", new Date());
+    member.set("action", "approve");
     const savedMember = await member.save();
     organisation.members.push(savedMember);
     await organisation.save();
@@ -152,8 +153,9 @@ const reject = async (req, res) => {
     };
     delete userJson.id;
     const member = await Member.get(req.params.memberId);
-    member.set("rejectedBy", userJson);
-    member.set("rejectedAt", new Date());
+    member.set("actionedBy", userJson);
+    member.set("actionedAt", new Date());
+    member.set("action", "reject");
     const savedMember = await member.save();
     organisation.rejectedMembers.push(savedMember);
     await organisation.save();
@@ -180,6 +182,62 @@ const removeMember = async (req, res) => {
   }
 };
 
+/**
+ * Promote a member.
+ * @returns {Organisation}
+ */
+const promote = async (req, res) => {
+  const organisation = req.organisation;
+  try {
+    const userJson = {
+      userId: req.dbUser.id,
+      ...req.dbUser.toJSON()
+    };
+    delete userJson.id;
+    const member = await Member.get(req.params.memberId);
+    member.set("actionedBy", userJson);
+    member.set("actionedAt", new Date());
+    member.set("action", "promote");
+    const savedMember = await member.save();
+    organisation.owners.push(savedMember);
+    await organisation.save();
+    const memberUser = await User.get(savedMember.userId);
+    await keycloak.addToGroup(organisation.ownersGroupId, memberUser.keycloakId);
+    await keycloak.deleteFromGroup(organisation.membersGroupId, memberUser.keycloakId);
+    return res.jsend("Member promoted.");
+  } catch (e) {
+    return res.jerror(e);
+  }
+};
+
+/**
+ * Demote an owner.
+ * @returns {Organisation}
+ */
+const demote = async (req, res) => {
+  const organisation = req.organisation;
+  try {
+    const userJson = {
+      userId: req.dbUser.id,
+      ...req.dbUser.toJSON()
+    };
+    delete userJson.id;
+    const member = await Member.get(req.params.memberId);
+    member.set("actionedBy", userJson);
+    member.set("actionedAt", new Date());
+    member.set("action", "demote");
+    const savedMember = await member.save();
+    organisation.members.push(savedMember);
+    await organisation.save();
+    const memberUser = await User.get(savedMember.userId);
+    await keycloak.addToGroup(organisation.membersGroupId, memberUser.keycloakId);
+    await keycloak.deleteFromGroup(organisation.ownersGroupId, memberUser.keycloakId);
+    return res.jsend("Owner demoted.");
+  } catch (e) {
+    return res.jerror(e);
+  }
+};
+
 export default {
   load,
   get,
@@ -190,5 +248,7 @@ export default {
   join,
   approve,
   reject,
-  removeMember
+  removeMember,
+  promote,
+  demote
 };
