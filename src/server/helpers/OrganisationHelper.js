@@ -40,7 +40,7 @@ class OrganisationHelper {
     return async (req, res, next) => {
       const organisation = req.organisation;
       const currentUser = req.dbUser;
-      const foundUser = organisation.owners.find(user => user.id === currentUser.id);
+      const foundUser = organisation.owners.find(owner => owner.userId === currentUser.id);
       if (!foundUser) {
         return res.jerror("You are not an owner of this organisation");
       }
@@ -67,6 +67,22 @@ class OrganisationHelper {
         }
       }
       return res.jerror("The provided member is not eligible for this operation");
+    };
+  }
+
+  /**
+   * An express middleware to check the list is not empty
+   * If the list is empty throw an error
+   * Otherwise go to the next step
+   * @param {Array} lists
+   */
+  static checkEmptyList(list) {
+    return async (req, res, next) => {
+      const organisation = req.organisation;
+      if (organisation[list].length === 0) {
+        return res.jerror(`The ${list} list cannot be empty`);
+      }
+      return next();
     };
   }
 

@@ -349,7 +349,7 @@ describe("OrganisationController", () => {
     });
     describe("when the user is the owner", () => {
       beforeEach(async done => {
-        organisation.owners.push(user);
+        organisation.owners.push(member);
         await organisation.save();
         done();
       });
@@ -414,8 +414,9 @@ describe("OrganisationController", () => {
 
               const approvedMember = org.members[0];
               expect(approvedMember.id).toEqual(member.id);
-              expect(approvedMember.approvedBy.userId).toEqual(user.id);
-              expect(approvedMember.approvedAt).toBeTruthy();
+              expect(approvedMember.actionedBy.userId).toEqual(user.id);
+              expect(approvedMember.actionedAt).toBeTruthy();
+              expect(approvedMember.action).toEqual("approve");
               done();
             });
         });
@@ -459,8 +460,9 @@ describe("OrganisationController", () => {
 
               const approvedMember = org.members[0];
               expect(approvedMember.id).toEqual(member.id);
-              expect(approvedMember.approvedBy.userId).toEqual(user.id);
-              expect(approvedMember.approvedAt).toBeTruthy();
+              expect(approvedMember.actionedBy.userId).toEqual(user.id);
+              expect(approvedMember.actionedAt).toBeTruthy();
+              expect(approvedMember.action).toEqual("approve");
               done();
             });
         });
@@ -513,7 +515,7 @@ describe("OrganisationController", () => {
     });
     describe("when the user is the owner", () => {
       beforeEach(async done => {
-        organisation.owners.push(user);
+        organisation.owners.push(member);
         await organisation.save();
         done();
       });
@@ -596,8 +598,9 @@ describe("OrganisationController", () => {
 
               const rejectedMember = org.rejectedMembers[0];
               expect(rejectedMember.id).toEqual(member.id);
-              expect(rejectedMember.rejectedBy.userId).toEqual(user.id);
-              expect(rejectedMember.rejectedAt).toBeTruthy();
+              expect(rejectedMember.actionedBy.userId).toEqual(user.id);
+              expect(rejectedMember.actionedAt).toBeTruthy();
+              expect(rejectedMember.action).toEqual("reject");
               done();
             });
         });
@@ -650,7 +653,7 @@ describe("OrganisationController", () => {
     });
     describe("when the user is the owner", () => {
       beforeEach(async done => {
-        organisation.owners.push(user);
+        organisation.owners.push(member);
         await organisation.save();
         done();
       });
@@ -694,6 +697,213 @@ describe("OrganisationController", () => {
             .end(async () => {
               const org = await Organisation.get(id);
               expect(org.members.length).toEqual(0);
+              done();
+            });
+        });
+      });
+    });
+  });
+
+  describe("# POST /organisations/:id/members/:memberId/promote", () => {
+    let member = null;
+    beforeEach(async done => {
+      member = await OrganisationHelper.createMember(user);
+      done();
+    });
+    describe("when the user is not authenticated", () => {
+      it("should return an error", done => {
+        request(app)
+          .post(`/organisations/${id}/members/${member.id}/promote`)
+          .set("Authorization", "Bearer INVALID_TOKEN")
+          .expect(httpStatus.UNAUTHORIZED)
+          .end((err, res) => {
+            expect(res.body.status).toEqual("error");
+            expect(res.body.message).toEqual("Not Authorised");
+            done();
+          });
+      });
+    });
+    describe("when the user is not the owner", () => {
+      it("should return an error", done => {
+        request(app)
+          .post(`/organisations/${id}/members/${member.id}/promote`)
+          .set("Authorization", `Bearer ${token}`)
+          .expect(httpStatus.OK)
+          .end((err, res) => {
+            expect(res.body.status).toEqual("error");
+            expect(res.body.data).toEqual("You are not an owner of this organisation");
+            done();
+          });
+      });
+    });
+    describe("when the user is the owner", () => {
+      beforeEach(async done => {
+        organisation.owners.push(member);
+        await organisation.save();
+        done();
+      });
+      describe("when the user is not found in the organisation members", () => {
+        it("should return an error", done => {
+          request(app)
+            .post(`/organisations/${id}/members/${member.id}/promote`)
+            .set("Authorization", `Bearer ${token}`)
+            .expect(httpStatus.OK)
+            .end((err, res) => {
+              expect(res.body.status).toEqual("error");
+              expect(res.body.data).toEqual(
+                "The provided member is not eligible for this operation"
+              );
+              done();
+            });
+        });
+      });
+      describe("when the user is in the organisation members", () => {
+        beforeEach(async done => {
+          organisation.members.push(member);
+          await organisation.save();
+          done();
+        });
+        it("should return a successful response", done => {
+          request(app)
+            .post(`/organisations/${id}/members/${member.id}/promote`)
+            .set("Authorization", `Bearer ${token}`)
+            .expect(httpStatus.OK)
+            .end((err, res) => {
+              expect(res.body.status).toEqual("success");
+              expect(res.body.data).toEqual("Member promoted.");
+              done();
+            });
+        });
+        it("should remove the user from the members list", done => {
+          request(app)
+            .post(`/organisations/${id}/members/${member.id}/promote`)
+            .set("Authorization", `Bearer ${token}`)
+            .expect(httpStatus.OK)
+            .end(async () => {
+              const org = await Organisation.get(id);
+              expect(org.members.length).toEqual(0);
+              done();
+            });
+        });
+        it("should add the user to the owners list", done => {
+          request(app)
+            .post(`/organisations/${id}/members/${member.id}/promote`)
+            .set("Authorization", `Bearer ${token}`)
+            .expect(httpStatus.OK)
+            .end(async () => {
+              const org = await Organisation.get(id);
+              expect(org.owners.length).toEqual(2);
+              done();
+            });
+        });
+      });
+    });
+  });
+
+  describe("# POST /organisations/:id/owners/:memberId/demote", () => {
+    let member = null;
+    beforeEach(async done => {
+      member = await OrganisationHelper.createMember(user);
+      done();
+    });
+    describe("when the user is not authenticated", () => {
+      it("should return an error", done => {
+        request(app)
+          .post(`/organisations/${id}/owners/${member.id}/demote`)
+          .set("Authorization", "Bearer INVALID_TOKEN")
+          .expect(httpStatus.UNAUTHORIZED)
+          .end((err, res) => {
+            expect(res.body.status).toEqual("error");
+            expect(res.body.message).toEqual("Not Authorised");
+            done();
+          });
+      });
+    });
+    describe("when the user is not the owner", () => {
+      it("should return an error", done => {
+        request(app)
+          .post(`/organisations/${id}/owners/${member.id}/demote`)
+          .set("Authorization", `Bearer ${token}`)
+          .expect(httpStatus.OK)
+          .end((err, res) => {
+            expect(res.body.status).toEqual("error");
+            expect(res.body.data).toEqual("You are not an owner of this organisation");
+            done();
+          });
+      });
+    });
+    describe("when the user is the owner", () => {
+      describe("when the user is the only owner", () => {
+        beforeEach(async done => {
+          organisation.owners.push(member);
+          await organisation.save();
+          done();
+        });
+        it("should not leave the owners list empty", done => {
+          request(app)
+            .post(`/organisations/${id}/owners/${member.id}/demote`)
+            .set("Authorization", `Bearer ${token}`)
+            .expect(httpStatus.OK)
+            .end((err, res) => {
+              expect(res.body.status).toEqual("error");
+              expect(res.body.data).toEqual("The owners list cannot be empty");
+              done();
+            });
+        });
+        it("should keep the owner in the organisation", done => {
+          request(app)
+            .post(`/organisations/${id}/owners/${member.id}/demote`)
+            .set("Authorization", `Bearer ${token}`)
+            .expect(httpStatus.OK)
+            .end(async () => {
+              const org = await Organisation.get(id);
+              expect(org.owners.length).toEqual(1);
+              done();
+            });
+        });
+      });
+      describe("when there are multiple organisation owners", () => {
+        beforeEach(async done => {
+          const ownerData = new User(users.thomas);
+          const savedOwner = await ownerData.save();
+          const secondMember = await OrganisationHelper.createMember(savedOwner);
+          organisation.owners.push(member);
+          organisation.owners.push(secondMember);
+          await organisation.save();
+          done();
+        });
+        it("should return a successful response", done => {
+          request(app)
+            .post(`/organisations/${id}/owners/${member.id}/demote`)
+            .set("Authorization", `Bearer ${token}`)
+            .expect(httpStatus.OK)
+            .end((err, res) => {
+              expect(res.body.status).toEqual("success");
+              expect(res.body.data).toEqual("Owner demoted.");
+              done();
+            });
+        });
+        it("should remove the user from the owners list", done => {
+          request(app)
+            .post(`/organisations/${id}/owners/${member.id}/demote`)
+            .set("Authorization", `Bearer ${token}`)
+            .expect(httpStatus.OK)
+            .end(async () => {
+              const org = await Organisation.get(id);
+              expect(org.owners.length).toEqual(1);
+              expect(org.owners[0].firstname).toEqual("Thomas");
+              done();
+            });
+        });
+        it("should add the user to the members list", done => {
+          request(app)
+            .post(`/organisations/${id}/owners/${member.id}/demote`)
+            .set("Authorization", `Bearer ${token}`)
+            .expect(httpStatus.OK)
+            .end(async () => {
+              const org = await Organisation.get(id);
+              expect(org.members.length).toEqual(1);
+              expect(org.members[0].firstname).toEqual("David");
               done();
             });
         });

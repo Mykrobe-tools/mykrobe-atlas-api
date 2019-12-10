@@ -429,6 +429,85 @@ router
     organisationController.removeMember
   );
 
+router
+  .route("/:id/members/:memberId/promote")
+  /**
+   * @swagger
+   * /organisations/{id}/members/{memberId}/promote:
+   *   post:
+   *     tags:
+   *       - Organisations
+   *     description: Promote an organisation member
+   *     operationId: promoteOrganisationMember
+   *     produces:
+   *       - application/json
+   *     security:
+   *       - Bearer: []
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         type: string
+   *         description: The organisation id
+   *       - in: path
+   *         name: memberId
+   *         required: true
+   *         type: string
+   *         description: The member id
+   *     responses:
+   *       200:
+   *         description: A jsend response
+   *         schema:
+   *           $ref: '#/definitions/BasicResponse'
+   */
+  .post(
+    keycloak.connect.protect(),
+    userController.loadCurrentUser,
+    OrganisationHelper.isOwner(),
+    OrganisationHelper.checkNotInLists(["members"]),
+    organisationController.promote
+  );
+
+router
+  .route("/:id/owners/:memberId/demote")
+  /**
+   * @swagger
+   * /organisations/{id}/owners/{memberId}/demote:
+   *   post:
+   *     tags:
+   *       - Organisations
+   *     description: Demote an organisation owner
+   *     operationId: demoteOrganisationOwner
+   *     produces:
+   *       - application/json
+   *     security:
+   *       - Bearer: []
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         type: string
+   *         description: The organisation id
+   *       - in: path
+   *         name: memberId
+   *         required: true
+   *         type: string
+   *         description: The owner id
+   *     responses:
+   *       200:
+   *         description: A jsend response
+   *         schema:
+   *           $ref: '#/definitions/BasicResponse'
+   */
+  .post(
+    keycloak.connect.protect(),
+    userController.loadCurrentUser,
+    OrganisationHelper.isOwner(),
+    OrganisationHelper.checkNotInLists(["owners"]),
+    OrganisationHelper.checkEmptyList("owners"),
+    organisationController.demote
+  );
+
 /** Load user when API with id route parameter is hit */
 router.param("id", organisationController.load);
 
