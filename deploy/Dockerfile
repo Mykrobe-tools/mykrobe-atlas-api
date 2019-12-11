@@ -3,7 +3,7 @@ LABEL MAINTAINER="Yassire Elhani <yassire@makeandship.com>"
 
 RUN rm /bin/sh && ln -s /bin/bash /bin/sh
 
-ENV NODE_VERSION 8.12.0
+ENV NODE_VERSION 12.13.0
 ENV NVM_DIR /usr/local/nvm
 
 # install required software before using nvm/node/npm/bower
