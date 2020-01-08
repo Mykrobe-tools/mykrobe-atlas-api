@@ -4,7 +4,7 @@ import {
   AggregationSearchQuery
 } from "makeandship-api-common/lib/modules/elasticsearch/";
 import { experimentSearch as experimentSearchSchema } from "mykrobe-atlas-jsonschema";
-import Constants from "../../constants";
+import Constants from "../../Constants";
 
 /**
  * Parse the incoming query
