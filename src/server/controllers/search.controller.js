@@ -48,7 +48,7 @@ const saveResult = async (req, res) => {
       const auditJson = new AuditJSONTransformer().transform(audit);
 
       // notify all users and clear the list
-      await EventHelper.clearSearchesState(searchJson.id);
+      //await EventHelper.clearSearchesState(searchJson.id);
       const event = `${result.type}-search-complete`;
       search.users.forEach(user => {
         const userJson = new UserJSONTransformer().transform(user);

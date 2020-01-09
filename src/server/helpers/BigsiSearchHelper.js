@@ -130,7 +130,7 @@ class BigsiSearchHelper {
     }
     const searchJson = new SearchJSONTransformer().transform(savedSearch);
     const userJson = new UserJSONTransformer().transform(user);
-    await EventHelper.updateSearchesState(userJson.id, searchJson);
+    //await EventHelper.updateSearchesState(userJson.id, searchJson);
     // call bigsi via agenda to support retries
     await schedule("now", "call search api", {
       search: searchJson,

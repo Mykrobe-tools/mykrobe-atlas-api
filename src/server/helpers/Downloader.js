@@ -33,7 +33,7 @@ class Downloader {
             fileLocation: this.options.path
           };
 
-          await EventHelper.updateUploadsState(this.data.user.id, experiment.id, status);
+          //await EventHelper.updateUploadsState(this.data.user.id, experiment.id, status);
           experimentEventEmitter.emit("3rd-party-upload-progress", {
             experiment,
             status
@@ -53,7 +53,7 @@ class Downloader {
             fileLocation: this.options.path
           };
 
-          await EventHelper.clearUploadsState(this.data.user.id, experiment.id);
+          //await EventHelper.clearUploadsState(this.data.user.id, experiment.id);
           experimentEventEmitter.emit("3rd-party-upload-complete", {
             experiment,
             status

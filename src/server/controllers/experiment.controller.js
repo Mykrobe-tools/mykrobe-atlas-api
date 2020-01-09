@@ -214,7 +214,7 @@ const results = async (req, res) => {
     const experimentJSON = new ExperimentJSONTransformer().transform(experiment);
     const auditJSON = audit ? new AuditJSONTransformer().transform(audit) : null;
 
-    await EventHelper.clearAnalysisState(savedExperiment.id);
+    //await EventHelper.clearAnalysisState(savedExperiment.id);
     experimentEventEmitter.emit("analysis-complete", {
       audit: auditJSON,
       experiment: experimentJSON,
@@ -246,11 +246,11 @@ const uploadFile = async (req, res) => {
         ...req.body
       });
       downloader.download(async () => {
-        await EventHelper.updateAnalysisState(
-          req.dbUser.id,
-          experiment.id,
-          `${config.express.uploadsLocation}/experiments/${experiment.id}/file/${req.body.name}`
-        );
+        //await EventHelper.updateAnalysisState(
+          //req.dbUser.id,
+          //experiment.id,
+          //`${config.express.uploadsLocation}/experiments/${experiment.id}/file/${req.body.name}`
+        //);
         await schedule("now", "call analysis api", {
           file: `${config.express.uploadsLocation}/experiments/${experiment.id}/file/${req.body.name}`,
           experiment_id: experiment.id,
@@ -282,22 +282,22 @@ const uploadFile = async (req, res) => {
     );
     const postUpload = await resumable.post(req);
     if (!postUpload.complete) {
-      await EventHelper.updateUploadsState(req.dbUser.id, experiment.id, postUpload);
+      //await EventHelper.updateUploadsState(req.dbUser.id, experiment.id, postUpload);
       experimentEventEmitter.emit("upload-progress", {
         experiment: experimentJson,
         status: postUpload
       });
     } else {
-      await EventHelper.clearUploadsState(req.dbUser.id, experiment.id);
+      //await EventHelper.clearUploadsState(req.dbUser.id, experiment.id);
       experimentEventEmitter.emit("upload-complete", {
         experiment: experimentJson,
         status: postUpload
       });
-      await EventHelper.updateAnalysisState(
-        req.dbUser.id,
-        experimentJson.id,
-        `${config.express.uploadsLocation}/experiments/${experimentJson.id}/file/${resumableFilename}`
-      );
+      //await EventHelper.updateAnalysisState(
+        //req.dbUser.id,
+        //experimentJson.id,
+        //`${config.express.uploadsLocation}/experiments/${experimentJson.id}/file/${resumableFilename}`
+      //);
       return resumable.reassembleChunks(experimentJson.id, resumableFilename, async () => {
         await schedule("now", "call analysis api", {
           file: `${config.express.uploadsLocation}/experiments/${experimentJson.id}/file/${resumableFilename}`,
