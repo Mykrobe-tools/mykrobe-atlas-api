@@ -17,6 +17,9 @@ class Downloader {
 
   download(done) {
     const that = this;
+    const experiement = that.data.experiment;
+    winston.info(`Experiment: ${JSON.stringify(experiment, null, 2)}`);
+    
     winston.info(`Start downloading ${that.destination} with data ${JSON.stringify(that.data)}`);
     const file = fs.createWriteStream(that.destination);
     winston.info(`Stream created`);
@@ -29,8 +32,6 @@ class Downloader {
           winston.info(`Data chunk received and written`);
           downloaded += chunk.length;
           winston.info(`Downloaded: ${downloaded}`);
-          const experiment = that.data.experiment;
-          winston.info(`Experiment: ${JSON.stringify(experiment, null, 2)}`);
           const status = {
             provider: that.data.provider,
             size: downloaded,
