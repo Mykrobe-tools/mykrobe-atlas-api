@@ -18,6 +18,7 @@ class Downloader {
   download(done) {
     const that = this;
 
+    winston.info(`Downloading: ${JSON.stringify(that.data, null, 2)}`);
     const experiment = that.data.experiment;
     winston.info(`Experiment: ${JSON.stringify(experiment, null, 2)}`);
     const provider = that.data.provider;
@@ -81,6 +82,8 @@ class Downloader {
         .on("error", err => {
           winston.info(`Error during the download.`);
           winston.info(err.message);
+
+          done(err.message);
         });
     });
   }
