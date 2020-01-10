@@ -84,6 +84,12 @@ class Downloader {
           winston.info(err.message);
 
           done(err.message);
+        })
+        .on("aborted", err => {
+          winston.info(`Aborted during the download.`);
+          winston.info(err);
+
+          done(err);
         });
     });
   }
