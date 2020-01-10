@@ -85,22 +85,32 @@ experimentEventEmitter.on("3rd-party-upload-complete", payload => {
   }
 });
 
-experimentEventEmitter.on("analysis-started", async audit => {
+experimentEventEmitter.on("analysis-started", async payload => {
+  logger.info(`analysis-started event`);
   try {
+    logger.info(`analysis-started: payload: ${JSON.stringify(payload, null, 2)}`);
     const { experiment, audit } = payload;
 
     if (audit && experiment) {
+      logger.info(`analysis-started: transforming event`);
       const data = new AnalysisStartedJSONTransformer().transform({ audit, experiment }, {});
+      logger.info(`analysis-started: data: ${JSON.stringify(data, null, 2)}`);
+      logger.info(`analysis-started: sending event`);
       sendExperimentOwnerEvent(experiment, data, "analysis-started");
     }
-  } catch (e) {}
+  } catch (e) {
+    logger.info(`analysis-started: error: ${JSON.stringify(e, null, 2)}`);
+  }
 });
 
 experimentEventEmitter.on("analysis-complete", async payload => {
+  logger.info(`analysis-completed event`);
   try {
+    logger.info(`analysis-completed: payload: ${JSON.stringify(payload, null, 2)}`);
     const { experiment, type, audit } = payload;
 
     if (experiment && type && audit) {
+      logger.info(`analysis-completed: transforming event`);
       const data = new AnalysisCompleteJSONTransformer().transform(
         {
           audit,
@@ -109,9 +119,13 @@ experimentEventEmitter.on("analysis-complete", async payload => {
         },
         {}
       );
+      logger.info(`analysis-completed: data: ${JSON.stringify(data, null, 2)}`);
+      logger.info(`analysis-completed: sending event`);
       sendExperimentOwnerEvent(payload.experiment, data, "analysis-complete");
     }
-  } catch (e) {}
+  } catch (e) {
+    logger.info(`analysis-completed: error: ${JSON.stringify(e, null, 2)}`);
+  }
 });
 
 experimentEventEmitter.on("distance-search-started", async payload => {

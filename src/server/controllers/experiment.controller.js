@@ -225,6 +225,7 @@ const results = async (req, res) => {
       type: result.type,
       subType: result.subType
     });
+    winston.info(`Event emmitted`);
 
     return res.jsend(savedExperiment);
   } catch (e) {
