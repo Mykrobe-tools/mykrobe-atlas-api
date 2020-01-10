@@ -193,7 +193,9 @@ const results = async (req, res) => {
   }
 
   const result = parser.parse(req.body);
+  winston.info(`Result: ${JSON.stringify(result, null, 2)}`);
   const results = experiment.get("results");
+  winston.info(`Existing results: ${JSON.stringify(results.length, null, 2)}`);
 
   const updatedResults = [];
   if (results) {
@@ -201,19 +203,21 @@ const results = async (req, res) => {
   }
 
   updatedResults.push(result);
+  winston.info(`Updated results: ${JSON.stringify(updatedResults.length, null, 2)}`);
 
   experiment.set("results", updatedResults);
 
   try {
+    winston.info(`Saving experiment with results`);
     const savedExperiment = await experiment.save();
-
+    winston.info(`Saved experiment: ${JSON.stringify(experiment, null, 2)}`);
     await elasticService.updateDocument(savedExperiment);
-
+    winston.info(`Document updated in elasticsearch`);
     const audit = await Audit.getByExperimentId(savedExperiment.id);
-
+    winston.info(`Audit: ${JSON.stringify(audit, null, 2)}`);
     const experimentJSON = new ExperimentJSONTransformer().transform(experiment);
     const auditJSON = audit ? new AuditJSONTransformer().transform(audit) : null;
-
+    winston.info(`Emitting event`);
     //await EventHelper.clearAnalysisState(savedExperiment.id);
     experimentEventEmitter.emit("analysis-complete", {
       audit: auditJSON,
@@ -224,6 +228,7 @@ const results = async (req, res) => {
 
     return res.jsend(savedExperiment);
   } catch (e) {
+    winston.info(`Error processing result: ${JSON.stringify(e, null, 2)}`);
     return res.jerror(new errors.UpdateExperimentError(e.message));
   }
 };
