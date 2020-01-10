@@ -18,8 +18,13 @@ class Downloader {
   download(done) {
     const that = this;
 
-    const experiement = that.data.experiment;
+    const experiment = that.data.experiment;
     winston.info(`Experiment: ${JSON.stringify(experiment, null, 2)}`);
+    const provider = that.data.provider;
+    winston.info(`Provider: ${JSON.stringify(provider, null, 2)}`);
+    const path = that.options.path;
+    winston.info(`Path: ${JSON.stringify(path, null, 2)}`);
+
     winston.info(
       `Start downloading ${that.destination} with data ${JSON.stringify(that.data, null, 2)}`
     );
@@ -35,10 +40,10 @@ class Downloader {
           downloaded += chunk.length;
           winston.info(`Downloaded: ${downloaded}`);
           const status = {
-            provider: that.data.provider,
+            provider: provider,
             size: downloaded,
             totalSize,
-            fileLocation: that.options.path
+            fileLocation: path
           };
           winston.info(`Status: ${JSON.stringify(status, null, 2)}`);
           winston.info(`Sending 3rd-party-upload-progress event`);
@@ -58,12 +63,11 @@ class Downloader {
             winston.info(`Calling the callback function`);
             done();
           }
-          
           const status = {
-            provider: this.data.provider,
+            provider: provider,
             size: totalSize,
             totalSize,
-            fileLocation: this.options.path
+            fileLocation: path
           };
 
           winston.info(`Sending 3rd-party-upload-complete event`);
