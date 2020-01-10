@@ -247,9 +247,9 @@ const uploadFile = async (req, res) => {
       });
       downloader.download(async () => {
         //await EventHelper.updateAnalysisState(
-          //req.dbUser.id,
-          //experiment.id,
-          //`${config.express.uploadsLocation}/experiments/${experiment.id}/file/${req.body.name}`
+        //req.dbUser.id,
+        //experiment.id,
+        //`${config.express.uploadsLocation}/experiments/${experiment.id}/file/${req.body.name}`
         //);
         await schedule("now", "call analysis api", {
           file: `${config.express.uploadsLocation}/experiments/${experiment.id}/file/${req.body.name}`,
@@ -294,9 +294,9 @@ const uploadFile = async (req, res) => {
         status: postUpload
       });
       //await EventHelper.updateAnalysisState(
-        //req.dbUser.id,
-        //experimentJson.id,
-        //`${config.express.uploadsLocation}/experiments/${experimentJson.id}/file/${resumableFilename}`
+      //req.dbUser.id,
+      //experimentJson.id,
+      //`${config.express.uploadsLocation}/experiments/${experimentJson.id}/file/${resumableFilename}`
       //);
       return resumable.reassembleChunks(experimentJson.id, resumableFilename, async () => {
         await schedule("now", "call analysis api", {

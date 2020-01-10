@@ -16,8 +16,9 @@ class Downloader {
   }
 
   download(done) {
-    winston.info(`Start downloading ${this.destination} with data ${JSON.stringify(this.data)}`);
-    const file = fs.createWriteStream(this.destination);
+    const that = this;
+    winston.info(`Start downloading ${that.destination} with data ${JSON.stringify(that.data)}`);
+    const file = fs.createWriteStream(that.destination);
     winston.info(`Stream created`);
     https.get(this.options).on("response", res => {
       let downloaded = 0;
@@ -25,18 +26,18 @@ class Downloader {
       res
         .on("data", async chunk => {
           file.write(chunk);
-          winston.info(`Data chunk received`);
+          winston.info(`Data chunk received and written`);
           downloaded += chunk.length;
-
           winston.info(`Downloaded: ${downloaded}`);
-          const experiment = this.data.experiment;
+          const experiment = that.data.experiment;
+          winston.info(`Experiment: ${JSON.stringify(experiment, null, 2)}`);
           const status = {
-            provider: this.data.provider,
+            provider: that.data.provider,
             size: downloaded,
             totalSize,
-            fileLocation: this.options.path
+            fileLocation: that.options.path
           };
-
+          winston.info(`Status: ${JSON.stringify(status, null, 2)}`);
           winston.info(`Sending 3rd-party-upload-progress event`);
           //await EventHelper.updateUploadsState(this.data.user.id, experiment.id, status);
           experimentEventEmitter.emit("3rd-party-upload-progress", {
