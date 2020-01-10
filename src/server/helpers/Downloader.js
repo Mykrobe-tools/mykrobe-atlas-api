@@ -58,7 +58,7 @@ class Downloader {
             winston.info(`Calling the callback function`);
             done();
           }
-          const experiment = this.data.experiment;
+          
           const status = {
             provider: this.data.provider,
             size: totalSize,
