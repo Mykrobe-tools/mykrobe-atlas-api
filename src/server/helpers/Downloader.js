@@ -17,10 +17,12 @@ class Downloader {
 
   download(done) {
     const that = this;
+
     const experiement = that.data.experiment;
     winston.info(`Experiment: ${JSON.stringify(experiment, null, 2)}`);
-    
-    winston.info(`Start downloading ${that.destination} with data ${JSON.stringify(that.data)}`);
+    winston.info(
+      `Start downloading ${that.destination} with data ${JSON.stringify(that.data, null, 2)}`
+    );
     const file = fs.createWriteStream(that.destination);
     winston.info(`Stream created`);
     https.get(this.options).on("response", res => {
