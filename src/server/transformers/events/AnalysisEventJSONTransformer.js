@@ -15,6 +15,14 @@ class AnalysisEventJSONTransformer extends CLIEventJSONTransformer {
       res.file = o.fileLocation;
     }
 
+    if (o.experiment && o.experiment.id) {
+      res.id = o.experiment.id;
+    }
+
+    if (o.type) {
+      res.type = o.type;
+    }
+
     return res;
   }
 }

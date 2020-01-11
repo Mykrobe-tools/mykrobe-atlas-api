@@ -1,5 +1,7 @@
 import SearchEventJSONTransformer from "./SearchEventJSONTransformer";
 
+import Constants from "../../Constants";
+
 /**
  * A class to transform a sequence started payload
  */
@@ -14,7 +16,7 @@ class SequenceSearchStartedEventJSONTransformer extends SearchEventJSONTransform
   transform(o, options) {
     const res = super.transform(o, options);
 
-    res.event = "Sequence search started";
+    res.event = Constants.EVENTS.SEQUENCE_SEARCH_STARTED.NAME;
 
     return res;
   }

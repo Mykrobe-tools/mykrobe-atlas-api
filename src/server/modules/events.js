@@ -4,6 +4,8 @@ import Audit from "../models/audit.model";
 
 import channels from "./channels";
 
+import Constants from "../Constants";
+
 import UploadProgressJSONTransformer from "../transformers/events/UploadProgressJSONTransformer";
 import UploadCompleteJSONTransformer from "../transformers/events/UploadCompleteJSONTransformer";
 import AnalysisStartedJSONTransformer from "../transformers/events/AnalysisStartedJSONTransformer";
@@ -43,25 +45,25 @@ const sendExperimentOwnerEvent = (experiment, data, type) => {
   }
 };
 
-experimentEventEmitter.on("upload-progress", payload => {
+experimentEventEmitter.on(Constants.EVENTS.UPLOAD_PROGRESS.EVENT, payload => {
   const { experiment, status } = payload;
 
   if (experiment && status) {
     const data = new UploadProgressJSONTransformer().transform({ experiment, status }, {});
-    sendExperimentOwnerEvent(experiment, data, "upload-progress");
+    sendExperimentOwnerEvent(experiment, data, Constants.EVENTS.UPLOAD_PROGRESS.EVENT);
   }
 });
 
-experimentEventEmitter.on("upload-complete", payload => {
+experimentEventEmitter.on(Constants.EVENTS.UPLOAD_COMPLETE.EVENT, payload => {
   const { experiment, status } = payload;
 
   if (experiment && status) {
     const data = new UploadCompleteJSONTransformer().transform({ experiment, status }, {});
-    sendExperimentOwnerEvent(experiment, data, "upload-complete");
+    sendExperimentOwnerEvent(experiment, data, Constants.EVENTS.UPLOAD_COMPLETE.EVENT);
   }
 });
 
-experimentEventEmitter.on("3rd-party-upload-progress", payload => {
+experimentEventEmitter.on(Constants.EVENTS.THIRD_PARTY_UPLOAD_PROGRESS.EVENT, payload => {
   const { experiment, status } = payload;
 
   if (experiment && status) {
@@ -69,11 +71,11 @@ experimentEventEmitter.on("3rd-party-upload-progress", payload => {
       { experiment, status },
       {}
     );
-    sendExperimentOwnerEvent(experiment, data, "3rd-party-upload-progress");
+    sendExperimentOwnerEvent(experiment, data, Constants.EVENTS.THIRD_PARTY_UPLOAD_PROGRESS.EVENT);
   }
 });
 
-experimentEventEmitter.on("3rd-party-upload-complete", payload => {
+experimentEventEmitter.on(Constants.EVENTS.THIRD_PARTY_UPLOAD_COMPLETE.EVENT, payload => {
   const { experiment, status } = payload;
 
   if (experiment && status) {
@@ -81,11 +83,11 @@ experimentEventEmitter.on("3rd-party-upload-complete", payload => {
       { experiment, status },
       {}
     );
-    sendExperimentOwnerEvent(experiment, data, "3rd-party-upload-complete");
+    sendExperimentOwnerEvent(experiment, data, Constants.EVENTS.THIRD_PARTY_UPLOAD_COMPLETE.EVENT);
   }
 });
 
-experimentEventEmitter.on("analysis-started", async payload => {
+experimentEventEmitter.on(Constants.EVENTS.ANALYSIS_STARTED.EVENT, async payload => {
   logger.info(`analysis-started event`);
   try {
     logger.info(`analysis-started: payload: ${JSON.stringify(payload, null, 2)}`);
@@ -96,19 +98,18 @@ experimentEventEmitter.on("analysis-started", async payload => {
       const data = new AnalysisStartedJSONTransformer().transform({ audit, experiment }, {});
       logger.info(`analysis-started: data: ${JSON.stringify(data, null, 2)}`);
       logger.info(`analysis-started: sending event`);
-      sendExperimentOwnerEvent(experiment, data, "analysis-started");
+      sendExperimentOwnerEvent(experiment, data, Constants.EVENTS.ANALYSIS_STARTED.EVENT);
     }
   } catch (e) {
     logger.info(`analysis-started: error: ${JSON.stringify(e, null, 2)}`);
   }
 });
 
-experimentEventEmitter.on("analysis-complete", async payload => {
+experimentEventEmitter.on(Constants.EVENTS.ANALYSIS_COMPLETE.EVENT, async payload => {
   logger.info(`analysis-completed event`);
   try {
     logger.info(`analysis-completed: payload: ${JSON.stringify(payload, null, 2)}`);
     const { experiment, type, audit } = payload;
-
     if (experiment && type && audit) {
       logger.info(`analysis-completed: transforming event`);
       const data = new AnalysisCompleteJSONTransformer().transform(
@@ -121,14 +122,14 @@ experimentEventEmitter.on("analysis-complete", async payload => {
       );
       logger.info(`analysis-completed: data: ${JSON.stringify(data, null, 2)}`);
       logger.info(`analysis-completed: sending event`);
-      sendExperimentOwnerEvent(payload.experiment, data, "analysis-complete");
+      sendExperimentOwnerEvent(payload.experiment, data, Constants.EVENTS.ANALYSIS_COMPLETE.EVENT);
     }
   } catch (e) {
     logger.info(`analysis-completed: error: ${JSON.stringify(e, null, 2)}`);
   }
 });
 
-experimentEventEmitter.on("distance-search-started", async payload => {
+experimentEventEmitter.on(Constants.EVENTS.DISTANCE_SEARCH_STARTED.EVENT, async payload => {
   try {
     const { experiment, audit } = payload;
 
@@ -140,12 +141,12 @@ experimentEventEmitter.on("distance-search-started", async payload => {
         },
         {}
       );
-      sendExperimentOwnerEvent(experiment, data, "distance-search-started");
+      sendExperimentOwnerEvent(experiment, data, Constants.EVENTS.DISTANCE_SEARCH_STARTED.EVENT);
     }
   } catch (e) {}
 });
 
-userEventEmitter.on("sequence-search-started", async payload => {
+userEventEmitter.on(Constants.EVENTS.SEQUENCE_SEARCH_STARTED.EVENT, async payload => {
   try {
     const { audit, search, user } = payload;
 
@@ -165,7 +166,7 @@ userEventEmitter.on("sequence-search-started", async payload => {
   } catch (e) {}
 });
 
-userEventEmitter.on("sequence-search-complete", async payload => {
+userEventEmitter.on(Constants.EVENTS.SEQUENCE_SEARCH_COMPLETE.EVENT, async payload => {
   try {
     const { audit, search, user } = payload;
 
@@ -185,7 +186,7 @@ userEventEmitter.on("sequence-search-complete", async payload => {
   } catch (e) {}
 });
 
-userEventEmitter.on("protein-variant-search-started", async payload => {
+userEventEmitter.on(Constants.EVENTS.PROTEIN_VARIANT_SEARCH_STARTED.EVENT, async payload => {
   try {
     const { search, audit, user } = payload;
 
@@ -205,7 +206,7 @@ userEventEmitter.on("protein-variant-search-started", async payload => {
   } catch (e) {}
 });
 
-userEventEmitter.on("protein-variant-search-complete", async payload => {
+userEventEmitter.on(Constants.EVENTS.PROTEIN_VARIANT_SEARCH_COMPLETE.EVENT, async payload => {
   try {
     const { search, audit, user } = payload;
 
@@ -224,7 +225,7 @@ userEventEmitter.on("protein-variant-search-complete", async payload => {
   } catch (e) {}
 });
 
-userEventEmitter.on("dna-variant-search-complete", async audit => {
+userEventEmitter.on(Constants.EVENTS.DNA_VARIANT_SEARCH_STARTED.EVENT, async audit => {
   try {
     const { experiment, audit, user } = payload;
 
