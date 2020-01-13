@@ -62,9 +62,8 @@ class Downloader {
               experiment,
               status
             });
+            EventProgress.update(experiment.id, status);
           }
-          EventProgress.update(experiment.id, status);
-
           //logger.info(`3rd-party-upload-progress event emitted.`);
         })
         .on("end", async () => {

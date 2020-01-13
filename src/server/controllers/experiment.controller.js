@@ -303,8 +303,8 @@ const uploadFile = async (req, res) => {
           experiment: experimentJson,
           status: postUpload
         });
+        EventProgress.update(postUpload.id, postUpload);
       }
-      EventProgress.update(postUpload.id, postUpload);
     } else {
       await EventHelper.clearUploadsState(req.dbUser.id, experiment.id);
       experimentEventEmitter.emit("upload-complete", {
