@@ -8,7 +8,7 @@ import AuditJSONTransformer from "../transformers/AuditJSONTransformer";
 import UserJSONTransformer from "../transformers/UserJSONTransformer";
 
 import ResultsParserFactory from "../helpers/results/ResultsParserFactory";
-import EventHelper from "../helpers/EventHelper";
+import EventHelper from "../helpers/events/EventHelper";
 
 import { userEventEmitter } from "../modules/events";
 

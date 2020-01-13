@@ -2,7 +2,8 @@ import https from "https";
 import fs from "fs";
 import logger from "../modules/winston";
 import { experimentEventEmitter } from "../modules/events";
-import EventHelper from "../helpers/EventHelper";
+import EventHelper from "../helpers/events/EventHelper";
+import EventProgress from "../helpers/events/EventProgress";
 
 /**
  * A class to download large files from a url
@@ -41,23 +42,28 @@ class Downloader {
           downloaded += chunk.length;
           //logger.info(`Downloaded: ${downloaded}`);
           const status = {
+            id: experiment.id,
             provider: provider,
             size: downloaded,
             totalSize,
             fileLocation: path
           };
-          //logger.info(`Status: ${JSON.stringify(status, null, 2)}`);
-          //logger.info(`Sending 3rd-party-upload-progress event`);
-          try {
-            await EventHelper.updateUploadsState(this.data.user.id, experiment.id, status);
+          const diff = EventProgress.diff(experiment.id, status);
+          logger.info(`diff in 3rd party download percentage: ${diff}`);
+          if (diff > 1) {
+            //logger.info(`Status: ${JSON.stringify(status, null, 2)}`);
+            //logger.info(`Sending 3rd-party-upload-progress event`);
+            try {
+              await EventHelper.updateUploadsState(this.data.user.id, experiment.id, status);
+            } catch (e) {
+              logger.info(`Error updating uploads state: ${JSON.stringify(e, null, 2)}`);
+            }
+            experimentEventEmitter.emit("3rd-party-upload-progress", {
+              experiment,
+              status
+            });
           }
-          catch(e) {
-            logger.info(`Error updating uploads state: ${JSON.stringify(e, null, 2)}`);
-          }
-          experimentEventEmitter.emit("3rd-party-upload-progress", {
-            experiment,
-            status
-          });
+          EventProgress.update(experiment.id, status);
 
           //logger.info(`3rd-party-upload-progress event emitted.`);
         })
@@ -79,8 +85,7 @@ class Downloader {
           logger.info(`Sending 3rd-party-upload-complete event`);
           try {
             await EventHelper.clearUploadsState(this.data.user.id, experiment.id);
-          }
-          catch(e) {
+          } catch (e) {
             logger.info(`Error clearing uploads state: ${JSON.stringify(e, null, 2)}`);
           }
           experimentEventEmitter.emit("3rd-party-upload-complete", {

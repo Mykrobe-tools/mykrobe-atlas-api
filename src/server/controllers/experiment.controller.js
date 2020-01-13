@@ -32,7 +32,8 @@ import APIError from "../helpers/APIError";
 import DownloadersFactory from "../helpers/DownloadersFactory";
 import BigsiSearchHelper from "../helpers/BigsiSearchHelper";
 import ResultsParserFactory from "../helpers/results/ResultsParserFactory";
-import EventHelper from "../helpers/EventHelper";
+import EventHelper from "../helpers/events/EventHelper";
+import EventProgress from "../helpers/events/EventProgress";
 
 import AuditJSONTransformer from "../transformers/AuditJSONTransformer";
 import ExperimentJSONTransformer from "../transformers/ExperimentJSONTransformer";
@@ -293,11 +294,17 @@ const uploadFile = async (req, res) => {
     );
     const postUpload = await resumable.post(req);
     if (!postUpload.complete) {
-      await EventHelper.updateUploadsState(req.dbUser.id, experiment.id, postUpload);
-      experimentEventEmitter.emit("upload-progress", {
-        experiment: experimentJson,
-        status: postUpload
-      });
+      // only update progress for each percent change
+      const diff = EventProgress.diff(postUpload.id, postUpload);
+      logger.info(`diff in upload percentage: ${diff}`);
+      if (diff > 1) {
+        await EventHelper.updateUploadsState(req.dbUser.id, experiment.id, postUpload);
+        experimentEventEmitter.emit("upload-progress", {
+          experiment: experimentJson,
+          status: postUpload
+        });
+      }
+      EventProgress.update(postUpload.id, postUpload);
     } else {
       await EventHelper.clearUploadsState(req.dbUser.id, experiment.id);
       experimentEventEmitter.emit("upload-complete", {

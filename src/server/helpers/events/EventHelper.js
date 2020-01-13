@@ -1,4 +1,4 @@
-import Event from "../models/event.model";
+import Event from "../../models/event.model";
 
 class EventHelper {
   static async updateUploadsState(userId, experimentId, uploadStatus) {
