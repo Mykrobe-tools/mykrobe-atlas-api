@@ -109,17 +109,10 @@ experimentEventEmitter.on(Constants.EVENTS.ANALYSIS_COMPLETE.EVENT, async payloa
   logger.info(`analysis-completed event`);
   try {
     logger.info(`analysis-completed: payload: ${JSON.stringify(payload, null, 2)}`);
-    const { experiment, type, audit } = payload;
+    const { experiment, type, audit, fileLocation } = payload;
     if (experiment && type && audit) {
       logger.info(`analysis-completed: transforming event`);
-      const data = new AnalysisCompleteJSONTransformer().transform(
-        {
-          audit,
-          experiment,
-          type
-        },
-        {}
-      );
+      const data = new AnalysisCompleteJSONTransformer().transform(payload, {});
       logger.info(`analysis-completed: data: ${JSON.stringify(data, null, 2)}`);
       logger.info(`analysis-completed: sending event`);
       sendExperimentOwnerEvent(payload.experiment, data, Constants.EVENTS.ANALYSIS_COMPLETE.EVENT);
