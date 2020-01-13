@@ -26,6 +26,10 @@ class Downloader {
     logger.info(`Provider: ${JSON.stringify(provider, null, 2)}`);
     const path = that.options.path;
     logger.info(`Path: ${JSON.stringify(path, null, 2)}`);
+    const user = that.data.user;
+    logger.info(`User: ${JSON.stringify(user, null, 2)}`);
+    const userId = user ? user.id : null;
+    logger.info(`User ID: ${JSON.stringify(user, null, 2)}`);
 
     logger.info(
       `Start downloading ${that.destination} with data ${JSON.stringify(that.data, null, 2)}`
@@ -54,7 +58,7 @@ class Downloader {
             logger.info(`Status: ${JSON.stringify(status, null, 2)}`);
             logger.info(`Sending 3rd-party-upload-progress event`);
             try {
-              await EventHelper.updateUploadsState(this.data.user.id, experiment.id, status);
+              await EventHelper.updateUploadsState(userId, experiment.id, status);
             } catch (e) {
               logger.info(`Error updating uploads state: ${JSON.stringify(e, null, 2)}`);
             }
