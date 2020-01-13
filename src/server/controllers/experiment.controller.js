@@ -254,9 +254,15 @@ const uploadFile = async (req, res) => {
       });
       downloader.download(async () => {
         await EventHelper.updateAnalysisState(
+<<<<<<< HEAD
         req.dbUser.id,
         experiment.id,
         `${config.express.uploadsLocation}/experiments/${experiment.id}/file/${req.body.name}`
+=======
+          req.dbUser.id,
+          experiment.id,
+          `${config.express.uploadsLocation}/experiments/${experiment.id}/file/${req.body.name}`
+>>>>>>> 85ba858a27d54ed978983635d8496409953cfcf0
         );
         await schedule("now", "call analysis api", {
           file: `${config.express.uploadsLocation}/experiments/${experiment.id}/file/${req.body.name}`,

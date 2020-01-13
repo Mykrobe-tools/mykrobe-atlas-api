@@ -93,7 +93,10 @@ experimentEventEmitter.on(Constants.EVENTS.ANALYSIS_STARTED.EVENT, async payload
 
     if (audit && experiment) {
       logger.info(`analysis-started: transforming event`);
-      const data = new AnalysisStartedJSONTransformer().transform({ audit, experiment, fileLocation: audit.fileLocation }, {});
+      const data = new AnalysisStartedJSONTransformer().transform(
+        { audit, experiment, fileLocation: audit.fileLocation },
+        {}
+      );
       logger.info(`analysis-started: data: ${JSON.stringify(data, null, 2)}`);
       logger.info(`analysis-started: sending event`);
       sendExperimentOwnerEvent(experiment, data, Constants.EVENTS.ANALYSIS_STARTED.EVENT);
