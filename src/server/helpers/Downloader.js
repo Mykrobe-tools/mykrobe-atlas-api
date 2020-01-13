@@ -29,7 +29,7 @@ class Downloader {
     const user = that.data.user;
     logger.info(`User: ${JSON.stringify(user, null, 2)}`);
     const userId = user ? user.id : null;
-    logger.info(`User ID: ${JSON.stringify(user, null, 2)}`);
+    logger.info(`User ID: ${JSON.stringify(userId, null, 2)}`);
 
     logger.info(
       `Start downloading ${that.destination} with data ${JSON.stringify(that.data, null, 2)}`
@@ -56,18 +56,20 @@ class Downloader {
           logger.info(`diff in 3rd party download percentage: ${diff}`);
           if (diff > 1) {
             logger.info(`Status: ${JSON.stringify(status, null, 2)}`);
-            logger.info(`Sending 3rd-party-upload-progress event`);
+            logger.info(`Update progress to: ${JSON.stringify(status, null, 2)}`);
+            EventProgress.update(experiment.id, status);
             try {
+              logger.info(`Storing 3rd-party-upload-progress state`);
               await EventHelper.updateUploadsState(userId, experiment.id, status);
+              logger.info(`Stored 3rd-party-upload-progress state`);
             } catch (e) {
               logger.info(`Error updating uploads state: ${JSON.stringify(e, null, 2)}`);
             }
+            logger.info(`Sending 3rd-party-upload-progress event`);
             experimentEventEmitter.emit("3rd-party-upload-progress", {
               experiment,
               status
             });
-            logger.info(`Update progress to: ${JSON.stringify(status, null, 2)}`);
-            EventProgress.update(experiment.id, status);
           }
           logger.info(`3rd-party-upload-progress event emitted.`);
         })

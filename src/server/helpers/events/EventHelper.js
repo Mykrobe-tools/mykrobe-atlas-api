@@ -1,21 +1,35 @@
 import Event from "../../models/event.model";
 
+import logger from "../../modules/winston";
+
 class EventHelper {
   static async updateUploadsState(userId, experimentId, uploadStatus) {
-    const event = (await Event.getByUserId(userId)) || new Event();
+    logger.info(`#updateUploadsState: userId: ${userId}`);
+    const existingEvent = await Event.getByUserId(userId);
+    logger.info(`#updateUploadsState: existingEvent: ${JSON.stringify(existingEvent, null, 2)}`);
+    const event = existingEvent ? existingEvent : new Event();
+    logger.info(`#updateUploadsState: event: ${JSON.stringify(event, null, 2)}`);
     event.userId = userId;
     const openUpload = event.openUploads.find(item => {
-      logger.info(`Looking for ${item.id} ${typeof(item.id)} === ${experimentId} ${typeof(experimentId)}`);
+      logger.info(
+        `Looking for ${item.id} ${typeof item.id} === ${experimentId} ${typeof experimentId}`
+      );
       return item.id === experimentId;
     });
-    if (!openUpload) {
+    logger.info(`#updateUploadsState: openUpload: ${JSON.stringify(openUpload, null, 2)}`);
+    if (openUpload) {
+      // remove the existing entry
       const index = event.openUploads.indexOf(openUpload);
       event.openUploads.splice(index, 1);
+      logger.info(`#updateUploadsState: entry removed ${event.openUploads.length}`);
     }
+    // add to the array
     event.openUploads.push({
       id: experimentId,
       ...uploadStatus
     });
+    logger.info(`#updateUploadsState: new entry added ${event.openUploads.length}, saving ...`);
+
     await event.save();
   }
 
