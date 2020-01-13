@@ -31,12 +31,12 @@ const sendUserEvent = (userId, data) => {
 };
 
 const sendExperimentOwnerEvent = (experiment, data, type) => {
-  logger.info(`#sendExperimentOwnerEvent: type: ${type}`);
+  //logger.info(`#sendExperimentOwnerEvent: type: ${type}`);
   const owner = experiment.owner;
-  logger.info(`#sendExperimentOwnerEvent: owner: ${JSON.stringify(owner, null, 2)}`);
+  //logger.info(`#sendExperimentOwnerEvent: owner: ${JSON.stringify(owner, null, 2)}`);
   if (owner) {
     const ownerId = owner.id || owner;
-    logger.info(`#sendExperimentOwnerEvent: ownerId: ${JSON.stringify(ownerId, null, 2)}`);
+    //logger.info(`#sendExperimentOwnerEvent: ownerId: ${JSON.stringify(ownerId, null, 2)}`);
     if (ownerId) {
       sendUserEvent(ownerId, data);
     }

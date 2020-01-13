@@ -37,24 +37,24 @@ class Downloader {
       res
         .on("data", async chunk => {
           file.write(chunk);
-          logger.info(`Data chunk received and written`);
+          //logger.info(`Data chunk received and written`);
           downloaded += chunk.length;
-          logger.info(`Downloaded: ${downloaded}`);
+          //logger.info(`Downloaded: ${downloaded}`);
           const status = {
             provider: provider,
             size: downloaded,
             totalSize,
             fileLocation: path
           };
-          logger.info(`Status: ${JSON.stringify(status, null, 2)}`);
-          logger.info(`Sending 3rd-party-upload-progress event`);
+          //logger.info(`Status: ${JSON.stringify(status, null, 2)}`);
+          //logger.info(`Sending 3rd-party-upload-progress event`);
           //await EventHelper.updateUploadsState(this.data.user.id, experiment.id, status);
           experimentEventEmitter.emit("3rd-party-upload-progress", {
             experiment,
             status
           });
 
-          logger.info(`3rd-party-upload-progress event emitted.`);
+          //logger.info(`3rd-party-upload-progress event emitted.`);
         })
         .on("end", async () => {
           logger.info(`Download ended`);

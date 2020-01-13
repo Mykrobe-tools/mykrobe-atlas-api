@@ -247,23 +247,21 @@ const uploadFile = async (req, res) => {
     const path = `${config.express.uploadDir}/experiments/${experiment.id}/file`;
     try {
       await mkdirp(path);
+      winston.info(`Triggering create of ${path}/${req.body.name}`);
       const downloader = DownloadersFactory.create(`${path}/${req.body.name}`, {
         experiment,
         user: req.dbUser,
         ...req.body
       });
+      winston.info(`Triggering download of ${path}/${req.body.name}`);
       downloader.download(async () => {
+        winston.info(`Download complete, setting analysis state`);
         await EventHelper.updateAnalysisState(
-<<<<<<< HEAD
-        req.dbUser.id,
-        experiment.id,
-        `${config.express.uploadsLocation}/experiments/${experiment.id}/file/${req.body.name}`
-=======
           req.dbUser.id,
           experiment.id,
           `${config.express.uploadsLocation}/experiments/${experiment.id}/file/${req.body.name}`
->>>>>>> 85ba858a27d54ed978983635d8496409953cfcf0
         );
+        winston.info(`Analysis state set, calling analysis API`);
         await schedule("now", "call analysis api", {
           file: `${config.express.uploadsLocation}/experiments/${experiment.id}/file/${req.body.name}`,
           experiment_id: experiment.id,
@@ -307,9 +305,9 @@ const uploadFile = async (req, res) => {
         status: postUpload
       });
       await EventHelper.updateAnalysisState(
-      req.dbUser.id,
-      experimentJson.id,
-      `${config.express.uploadsLocation}/experiments/${experimentJson.id}/file/${resumableFilename}`
+        req.dbUser.id,
+        experimentJson.id,
+        `${config.express.uploadsLocation}/experiments/${experimentJson.id}/file/${resumableFilename}`
       );
       return resumable.reassembleChunks(experimentJson.id, resumableFilename, async () => {
         await schedule("now", "call analysis api", {
