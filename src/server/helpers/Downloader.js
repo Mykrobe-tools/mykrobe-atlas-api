@@ -51,8 +51,8 @@ class Downloader {
           const diff = EventProgress.diff(experiment.id, status);
           logger.info(`diff in 3rd party download percentage: ${diff}`);
           if (diff > 1) {
-            //logger.info(`Status: ${JSON.stringify(status, null, 2)}`);
-            //logger.info(`Sending 3rd-party-upload-progress event`);
+            logger.info(`Status: ${JSON.stringify(status, null, 2)}`);
+            logger.info(`Sending 3rd-party-upload-progress event`);
             try {
               await EventHelper.updateUploadsState(this.data.user.id, experiment.id, status);
             } catch (e) {
@@ -62,9 +62,10 @@ class Downloader {
               experiment,
               status
             });
+            logger.info(`Update progress to: ${JSON.stringify(status, null, 2)}`);
             EventProgress.update(experiment.id, status);
           }
-          //logger.info(`3rd-party-upload-progress event emitted.`);
+          logger.info(`3rd-party-upload-progress event emitted.`);
         })
         .on("end", async () => {
           logger.info(`Download ended`);

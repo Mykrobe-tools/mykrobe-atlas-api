@@ -4,7 +4,10 @@ class EventHelper {
   static async updateUploadsState(userId, experimentId, uploadStatus) {
     const event = (await Event.getByUserId(userId)) || new Event();
     event.userId = userId;
-    const openUpload = event.openUploads.find(item => item.id === experimentId);
+    const openUpload = event.openUploads.find(item => {
+      logger.info(`Looking for ${item.id} ${typeof(item.id)} === ${experimentId} ${typeof(experimentId)}`);
+      return item.id === experimentId;
+    });
     if (!openUpload) {
       const index = event.openUploads.indexOf(openUpload);
       event.openUploads.splice(index, 1);
