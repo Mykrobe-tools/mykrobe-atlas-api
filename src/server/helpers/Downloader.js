@@ -48,7 +48,12 @@ class Downloader {
           };
           //logger.info(`Status: ${JSON.stringify(status, null, 2)}`);
           //logger.info(`Sending 3rd-party-upload-progress event`);
-          //await EventHelper.updateUploadsState(this.data.user.id, experiment.id, status);
+          try {
+            await EventHelper.updateUploadsState(this.data.user.id, experiment.id, status);
+          }
+          catch(e) {
+            logger.info(`Error updating uploads state: ${JSON.stringify(e, null, 2)}`);
+          }
           experimentEventEmitter.emit("3rd-party-upload-progress", {
             experiment,
             status
@@ -72,7 +77,12 @@ class Downloader {
           };
 
           logger.info(`Sending 3rd-party-upload-complete event`);
-          //await EventHelper.clearUploadsState(this.data.user.id, experiment.id);
+          try {
+            await EventHelper.clearUploadsState(this.data.user.id, experiment.id);
+          }
+          catch(e) {
+            logger.info(`Error clearing uploads state: ${JSON.stringify(e, null, 2)}`);
+          }
           experimentEventEmitter.emit("3rd-party-upload-complete", {
             experiment,
             status

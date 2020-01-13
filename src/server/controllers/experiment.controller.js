@@ -293,13 +293,13 @@ const uploadFile = async (req, res) => {
     );
     const postUpload = await resumable.post(req);
     if (!postUpload.complete) {
-      //await EventHelper.updateUploadsState(req.dbUser.id, experiment.id, postUpload);
+      await EventHelper.updateUploadsState(req.dbUser.id, experiment.id, postUpload);
       experimentEventEmitter.emit("upload-progress", {
         experiment: experimentJson,
         status: postUpload
       });
     } else {
-      //await EventHelper.clearUploadsState(req.dbUser.id, experiment.id);
+      await EventHelper.clearUploadsState(req.dbUser.id, experiment.id);
       experimentEventEmitter.emit("upload-complete", {
         experiment: experimentJson,
         status: postUpload
@@ -321,6 +321,7 @@ const uploadFile = async (req, res) => {
     }
     return res.jerror(postUpload);
   } catch (err) {
+    logger.error(`Error uploading: ${JSON.stringify(err, null, 2)}`);
     return res.jerror(new errors.UploadFileError(err.message));
   }
 };
