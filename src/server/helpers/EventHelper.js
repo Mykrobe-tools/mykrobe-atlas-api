@@ -43,7 +43,7 @@ class EventHelper {
     const event = (await Event.getByUserId(userId)) || new Event();
     event.userId = userId;
     const open = event.openAnalysis.find(item => item.id === experimentId);
-    if (!open) {
+    if (open) {
       const index = event.openAnalysis.indexOf(open);
       event.openUploads.splice(index, 1);
     }
