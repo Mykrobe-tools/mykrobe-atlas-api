@@ -12,7 +12,12 @@ class AnalysisEventJSONTransformer extends CLIEventJSONTransformer {
     const res = super.transform(o, options);
 
     if (o.fileLocation) {
-      res.file = o.fileLocation;
+      if (Array.isArray(o.fileLocation)) {
+        res.file = o.fileLocation[0];
+        res.files = o.fileLocation;
+      } else {
+        res.file = o.fileLocation;
+      }
     }
 
     if (o.experiment && o.experiment.id) {

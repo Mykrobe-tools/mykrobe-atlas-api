@@ -223,7 +223,8 @@ const results = async (req, res) => {
       audit: auditJSON,
       experiment: experimentJSON,
       type: result.type,
-      subType: result.subType
+      subType: result.subType,
+      fileLocation: result.files
     });
     winston.info(`Event emmitted`);
 
