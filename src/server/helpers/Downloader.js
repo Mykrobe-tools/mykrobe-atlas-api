@@ -19,32 +19,21 @@ class Downloader {
   download(done) {
     const that = this;
 
-    logger.info(`Downloading: ${JSON.stringify(that.data, null, 2)}`);
     const experiment = that.data.experiment;
-    logger.info(`Experiment: ${JSON.stringify(experiment, null, 2)}`);
     const provider = that.data.provider;
-    logger.info(`Provider: ${JSON.stringify(provider, null, 2)}`);
     const path = that.options.path;
-    logger.info(`Path: ${JSON.stringify(path, null, 2)}`);
     const user = that.data.user;
-    logger.info(`User: ${JSON.stringify(user, null, 2)}`);
     const userId = user ? user.id : null;
-    logger.info(`User ID: ${JSON.stringify(userId, null, 2)}`);
 
-    logger.info(
-      `Start downloading ${that.destination} with data ${JSON.stringify(that.data, null, 2)}`
-    );
     const file = fs.createWriteStream(that.destination);
-    logger.info(`Stream created`);
+
     https.get(this.options).on("response", res => {
       let downloaded = 0;
       const totalSize = res.headers["content-length"];
       res
         .on("data", async chunk => {
           file.write(chunk);
-          //logger.info(`Data chunk received and written`);
           downloaded += chunk.length;
-          //logger.info(`Downloaded: ${downloaded}`);
           const status = {
             id: experiment.id,
             provider: provider,
@@ -53,32 +42,22 @@ class Downloader {
             fileLocation: path
           };
           const diff = EventProgress.diff(experiment.id, status);
-          logger.info(`diff in 3rd party download percentage: ${diff}`);
           if (diff > 1) {
-            logger.info(`Status: ${JSON.stringify(status, null, 2)}`);
-            logger.info(`Update progress to: ${JSON.stringify(status, null, 2)}`);
             EventProgress.update(experiment.id, status);
             try {
-              logger.info(`Storing 3rd-party-upload-progress state`);
               await EventHelper.updateUploadsState(userId, experiment.id, status);
-              logger.info(`Stored 3rd-party-upload-progress state`);
             } catch (e) {
-              logger.info(`Error updating uploads state: ${JSON.stringify(e, null, 2)}`);
+              logger.error(`Error updating uploads state: ${JSON.stringify(e, null, 2)}`);
             }
-            logger.info(`Sending 3rd-party-upload-progress event`);
             experimentEventEmitter.emit("3rd-party-upload-progress", {
               experiment,
               status
             });
           }
-          logger.info(`3rd-party-upload-progress event emitted.`);
         })
         .on("end", async () => {
-          logger.info(`Download ended`);
           file.end();
-          logger.info(`File closed`);
           if (done) {
-            logger.info(`Calling the callback function`);
             done();
           }
           const status = {
@@ -88,28 +67,20 @@ class Downloader {
             fileLocation: path
           };
 
-          logger.info(`Sending 3rd-party-upload-complete event`);
           try {
             await EventHelper.clearUploadsState(this.data.user.id, experiment.id);
           } catch (e) {
-            logger.info(`Error clearing uploads state: ${JSON.stringify(e, null, 2)}`);
+            logger.error(`Error clearing uploads state: ${JSON.stringify(e, null, 2)}`);
           }
           experimentEventEmitter.emit("3rd-party-upload-complete", {
             experiment,
             status
           });
-          logger.info(`3rd-party-upload-complete event emitted.`);
         })
         .on("error", err => {
-          logger.info(`Error during the download.`);
-          logger.info(err.message);
-
           done(err.message);
         })
         .on("aborted", err => {
-          logger.info(`Aborted during the download.`);
-          logger.info(err);
-
           done(err);
         });
     });

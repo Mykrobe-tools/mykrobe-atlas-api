@@ -43,6 +43,7 @@ import ResultsJSONTransformer from "../transformers/ResultsJSONTransformer";
 import config from "../../config/env";
 import Constants from "../Constants";
 import SearchJSONTransformer from "../transformers/SearchJSONTransformer";
+import logger from "../modules/winston";
 
 const esConfig = { type: "experiment", ...config.elasticsearch };
 const elasticService = new ElasticService(esConfig, experimentSearchSchema);
@@ -194,9 +195,7 @@ const results = async (req, res) => {
   }
 
   const result = parser.parse(req.body);
-  winston.info(`Result: ${JSON.stringify(result, null, 2)}`);
   const results = experiment.get("results");
-  winston.info(`Existing results: ${JSON.stringify(results.length, null, 2)}`);
 
   const updatedResults = [];
   if (results) {
@@ -204,22 +203,20 @@ const results = async (req, res) => {
   }
 
   updatedResults.push(result);
-  winston.info(`Updated results: ${JSON.stringify(updatedResults.length, null, 2)}`);
-
   experiment.set("results", updatedResults);
 
   try {
-    winston.info(`Saving experiment with results`);
     const savedExperiment = await experiment.save();
-    winston.info(`Saved experiment: ${JSON.stringify(experiment, null, 2)}`);
+
     await elasticService.updateDocument(savedExperiment);
-    winston.info(`Document updated in elasticsearch`);
+
     const audit = await Audit.getByExperimentId(savedExperiment.id);
-    winston.info(`Audit: ${JSON.stringify(audit, null, 2)}`);
+
     const experimentJSON = new ExperimentJSONTransformer().transform(experiment);
     const auditJSON = audit ? new AuditJSONTransformer().transform(audit) : null;
-    winston.info(`Emitting event`);
+
     await EventHelper.clearAnalysisState(savedExperiment.id);
+
     experimentEventEmitter.emit("analysis-complete", {
       audit: auditJSON,
       experiment: experimentJSON,
@@ -227,11 +224,9 @@ const results = async (req, res) => {
       subType: result.subType,
       fileLocation: result.files
     });
-    winston.info(`Event emmitted`);
 
     return res.jsend(savedExperiment);
   } catch (e) {
-    winston.info(`Error processing result: ${JSON.stringify(e, null, 2)}`);
     return res.jerror(new errors.UpdateExperimentError(e.message));
   }
 };
@@ -248,21 +243,17 @@ const uploadFile = async (req, res) => {
     const path = `${config.express.uploadDir}/experiments/${experiment.id}/file`;
     try {
       await mkdirp(path);
-      winston.info(`Triggering create of ${path}/${req.body.name}`);
       const downloader = DownloadersFactory.create(`${path}/${req.body.name}`, {
         experiment,
         user: req.dbUser,
         ...req.body
       });
-      winston.info(`Triggering download of ${path}/${req.body.name}`);
       downloader.download(async () => {
-        winston.info(`Download complete, setting analysis state`);
         await EventHelper.updateAnalysisState(
           req.dbUser.id,
           experiment.id,
           `${config.express.uploadsLocation}/experiments/${experiment.id}/file/${req.body.name}`
         );
-        winston.info(`Analysis state set, calling analysis API`);
         await schedule("now", "call analysis api", {
           file: `${config.express.uploadsLocation}/experiments/${experiment.id}/file/${req.body.name}`,
           experiment_id: experiment.id,
@@ -288,17 +279,20 @@ const uploadFile = async (req, res) => {
   try {
     const experimentJson = new ExperimentJSONTransformer().transform(req.experiment);
     const resumableFilename = req.body.resumableFilename;
-
     await resumable.setUploadDirectory(
       `${config.express.uploadDir}/experiments/${experiment.id}/file`
     );
     const postUpload = await resumable.post(req);
     if (!postUpload.complete) {
+      const currentProgress = EventProgress.get(postUpload);
       // only update progress for each percent change
       const diff = EventProgress.diff(postUpload.id, postUpload);
-      logger.info(`diff in upload percentage: ${diff}`);
-      if (diff > 1) {
-        await EventHelper.updateUploadsState(req.dbUser.id, experiment.id, postUpload);
+      if (diff > 1 || !currentProgress) {
+        try {
+          await EventHelper.updateUploadsState(req.dbUser.id, experiment.id, postUpload);
+        } catch (e) {
+          logger.error(`Unable to store upload state: ${JSON.stringify(e, null, 2)}`);
+        }
         experimentEventEmitter.emit("upload-progress", {
           experiment: experimentJson,
           status: postUpload

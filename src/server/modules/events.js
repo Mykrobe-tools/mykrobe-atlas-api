@@ -22,21 +22,16 @@ const experimentEventEmitter = new EventEmitter();
 const userEventEmitter = new EventEmitter();
 
 const sendUserEvent = (userId, data) => {
-  logger.info(`#sendUserEvent: userId: ${JSON.stringify(userId, null, 2)}`);
   if (userId) {
     const channel = channels.getUserChannel(userId);
-    logger.info(`#sendUserEvent: data: ${JSON.stringify(data, null, 2)}`);
     channel.send({ data });
   }
 };
 
 const sendExperimentOwnerEvent = (experiment, data, type) => {
-  //logger.info(`#sendExperimentOwnerEvent: type: ${type}`);
   const owner = experiment.owner;
-  //logger.info(`#sendExperimentOwnerEvent: owner: ${JSON.stringify(owner, null, 2)}`);
   if (owner) {
     const ownerId = owner.id || owner;
-    //logger.info(`#sendExperimentOwnerEvent: ownerId: ${JSON.stringify(ownerId, null, 2)}`);
     if (ownerId) {
       sendUserEvent(ownerId, data);
     }
@@ -86,40 +81,30 @@ experimentEventEmitter.on(Constants.EVENTS.THIRD_PARTY_UPLOAD_COMPLETE.EVENT, pa
 });
 
 experimentEventEmitter.on(Constants.EVENTS.ANALYSIS_STARTED.EVENT, async payload => {
-  logger.info(`analysis-started event`);
   try {
-    logger.info(`analysis-started: payload: ${JSON.stringify(payload, null, 2)}`);
     const { experiment, audit } = payload;
 
     if (audit && experiment) {
-      logger.info(`analysis-started: transforming event`);
       const data = new AnalysisStartedJSONTransformer().transform(
         { audit, experiment, fileLocation: audit.fileLocation },
         {}
       );
-      logger.info(`analysis-started: data: ${JSON.stringify(data, null, 2)}`);
-      logger.info(`analysis-started: sending event`);
       sendExperimentOwnerEvent(experiment, data, Constants.EVENTS.ANALYSIS_STARTED.EVENT);
     }
   } catch (e) {
-    logger.info(`analysis-started: error: ${JSON.stringify(e, null, 2)}`);
+    logger.error(`analysis-started: error: ${JSON.stringify(e, null, 2)}`);
   }
 });
 
 experimentEventEmitter.on(Constants.EVENTS.ANALYSIS_COMPLETE.EVENT, async payload => {
-  logger.info(`analysis-completed event`);
   try {
-    logger.info(`analysis-completed: payload: ${JSON.stringify(payload, null, 2)}`);
     const { experiment, type, audit, fileLocation } = payload;
     if (experiment && type && audit) {
-      logger.info(`analysis-completed: transforming event`);
       const data = new AnalysisCompleteJSONTransformer().transform(payload, {});
-      logger.info(`analysis-completed: data: ${JSON.stringify(data, null, 2)}`);
-      logger.info(`analysis-completed: sending event`);
       sendExperimentOwnerEvent(payload.experiment, data, Constants.EVENTS.ANALYSIS_COMPLETE.EVENT);
     }
   } catch (e) {
-    logger.info(`analysis-completed: error: ${JSON.stringify(e, null, 2)}`);
+    logger.error(`analysis-completed: error: ${JSON.stringify(e, null, 2)}`);
   }
 });
 
