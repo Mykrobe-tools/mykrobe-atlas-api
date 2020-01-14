@@ -285,7 +285,7 @@ describe("OrganisationController", () => {
           .expect(httpStatus.OK)
           .end((err, res) => {
             expect(res.body.status).toEqual("error");
-            expect(res.body.data).toEqual("You are already in the unapprovedMembers list");
+            expect(res.body.message).toEqual("You are already in the unapprovedMembers list");
             done();
           });
       });
@@ -315,7 +315,7 @@ describe("OrganisationController", () => {
           .expect(httpStatus.OK)
           .end((err, res) => {
             expect(res.body.status).toEqual("error");
-            expect(res.body.data).toEqual("You are already in the rejectedMembers list");
+            expect(res.body.message).toEqual("You are already in the rejectedMembers list");
             done();
           });
       });
@@ -345,7 +345,7 @@ describe("OrganisationController", () => {
           .expect(httpStatus.OK)
           .end((err, res) => {
             expect(res.body.status).toEqual("error");
-            expect(res.body.data).toEqual("You are already in the members list");
+            expect(res.body.message).toEqual("You are already in the members list");
             done();
           });
       });
@@ -390,7 +390,7 @@ describe("OrganisationController", () => {
           .expect(httpStatus.OK)
           .end((err, res) => {
             expect(res.body.status).toEqual("error");
-            expect(res.body.data).toEqual("You are not an owner of this organisation");
+            expect(res.body.message).toEqual("You are not an owner of this organisation");
             done();
           });
       });
@@ -409,7 +409,7 @@ describe("OrganisationController", () => {
             .expect(httpStatus.OK)
             .end((err, res) => {
               expect(res.body.status).toEqual("error");
-              expect(res.body.data).toEqual(
+              expect(res.body.message).toEqual(
                 "The provided member is not eligible for this operation"
               );
               done();
@@ -429,7 +429,7 @@ describe("OrganisationController", () => {
             .expect(httpStatus.OK)
             .end((err, res) => {
               expect(res.body.status).toEqual("error");
-              expect(res.body.data).toEqual("You are already in the members list");
+              expect(res.body.message).toEqual("You are already in the members list");
               done();
             });
         });
@@ -558,7 +558,7 @@ describe("OrganisationController", () => {
           .expect(httpStatus.OK)
           .end((err, res) => {
             expect(res.body.status).toEqual("error");
-            expect(res.body.data).toEqual("You are not an owner of this organisation");
+            expect(res.body.message).toEqual("You are not an owner of this organisation");
             done();
           });
       });
@@ -577,7 +577,7 @@ describe("OrganisationController", () => {
             .expect(httpStatus.OK)
             .end((err, res) => {
               expect(res.body.status).toEqual("error");
-              expect(res.body.data).toEqual(
+              expect(res.body.message).toEqual(
                 "The provided member is not eligible for this operation"
               );
               done();
@@ -597,7 +597,7 @@ describe("OrganisationController", () => {
             .expect(httpStatus.OK)
             .end((err, res) => {
               expect(res.body.status).toEqual("error");
-              expect(res.body.data).toEqual("You are already in the members list");
+              expect(res.body.message).toEqual("You are already in the members list");
               done();
             });
         });
@@ -615,7 +615,7 @@ describe("OrganisationController", () => {
             .expect(httpStatus.OK)
             .end((err, res) => {
               expect(res.body.status).toEqual("error");
-              expect(res.body.data).toEqual("You are already in the rejectedMembers list");
+              expect(res.body.message).toEqual("You are already in the rejectedMembers list");
               done();
             });
         });
@@ -697,7 +697,7 @@ describe("OrganisationController", () => {
           .expect(httpStatus.OK)
           .end((err, res) => {
             expect(res.body.status).toEqual("error");
-            expect(res.body.data).toEqual("You are not an owner of this organisation");
+            expect(res.body.message).toEqual("You are not an owner of this organisation");
             done();
           });
       });
@@ -716,7 +716,7 @@ describe("OrganisationController", () => {
             .expect(httpStatus.OK)
             .end((err, res) => {
               expect(res.body.status).toEqual("error");
-              expect(res.body.data).toEqual(
+              expect(res.body.message).toEqual(
                 "The provided member is not eligible for this operation"
               );
               done();
@@ -783,7 +783,7 @@ describe("OrganisationController", () => {
           .expect(httpStatus.OK)
           .end((err, res) => {
             expect(res.body.status).toEqual("error");
-            expect(res.body.data).toEqual("You are not an owner of this organisation");
+            expect(res.body.message).toEqual("You are not an owner of this organisation");
             done();
           });
       });
@@ -802,7 +802,7 @@ describe("OrganisationController", () => {
             .expect(httpStatus.OK)
             .end((err, res) => {
               expect(res.body.status).toEqual("error");
-              expect(res.body.data).toEqual(
+              expect(res.body.message).toEqual(
                 "The provided member is not eligible for this operation"
               );
               done();
@@ -880,7 +880,7 @@ describe("OrganisationController", () => {
           .expect(httpStatus.OK)
           .end((err, res) => {
             expect(res.body.status).toEqual("error");
-            expect(res.body.data).toEqual("You are not an owner of this organisation");
+            expect(res.body.message).toEqual("You are not an owner of this organisation");
             done();
           });
       });
@@ -899,7 +899,7 @@ describe("OrganisationController", () => {
             .expect(httpStatus.OK)
             .end((err, res) => {
               expect(res.body.status).toEqual("error");
-              expect(res.body.data).toEqual("The owners list cannot be empty");
+              expect(res.body.message).toEqual("The owners list cannot be empty");
               done();
             });
         });
