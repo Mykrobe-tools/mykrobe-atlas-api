@@ -8,7 +8,9 @@ import AuditJSONTransformer from "../transformers/AuditJSONTransformer";
 import UserJSONTransformer from "../transformers/UserJSONTransformer";
 
 import ResultsParserFactory from "../helpers/results/ResultsParserFactory";
-import EventHelper from "../helpers/EventHelper";
+import EventHelper from "../helpers/events/EventHelper";
+
+import logger from "../modules/winston";
 
 import { userEventEmitter } from "../modules/events";
 
@@ -48,7 +50,11 @@ const saveResult = async (req, res) => {
       const auditJson = new AuditJSONTransformer().transform(audit);
 
       // notify all users and clear the list
-      await EventHelper.clearSearchesState(searchJson.id);
+      try {
+        await EventHelper.clearSearchesState(searchJson.id);
+      } catch (e) {
+        logger.error(`Unable to clear search state: ${e}`);
+      }
       const event = `${result.type}-search-complete`;
       search.users.forEach(user => {
         const userJson = new UserJSONTransformer().transform(user);

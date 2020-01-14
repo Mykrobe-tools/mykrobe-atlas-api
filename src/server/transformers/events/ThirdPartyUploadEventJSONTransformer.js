@@ -25,7 +25,10 @@ class ThirdPartyUploadEventJSONTransformer {
       res.complete = complete.toFixed(2);
       res.size = status.size;
       res.totalSize = totalSize;
-      res.file = path.basename(status.fileLocation);
+
+      if (status.fileLocation) {
+        res.file = path.basename(status.fileLocation);
+      }
     }
 
     return res;

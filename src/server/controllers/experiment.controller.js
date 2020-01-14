@@ -32,7 +32,8 @@ import APIError from "../helpers/APIError";
 import DownloadersFactory from "../helpers/DownloadersFactory";
 import BigsiSearchHelper from "../helpers/BigsiSearchHelper";
 import ResultsParserFactory from "../helpers/results/ResultsParserFactory";
-import EventHelper from "../helpers/EventHelper";
+import EventHelper from "../helpers/events/EventHelper";
+import EventProgress from "../helpers/events/EventProgress";
 
 import AuditJSONTransformer from "../transformers/AuditJSONTransformer";
 import ExperimentJSONTransformer from "../transformers/ExperimentJSONTransformer";
@@ -42,6 +43,7 @@ import ResultsJSONTransformer from "../transformers/ResultsJSONTransformer";
 import config from "../../config/env";
 import Constants from "../Constants";
 import SearchJSONTransformer from "../transformers/SearchJSONTransformer";
+import logger from "../modules/winston";
 
 const esConfig = { type: "experiment", ...config.elasticsearch };
 const elasticService = new ElasticService(esConfig, experimentSearchSchema);
@@ -201,7 +203,6 @@ const results = async (req, res) => {
   }
 
   updatedResults.push(result);
-
   experiment.set("results", updatedResults);
 
   try {
@@ -215,11 +216,13 @@ const results = async (req, res) => {
     const auditJSON = audit ? new AuditJSONTransformer().transform(audit) : null;
 
     await EventHelper.clearAnalysisState(savedExperiment.id);
+
     experimentEventEmitter.emit("analysis-complete", {
       audit: auditJSON,
       experiment: experimentJSON,
       type: result.type,
-      subType: result.subType
+      subType: result.subType,
+      fileLocation: result.files
     });
 
     return res.jsend(savedExperiment);
@@ -276,17 +279,26 @@ const uploadFile = async (req, res) => {
   try {
     const experimentJson = new ExperimentJSONTransformer().transform(req.experiment);
     const resumableFilename = req.body.resumableFilename;
-
     await resumable.setUploadDirectory(
       `${config.express.uploadDir}/experiments/${experiment.id}/file`
     );
     const postUpload = await resumable.post(req);
     if (!postUpload.complete) {
-      await EventHelper.updateUploadsState(req.dbUser.id, experiment.id, postUpload);
-      experimentEventEmitter.emit("upload-progress", {
-        experiment: experimentJson,
-        status: postUpload
-      });
+      const currentProgress = EventProgress.get(postUpload);
+      // only update progress for each percent change
+      const diff = EventProgress.diff(postUpload.id, postUpload);
+      if (diff > 1 || !currentProgress) {
+        try {
+          await EventHelper.updateUploadsState(req.dbUser.id, experiment.id, postUpload);
+        } catch (e) {
+          logger.error(`Unable to store upload state: ${JSON.stringify(e, null, 2)}`);
+        }
+        experimentEventEmitter.emit("upload-progress", {
+          experiment: experimentJson,
+          status: postUpload
+        });
+        EventProgress.update(postUpload.id, postUpload);
+      }
     } else {
       await EventHelper.clearUploadsState(req.dbUser.id, experiment.id);
       experimentEventEmitter.emit("upload-complete", {
@@ -310,6 +322,7 @@ const uploadFile = async (req, res) => {
     }
     return res.jerror(postUpload);
   } catch (err) {
+    logger.error(`Error uploading: ${JSON.stringify(err, null, 2)}`);
     return res.jerror(new errors.UploadFileError(err.message));
   }
 };

@@ -1,5 +1,8 @@
 import path from "path";
+
 import AnalysisEventJSONTransformer from "./AnalysisEventJSONTransformer";
+
+import Constants from "../../Constants";
 
 /**
  * A class to transform event payloads
@@ -12,8 +15,11 @@ class AnalysisStartedJSONTransformer extends AnalysisEventJSONTransformer {
   transform(o, options) {
     const res = super.transform(o, options);
 
-    res.file = path.basename(res.file);
-    res.event = "Analysis started";
+    res.event = Constants.EVENTS.ANALYSIS_STARTED.NAME;
+
+    if (res.file) {
+      res.file = path.basename(res.file);
+    }
 
     return res;
   }

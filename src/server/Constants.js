@@ -32,5 +32,64 @@ export default {
     OBJECT_NOT_FOUND: 10024
   },
 
+  EVENTS: {
+    ANALYSIS_STARTED: {
+      EVENT: "analysis-started",
+      NAME: "Analysis started"
+    },
+    ANALYSIS_COMPLETE: {
+      EVENT: "analysis-complete",
+      NAME: "Analysis complete"
+    },
+    DISTANCE_SEARCH_STARTED: {
+      EVENT: "distance-search-started",
+      NAME: "Distance search started"
+    },
+    DISTANCE_SEARCH_COMPLETE: {
+      EVENT: "distance-search-complete",
+      NAME: "Distance search complete"
+    },
+    PROTEIN_VARIANT_SEARCH_STARTED: {
+      EVENT: "protein-variant-search-started",
+      NAME: "Protein variant search started"
+    },
+    PROTEIN_VARIANT_SEARCH_COMPLETE: {
+      EVENT: "protein-variant-search-complete",
+      NAME: "Protein variant search complete"
+    },
+    DNA_VARIANT_SEARCH_STARTED: {
+      EVENT: "dna-variant-search-started",
+      NAME: "Protein variant search started"
+    },
+    DNA_VARIANT_SEARCH_COMPLETE: {
+      EVENT: "dna-variant-search-complete",
+      NAME: "Protein variant search complete"
+    },
+    SEQUENCE_SEARCH_STARTED: {
+      EVENT: "sequence-search-started",
+      NAME: "Sequence search started"
+    },
+    SEQUENCE_SEARCH_COMPLETE: {
+      EVENT: "sequence-search-complete",
+      NAME: "Sequence search complete"
+    },
+    THIRD_PARTY_UPLOAD_PROGRESS: {
+      EVENT: "3rd-party-upload-progress",
+      NAME: "Upload via 3rd party progress"
+    },
+    THIRD_PARTY_UPLOAD_COMPLETE: {
+      EVENT: "3rd-party-upload-complete",
+      NAME: "Upload via 3rd party complete"
+    },
+    UPLOAD_PROGRESS: {
+      EVENT: "upload-progress",
+      NAME: "Upload progress"
+    },
+    UPLOAD_COMPLETE: {
+      EVENT: "upload-complete",
+      NAME: "Upload complete"
+    }
+  },
+
   ORGANISATION_WHITELIST_FIELDS: ["name"]
 };

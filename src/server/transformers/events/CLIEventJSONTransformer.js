@@ -10,10 +10,14 @@ class CLIEventJSONTransformer {
    * @return {object} the transformed object
    */
   transform(o, options) {
-    const res = { id: options.id, type: options.type };
+    const res = {};
 
     if (o.taskId) {
       res.taskId = o.taskId;
+    }
+
+    if (o.type) {
+      res.type = o.type;
     }
 
     return res;
