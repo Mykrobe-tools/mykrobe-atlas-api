@@ -1,7 +1,7 @@
 import express from "express";
 import errors from "errors";
 
-import { jsonschema } from "makeandship-api-common/lib/modules/express/middleware";
+import { jsonschema, request } from "makeandship-api-common/lib/modules/express/middleware";
 import * as schemas from "mykrobe-atlas-jsonschema";
 
 import AccountsHelper from "../helpers/AccountsHelper";
@@ -10,6 +10,7 @@ import OrganisationHelper from "../helpers/OrganisationHelper";
 import organisationController from "../controllers/organisation.controller";
 import userController from "../controllers/user.controller";
 import config from "../../config/env";
+import Constants from "../Constants";
 
 const router = express.Router(); // eslint-disable-line new-cap
 const keycloak = AccountsHelper.keycloakInstance();
@@ -250,7 +251,11 @@ router
    *         schema:
    *           $ref: '#/definitions/OrganisationResponse'
    */
-  .put(keycloak.connect.protect(), organisationController.update)
+  .put(
+    keycloak.connect.protect(),
+    request.whitelist(Constants.ORGANISATION_WHITELIST_FIELDS),
+    organisationController.update
+  )
   /**
    * @swagger
    * /organisations/{id}:

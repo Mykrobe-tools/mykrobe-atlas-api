@@ -152,6 +152,53 @@ describe("OrganisationController", () => {
           done();
         });
     });
+    describe("when trying to update blacklisted fields", () => {
+      beforeEach(async done => {
+        const member = await OrganisationHelper.createMember(user);
+        organisation.owners.push(member);
+        await organisation.save();
+        done();
+      });
+      it("should only update the whitelisted fields", done => {
+        const data = {
+          owners: [
+            {
+              userId: "5e1da2eff1bf751cf6d5ba69",
+              firstname: "David",
+              lastname: "Robin",
+              phone: "06734929442",
+              username: "admin@nhs.co.uk",
+              email: "admin@nhs.co.uk",
+              id: "5e1da2eff1bf751cf6d5ba6b"
+            }
+          ],
+          members: [],
+          unapprovedMembers: [],
+          rejectedMembers: [],
+          name: "Make and Ship",
+          membersGroupId: "46e23392-1773-4ab0-9f54-14eb2200d077",
+          ownersGroupId: "46e23392-1773-4ab0-9f54-14eb2200d077",
+          id: "5e1da2eff1bf751cf6d5ba6a"
+        };
+        request(app)
+          .put(`/organisations/${id}`)
+          .set("Authorization", `Bearer ${token}`)
+          .send(data)
+          .expect(httpStatus.OK)
+          .end(() => {
+            request(app)
+              .get(`/organisations/${id}`)
+              .set("Authorization", `Bearer ${token}`)
+              .expect(httpStatus.OK)
+              .end((err, res) => {
+                expect(Array.isArray(res.body.data.owners)).toBe(true);
+                expect(res.body.data.owners.length).toEqual(1);
+                expect(res.body.data.name).toEqual("Make and Ship");
+                done();
+              });
+          });
+      });
+    });
   });
 
   describe("# GET /organisations", () => {

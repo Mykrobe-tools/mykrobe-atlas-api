@@ -89,5 +89,7 @@ export default {
       EVENT: "upload-complete",
       NAME: "Upload complete"
     }
-  }
+  },
+
+  ORGANISATION_WHITELIST_FIELDS: ["name"]
 };
