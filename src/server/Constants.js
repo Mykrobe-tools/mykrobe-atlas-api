@@ -30,5 +30,7 @@ export default {
     LOAD_USER: 10007,
     GET_SWAGGER_DOC: 10023,
     OBJECT_NOT_FOUND: 10024
-  }
+  },
+
+  ORGANISATION_WHITELIST_FIELDS: ["name"]
 };
