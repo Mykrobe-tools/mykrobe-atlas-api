@@ -106,8 +106,8 @@ const join = async (req, res) => {
   try {
     const member = await OrganisationHelper.createMember(req.dbUser);
     organisation.unapprovedMembers.push(member);
-    await organisation.save();
-    return res.jsend("Request sent, waiting for approval.");
+    const savedOrganisation = await organisation.save();
+    return res.jsend(savedOrganisation);
   } catch (e) {
     return res.jerror(e);
   }
@@ -131,10 +131,10 @@ const approve = async (req, res) => {
     member.set("action", "approve");
     const savedMember = await member.save();
     organisation.members.push(savedMember);
-    await organisation.save();
+    const savedOrganisation = await organisation.save();
     const memberUser = await User.get(savedMember.userId);
     await keycloak.addToGroup(organisation.membersGroupId, memberUser.keycloakId);
-    return res.jsend("Request approved.");
+    return res.jsend(savedOrganisation);
   } catch (e) {
     return res.jerror(e);
   }
@@ -158,8 +158,8 @@ const reject = async (req, res) => {
     member.set("action", "reject");
     const savedMember = await member.save();
     organisation.rejectedMembers.push(savedMember);
-    await organisation.save();
-    return res.jsend("Request rejected.");
+    const savedOrganisation = await organisation.save();
+    return res.jsend(savedOrganisation);
   } catch (e) {
     return res.jerror(e);
   }
@@ -175,8 +175,8 @@ const removeMember = async (req, res) => {
     const member = await Member.get(req.params.memberId);
     const memberUser = await User.get(member.userId);
     await keycloak.deleteFromGroup(organisation.membersGroupId, memberUser.keycloakId);
-    await organisation.save();
-    return res.jsend("Member removed successfully.");
+    const savedOrganisation = await organisation.save();
+    return res.jsend(savedOrganisation);
   } catch (e) {
     return res.jerror(e);
   }
@@ -200,11 +200,11 @@ const promote = async (req, res) => {
     member.set("action", "promote");
     const savedMember = await member.save();
     organisation.owners.push(savedMember);
-    await organisation.save();
+    const savedOrganisation = await organisation.save();
     const memberUser = await User.get(savedMember.userId);
     await keycloak.addToGroup(organisation.ownersGroupId, memberUser.keycloakId);
     await keycloak.deleteFromGroup(organisation.membersGroupId, memberUser.keycloakId);
-    return res.jsend("Member promoted.");
+    return res.jsend(savedOrganisation);
   } catch (e) {
     return res.jerror(e);
   }
@@ -228,11 +228,11 @@ const demote = async (req, res) => {
     member.set("action", "demote");
     const savedMember = await member.save();
     organisation.members.push(savedMember);
-    await organisation.save();
+    const savedOrganisation = await organisation.save();
     const memberUser = await User.get(savedMember.userId);
     await keycloak.addToGroup(organisation.membersGroupId, memberUser.keycloakId);
     await keycloak.deleteFromGroup(organisation.ownersGroupId, memberUser.keycloakId);
-    return res.jsend("Owner demoted.");
+    return res.jsend(savedOrganisation);
   } catch (e) {
     return res.jerror(e);
   }

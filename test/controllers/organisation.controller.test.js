@@ -265,7 +265,8 @@ describe("OrganisationController", () => {
           .expect(httpStatus.OK)
           .end((err, res) => {
             expect(res.body.status).toEqual("success");
-            expect(res.body.data).toEqual("Request sent, waiting for approval.");
+            expect(res.body.data.id).toEqual(id);
+            expect(res.body.data.unapprovedMembers.length).toEqual(1);
             done();
           });
       });
@@ -446,7 +447,8 @@ describe("OrganisationController", () => {
             .expect(httpStatus.OK)
             .end((err, res) => {
               expect(res.body.status).toEqual("success");
-              expect(res.body.data).toEqual("Request approved.");
+              expect(res.body.data.id).toEqual(id);
+              expect(res.body.data.members.length).toEqual(1);
               done();
             });
         });
@@ -492,7 +494,8 @@ describe("OrganisationController", () => {
             .expect(httpStatus.OK)
             .end((err, res) => {
               expect(res.body.status).toEqual("success");
-              expect(res.body.data).toEqual("Request approved.");
+              expect(res.body.data.id).toEqual(id);
+              expect(res.body.data.members.length).toEqual(1);
               done();
             });
         });
@@ -630,7 +633,8 @@ describe("OrganisationController", () => {
             .expect(httpStatus.OK)
             .end((err, res) => {
               expect(res.body.status).toEqual("success");
-              expect(res.body.data).toEqual("Request rejected.");
+              expect(res.body.data.id).toEqual(id);
+              expect(res.body.data.rejectedMembers.length).toEqual(1);
               done();
             });
         });
@@ -732,7 +736,8 @@ describe("OrganisationController", () => {
             .expect(httpStatus.OK)
             .end((err, res) => {
               expect(res.body.status).toEqual("success");
-              expect(res.body.data).toEqual("Member removed successfully.");
+              expect(res.body.data.id).toEqual(id);
+              expect(res.body.data.members.length).toEqual(0);
               done();
             });
         });
@@ -817,7 +822,8 @@ describe("OrganisationController", () => {
             .expect(httpStatus.OK)
             .end((err, res) => {
               expect(res.body.status).toEqual("success");
-              expect(res.body.data).toEqual("Member promoted.");
+              expect(res.body.data.id).toEqual(id);
+              expect(res.body.data.owners.length).toEqual(2);
               done();
             });
         });
@@ -926,7 +932,8 @@ describe("OrganisationController", () => {
             .expect(httpStatus.OK)
             .end((err, res) => {
               expect(res.body.status).toEqual("success");
-              expect(res.body.data).toEqual("Owner demoted.");
+              expect(res.body.data.id).toEqual(id);
+              expect(res.body.data.owners.length).toEqual(1);
               done();
             });
         });

@@ -306,7 +306,7 @@ router
    *       200:
    *         description: A jsend response
    *         schema:
-   *           $ref: '#/definitions/BasicResponse'
+   *           $ref: '#/definitions/OrganisationResponse'
    */
   .post(
     keycloak.connect.protect(),
@@ -344,7 +344,7 @@ router
    *       200:
    *         description: A jsend response
    *         schema:
-   *           $ref: '#/definitions/BasicResponse'
+   *           $ref: '#/definitions/OrganisationResponse'
    */
   .post(
     keycloak.connect.protect(),
@@ -384,7 +384,7 @@ router
    *       200:
    *         description: A jsend response
    *         schema:
-   *           $ref: '#/definitions/BasicResponse'
+   *           $ref: '#/definitions/OrganisationResponse'
    */
   .post(
     keycloak.connect.protect(),
@@ -424,7 +424,7 @@ router
    *       200:
    *         description: A jsend response
    *         schema:
-   *           $ref: '#/definitions/BasicResponse'
+   *           $ref: '#/definitions/OrganisationResponse'
    */
   .post(
     keycloak.connect.protect(),
@@ -463,7 +463,7 @@ router
    *       200:
    *         description: A jsend response
    *         schema:
-   *           $ref: '#/definitions/BasicResponse'
+   *           $ref: '#/definitions/OrganisationResponse'
    */
   .post(
     keycloak.connect.protect(),
@@ -502,7 +502,7 @@ router
    *       200:
    *         description: A jsend response
    *         schema:
-   *           $ref: '#/definitions/BasicResponse'
+   *           $ref: '#/definitions/OrganisationResponse'
    */
   .post(
     keycloak.connect.protect(),
