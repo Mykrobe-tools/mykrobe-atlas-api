@@ -1,4 +1,5 @@
 import Member from "../models/member.model";
+import APIError from "../helpers/APIError";
 
 class OrganisationHelper {
   /**
@@ -14,7 +15,7 @@ class OrganisationHelper {
       if (req.params.memberId) {
         const member = await Member.get(req.params.memberId);
         if (!member) {
-          return res.jerror(`Member not found with id ${req.params.memberId}`);
+          return res.jerror(new APIError(`Member not found with id ${req.params.memberId}`));
         }
         currentUserId = member.userId;
       }
@@ -24,7 +25,7 @@ class OrganisationHelper {
       for (let list of lists) {
         const foundMember = organisation[list].find(member => member.userId === currentUserId);
         if (foundMember) {
-          return res.jerror(`You are already in the ${list} list`);
+          return res.jerror(new APIError(`You are already in the ${list} list`));
         }
       }
       return next();
@@ -42,7 +43,7 @@ class OrganisationHelper {
       const currentUser = req.dbUser;
       const foundUser = organisation.owners.find(owner => owner.userId === currentUser.id);
       if (!foundUser) {
-        return res.jerror("You are not an owner of this organisation");
+        return res.jerror(new APIError("You are not an owner of this organisation"));
       }
       return next();
     };
@@ -66,7 +67,7 @@ class OrganisationHelper {
           return next();
         }
       }
-      return res.jerror("The provided member is not eligible for this operation");
+      return res.jerror(new APIError("The provided member is not eligible for this operation"));
     };
   }
 
@@ -80,7 +81,7 @@ class OrganisationHelper {
     return async (req, res, next) => {
       const organisation = req.organisation;
       if (organisation[list].length === 0) {
-        return res.jerror(`The ${list} list cannot be empty`);
+        return res.jerror(new APIError(`The ${list} list cannot be empty`));
       }
       return next();
     };
