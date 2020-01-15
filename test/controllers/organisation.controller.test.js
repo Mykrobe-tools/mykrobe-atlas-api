@@ -8,6 +8,8 @@ import Organisation from "../../src/server/models/organisation.model";
 import Member from "../../src/server/models/member.model";
 import OrganisationHelper from "../../src/server/helpers/OrganisationHelper";
 
+import Constants from "../../src/server/Constants";
+
 const app = createApp();
 
 const users = require("../fixtures/users");
@@ -65,6 +67,7 @@ describe("OrganisationController", () => {
         .expect(httpStatus.UNAUTHORIZED)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
+          expect(res.body.code).toEqual(Constants.ERRORS.API_ERROR);
           expect(res.body.message).toEqual("Not Authorised");
           done();
         });
@@ -252,6 +255,7 @@ describe("OrganisationController", () => {
           .expect(httpStatus.UNAUTHORIZED)
           .end((err, res) => {
             expect(res.body.status).toEqual("error");
+            expect(res.body.code).toEqual(Constants.ERRORS.API_ERROR);
             expect(res.body.message).toEqual("Not Authorised");
             done();
           });
@@ -285,6 +289,7 @@ describe("OrganisationController", () => {
           .expect(httpStatus.OK)
           .end((err, res) => {
             expect(res.body.status).toEqual("error");
+            expect(res.body.code).toEqual(Constants.ERRORS.JOIN_ORGANISATION);
             expect(res.body.message).toEqual("You are already in the unapprovedMembers list");
             done();
           });
@@ -315,6 +320,7 @@ describe("OrganisationController", () => {
           .expect(httpStatus.OK)
           .end((err, res) => {
             expect(res.body.status).toEqual("error");
+            expect(res.body.code).toEqual(Constants.ERRORS.JOIN_ORGANISATION);
             expect(res.body.message).toEqual("You are already in the rejectedMembers list");
             done();
           });
@@ -345,6 +351,7 @@ describe("OrganisationController", () => {
           .expect(httpStatus.OK)
           .end((err, res) => {
             expect(res.body.status).toEqual("error");
+            expect(res.body.code).toEqual(Constants.ERRORS.JOIN_ORGANISATION);
             expect(res.body.message).toEqual("You are already in the members list");
             done();
           });
@@ -377,6 +384,7 @@ describe("OrganisationController", () => {
           .expect(httpStatus.UNAUTHORIZED)
           .end((err, res) => {
             expect(res.body.status).toEqual("error");
+            expect(res.body.code).toEqual(Constants.ERRORS.API_ERROR);
             expect(res.body.message).toEqual("Not Authorised");
             done();
           });
@@ -390,6 +398,7 @@ describe("OrganisationController", () => {
           .expect(httpStatus.OK)
           .end((err, res) => {
             expect(res.body.status).toEqual("error");
+            expect(res.body.code).toEqual(Constants.ERRORS.APPROVE_MEMBER);
             expect(res.body.message).toEqual("You are not an owner of this organisation");
             done();
           });
@@ -409,6 +418,7 @@ describe("OrganisationController", () => {
             .expect(httpStatus.OK)
             .end((err, res) => {
               expect(res.body.status).toEqual("error");
+              expect(res.body.code).toEqual(Constants.ERRORS.APPROVE_MEMBER);
               expect(res.body.message).toEqual(
                 "The provided member is not eligible for this operation"
               );
@@ -429,6 +439,7 @@ describe("OrganisationController", () => {
             .expect(httpStatus.OK)
             .end((err, res) => {
               expect(res.body.status).toEqual("error");
+              expect(res.body.code).toEqual(Constants.ERRORS.APPROVE_MEMBER);
               expect(res.body.message).toEqual("You are already in the members list");
               done();
             });
@@ -545,6 +556,7 @@ describe("OrganisationController", () => {
           .expect(httpStatus.UNAUTHORIZED)
           .end((err, res) => {
             expect(res.body.status).toEqual("error");
+            expect(res.body.code).toEqual(Constants.ERRORS.API_ERROR);
             expect(res.body.message).toEqual("Not Authorised");
             done();
           });
@@ -558,6 +570,7 @@ describe("OrganisationController", () => {
           .expect(httpStatus.OK)
           .end((err, res) => {
             expect(res.body.status).toEqual("error");
+            expect(res.body.code).toEqual(Constants.ERRORS.REJECT_MEMBER);
             expect(res.body.message).toEqual("You are not an owner of this organisation");
             done();
           });
@@ -577,6 +590,7 @@ describe("OrganisationController", () => {
             .expect(httpStatus.OK)
             .end((err, res) => {
               expect(res.body.status).toEqual("error");
+              expect(res.body.code).toEqual(Constants.ERRORS.REJECT_MEMBER);
               expect(res.body.message).toEqual(
                 "The provided member is not eligible for this operation"
               );
@@ -597,6 +611,7 @@ describe("OrganisationController", () => {
             .expect(httpStatus.OK)
             .end((err, res) => {
               expect(res.body.status).toEqual("error");
+              expect(res.body.code).toEqual(Constants.ERRORS.REJECT_MEMBER);
               expect(res.body.message).toEqual("You are already in the members list");
               done();
             });
@@ -615,6 +630,7 @@ describe("OrganisationController", () => {
             .expect(httpStatus.OK)
             .end((err, res) => {
               expect(res.body.status).toEqual("error");
+              expect(res.body.code).toEqual(Constants.ERRORS.REJECT_MEMBER);
               expect(res.body.message).toEqual("You are already in the rejectedMembers list");
               done();
             });
@@ -684,6 +700,7 @@ describe("OrganisationController", () => {
           .expect(httpStatus.UNAUTHORIZED)
           .end((err, res) => {
             expect(res.body.status).toEqual("error");
+            expect(res.body.code).toEqual(Constants.ERRORS.API_ERROR);
             expect(res.body.message).toEqual("Not Authorised");
             done();
           });
@@ -697,6 +714,7 @@ describe("OrganisationController", () => {
           .expect(httpStatus.OK)
           .end((err, res) => {
             expect(res.body.status).toEqual("error");
+            expect(res.body.code).toEqual(Constants.ERRORS.REMOVE_MEMBER);
             expect(res.body.message).toEqual("You are not an owner of this organisation");
             done();
           });
@@ -716,6 +734,7 @@ describe("OrganisationController", () => {
             .expect(httpStatus.OK)
             .end((err, res) => {
               expect(res.body.status).toEqual("error");
+              expect(res.body.code).toEqual(Constants.ERRORS.REMOVE_MEMBER);
               expect(res.body.message).toEqual(
                 "The provided member is not eligible for this operation"
               );
@@ -770,6 +789,7 @@ describe("OrganisationController", () => {
           .expect(httpStatus.UNAUTHORIZED)
           .end((err, res) => {
             expect(res.body.status).toEqual("error");
+            expect(res.body.code).toEqual(Constants.ERRORS.API_ERROR);
             expect(res.body.message).toEqual("Not Authorised");
             done();
           });
@@ -783,6 +803,7 @@ describe("OrganisationController", () => {
           .expect(httpStatus.OK)
           .end((err, res) => {
             expect(res.body.status).toEqual("error");
+            expect(res.body.code).toEqual(Constants.ERRORS.PROMOTE_MEMBER);
             expect(res.body.message).toEqual("You are not an owner of this organisation");
             done();
           });
@@ -802,6 +823,7 @@ describe("OrganisationController", () => {
             .expect(httpStatus.OK)
             .end((err, res) => {
               expect(res.body.status).toEqual("error");
+              expect(res.body.code).toEqual(Constants.ERRORS.PROMOTE_MEMBER);
               expect(res.body.message).toEqual(
                 "The provided member is not eligible for this operation"
               );
@@ -867,6 +889,7 @@ describe("OrganisationController", () => {
           .expect(httpStatus.UNAUTHORIZED)
           .end((err, res) => {
             expect(res.body.status).toEqual("error");
+            expect(res.body.code).toEqual(Constants.ERRORS.API_ERROR);
             expect(res.body.message).toEqual("Not Authorised");
             done();
           });
@@ -880,6 +903,7 @@ describe("OrganisationController", () => {
           .expect(httpStatus.OK)
           .end((err, res) => {
             expect(res.body.status).toEqual("error");
+            expect(res.body.code).toEqual(Constants.ERRORS.DEMOTE_MEMBER);
             expect(res.body.message).toEqual("You are not an owner of this organisation");
             done();
           });
@@ -899,6 +923,7 @@ describe("OrganisationController", () => {
             .expect(httpStatus.OK)
             .end((err, res) => {
               expect(res.body.status).toEqual("error");
+              expect(res.body.code).toEqual(Constants.ERRORS.DEMOTE_MEMBER);
               expect(res.body.message).toEqual("The owners list cannot be empty");
               done();
             });

@@ -1,8 +1,8 @@
-import errors from "errors";
 import httpStatus from "http-status";
 import mkdirp from "mkdirp-promise";
 import Promise from "bluebird";
 
+import { ValidationError, ErrorUtil, APIError } from "makeandship-api-common/lib/modules/error";
 import { ElasticService } from "makeandship-api-common/lib/modules/elasticsearch/";
 import ArrayJSONTransformer from "makeandship-api-common/lib/transformers/ArrayJSONTransformer";
 import SearchResultsJSONTransformer from "makeandship-api-common/lib/modules/elasticsearch/transformers/SearchResultsJSONTransformer";
@@ -28,7 +28,6 @@ import { experimentEventEmitter, userEventEmitter } from "../modules/events";
 import { parseQuery, callTreeApi } from "../modules/search";
 import winston from "../modules/winston";
 
-import APIError from "../helpers/APIError";
 import DownloadersFactory from "../helpers/DownloadersFactory";
 import BigsiSearchHelper from "../helpers/BigsiSearchHelper";
 import ResultsParserFactory from "../helpers/results/ResultsParserFactory";
@@ -104,7 +103,7 @@ const create = async (req, res) => {
     await elasticService.indexDocument(savedExperiment);
     return res.jsend(savedExperiment);
   } catch (e) {
-    return res.jerror(new errors.CreateExperimentError(e.message));
+    return res.jerror(ErrorUtil.convert(e, Constants.ERRORS.CREATE_EXPERIMENT));
   }
 };
 
@@ -126,7 +125,7 @@ const update = async (req, res) => {
     await elasticService.updateDocument(savedExperiment);
     return res.jsend(savedExperiment);
   } catch (e) {
-    return res.jerror(new errors.UpdateExperimentError(e.message));
+    return res.jerror(ErrorUtil.convert(e, Constants.ERRORS.UPDATE_EXPERIMENT));
   }
 };
 
@@ -159,7 +158,7 @@ const remove = async (req, res) => {
     await elasticService.deleteDocument(experiment.id);
     return res.jsend("Experiment was successfully deleted.");
   } catch (e) {
-    return res.jerror(e);
+    return res.jerror(ErrorUtil.convert(e, Constants.ERRORS.DELETE_EXPERIMENT));
   }
 };
 
@@ -177,7 +176,7 @@ const metadata = async (req, res) => {
     await elasticService.updateDocument(savedExperiment);
     return res.jsend(savedExperiment);
   } catch (e) {
-    return res.jerror(new errors.UpdateExperimentError(e.message));
+    return res.jerror(ErrorUtil.convert(e, Constants.ERRORS.UPDATE_EXPERIMENT));
   }
 };
 
@@ -191,7 +190,9 @@ const results = async (req, res) => {
 
   const parser = await ResultsParserFactory.create(req.body);
   if (!parser) {
-    return res.jerror(new errors.UpdateExperimentError("Invalid result type."));
+    return res.jerror(
+      new APIError(Constants.ERRORS.UPDATE_EXPERIMENT_RESULTS, "Invalid result type")
+    );
   }
 
   const result = parser.parse(req.body);
@@ -227,7 +228,7 @@ const results = async (req, res) => {
 
     return res.jsend(savedExperiment);
   } catch (e) {
-    return res.jerror(new errors.UpdateExperimentError(e.message));
+    return res.jerror(ErrorUtil.convert(e, Constants.ERRORS.UPDATE_EXPERIMENT_RESULTS));
   }
 };
 
@@ -266,13 +267,13 @@ const uploadFile = async (req, res) => {
 
       return res.jsend(`Download started from ${req.body.provider}`);
     } catch (e) {
-      return res.jerror(new errors.UploadFileError(e.message));
+      return res.jerror(ErrorUtil.convert(e, Constants.ERRORS.UPLOAD_FILE));
     }
   }
 
   // no file provided to upload
   if (!req.file) {
-    return res.jerror(new errors.UploadFileError("No files found to upload"));
+    return res.jerror(new APIError(Constants.ERRORS.UPLOAD_FILE, "No files found to upload"));
   }
 
   // from local file
@@ -320,10 +321,11 @@ const uploadFile = async (req, res) => {
         return res.jsend("File uploaded and reassembled");
       });
     }
-    return res.jerror(postUpload);
-  } catch (err) {
-    logger.error(`Error uploading: ${JSON.stringify(err, null, 2)}`);
-    return res.jerror(new errors.UploadFileError(err.message));
+    return res.jerror(
+      new APIError(Constants.ERRORS.UPLOAD_FILE, "Error uploading file", postUpload)
+    );
+  } catch (e) {
+    return res.jerror(ErrorUtil.convert(e, Constants.ERRORS.UPLOAD_FILE));
   }
 };
 
@@ -336,7 +338,8 @@ const readFile = (req, res) => {
     const path = `${config.express.uploadDir}/experiments/${experiment.id}/file`;
     return res.sendFile(`${path}/${experiment.file}`);
   }
-  return res.jerror("No file found for this Experiment");
+
+  return res.jerror(new APIError(Constants.ERRORS.GET_EXPERIMENT, "Error reading file"));
 };
 
 const uploadStatus = async (req, res) => {
@@ -350,10 +353,15 @@ const uploadStatus = async (req, res) => {
     if (validateGetRequest.valid) {
       return res.jsend(validateGetRequest);
     }
-    const error = new APIError(validateGetRequest.message, httpStatus.NO_CONTENT);
+    const error = new APIError(
+      Constants.ERRORS.UPLOAD_FILE,
+      validateGetRequest.message,
+      null,
+      httpStatus.NO_CONTENT
+    );
     return res.jerror(error);
-  } catch (err) {
-    return res.jerror(new errors.UploadFileError(err.message));
+  } catch (e) {
+    return res.jerror(ErrorUtil.convert(e, Constants.ERRORS.UPLOAD_FILE));
   }
 };
 
@@ -387,7 +395,7 @@ const reindex = async (req, res) => {
     }
     return res.jsend(`All ${pagination.count} experiment(s) have been indexed.`);
   } catch (e) {
-    return res.jerror(e.message);
+    return res.jerror(ErrorUtil.convert(e, Constants.ERRORS.REINDEX_EXPERIMENTS));
   }
 };
 
@@ -413,7 +421,7 @@ const choices = async (req, res) => {
 
     return res.jsend(choices);
   } catch (e) {
-    return res.jerror(new errors.SearchMetadataValuesError(e.message));
+    return res.jerror(ErrorUtil.convert(e, Constants.ERRORS.SEARCH_METADATA_VALUES));
   }
 };
 
@@ -463,7 +471,7 @@ const search = async (req, res) => {
       return res.jsend(results);
     }
   } catch (e) {
-    return res.jerror(new errors.SearchMetadataValuesError(e.message));
+    return res.jerror(ErrorUtil.convert(e, Constants.ERRORS.SEARCH_METADATA_VALUES));
   }
 };
 

@@ -5,7 +5,6 @@ import config from "./config/env";
 import createApp from "./server/app";
 import errors from "./config/errors-definition";
 
-require("./express-jsend");
 const app = createApp();
 const debug = require("debug")("atlas:index");
 

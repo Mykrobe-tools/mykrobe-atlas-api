@@ -3418,7 +3418,7 @@ router
   .post(
     keycloak.connect.protect(),
     jsonschema.trim(schemas["experiment"]),
-    jsonschema.schemaValidation(schemas["experiment"], errors, "CreateExperimentError", "all"),
+    jsonschema.schemaValidation(schemas["experiment"]),
     userController.loadCurrentUser,
     experimentController.create
   );
@@ -4158,7 +4158,7 @@ router
    */
   .put(
     keycloak.connect.protect(),
-    jsonschema.schemaValidation(schemas["uploadExperiment"], errors, "UploadExperimentError"),
+    jsonschema.schemaValidation(schemas["uploadExperiment"]),
     upload.single("file"),
     userController.loadCurrentUser,
     experimentController.uploadFile

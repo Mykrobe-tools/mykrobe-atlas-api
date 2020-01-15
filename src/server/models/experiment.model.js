@@ -1,12 +1,16 @@
 import mongoose from "mongoose";
-import errors from "errors";
 import schemaValidator from "mongoose-jsonschema-validator";
+
 import { experiment as experimentJsonSchema } from "mykrobe-atlas-jsonschema";
+
+import { APIError } from "makeandship-api-common/lib/modules/error";
 
 import JSONMongooseSchema from "./jsonschema.model";
 
 import ExperimentJSONTransformer from "../transformers/ExperimentJSONTransformer";
 import ExperimentHelper from "../helpers/ExperimentHelper";
+
+import Constants from "../Constants";
 
 /**
  * Experiment Schema
@@ -76,9 +80,9 @@ ExperimentSchema.statics = {
       if (experiment) {
         return experiment;
       }
-      throw new errors.ObjectNotFound(`Experiment not found with id ${id}`);
+      throw new APIError(Constants.ERRORS.GET_EXPERIMENT, `Experiment not found with id ${id}`);
     } catch (e) {
-      throw new errors.ObjectNotFound(e.message);
+      throw new APIError(Constants.ERRORS.GET_EXPERIMENT, e.message);
     }
   },
   /**

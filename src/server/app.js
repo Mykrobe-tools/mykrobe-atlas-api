@@ -16,6 +16,7 @@ import routes from "./routes/index.route";
 import config from "../config/env";
 import APIError from "./helpers/APIError";
 import AccountsHelper from "./helpers/AccountsHelper";
+import initializer from "./modules/initializer";
 import { stubDevApis } from "../external";
 
 const keycloak = AccountsHelper.keycloakInstance();

@@ -14,7 +14,6 @@ import {
   stubSearchApi
 } from "../src/external";
 
-require("../src/express-jsend");
 jest.mock("../src/server/modules/agenda");
 const createApp = require("../src/server/app");
 

@@ -1,14 +1,17 @@
 import mongoose from "mongoose";
 import slugify from "slugify";
-import errors from "errors";
 
 import { organisation as organisationJsonSchema } from "mykrobe-atlas-jsonschema";
+
+import { APIError } from "makeandship-api-common/lib/modules/error";
 
 import JSONMongooseSchema from "./jsonschema.model";
 
 import OrganisationJSONTransformer from "../transformers/OrganisationJSONTransformer";
 
 import AccountsHelper from "../helpers/AccountsHelper";
+
+import Constants from "../Constants";
 
 /**
  * Organisation Schema
@@ -81,9 +84,9 @@ OrganisationSchema.statics = {
       if (organisation) {
         return organisation;
       }
-      throw new errors.ObjectNotFound(`Organisation not found with id ${id}`);
+      throw new APIError(Constants.ERRORS.GET_ORGANISATION, `Organisation not found with id ${id}`);
     } catch (e) {
-      throw new errors.ObjectNotFound(e.message);
+      throw new APIError(Constants.ERRORS.GET_ORGANISATION, e.message);
     }
   },
 
