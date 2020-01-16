@@ -872,7 +872,6 @@ describe("ExperimentController", () => {
         .field("checksum", "4f36e4cbfc9dfc37559e13bd3a309d50")
         .expect(httpStatus.OK)
         .end((err, res) => {
-          console.log(res.body);
           expect(res.body.status).toEqual("error");
           expect(res.body.code).toEqual(Constants.ERRORS.UPLOAD_FILE);
           expect(res.body.message).toEqual("No files found to upload");

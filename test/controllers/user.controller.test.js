@@ -107,7 +107,6 @@ describe("UserController", () => {
         .send(invalid)
         .expect(httpStatus.OK)
         .end((err, res) => {
-          console.log(`res.body: ${JSON.stringify(res.body, null, 2)}`);
           expect(res.body.status).toEqual("error");
           expect(res.body.code).toEqual(Constants.ERRORS.CREATE_USER);
           expect(res.body.message).toEqual("Please provide a password");
