@@ -3,9 +3,11 @@ import passwordHash from "password-hash";
 import errors from "errors";
 import httpStatus from "http-status";
 import randomstring from "randomstring";
+
+import { APIError } from "makeandship-api-common/lib/modules/error";
+
 import User from "../models/user.model";
 import Organisation from "../models/organisation.model";
-import APIError from "../helpers/APIError";
 import AccountsHelper from "../helpers/AccountsHelper";
 
 import config from "../../config/env";

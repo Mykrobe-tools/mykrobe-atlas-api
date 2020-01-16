@@ -896,8 +896,8 @@ describe("ExperimentController", () => {
         .attach("file", "test/fixtures/files/333-08.json")
         .expect(httpStatus.OK)
         .end((err, res) => {
-          console.log(res.body);
           expect(res.body.status).toEqual("error");
+          expect(res.body.code).toEqual(Constants.ERRORS.UPLOAD_FILE);
           expect(res.body.data.complete).toEqual(false);
           expect(res.body.data.message).toEqual(
             "Uploaded file checksum doesn't match original checksum"
@@ -922,15 +922,16 @@ describe("ExperimentController", () => {
         .attach("file", "test/fixtures/files/333-08.json")
         .expect(httpStatus.OK)
         .end((err, res) => {
-          console.log(res.body);
           expect(res.body.status).toEqual("error");
+          expect(res.body.code).toEqual(Constants.ERRORS.UPLOAD_FILE);
+          expect(res.body.message).toEqual("Error uploading file");
           expect(res.body.data.complete).toEqual(false);
           expect(res.body.data.message).toEqual("Incorrect individual chunk size");
           done();
         });
     });
     describe("when provider and path are present", () => {
-      it.only("should only allow valid providers", done => {
+      it("should only allow valid providers", done => {
         request(app)
           .put(`/experiments/${id}/provider`)
           .set("Authorization", `Bearer ${token}`)
@@ -941,11 +942,12 @@ describe("ExperimentController", () => {
           })
           .expect(httpStatus.OK)
           .end((err, res) => {
-            console.log(res.body);
-            // expect(res.body.status).toEqual("error");
-            // expect(res.body.data.errors.provider.message).toEqual(
-            //   "should be equal to one of the allowed values"
-            // );
+            expect(res.body.status).toEqual("error");
+            expect(res.body.code).toEqual(Constants.ERRORS.VALIDATION_ERROR);
+            expect(res.body.message).toEqual("Unable to upload experiment");
+            expect(res.body.data.errors.provider.message).toEqual(
+              "should be equal to one of the allowed values"
+            );
             done();
           });
       });
@@ -1659,7 +1661,8 @@ describe("ExperimentController", () => {
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
-          expect(res.body.data).toEqual("No file found for this Experiment");
+          expect(res.body.code).toEqual(Constants.ERRORS.GET_EXPERIMENT);
+          expect(res.body.message).toEqual("Error reading file");
           done();
         });
     });
@@ -1839,7 +1842,8 @@ describe("ExperimentController", () => {
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
-          expect(res.body.message).toEqual("Invalid result type.");
+          expect(res.body.code).toEqual(Constants.ERRORS.UPDATE_EXPERIMENT_RESULTS);
+          expect(res.body.message).toEqual("Invalid result type");
           done();
         });
     });

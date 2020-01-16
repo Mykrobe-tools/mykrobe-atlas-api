@@ -2,6 +2,7 @@ import passwordHash from "password-hash";
 import errors from "errors";
 import flatten from "flat";
 
+import { ErrorUtil, APIError } from "makeandship-api-common/lib/modules/error";
 import ArrayJSONTransformer from "makeandship-api-common/lib/transformers/ArrayJSONTransformer";
 
 import { userEventEmitter } from "../modules/events";
@@ -26,6 +27,8 @@ import ResultsParserFactory from "../helpers/results/ResultsParserFactory";
 
 import config from "../../config/env";
 import SearchJSONTransformer from "../transformers/SearchJSONTransformer";
+
+import Constants from "../Constants";
 
 const keycloak = AccountsHelper.keycloakInstance();
 
@@ -71,7 +74,17 @@ const create = async (req, res) => {
 
     if (EmailHelper.isValid(username)) {
       if (!req.body.password) {
-        return res.jerror("Please provide a password");
+        return res.jerror(
+          new APIError(Constants.ERRORS.CREATE_USER, "Please provide a password", {
+            errors: {
+              password: {
+                path: "password",
+                type: "required",
+                message: "should have required property 'password'"
+              }
+            }
+          })
+        );
       }
 
       userData.email = username;
@@ -87,14 +100,24 @@ const create = async (req, res) => {
         req.body.password
       );
     } else {
-      return res.jerror("Invalid username");
+      return res.jerror(
+        new APIError(Constants.ERRORS.CREATE_USER, "Invalid username", {
+          errors: {
+            username: {
+              path: "username",
+              type: "required",
+              message: "should be a valid username"
+            }
+          }
+        })
+      );
     }
 
     const user = new User(userData);
     const savedUser = await user.save();
     return res.jsend(savedUser);
   } catch (e) {
-    return res.jerror(e);
+    return res.jerror(ErrorUtil.convert(e, Constants.ERRORS.CREATE_USER));
   }
 };
 
@@ -106,6 +129,7 @@ const create = async (req, res) => {
  */
 const update = async (req, res) => {
   const user = req.dbUser;
+
   user.firstname = req.body.firstname || user.firstname;
   user.lastname = req.body.lastname || user.lastname;
   user.phone = typeof req.body.phone === "undefined" ? user.phone : req.body.phone;
@@ -115,7 +139,7 @@ const update = async (req, res) => {
     const savedUser = await user.save({ lean: true });
     return res.jsend(new UserJSONTransformer().transform(savedUser));
   } catch (e) {
-    return res.jerror(e);
+    return res.jerror(ErrorUtil.convert(e, Constants.ERRORS.UPDATE_USER));
   }
 };
 

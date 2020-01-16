@@ -67,7 +67,7 @@ describe("OrganisationController", () => {
         .expect(httpStatus.UNAUTHORIZED)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
-          expect(res.body.code).toEqual(Constants.ERRORS.API_ERROR);
+          expect(res.body.code).toEqual(Constants.ERRORS.NOT_ALLOWED);
           expect(res.body.message).toEqual("Not Authorised");
           done();
         });
@@ -255,7 +255,7 @@ describe("OrganisationController", () => {
           .expect(httpStatus.UNAUTHORIZED)
           .end((err, res) => {
             expect(res.body.status).toEqual("error");
-            expect(res.body.code).toEqual(Constants.ERRORS.API_ERROR);
+            expect(res.body.code).toEqual(Constants.ERRORS.NOT_ALLOWED);
             expect(res.body.message).toEqual("Not Authorised");
             done();
           });
@@ -384,7 +384,7 @@ describe("OrganisationController", () => {
           .expect(httpStatus.UNAUTHORIZED)
           .end((err, res) => {
             expect(res.body.status).toEqual("error");
-            expect(res.body.code).toEqual(Constants.ERRORS.API_ERROR);
+            expect(res.body.code).toEqual(Constants.ERRORS.NOT_ALLOWED);
             expect(res.body.message).toEqual("Not Authorised");
             done();
           });
@@ -556,7 +556,7 @@ describe("OrganisationController", () => {
           .expect(httpStatus.UNAUTHORIZED)
           .end((err, res) => {
             expect(res.body.status).toEqual("error");
-            expect(res.body.code).toEqual(Constants.ERRORS.API_ERROR);
+            expect(res.body.code).toEqual(Constants.ERRORS.NOT_ALLOWED);
             expect(res.body.message).toEqual("Not Authorised");
             done();
           });
@@ -700,7 +700,7 @@ describe("OrganisationController", () => {
           .expect(httpStatus.UNAUTHORIZED)
           .end((err, res) => {
             expect(res.body.status).toEqual("error");
-            expect(res.body.code).toEqual(Constants.ERRORS.API_ERROR);
+            expect(res.body.code).toEqual(Constants.ERRORS.NOT_ALLOWED);
             expect(res.body.message).toEqual("Not Authorised");
             done();
           });
@@ -789,7 +789,7 @@ describe("OrganisationController", () => {
           .expect(httpStatus.UNAUTHORIZED)
           .end((err, res) => {
             expect(res.body.status).toEqual("error");
-            expect(res.body.code).toEqual(Constants.ERRORS.API_ERROR);
+            expect(res.body.code).toEqual(Constants.ERRORS.NOT_ALLOWED);
             expect(res.body.message).toEqual("Not Authorised");
             done();
           });
@@ -889,7 +889,7 @@ describe("OrganisationController", () => {
           .expect(httpStatus.UNAUTHORIZED)
           .end((err, res) => {
             expect(res.body.status).toEqual("error");
-            expect(res.body.code).toEqual(Constants.ERRORS.API_ERROR);
+            expect(res.body.code).toEqual(Constants.ERRORS.NOT_ALLOWED);
             expect(res.body.message).toEqual("Not Authorised");
             done();
           });

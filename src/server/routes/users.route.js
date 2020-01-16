@@ -133,7 +133,7 @@ router
    *           $ref: '#/definitions/ValidationErrorResponse'
    */
   .post(
-    jsonschema.schemaValidation(schemas["register"], errors, "CreateUserError"),
+    jsonschema.schemaValidation(schemas["register"], { message: "Unable to create user" }),
     userController.create
   );
 
