@@ -323,7 +323,8 @@ describe("Search", () => {
           await Search.get("58d3f3795d34d121805fdc61");
           fail();
         } catch (e) {
-          console.log(`e: ${JSON.stringify(e, null, 2)}`);
+          expect(e.code).toEqual(Constants.ERRORS.GET_SEARCH);
+          expect(e.message).toEqual("Search not found with id 58d3f3795d34d121805fdc61");
           done();
         }
       });
