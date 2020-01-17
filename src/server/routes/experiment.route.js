@@ -1,12 +1,10 @@
 import express from "express";
 import multer from "multer";
-import errors from "errors";
 import { jsonschema } from "makeandship-api-common/lib/modules/express/middleware";
 import * as schemas from "mykrobe-atlas-jsonschema";
 import AccountsHelper from "../helpers/AccountsHelper";
 import experimentController from "../controllers/experiment.controller";
 import userController from "../controllers/user.controller";
-import config from "../../config/env";
 import { ownerOnly } from "../modules/security";
 
 const upload = multer({ dest: "tmp/" });
@@ -3418,7 +3416,7 @@ router
   .post(
     keycloak.connect.protect(),
     jsonschema.trim(schemas["experiment"]),
-    jsonschema.schemaValidation(schemas["experiment"], errors, "CreateExperimentError", "all"),
+    jsonschema.schemaValidation(schemas["experiment"], { message: "Unable to create experiment" }),
     userController.loadCurrentUser,
     experimentController.create
   );
@@ -4158,7 +4156,9 @@ router
    */
   .put(
     keycloak.connect.protect(),
-    jsonschema.schemaValidation(schemas["uploadExperiment"], errors, "UploadExperimentError"),
+    jsonschema.schemaValidation(schemas["uploadExperiment"], {
+      message: "Unable to upload experiment"
+    }),
     upload.single("file"),
     userController.loadCurrentUser,
     experimentController.uploadFile

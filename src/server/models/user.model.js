@@ -1,10 +1,13 @@
 import Promise from "bluebird";
 import mongoose from "mongoose";
-import errors from "errors";
-import randomstring from "randomstring";
 import uniqueValidator from "mongoose-unique-validator";
 import schemaValidator from "mongoose-jsonschema-validator";
+
 import { user as userJsonSchema } from "mykrobe-atlas-jsonschema";
+
+import { APIError } from "makeandship-api-common/lib/modules/error";
+
+import Constants from "../Constants";
 import UserJSONTransformer from "../transformers/UserJSONTransformer";
 
 /**
@@ -66,9 +69,9 @@ UserSchema.statics = {
       if (user) {
         return user;
       }
-      throw new errors.ObjectNotFound(`User not found with id ${id}`);
+      throw new APIError(Constants.ERRORS.GET_USER, `User not found with id ${id}`);
     } catch (e) {
-      throw new errors.ObjectNotFound(e.message);
+      throw new APIError(Constants.ERRORS.GET_USER, e.message);
     }
   },
 
@@ -82,7 +85,7 @@ UserSchema.statics = {
     if (user) {
       return user;
     }
-    throw new errors.ObjectNotFound();
+    throw new APIError(Constants.ERRORS.GET_USER, `User not found with email ${email}`);
   },
 
   /**
@@ -96,7 +99,7 @@ UserSchema.statics = {
     if (user) {
       return user;
     }
-    throw new errors.ObjectNotFound("No registered user with the given criteria");
+    throw new APIError(Constants.ERRORS.UPDATE_USER, `User not found with criteria`);
   },
 
   /**

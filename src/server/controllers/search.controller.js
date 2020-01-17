@@ -1,4 +1,4 @@
-import errors from "errors";
+import { ErrorUtil, APIError } from "makeandship-api-common/lib/modules/error";
 
 import Search from "../models/search.model";
 import Audit from "../models/audit.model";
@@ -13,6 +13,8 @@ import EventHelper from "../helpers/events/EventHelper";
 import logger from "../modules/winston";
 
 import { userEventEmitter } from "../modules/events";
+
+import Constants from "../Constants";
 
 /**
  * Load organisation and append to req.
@@ -37,7 +39,9 @@ const saveResult = async (req, res) => {
   try {
     const parser = await ResultsParserFactory.create(body);
     if (!parser) {
-      return res.jerror(new errors.UpdateExperimentError("Invalid result type."));
+      return res.jerror(
+        new APIError(Constants.ERRORS.UPDATE_EXPERIMENT_RESULTS, "Invalid result type")
+      );
     }
     const result = parser.parse();
 
@@ -69,7 +73,7 @@ const saveResult = async (req, res) => {
 
     return res.jsend(savedSearch);
   } catch (e) {
-    return res.jerror(e);
+    return res.jerror(ErrorUtil.convert(e, Constants.ERRORS.SAVE));
   }
 };
 

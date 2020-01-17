@@ -2818,7 +2818,7 @@ error-ex@^1.2.0, error-ex@^1.3.1:
   dependencies:
     is-arrayish "^0.2.1"
 
-errors@0.3.0, errors@^0.3.0:
+errors@^0.3.0:
   version "0.3.0"
   resolved "https://registry.yarnpkg.com/errors/-/errors-0.3.0.tgz#572ed0fad82ab26ba04e797828f7103dd820732f"
 
@@ -5425,9 +5425,9 @@ make-iterator@^1.0.0:
   dependencies:
     kind-of "^6.0.2"
 
-"makeandship-api-common@git+ssh://git@bitbucket.org:makeandship/makeandship-api-common.git##v0.0.114":
-  version "0.0.114"
-  resolved "git+ssh://git@bitbucket.org:makeandship/makeandship-api-common.git#96a41d7782d054341071a00afea75b6a7532dba4"
+"makeandship-api-common@git+ssh://git@bitbucket.org:makeandship/makeandship-api-common.git##v0.0.115":
+  version "0.0.115"
+  resolved "git+ssh://git@bitbucket.org:makeandship/makeandship-api-common.git#add4b1ab0fac76a54c8b9330a5edac2a810648fd"
   dependencies:
     ajv "^6.5.0"
     axios "^0.18.0"

@@ -3,6 +3,7 @@ import setup from "../setup";
 import Experiment from "../../src/server/models/experiment.model";
 import Organisation from "../../src/server/models/organisation.model";
 import User from "../../src/server/models/user.model";
+import Constants from "../../src/server/Constants";
 
 const users = require("../fixtures/users");
 const experiments = require("../fixtures/experiments");
@@ -131,7 +132,7 @@ describe("Experiment", () => {
           await Experiment.get("58d3f3795d34d121805fdc61");
           fail();
         } catch (e) {
-          expect(e.name).toEqual("ObjectNotFound");
+          expect(e.code).toEqual(Constants.ERRORS.GET_EXPERIMENT);
           expect(e.message).toEqual("Experiment not found with id 58d3f3795d34d121805fdc61");
           done();
         }

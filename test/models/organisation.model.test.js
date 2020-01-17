@@ -1,3 +1,5 @@
+import Constants from "../../src/server/Constants";
+
 import Organisation from "../../src/server/models/organisation.model";
 
 import { createApp } from "../setup";
@@ -45,7 +47,7 @@ describe("## Organisations Functions", () => {
           await Organisation.get("58d3f3795d34d121805fdc61");
           fail();
         } catch (e) {
-          expect(e.name).toEqual("ObjectNotFound");
+          expect(e.code).toEqual(Constants.ERRORS.GET_ORGANISATION);
           expect(e.message).toEqual("Organisation not found with id 58d3f3795d34d121805fdc61");
           done();
         }

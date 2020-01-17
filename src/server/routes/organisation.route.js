@@ -1,5 +1,4 @@
 import express from "express";
-import errors from "errors";
 
 import { jsonschema, request } from "makeandship-api-common/lib/modules/express/middleware";
 import * as schemas from "mykrobe-atlas-jsonschema";
@@ -185,7 +184,7 @@ router
    */
   .post(
     keycloak.connect.protect(),
-    jsonschema.schemaValidation(schemas["organisation"], errors, "CreateOrganisationError", "all"),
+    jsonschema.schemaValidation(schemas["organisation"]),
     userController.loadCurrentUser,
     organisationController.create
   );
@@ -311,7 +310,11 @@ router
   .post(
     keycloak.connect.protect(),
     userController.loadCurrentUser,
-    OrganisationHelper.checkInLists(["unapprovedMembers", "rejectedMembers", "members"]),
+    OrganisationHelper.checkInLists(Constants.ERRORS.JOIN_ORGANISATION, [
+      "unapprovedMembers",
+      "rejectedMembers",
+      "members"
+    ]),
     organisationController.join
   );
 
@@ -349,9 +352,12 @@ router
   .post(
     keycloak.connect.protect(),
     userController.loadCurrentUser,
-    OrganisationHelper.isOwner(),
-    OrganisationHelper.checkInLists(["members"]),
-    OrganisationHelper.checkNotInLists(["unapprovedMembers", "rejectedMembers"]),
+    OrganisationHelper.isOwner(Constants.ERRORS.APPROVE_MEMBER),
+    OrganisationHelper.checkInLists(Constants.ERRORS.APPROVE_MEMBER, ["members"]),
+    OrganisationHelper.checkNotInLists(Constants.ERRORS.APPROVE_MEMBER, [
+      "unapprovedMembers",
+      "rejectedMembers"
+    ]),
     organisationController.approve
   );
 
@@ -389,9 +395,9 @@ router
   .post(
     keycloak.connect.protect(),
     userController.loadCurrentUser,
-    OrganisationHelper.isOwner(),
-    OrganisationHelper.checkInLists(["members", "rejectedMembers"]),
-    OrganisationHelper.checkNotInLists(["unapprovedMembers"]),
+    OrganisationHelper.isOwner(Constants.ERRORS.REJECT_MEMBER),
+    OrganisationHelper.checkInLists(Constants.ERRORS.REJECT_MEMBER, ["members", "rejectedMembers"]),
+    OrganisationHelper.checkNotInLists(Constants.ERRORS.REJECT_MEMBER, ["unapprovedMembers"]),
     organisationController.reject
   );
 
@@ -429,8 +435,8 @@ router
   .post(
     keycloak.connect.protect(),
     userController.loadCurrentUser,
-    OrganisationHelper.isOwner(),
-    OrganisationHelper.checkNotInLists(["members"]),
+    OrganisationHelper.isOwner(Constants.ERRORS.REMOVE_MEMBER),
+    OrganisationHelper.checkNotInLists(Constants.ERRORS.REMOVE_MEMBER, ["members"]),
     organisationController.removeMember
   );
 
@@ -468,8 +474,8 @@ router
   .post(
     keycloak.connect.protect(),
     userController.loadCurrentUser,
-    OrganisationHelper.isOwner(),
-    OrganisationHelper.checkNotInLists(["members"]),
+    OrganisationHelper.isOwner(Constants.ERRORS.PROMOTE_MEMBER),
+    OrganisationHelper.checkNotInLists(Constants.ERRORS.PROMOTE_MEMBER, ["members"]),
     organisationController.promote
   );
 
@@ -507,9 +513,9 @@ router
   .post(
     keycloak.connect.protect(),
     userController.loadCurrentUser,
-    OrganisationHelper.isOwner(),
-    OrganisationHelper.checkNotInLists(["owners"]),
-    OrganisationHelper.checkEmptyList("owners"),
+    OrganisationHelper.isOwner(Constants.ERRORS.DEMOTE_MEMBER),
+    OrganisationHelper.checkNotInLists(Constants.ERRORS.DEMOTE_MEMBER, ["owners"]),
+    OrganisationHelper.checkEmptyList(Constants.ERRORS.DEMOTE_MEMBER, "owners"),
     organisationController.demote
   );
 

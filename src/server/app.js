@@ -7,15 +7,20 @@ import methodOverride from "method-override";
 import cors from "cors";
 import expressWinston from "express-winston";
 import helmet from "helmet";
-import errors from "errors";
 import httpStatus from "http-status";
 import RateLimit from "express-rate-limit";
 import addRequestId from "express-request-id";
+
+import { ErrorUtil, APIError } from "makeandship-api-common/lib/modules/error";
+
+import Constants from "./Constants";
+
 import winstonInstance from "./modules/winston";
 import routes from "./routes/index.route";
 import config from "../config/env";
-import APIError from "./helpers/APIError";
+
 import AccountsHelper from "./helpers/AccountsHelper";
+import initializer from "./modules/initializer";
 import { stubDevApis } from "../external";
 
 const keycloak = AccountsHelper.keycloakInstance();
@@ -84,7 +89,9 @@ const createApp = ({ rateLimitReset, rateLimitMax, limit } = config.express) => 
     delayMs: 0, // disable delaying - full speed until the max limit is reached
     onLimitReached: (req, res) => {
       throw new APIError(
+        Constants.ERRORS.API_ERROR,
         "Too many requests, please try again later.",
+        null,
         httpStatus.TOO_MANY_REQUESTS
       );
     }
@@ -95,7 +102,12 @@ const createApp = ({ rateLimitReset, rateLimitMax, limit } = config.express) => 
   // catch 404 and forward to error handler
   app.use((req, res, next) => {
     // eslint-disable-line no-unused-vars
-    const err = new APIError("Unknown API route.", httpStatus.NOT_FOUND);
+    const err = new APIError(
+      Constants.ERRORS.ROUTE_NOT_FOUND,
+      "Unknown API route",
+      null,
+      httpStatus.NOT_FOUND
+    );
     return res.jerror(err);
   });
 
@@ -103,6 +115,9 @@ const createApp = ({ rateLimitReset, rateLimitMax, limit } = config.express) => 
   app.use((err, req, res, next) => {
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    if (err.errors) {
+      return res.jerror(ErrorUtil.convert(err, Constants.ERRORS.VALIDATION_ERROR));
+    }
     return res.jerror(err);
   });
 

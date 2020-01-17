@@ -3,9 +3,7 @@ import mongoose from "mongoose";
 import util from "util";
 import config from "./config/env";
 import createApp from "./server/app";
-import errors from "./config/errors-definition";
 
-require("./express-jsend");
 const app = createApp();
 const debug = require("debug")("atlas:index");
 
@@ -41,7 +39,5 @@ if (!module.parent) {
 app.enable("trust proxy");
 // enable strong etag
 app.set("etag", "strong");
-
-errors.create();
 
 export default app;

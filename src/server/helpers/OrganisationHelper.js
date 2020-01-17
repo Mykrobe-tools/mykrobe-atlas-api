@@ -1,4 +1,5 @@
 import Member from "../models/member.model";
+import { APIError } from "makeandship-api-common/lib/modules/error";
 
 class OrganisationHelper {
   /**
@@ -7,14 +8,14 @@ class OrganisationHelper {
    * Otherwise move to the next
    * @param {Array} lists
    */
-  static checkInLists(lists = []) {
+  static checkInLists(code, lists = []) {
     return async (req, res, next) => {
       let currentUserId;
       const organisation = req.organisation;
       if (req.params.memberId) {
         const member = await Member.get(req.params.memberId);
         if (!member) {
-          return res.jerror(`Member not found with id ${req.params.memberId}`);
+          return res.jerror(new APIError(code, `Member not found with id ${req.params.memberId}`));
         }
         currentUserId = member.userId;
       }
@@ -24,7 +25,7 @@ class OrganisationHelper {
       for (let list of lists) {
         const foundMember = organisation[list].find(member => member.userId === currentUserId);
         if (foundMember) {
-          return res.jerror(`You are already in the ${list} list`);
+          return res.jerror(new APIError(code, `You are already in the ${list} list`));
         }
       }
       return next();
@@ -36,13 +37,13 @@ class OrganisationHelper {
    * If the user is the owner go to the next
    * Otherwise throw an error
    */
-  static isOwner() {
+  static isOwner(code) {
     return async (req, res, next) => {
       const organisation = req.organisation;
       const currentUser = req.dbUser;
       const foundUser = organisation.owners.find(owner => owner.userId === currentUser.id);
       if (!foundUser) {
-        return res.jerror("You are not an owner of this organisation");
+        return res.jerror(new APIError(code, "You are not an owner of this organisation"));
       }
       return next();
     };
@@ -54,7 +55,7 @@ class OrganisationHelper {
    * Otherwise throw an error
    * @param {Array} lists
    */
-  static checkNotInLists(lists = []) {
+  static checkNotInLists(code, lists = []) {
     return async (req, res, next) => {
       const organisation = req.organisation;
       const memberId = req.params.memberId;
@@ -66,7 +67,9 @@ class OrganisationHelper {
           return next();
         }
       }
-      return res.jerror("The provided member is not eligible for this operation");
+      return res.jerror(
+        new APIError(code, "The provided member is not eligible for this operation")
+      );
     };
   }
 
@@ -76,11 +79,11 @@ class OrganisationHelper {
    * Otherwise go to the next step
    * @param {Array} lists
    */
-  static checkEmptyList(list) {
+  static checkEmptyList(code, list) {
     return async (req, res, next) => {
       const organisation = req.organisation;
       if (organisation[list].length === 0) {
-        return res.jerror(`The ${list} list cannot be empty`);
+        return res.jerror(new APIError(code, `The ${list} list cannot be empty`));
       }
       return next();
     };
