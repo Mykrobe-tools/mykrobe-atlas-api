@@ -1,16 +1,13 @@
 import jwt from "jsonwebtoken";
-import passwordHash from "password-hash";
-import errors from "errors";
 import httpStatus from "http-status";
 import randomstring from "randomstring";
 
-import { APIError } from "makeandship-api-common/lib/modules/error";
+import { ErrorUtil, APIError } from "makeandship-api-common/lib/modules/error";
 
 import User from "../models/user.model";
-import Organisation from "../models/organisation.model";
 import AccountsHelper from "../helpers/AccountsHelper";
 
-import config from "../../config/env";
+import Constants from "../Constants";
 
 const keycloak = AccountsHelper.keycloakInstance();
 
@@ -73,7 +70,7 @@ const forgot = async (req, res) => {
     await keycloak.reset(keycloakId);
     return res.jsend(`Email sent successfully to ${user.email}`);
   } catch (e) {
-    return res.jerror(new errors.UpdateUserError(e.message));
+    return res.jerror(ErrorUtil.convert(e, Constants.ERRORS.FORGOT_PASSWORD));
   }
 };
 
@@ -92,7 +89,12 @@ const resend = async (req, res) => {
         user.keycloakId = keycloakId;
         const savedUser = await user.save();
       } else {
-        return res.jerror(new errors.UpdateUserError(`Unable to find user with email ${email}`));
+        return res.jerror(
+          new APIError(
+            Constants.ERRORS.RESEND_VERIFICATION_EMAIL,
+            `Unable to find user with email ${email}`
+          )
+        );
       }
     } else {
       keycloakId = user.keycloakId;
@@ -100,7 +102,7 @@ const resend = async (req, res) => {
     await keycloak.resend(keycloakId);
     return res.jsend(`Email sent successfully to ${user.email}`);
   } catch (e) {
-    return res.jerror(new errors.UpdateUserError(e.message));
+    return res.jerror(ErrorUtil.convert(e, Constants.ERRORS.RESEND_VERIFICATION_EMAIL));
   }
 };
 

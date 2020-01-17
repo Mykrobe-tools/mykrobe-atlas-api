@@ -7,7 +7,6 @@ import methodOverride from "method-override";
 import cors from "cors";
 import expressWinston from "express-winston";
 import helmet from "helmet";
-import errors from "errors";
 import httpStatus from "http-status";
 import RateLimit from "express-rate-limit";
 import addRequestId from "express-request-id";

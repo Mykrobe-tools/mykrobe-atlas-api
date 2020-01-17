@@ -54,7 +54,7 @@ describe("Misc", () => {
         .get("/users/56z787zzz67fc")
         .expect(httpStatus.INTERNAL_SERVER_ERROR)
         .end((err, res) => {
-          expect(res.body.code).toEqual(10001);
+          expect(res.body.code).toEqual(Constants.ERRORS.GET_USER);
           expect(res.body.message).toEqual(
             'Cast to ObjectId failed for value "56z787zzz67fc" at path "_id" for model "User"'
           );

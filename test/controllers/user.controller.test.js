@@ -476,6 +476,7 @@ describe("UserController", () => {
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
+          expect(res.body.code).toEqual(Constants.ERRORS.VALIDATION_ERROR);
           expect(res.body.data.errors.email.message).toEqual(
             "should have required property 'email'"
           );
@@ -492,6 +493,7 @@ describe("UserController", () => {
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
+          expect(res.body.code).toEqual(Constants.ERRORS.VALIDATION_ERROR);
           expect(res.body.data.errors.email.message).toEqual('should match format "email"');
           done();
         });
@@ -504,8 +506,8 @@ describe("UserController", () => {
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
-          expect(res.body.code).toEqual(10006);
-          expect(res.body.message).toEqual("The object requested was not found.");
+          expect(res.body.code).toEqual(Constants.ERRORS.FORGOT_PASSWORD);
+          expect(res.body.message).toEqual("User not found with email invalid@email.com");
           done();
         });
     });
@@ -567,7 +569,7 @@ describe("UserController", () => {
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
-          expect(res.body.message).toEqual("The object requested was not found.");
+          expect(res.body.message).toEqual("User not found with email invalid@nhs.co.uk");
           done();
         });
     });
@@ -606,7 +608,7 @@ describe("UserController", () => {
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
-          expect(res.body.message).toEqual("You are not allowed to perform this action.");
+          expect(res.body.message).toEqual("You are not allowed to perform that operation");
           done();
         });
     });

@@ -1,10 +1,8 @@
 import express from "express";
-import errors from "errors";
 import { jsonschema } from "makeandship-api-common/lib/modules/express/middleware";
 import * as schemas from "mykrobe-atlas-jsonschema";
 import AccountsHelper from "../helpers/AccountsHelper";
 import authController from "../controllers/auth.controller";
-import config from "../../config/env";
 
 const router = express.Router(); // eslint-disable-line new-cap
 const keycloak = AccountsHelper.keycloakInstance();
@@ -159,7 +157,10 @@ const keycloak = AccountsHelper.keycloakInstance();
  */
 router
   .route("/login")
-  .post(jsonschema.schemaValidation(schemas["login"], errors, "LoginError"), authController.login);
+  .post(
+    jsonschema.schemaValidation(schemas["login"], { message: "Login details invalid" }),
+    authController.login
+  );
 
 /**
  * @swagger
@@ -242,12 +243,12 @@ router.route("/random-number").get(keycloak.connect.protect(), authController.ge
  *         schema:
  *           $ref: '#/definitions/ValidationErrorResponse'
  */
-router
-  .route("/forgot")
-  .post(
-    jsonschema.schemaValidation(schemas["forgotPassword"], errors, "ForgotPasswordError"),
-    authController.forgot
-  );
+router.route("/forgot").post(
+  jsonschema.schemaValidation(schemas["forgotPassword"], {
+    message: "Forotten password details invalid"
+  }),
+  authController.forgot
+);
 
 /**
  * @swagger
@@ -282,16 +283,12 @@ router
  *         schema:
  *           $ref: '#/definitions/ValidationErrorResponse'
  */
-router
-  .route("/resend")
-  .post(
-    jsonschema.schemaValidation(
-      schemas["resendNotification"],
-      errors,
-      "ResendVerificationEmailError"
-    ),
-    authController.resend
-  );
+router.route("/resend").post(
+  jsonschema.schemaValidation(schemas["resendNotification"], {
+    message: "Resend notification details invalid"
+  }),
+  authController.resend
+);
 
 /**
  * @swagger
@@ -329,7 +326,9 @@ router
 router
   .route("/refresh")
   .post(
-    jsonschema.schemaValidation(schemas["refreshToken"], errors, "RefreshTokenError"),
+    jsonschema.schemaValidation(schemas["refreshToken"], {
+      message: "Refresh token details invalid"
+    }),
     authController.refresh
   );
 

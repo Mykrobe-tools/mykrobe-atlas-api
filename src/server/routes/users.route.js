@@ -1,5 +1,4 @@
 import express from "express";
-import errors from "errors";
 import { jsonschema } from "makeandship-api-common/lib/modules/express/middleware";
 import * as schemas from "mykrobe-atlas-jsonschema";
 import AccountsHelper from "../helpers/AccountsHelper";

@@ -1,32 +1,21 @@
 import passwordHash from "password-hash";
-import errors from "errors";
 import flatten from "flat";
 
 import { ErrorUtil, APIError } from "makeandship-api-common/lib/modules/error";
 import ArrayJSONTransformer from "makeandship-api-common/lib/transformers/ArrayJSONTransformer";
 
-import { userEventEmitter } from "../modules/events";
 import channels from "../modules/channels";
 
-import Audit from "../models/audit.model";
-import Experiment from "../models/experiment.model";
-import Search from "../models/search.model";
 import User from "../models/user.model";
 import Event from "../models/event.model";
 
-import AuditJSONTransformer from "../transformers/AuditJSONTransformer";
 import UserJSONTransformer from "../transformers/UserJSONTransformer";
-import ExperimentJSONTransformer from "../transformers/ExperimentJSONTransformer";
-import ExperimentsResultJSONTransformer from "../transformers/es/ExperimentsResultJSONTransformer";
 import EventJSONTransformer from "../transformers/EventJSONTransformer";
 
 import AccountsHelper from "../helpers/AccountsHelper";
 import EmailHelper from "../helpers/EmailHelper";
 
-import ResultsParserFactory from "../helpers/results/ResultsParserFactory";
-
 import config from "../../config/env";
-import SearchJSONTransformer from "../transformers/SearchJSONTransformer";
 
 import Constants from "../Constants";
 

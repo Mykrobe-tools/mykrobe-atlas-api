@@ -1,12 +1,10 @@
 import express from "express";
 import multer from "multer";
-import errors from "errors";
 import { jsonschema } from "makeandship-api-common/lib/modules/express/middleware";
 import * as schemas from "mykrobe-atlas-jsonschema";
 import AccountsHelper from "../helpers/AccountsHelper";
 import experimentController from "../controllers/experiment.controller";
 import userController from "../controllers/user.controller";
-import config from "../../config/env";
 import { ownerOnly } from "../modules/security";
 
 const upload = multer({ dest: "tmp/" });

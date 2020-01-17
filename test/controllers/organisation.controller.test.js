@@ -44,33 +44,59 @@ afterEach(async done => {
 
 describe("OrganisationController", () => {
   describe("# POST /organisations", () => {
-    it("should create a new organisation", done => {
-      request(app)
-        .post("/organisations")
-        .set("Authorization", `Bearer ${token}`)
-        .send({ name: "Make and Ship" })
-        .expect(httpStatus.OK)
-        .end((err, res) => {
-          expect(res.body.status).toEqual("success");
-          expect(res.body.data.name).toEqual("Make and Ship");
-          expect(res.body.data.slug).toEqual("make-and-ship");
-          expect(res.body.data.ownersGroupId).toEqual("46e23392-1773-4ab0-9f54-14eb2200d077");
-          done();
-        });
+    describe("when valid", () => {
+      it("should create a new organisation", done => {
+        request(app)
+          .post("/organisations")
+          .set("Authorization", `Bearer ${token}`)
+          .send({ name: "Make and Ship" })
+          .expect(httpStatus.OK)
+          .end((err, res) => {
+            expect(res.body.status).toEqual("success");
+            expect(res.body.data.name).toEqual("Make and Ship");
+            expect(res.body.data.slug).toEqual("make-and-ship");
+            expect(res.body.data.ownersGroupId).toEqual("46e23392-1773-4ab0-9f54-14eb2200d077");
+            done();
+          });
+      });
     });
-
-    it("should work only for authenticated users", done => {
-      request(app)
-        .post("/organisations")
-        .set("Authorization", "Bearer INVALID_TOKEN")
-        .send({ name: "Make and Ship" })
-        .expect(httpStatus.UNAUTHORIZED)
-        .end((err, res) => {
-          expect(res.body.status).toEqual("error");
-          expect(res.body.code).toEqual(Constants.ERRORS.NOT_ALLOWED);
-          expect(res.body.message).toEqual("Not Authorised");
-          done();
+    describe("when not valid", () => {
+      describe("when the user is not authenticated", () => {
+        it("should return an error", done => {
+          request(app)
+            .post("/organisations")
+            .set("Authorization", "Bearer INVALID_TOKEN")
+            .send({ name: "Make and Ship" })
+            .expect(httpStatus.UNAUTHORIZED)
+            .end((err, res) => {
+              expect(res.body.status).toEqual("error");
+              expect(res.body.code).toEqual(Constants.ERRORS.NOT_ALLOWED);
+              expect(res.body.message).toEqual("Not Authorised");
+              done();
+            });
         });
+      });
+      describe("when the organisation already exists", () => {
+        it.only("should return an error", done => {
+          request(app)
+            .post("/organisations")
+            .set("Authorization", `Bearer ${token}`)
+            .send({ name: "Make and Ship" })
+            .expect(httpStatus.UNAUTHORIZED)
+            .end((err, res) => {
+              expect(res.body.status).toEqual("success");
+              request(app)
+                .post("/organisations")
+                .set("Authorization", `Bearer ${token}`)
+                .send({ name: "Make and Ship" })
+                .expect(httpStatus.UNAUTHORIZED)
+                .end((err, res) => {
+                  console.log(`res.body: ${JSON.stringify(res.body, null, 2)}`);
+                  done();
+                });
+            });
+        });
+      });
     });
   });
 
