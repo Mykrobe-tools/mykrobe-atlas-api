@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import slugify from "slugify";
+import uniqueValidator from "mongoose-unique-validator";
 
 import { organisation as organisationJsonSchema } from "mykrobe-atlas-jsonschema";
 
@@ -54,11 +55,51 @@ const OrganisationSchema = new JSONMongooseSchema(
  * - virtuals
  * - plugins
  */
-
-OrganisationSchema.pre("save", async function() {
+OrganisationSchema.pre("validate", async function(next) {
   if (!this.slug) {
     this.slug = slugify(this.name, { lower: true });
   }
+});
+
+OrganisationSchema.path("name").validate(
+  function(value) {
+    return new Promise(resolve => {
+      if (this.isNew) {
+        const model = this.model(this.constructor.modelName);
+        model.count({ name: value }, (err, count) => {
+          return resolve(count === 0);
+        });
+      } else {
+        return resolve(true);
+      }
+    });
+  },
+  "Organisation already exists with name {VALUE}",
+  "unique"
+);
+
+OrganisationSchema.path("slug").validate(
+  function(value) {
+    return new Promise(resolve => {
+      if (this.isNew) {
+        const model = this.model(this.constructor.modelName);
+        model.count({ slug: value }, (err, count) => {
+          return resolve(count === 0);
+        });
+      } else {
+        return resolve(true);
+      }
+    });
+  },
+  "An organisation with slug {VALUE} has been used in the past and cannot be used again",
+  "unique"
+);
+
+OrganisationSchema.pre("save", async function(next) {
+  if (!this.slug) {
+    this.slug = slugify(this.name, { lower: true });
+  }
+
   await AccountsHelper.setupGroupsAndRoles(this);
 });
 

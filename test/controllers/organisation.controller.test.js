@@ -77,24 +77,58 @@ describe("OrganisationController", () => {
         });
       });
       describe("when the organisation already exists", () => {
-        it.only("should return an error", done => {
-          request(app)
-            .post("/organisations")
-            .set("Authorization", `Bearer ${token}`)
-            .send({ name: "Make and Ship" })
-            .expect(httpStatus.UNAUTHORIZED)
-            .end((err, res) => {
-              expect(res.body.status).toEqual("success");
-              request(app)
-                .post("/organisations")
-                .set("Authorization", `Bearer ${token}`)
-                .send({ name: "Make and Ship" })
-                .expect(httpStatus.UNAUTHORIZED)
-                .end((err, res) => {
-                  console.log(`res.body: ${JSON.stringify(res.body, null, 2)}`);
-                  done();
-                });
-            });
+        describe("when the name already exists", () => {
+          it("should return an error", done => {
+            request(app)
+              .post("/organisations")
+              .set("Authorization", `Bearer ${token}`)
+              .send({ name: "Make and Ship" })
+              .expect(httpStatus.UNAUTHORIZED)
+              .end((err, res) => {
+                expect(res.body.status).toEqual("success");
+                request(app)
+                  .post("/organisations")
+                  .set("Authorization", `Bearer ${token}`)
+                  .send({ name: "Make and Ship" })
+                  .expect(httpStatus.UNAUTHORIZED)
+                  .end((err, res) => {
+                    expect(res.body.status).toEqual("error");
+                    expect(res.body.code).toEqual(Constants.ERRORS.CREATE_ORGANISATION);
+                    expect(res.body.data).toHaveProperty("errors");
+                    expect(res.body.data.errors).toHaveProperty("name");
+                    expect(res.body.data.errors.name).toHaveProperty(
+                      "message",
+                      "Organisation already exists with name Make and Ship"
+                    );
+                    done();
+                  });
+              });
+          });
+        });
+        describe("when the slug already exists", () => {
+          it("should return an error", async done => {
+            const organisation = new Organisation();
+            organisation.name = "Another organisation";
+            organisation.slug = "make-and-ship";
+            await organisation.save();
+
+            request(app)
+              .post("/organisations")
+              .set("Authorization", `Bearer ${token}`)
+              .send({ name: "Make and Ship" })
+              .expect(httpStatus.UNAUTHORIZED)
+              .end((err, res) => {
+                expect(res.body.status).toEqual("error");
+                expect(res.body.code).toEqual(Constants.ERRORS.CREATE_ORGANISATION);
+                expect(res.body.data).toHaveProperty("errors");
+                expect(res.body.data.errors).toHaveProperty("slug");
+                expect(res.body.data.errors.slug).toHaveProperty(
+                  "message",
+                  "An organisation with slug make-and-ship has been used in the past and cannot be used again"
+                );
+                done();
+              });
+          });
         });
       });
     });

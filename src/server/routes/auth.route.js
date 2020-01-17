@@ -323,13 +323,11 @@ router.route("/resend").post(
  *         schema:
  *           $ref: '#/definitions/RefreshErrorResponse'
  */
-router
-  .route("/refresh")
-  .post(
-    jsonschema.schemaValidation(schemas["refreshToken"], {
-      message: "Refresh token details invalid"
-    }),
-    authController.refresh
-  );
+router.route("/refresh").post(
+  jsonschema.schemaValidation(schemas["refreshToken"], {
+    message: "Refresh token details invalid"
+  }),
+  authController.refresh
+);
 
 export default router;
