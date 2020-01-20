@@ -1,4 +1,4 @@
-FROM mthomsit/atlas-api:$GO_PIPELINE_LABEL
+FROM makeandship/atlas-api:$GO_PIPELINE_LABEL
 
 # Install dev dependencies
 RUN yarn
