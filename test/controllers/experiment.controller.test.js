@@ -2884,4 +2884,18 @@ describe("ExperimentController", () => {
       });
     });
   });
+
+  describe("# GET /experiments/mappings", () => {
+    it("should get the experiments mappings with isolate ids", done => {
+      request(app)
+        .get("/experiments/mappings")
+        .set("Authorization", `Bearer ${token}`)
+        .expect(httpStatus.OK)
+        .end((err, res) => {
+          expect(res.body.status).toEqual("success");
+          expect(res.body.data["9c0c00f2-8cb1-4254-bf53-3271f35ce696"]).toEqual(id);
+          done();
+        });
+    });
+  });
 });

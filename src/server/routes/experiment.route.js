@@ -2634,6 +2634,27 @@ const keycloak = AccountsHelper.keycloakInstance();
  *         expires: 2019-03-19T15:54:14.818Z
  *         id: 5ba263168d6c3e1c69943595
  */
+/**
+ * @swagger
+ * definitions:
+ *   ExperimentsMappingsResponse:
+ *     properties:
+ *       status:
+ *         type: string
+ *       data:
+ *         type: object
+ *         properties:
+ *           isolateId:
+ *             type: string
+ *           experimentId:
+ *             type: string
+ *
+ *     example:
+ *       status: success
+ *       data:
+ *         SAMEA3231524: 5ba263168d6c3e1c69943595
+ *         SAMEA3231525: 5ba263168d6c3e1c69943596
+ */
 router
   .route("/")
   /**
@@ -3778,6 +3799,30 @@ router
    *         description: Failed authentication
    */
   .get(keycloak.connect.protect(), experimentController.tree);
+
+router
+  .route("/mappings")
+  /**
+   * @swagger
+   * /experiments/mappings:
+   *   get:
+   *     tags:
+   *       - Experiments
+   *     description: Experiments mappings to isolateId
+   *     operationId: experimentsMappings
+   *     produces:
+   *       - application/json
+   *     security:
+   *       - Bearer: []
+   *     responses:
+   *       200:
+   *         description: Experiments mappings
+   *         schema:
+   *           $ref: '#/definitions/ExperimentsMappingsResponse'
+   *       401:
+   *         description: Failed authentication
+   */
+  .get(keycloak.connect.protect(), experimentController.mappings);
 
 router
   .route("/:id")

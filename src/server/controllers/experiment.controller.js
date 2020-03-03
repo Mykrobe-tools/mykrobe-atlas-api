@@ -558,6 +558,16 @@ const refreshResults = async (req, res) => {
   return res.jsend("Update of existing results triggered");
 };
 
+const mappings = async (req, res) => {
+  const experiments = await Experiment.list();
+  const result = {};
+  experiments.forEach(experiment => {
+    const metadata = experiment.get("metadata");
+    result[metadata.sample.isolateId] = experiment.id;
+  });
+  return res.jsend(result);
+};
+
 export default {
   load,
   get,
@@ -575,5 +585,6 @@ export default {
   search,
   listResults,
   tree,
-  refreshResults
+  refreshResults,
+  mappings
 };
