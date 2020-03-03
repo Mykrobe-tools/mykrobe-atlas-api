@@ -1096,5 +1096,17 @@
     "countryIsolate": "CH",
     "longitudeIsolate": 6.1466014,
     "latitudeIsolate": 46.2017559
+  },
+  "{\"cityIsolate\":\"Buenos Aires\",\"countryIsolate\":\"AR\"}": {
+    "cityIsolate": "Buenos Aires",
+    "countryIsolate": "AR",
+    "longitudeIsolate": -58.4370894,
+    "latitudeIsolate": -34.6075682
+  },
+  "{\"cityIsolate\":\"Rosario\",\"countryIsolate\":\"AR\"}": {
+    "cityIsolate": "Rosario",
+    "countryIsolate": "AR",
+    "longitudeIsolate": -60.6615415,
+    "latitudeIsolate": -32.9595004
   }
 }

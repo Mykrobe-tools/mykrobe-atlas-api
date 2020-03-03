@@ -250,7 +250,7 @@ class DataHelper {
         const rows = [];
 
         csv
-          .fromStream(stream, { headers: true, delimiter: "\t" })
+          .parseStream(stream, { headers: true, delimiter: "," })
           .on("data", async data => {
             rows.push(data);
           })
@@ -292,7 +292,7 @@ class DataHelper {
     if (rows) {
       rows.forEach(row => {
         const isolateId = row.sample_name;
-        const country = row.geo_metadata;
+        const country = row.geo_metadata || row.geography_metadata;
 
         const mappedCountry = this.transformCountry(country);
 
@@ -316,6 +316,10 @@ class DataHelper {
         const parts = country.split(":");
         location.countryIsolate = parts[0].trim();
         location.cityIsolate = parts[1].trim();
+      } else if (country.includes(",")) {
+        const parts = country.split(",");
+        location.countryIsolate = parts[1].trim();
+        location.cityIsolate = parts[0].trim();
       } else if (country.toLowerCase() === "unknown") {
         // no change
       } else {
