@@ -231,11 +231,15 @@ class DataHelper {
       throw new Error(`Cannot find ${path} directory`);
     }
 
-    const files = fs.readdirSync(path);
-    for (let file of files) {
-      if (file.includes(".tsv") || file.includes(".csv")) {
-        await this.process(`${path}/${file}`);
+    if (fs.lstatSync(path).isDirectory()) {
+      const files = fs.readdirSync(path);
+      for (let file of files) {
+        if (file.includes(".tsv") || file.includes(".csv")) {
+          await this.process(`${path}/${file}`);
+        }
       }
+    } else {
+      await this.process(path);
     }
   }
 
