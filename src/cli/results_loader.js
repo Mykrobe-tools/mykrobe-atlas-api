@@ -27,17 +27,17 @@ async function init() {
 }
 
 // load the json files
-async function load(path) {
-  logger.info(`Loading from: ${argv.folder}`);
+async function load() {
+  logger.info(`Loading from: ${folder}`);
 
-  if (!fs.existsSync(path)) {
-    throw new Error(`Cannot find ${path} directory`);
+  if (!fs.existsSync(folder)) {
+    throw new Error(`Cannot find ${folder} directory`);
   }
 
-  const files = fs.readdirSync(path);
+  const files = fs.readdirSync(folder);
   for (let file of files) {
     if (file.includes(".json")) {
-      await process(`${path}/${file}`);
+      await process(`${folder}/${file}`);
     }
   }
 }
