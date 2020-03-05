@@ -7,7 +7,7 @@ import logger from "./winston";
 
 const initalizer = new ExpressInitializer();
 
-logger.log("info", "ExpressInitializer#initialize: Start initialization");
+logger.debug("ExpressInitializer#initialize: Start initialization");
 initalizer.add(new JsendInitializer());
 initalizer.initialize(app);
-logger.log("info", "ExpressInitializer#initialize: Initialization ended");
+logger.debug("ExpressInitializer#initialize: Initialization ended");

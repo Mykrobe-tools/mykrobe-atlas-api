@@ -99,11 +99,11 @@ experimentEventEmitter.on(Constants.EVENTS.ANALYSIS_STARTED.EVENT, async payload
 experimentEventEmitter.on(Constants.EVENTS.ANALYSIS_COMPLETE.EVENT, async payload => {
   try {
     const { experiment, type, audit } = payload;
-    logger.info(`Analysis complete`);
+    logger.debug(`Analysis complete`);
     if (experiment && type && audit) {
-      logger.info(`Analysis complete data valid: ${JSON.stringify(payload, null, 2)}`);
+      logger.debug(`Analysis complete data valid: ${JSON.stringify(payload, null, 2)}`);
       const data = new AnalysisCompleteJSONTransformer().transform(payload, {});
-      logger.info(`Analysis complete transformed data: ${JSON.stringify(data, null, 2)}`);
+      logger.debug(`Analysis complete transformed data: ${JSON.stringify(data, null, 2)}`);
       sendExperimentOwnerEvent(payload.experiment, data, Constants.EVENTS.ANALYSIS_COMPLETE.EVENT);
     }
   } catch (e) {

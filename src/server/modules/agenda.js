@@ -17,7 +17,7 @@ agendaInstance.define("call search api", AgendaHelper.callSearchApi.bind(agendaI
 agendaInstance.define("refresh isolateId", AgendaHelper.refreshIsolateId.bind(agendaInstance));
 
 agendaInstance.on("ready", async () => {
-  logger.log("info", "agenda is ready and started.");
+  logger.debug("Agenda is ready ...");
   await agendaInstance.start();
   await agendaInstance.every("0 0 * * *", "refresh isolateId");
 });

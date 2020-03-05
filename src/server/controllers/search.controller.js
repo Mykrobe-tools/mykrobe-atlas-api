@@ -35,7 +35,7 @@ const load = async (req, res, next, id) => {
  */
 const saveResult = async (req, res) => {
   const { body, search } = req;
-
+  logger.debug(`SearchController#saveResult: enter`);
   try {
     const parser = await ResultsParserFactory.create(body);
     if (!parser) {
@@ -44,6 +44,7 @@ const saveResult = async (req, res) => {
       );
     }
     const result = parser.parse();
+    logger.debug(`SearchController#saveResult: parsedResult: ${JSON.stringify(result, null, 2)}`);
 
     const savedSearch = await search.updateAndSetExpiry(result);
 
@@ -59,6 +60,7 @@ const saveResult = async (req, res) => {
       } catch (e) {
         logger.error(`Unable to clear search state: ${e}`);
       }
+      logger.debug(`SearchController#saveResult: notify ${search.users.length} user(s)`);
       const event = `${result.type}-search-complete`;
       search.users.forEach(user => {
         const userJson = new UserJSONTransformer().transform(user);
