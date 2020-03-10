@@ -8,7 +8,7 @@ class ExperimentResultsPerTypeJSONTransformer {
   /**
    * The transformation engine
    */
-  transform(res) {
+  transform(res, options = {}) {
     const response = {};
 
     if (res && res.length) {
@@ -28,7 +28,7 @@ class ExperimentResultsPerTypeJSONTransformer {
 
       // transform the latest result
       Object.keys(response).forEach(type => {
-        response[type] = new ResultsJSONTransformer().transform(response[type], {});
+        response[type] = new ResultsJSONTransformer().transform(response[type], options);
       });
     }
 

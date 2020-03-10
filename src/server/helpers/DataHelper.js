@@ -204,7 +204,7 @@ class DataHelper {
    */
   static getCache() {
     if (!geo.initialised) {
-      logger.info(`Loading geocache from ${process.env.PWD}/geoCache.json`);
+      logger.debug(`Loading geocache from ${process.env.PWD}/geoCache.json`);
       const localGeoCache = JSON.parse(fs.readFileSync(`${process.env.PWD}/geoCache.json`));
       Object.keys(localGeoCache).forEach(key => {
         geo.cache[key] = localGeoCache[key];
@@ -231,11 +231,15 @@ class DataHelper {
       throw new Error(`Cannot find ${path} directory`);
     }
 
-    const files = fs.readdirSync(path);
-    for (let file of files) {
-      if (file.includes(".tsv") || file.includes(".csv")) {
-        await this.process(`${path}/${file}`);
+    if (fs.lstatSync(path).isDirectory()) {
+      const files = fs.readdirSync(path);
+      for (let file of files) {
+        if (file.includes(".tsv") || file.includes(".csv")) {
+          await this.process(`${path}/${file}`);
+        }
       }
+    } else {
+      await this.process(path);
     }
   }
 
@@ -250,7 +254,7 @@ class DataHelper {
         const rows = [];
 
         csv
-          .fromStream(stream, { headers: true, delimiter: "\t" })
+          .parseStream(stream, { headers: true, delimiter: "," })
           .on("data", async data => {
             rows.push(data);
           })
@@ -292,7 +296,7 @@ class DataHelper {
     if (rows) {
       rows.forEach(row => {
         const isolateId = row.sample_name;
-        const country = row.geo_metadata;
+        const country = row.geo_metadata || row.geography_metadata;
 
         const mappedCountry = this.transformCountry(country);
 
@@ -316,6 +320,10 @@ class DataHelper {
         const parts = country.split(":");
         location.countryIsolate = parts[0].trim();
         location.cityIsolate = parts[1].trim();
+      } else if (country.includes(",")) {
+        const parts = country.split(",");
+        location.countryIsolate = parts[1].trim();
+        location.cityIsolate = parts[0].trim();
       } else if (country.toLowerCase() === "unknown") {
         // no change
       } else {
@@ -461,11 +469,11 @@ class DataHelper {
               return bothMatch || countryOnlyMatch;
             });
             if (typeof geo === "undefined") {
-              logger.info(
+              logger.debug(
                 `No match for ${cityIsolate} in ${countryIsolate} - ${matches.length} matches`
               );
               if (matches.length > 0) {
-                logger.info(
+                logger.debug(
                   `Possible match: ${matches[0].city} in ${matches[0].state}, ${matches[0].country}`
                 );
               }
@@ -474,7 +482,7 @@ class DataHelper {
             return geo;
           }
         } catch (e) {
-          logger.info(`Exception reading geocode for ${JSON.stringify(address)}`);
+          logger.debug(`Exception reading geocode for ${JSON.stringify(address)}`);
         }
       }
     }
@@ -512,7 +520,7 @@ class DataHelper {
    */
   static async process(filepath) {
     const rows = await this.loadDataSet(filepath);
-    logger.info(`${filepath} has ${rows.length} to process`);
+    logger.debug(`${filepath} has ${rows.length} to process`);
     const structuredRows = this.transform(rows);
 
     const citiesAndCountries = this.getCitiesAndCountries(structuredRows);
@@ -522,12 +530,12 @@ class DataHelper {
     );
 
     const experiments = this.getExperiments(structuredRowsWithGeoData);
-    logger.info(`${filepath} has ${experiments.length} experiments to store`);
+    logger.debug(`${filepath} has ${experiments.length} experiments to store`);
     const experimentChunks = this.chunk(experiments, BULK_INSERT_LIMIT);
 
     for (let experimentChunk of experimentChunks) {
       await Experiment.insertMany(experimentChunk);
-      logger.info(`Stored ${experimentChunk.length} experiments of ${rows.length}`);
+      logger.debug(`Stored ${experimentChunk.length} experiments of ${rows.length}`);
     }
 
     return {

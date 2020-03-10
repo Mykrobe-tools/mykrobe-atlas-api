@@ -1,0 +1,1298 @@
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=utf-8
+
+{
+    "took": 10,
+    "timed_out": false,
+    "_shards": {
+        "total": 5,
+        "successful": 5,
+        "skipped": 0,
+        "failed": 0
+    },
+    "hits": {
+        "total": 1,
+        "max_score": 2.3221626,
+        "hits": [
+            {
+                "_index": "atlas",
+                "_type": "experiment",
+                "_id": "5db01b5183babb16c8a31f2f",
+                "_score": 2.3221626,
+                "_source": {
+                    "metadata": {
+                        "patient": {
+                            "patientId": "eff2fa6a-9d79-41ab-a307-b620cedf7293",
+                            "siteId": "a2a910e3-25ef-475c-bdf9-f6fe215d949f",
+                            "genderAtBirth": "Male",
+                            "countryOfBirth": "IN",
+                            "age": 43,
+                            "bmi": 25.3,
+                            "injectingDrugUse": "No",
+                            "homeless": "No",
+                            "imprisoned": "No",
+                            "smoker": "Yes",
+                            "diabetic": "Insulin",
+                            "hivStatus": "Not tested"
+                        },
+                        "sample": {
+                            "labId": "d19637ed-e5b4-4ca7-8418-8713646a3359",
+                            "isolateId": "9c0c00f2-8cb1-4254-bf53-3271f35ce696",
+                            "collectionDate": "2018-10-19T00:00:00.000Z",
+                            "prospectiveIsolate": "Yes",
+                            "countryIsolate": "IN",
+                            "cityIsolate": "Mumbai",
+                            "dateArrived": "2018-09-01T00:00:00.000Z",
+                            "anatomicalOrigin": "Respiratory",
+                            "smear": "Not known",
+                            "latitudeIsolate": 19.0759837,
+                            "longitudeIsolate": 72.8776559
+                        },
+                        "genotyping": {
+                            "wgsPlatform": "MiSeq",
+                            "otherGenotypeInformation": "Yes",
+                            "genexpert": "Not tested",
+                            "hain": "INH/RIF test",
+                            "hainRif": "RIF resistant",
+                            "hainInh": "INH sensitive",
+                            "hainFl": "Not tested",
+                            "hainAm": "Not tested",
+                            "hainEth": "Not tested"
+                        },
+                        "phenotyping": {
+                            "rifampicin": {
+                                "susceptibility": "Resistant",
+                                "method": "Not known"
+                            },
+                            "ethambutol": {
+                                "susceptibility": "Sensitive",
+                                "method": "Not known"
+                            },
+                            "pyrazinamide": {
+                                "susceptibility": "Sensitive",
+                                "method": "Not known"
+                            },
+                            "isoniazid": {
+                                "susceptibility": "Sensitive",
+                                "method": "Not known"
+                            },
+                            "phenotypeInformationFirstLineDrugs": "Yes",
+                            "phenotypeInformationOtherDrugs": "No"
+                        }
+                    },
+                    "results": {
+                        "predictor": {
+                            "probeSets": [
+                                "/home/admin/git/mykrobe-atlas-cli/src/mykrobe/data/panels/tb-species-170421.fasta.gz",
+                                "/home/admin/git/mykrobe-atlas-cli/src/mykrobe/data/panels/tb-walker-probe-set-feb-09-2017.fasta.gz"
+                            ],
+                            "susceptibility": {
+                                "Isoniazid": {
+                                    "prediction": "R"
+                                },
+                                "Pyrazinamide": {
+                                    "prediction": "S"
+                                },
+                                "Rifampicin": {
+                                    "prediction": "R"
+                                },
+                                "Amikacin": {
+                                    "prediction": "S"
+                                }
+                            },
+                            "phylogenetics": {
+                                "complex": {
+                                    "Mycobacterium_tuberculosis_complex": {
+                                        "percentCoverage": 99.631,
+                                        "medianDepth": 55
+                                    }
+                                },
+                                "sub-species": {
+                                    "European_American": {
+                                        "percentCoverage": 100,
+                                        "medianDepth": 47
+                                    }
+                                }
+                            },
+                            "files": [
+                                "/atlas/test-data/MDR.fastq.gz"
+                            ],
+                            "type": "predictor",
+                            "received": "2018-09-12T11:23:20.964Z",
+                            "analysed": "2018-09-12T11:23:20.964Z",
+                            "kmer": 21,
+                            "version": {
+                                "mykrobe-predictor": "v0.6.5",
+                                "mykrobe-atlas": "v0.6.5"
+                            },
+                            "genotypeModel": "median_depth",
+                            "mdr": true,
+                            "xdr": false,
+                            "id": "5db01b5183babb16c8a31f30"
+                        }
+                    },
+                    "created": "2019-10-23T09:20:18.520Z",
+                    "modified": "2019-10-23T09:20:18.520Z",
+                    "id": "5db01b5183babb16c8a31f2f"
+                }
+            }
+        ]
+    },
+    "aggregations": {
+        "metadata.phenotyping.gatifloxacin.method": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": []
+        },
+        "min_metadata.treatment.continuation.start": {
+            "value": null
+        },
+        "metadata.phenotyping.phenotypeInformationFirstLineDrugs": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": [
+                {
+                    "key": "Yes",
+                    "doc_count": 1
+                }
+            ]
+        },
+        "max_metadata.treatment.outsideStandardPhaseAmikacin.stop": {
+            "value": null
+        },
+        "min_metadata.treatment.outsideStandardPhaseEthambutol.stop": {
+            "value": null
+        },
+        "max_metadata.treatment.outsideStandardPhaseThioacetazone.start": {
+            "value": null
+        },
+        "min_metadata.sample.latitudeIsolate": {
+            "value": 19.0759837
+        },
+        "results.predictor.type": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": [
+                {
+                    "key": "predictor",
+                    "doc_count": 1
+                }
+            ]
+        },
+        "max_metadata.treatment.outsideStandardPhaseTerizidone.stop": {
+            "value": null
+        },
+        "metadata.patient.diabetic": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": [
+                {
+                    "key": "Insulin",
+                    "doc_count": 1
+                }
+            ]
+        },
+        "metadata.treatment.previousTbInformation": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": []
+        },
+        "metadata.phenotyping.streptomycin.susceptibility": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": []
+        },
+        "max_metadata.treatment.outsideStandardPhaseIsoniazid.start": {
+            "value": null
+        },
+        "metadata.phenotyping.ethionamideProthionamide.susceptibility": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": []
+        },
+        "max_metadata.treatment.outsideStandardPhaseGatifloxacin.stop": {
+            "value": null
+        },
+        "max_results.distance-tree-distance.analysed": {
+            "value": null
+        },
+        "max_metadata.outcome.dateOfDeath": {
+            "value": null
+        },
+        "max_metadata.treatment.tbProphylaxisDate": {
+            "value": null
+        },
+        "metadata.phenotyping.bedaquiline.method": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": []
+        },
+        "max_results.predictor.received": {
+            "value": 1536751400964,
+            "value_as_string": "2018-09-12T11:23:20.964Z"
+        },
+        "metadata.phenotyping.gentamicin.method": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": []
+        },
+        "max_metadata.treatment.outsideStandardPhaseStreptomycin.stop": {
+            "value": null
+        },
+        "max_metadata.treatment.outsideStandardPhaseOfloxacin.start": {
+            "value": null
+        },
+        "max_metadata.treatment.outsideStandardPhaseStreptomycin.start": {
+            "value": null
+        },
+        "max_metadata.treatment.outsideStandardPhaseMoxifloxacin.start": {
+            "value": null
+        },
+        "max_metadata.treatment.outsideStandardPhaseCapreomycin.stop": {
+            "value": null
+        },
+        "results.predictor.susceptibility.Rifampicin.prediction": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": [
+                {
+                    "key": "R",
+                    "doc_count": 1
+                }
+            ]
+        },
+        "min_metadata.treatment.outsideStandardPhaseStreptomycin.start": {
+            "value": null
+        },
+        "min_results.distance-nearest-neighbour.received": {
+            "value": null
+        },
+        "metadata.genotyping.hainFl": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": [
+                {
+                    "key": "Not tested",
+                    "doc_count": 1
+                }
+            ]
+        },
+        "results.predictor.susceptibility.Streptomycin.prediction": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": []
+        },
+        "min_metadata.treatment.outsideStandardPhaseMeropenem.start": {
+            "value": null
+        },
+        "results.predictor.susceptibility.Isoniazid.prediction": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": [
+                {
+                    "key": "R",
+                    "doc_count": 1
+                }
+            ]
+        },
+        "metadata.treatment.nonStandardTreatment": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": []
+        },
+        "metadata.treatment.startProgrammaticTreatment": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": []
+        },
+        "max_metadata.treatment.outsideStandardPhaseTerizidone.start": {
+            "value": null
+        },
+        "metadata.phenotyping.kanamycin.method": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": []
+        },
+        "max_metadata.treatment.outsideStandardPhaseClofazimine.stop": {
+            "value": null
+        },
+        "max_metadata.treatment.outsideStandardPhaseRifampicinRifabutin.stop": {
+            "value": null
+        },
+        "max_metadata.treatment.outsideStandardPhaseEthionamideProthionamide.stop": {
+            "value": null
+        },
+        "metadata.phenotyping.pretothionamide.susceptibility": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": []
+        },
+        "metadata.genotyping.otherGenotypeInformation": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": [
+                {
+                    "key": "Yes",
+                    "doc_count": 1
+                }
+            ]
+        },
+        "min_results.predictor.received": {
+            "value": 1536751400964,
+            "value_as_string": "2018-09-12T11:23:20.964Z"
+        },
+        "results.predictor.susceptibility.Kanamycin.prediction": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": []
+        },
+        "metadata.phenotyping.pretothionamide.method": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": []
+        },
+        "metadata.phenotyping.isoniazid.susceptibility": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": [
+                {
+                    "key": "Sensitive",
+                    "doc_count": 1
+                }
+            ]
+        },
+        "metadata.phenotyping.pyrazinamide.method": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": [
+                {
+                    "key": "Not known",
+                    "doc_count": 1
+                }
+            ]
+        },
+        "metadata.phenotyping.clofazimine.method": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": []
+        },
+        "min_metadata.patient.age": {
+            "value": 43
+        },
+        "min_results.distance-tree-distance.analysed": {
+            "value": null
+        },
+        "min_metadata.treatment.intensiveStopDate": {
+            "value": null
+        },
+        "results.predictor.tdr": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": []
+        },
+        "max_metadata.sample.latitudeIsolate": {
+            "value": 19.0759837
+        },
+        "max_metadata.treatment.outsideStandardPhasePyrazinamide.start": {
+            "value": null
+        },
+        "max_metadata.treatment.outsideStandardPhaseHighDoseIsoniazid.start": {
+            "value": null
+        },
+        "max_metadata.treatment.outsideStandardPhaseGentamicin.stop": {
+            "value": null
+        },
+        "results.predictor.susceptibility.Pyrazinamide.prediction": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": [
+                {
+                    "key": "S",
+                    "doc_count": 1
+                }
+            ]
+        },
+        "metadata.phenotyping.rerizidone.susceptibility": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": []
+        },
+        "metadata.outcome.whoOutcomeCategory": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": []
+        },
+        "metadata.phenotyping.thioacetazone.method": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": []
+        },
+        "results.predictor.susceptibility.Amikacin.prediction": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": [
+                {
+                    "key": "S",
+                    "doc_count": 1
+                }
+            ]
+        },
+        "min_metadata.treatment.outsideStandardPhaseLinezolid.start": {
+            "value": null
+        },
+        "min_metadata.treatment.outsideStandardPhaseStreptomycin.stop": {
+            "value": null
+        },
+        "metadata.patient.imprisoned": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": [
+                {
+                    "key": "No",
+                    "doc_count": 1
+                }
+            ]
+        },
+        "min_metadata.treatment.outsideStandardPhaseGatifloxacin.stop": {
+            "value": null
+        },
+        "metadata.phenotyping.phenotypeInformationOtherDrugs": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": [
+                {
+                    "key": "No",
+                    "doc_count": 1
+                }
+            ]
+        },
+        "results.distance-tree-distance.type": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": []
+        },
+        "metadata.phenotyping.kanamycin.susceptibility": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": []
+        },
+        "metadata.patient.hivStatus": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": [
+                {
+                    "key": "Not tested",
+                    "doc_count": 1
+                }
+            ]
+        },
+        "min_metadata.treatment.outsideStandardPhaseAmoxicilinClavulanate.stop": {
+            "value": null
+        },
+        "max_metadata.treatment.outsideStandardPhaseHighDoseIsoniazid.stop": {
+            "value": null
+        },
+        "max_metadata.treatment.outsideStandardPhasePas.stop": {
+            "value": null
+        },
+        "max_metadata.treatment.continuation.start": {
+            "value": null
+        },
+        "min_metadata.outcome.dateOfDeath": {
+            "value": null
+        },
+        "min_metadata.treatment.outsideStandardPhasePas.stop": {
+            "value": null
+        },
+        "max_metadata.treatment.outsideStandardPhaseLinezolid.start": {
+            "value": null
+        },
+        "metadata.phenotyping.ofloxacin.method": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": []
+        },
+        "max_metadata.treatment.outsideStandardPhaseAmoxicilinClavulanate.start": {
+            "value": null
+        },
+        "max_metadata.treatment.outsideStandardPhaseThioacetazone.stop": {
+            "value": null
+        },
+        "metadata.outcome.sputumCultureConversion": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": []
+        },
+        "results.predictor.mdr": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": [
+                {
+                    "key": 1,
+                    "key_as_string": "true",
+                    "doc_count": 1
+                }
+            ]
+        },
+        "metadata.genotyping.genexpert": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": [
+                {
+                    "key": "Not tested",
+                    "doc_count": 1
+                }
+            ]
+        },
+        "min_metadata.treatment.outsideStandardPhaseMoxifloxacin.stop": {
+            "value": null
+        },
+        "max_metadata.treatment.outsideStandardPhaseRifampicinRifabutin.start": {
+            "value": null
+        },
+        "max_metadata.treatment.intensiveStopDate": {
+            "value": null
+        },
+        "min_metadata.treatment.outsideStandardPhaseAmoxicilinClavulanate.start": {
+            "value": null
+        },
+        "min_metadata.treatment.outsideStandardPhaseEthionamideProthionamide.start": {
+            "value": null
+        },
+        "metadata.phenotyping.meropenem.method": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": []
+        },
+        "min_metadata.treatment.outsideStandardPhaseLevofloxacin.stop": {
+            "value": null
+        },
+        "metadata.genotyping.wgsPlatform": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": [
+                {
+                    "key": "MiSeq",
+                    "doc_count": 1
+                }
+            ]
+        },
+        "metadata.phenotyping.delamanid.method": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": []
+        },
+        "max_metadata.treatment.outsideStandardPhaseImipenemImipenemcilastatin.stop": {
+            "value": null
+        },
+        "metadata.genotyping.hainRif": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": [
+                {
+                    "key": "RIF resistant",
+                    "doc_count": 1
+                }
+            ]
+        },
+        "max_metadata.sample.longitudeIsolate": {
+            "value": 72.8776559
+        },
+        "max_metadata.treatment.outsideStandardPhaseEthambutol.start": {
+            "value": null
+        },
+        "metadata.phenotyping.capreomycin.susceptibility": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": []
+        },
+        "max_metadata.treatment.outsideStandardPhaseGentamicin.start": {
+            "value": null
+        },
+        "max_metadata.treatment.outsideStandardPhaseImipenemImipenemcilastatin.start": {
+            "value": null
+        },
+        "max_metadata.treatment.outsideStandardPhaseEthambutol.stop": {
+            "value": null
+        },
+        "metadata.genotyping.hainAm": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": [
+                {
+                    "key": "Not tested",
+                    "doc_count": 1
+                }
+            ]
+        },
+        "min_metadata.treatment.outsideStandardPhaseImipenemImipenemcilastatin.start": {
+            "value": null
+        },
+        "min_metadata.sample.collectionDate": {
+            "value": 1539907200000,
+            "value_as_string": "2018-10-19T00:00:00.000Z"
+        },
+        "min_metadata.patient.bmi": {
+            "value": 25.3
+        },
+        "max_metadata.treatment.outsideStandardPhasePyrazinamide.stop": {
+            "value": null
+        },
+        "max_metadata.treatment.intensiveStartDate": {
+            "value": null
+        },
+        "min_metadata.treatment.outsideStandardPhaseClarythromycin.stop": {
+            "value": null
+        },
+        "max_metadata.sample.collectionDate": {
+            "value": 1539907200000,
+            "value_as_string": "2018-10-19T00:00:00.000Z"
+        },
+        "metadata.phenotyping.pas.method": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": []
+        },
+        "min_metadata.treatment.outsideStandardPhaseClofazimine.start": {
+            "value": null
+        },
+        "metadata.phenotyping.imipenemImipenemcilastatin.method": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": []
+        },
+        "max_metadata.treatment.outsideStandardPhaseLinezolid.stop": {
+            "value": null
+        },
+        "min_metadata.treatment.outsideStandardPhaseHighDoseIsoniazid.stop": {
+            "value": null
+        },
+        "metadata.treatment.currentTbInformation": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": []
+        },
+        "min_metadata.treatment.outsideStandardPhaseMeropenem.stop": {
+            "value": null
+        },
+        "min_metadata.treatment.outsideStandardPhaseCapreomycin.start": {
+            "value": null
+        },
+        "min_metadata.treatment.outsideStandardPhaseTerizidone.start": {
+            "value": null
+        },
+        "metadata.treatment.startProgrammaticContinuationTreatment": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": []
+        },
+        "max_metadata.treatment.priorTreatmentDate": {
+            "value": null
+        },
+        "metadata.phenotyping.thioacetazone.susceptibility": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": []
+        },
+        "metadata.patient.genderAtBirth": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": [
+                {
+                    "key": "Male",
+                    "doc_count": 1
+                }
+            ]
+        },
+        "max_metadata.treatment.outsideStandardPhaseClarythromycin.stop": {
+            "value": null
+        },
+        "max_metadata.treatment.outsideStandardPhaseOfloxacin.stop": {
+            "value": null
+        },
+        "metadata.sample.anatomicalOrigin": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": [
+                {
+                    "key": "Respiratory",
+                    "doc_count": 1
+                }
+            ]
+        },
+        "max_metadata.treatment.outsideStandardPhaseAmoxicilinClavulanate.stop": {
+            "value": null
+        },
+        "min_metadata.treatment.outsideStandardPhaseClofazimine.stop": {
+            "value": null
+        },
+        "max_metadata.treatment.outsideStandardPhaseLevofloxacin.start": {
+            "value": null
+        },
+        "metadata.phenotyping.ciprofloxacin.method": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": []
+        },
+        "max_metadata.patient.bmi": {
+            "value": 25.3
+        },
+        "metadata.phenotyping.prothionamide.method": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": []
+        },
+        "results.distance-nearest-neighbour.subType": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": []
+        },
+        "min_metadata.treatment.outsideStandardPhaseIsoniazid.start": {
+            "value": null
+        },
+        "min_metadata.treatment.outsideStandardPhaseGentamicin.start": {
+            "value": null
+        },
+        "metadata.phenotyping.streptomycin.method": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": []
+        },
+        "metadata.outcome.sputumSmearConversion": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": []
+        },
+        "min_metadata.treatment.outsideStandardPhaseCapreomycin.stop": {
+            "value": null
+        },
+        "metadata.patient.homeless": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": [
+                {
+                    "key": "No",
+                    "doc_count": 1
+                }
+            ]
+        },
+        "metadata.phenotyping.prothionamide.susceptibility": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": []
+        },
+        "metadata.phenotyping.capreomycin.method": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": []
+        },
+        "max_results.predictor.analysed": {
+            "value": 1536751400964,
+            "value_as_string": "2018-09-12T11:23:20.964Z"
+        },
+        "metadata.phenotyping.highDoseIsoniazid.susceptibility": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": []
+        },
+        "max_metadata.treatment.outsideStandardPhaseCapreomycin.start": {
+            "value": null
+        },
+        "min_metadata.treatment.intensiveStartDate": {
+            "value": null
+        },
+        "min_metadata.treatment.outsideStandardPhaseClarythromycin.start": {
+            "value": null
+        },
+        "min_metadata.treatment.outsideStandardPhaseThioacetazone.start": {
+            "value": null
+        },
+        "metadata.treatment.recentMdrTb": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": []
+        },
+        "min_metadata.treatment.outsideStandardPhasePas.start": {
+            "value": null
+        },
+        "metadata.phenotyping.pyrazinamide.susceptibility": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": [
+                {
+                    "key": "Sensitive",
+                    "doc_count": 1
+                }
+            ]
+        },
+        "max_metadata.treatment.outsideStandardPhaseIsoniazid.stop": {
+            "value": null
+        },
+        "metadata.phenotyping.rifampicin.susceptibility": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": [
+                {
+                    "key": "Resistant",
+                    "doc_count": 1
+                }
+            ]
+        },
+        "metadata.phenotyping.clarythromycin.method": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": []
+        },
+        "min_results.distance-nearest-neighbour.analysed": {
+            "value": null
+        },
+        "metadata.phenotyping.clarythromycin.susceptibility": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": []
+        },
+        "metadata.phenotyping.ofloxacin.susceptibility": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": []
+        },
+        "metadata.sample.smear": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": [
+                {
+                    "key": "Not known",
+                    "doc_count": 1
+                }
+            ]
+        },
+        "min_metadata.treatment.outsideStandardPhaseGatifloxacin.start": {
+            "value": null
+        },
+        "max_metadata.treatment.outsideStandardPhaseLevofloxacin.stop": {
+            "value": null
+        },
+        "results.distance-nearest-neighbour.type": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": []
+        },
+        "max_metadata.treatment.outsideStandardPhaseAmikacin.start": {
+            "value": null
+        },
+        "results.predictor.susceptibility.Ofloxacin.prediction": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": []
+        },
+        "min_metadata.treatment.outsideStandardPhaseGentamicin.stop": {
+            "value": null
+        },
+        "metadata.phenotyping.levofloxacin.method": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": []
+        },
+        "min_metadata.treatment.outsideStandardPhaseRifampicinRifabutin.stop": {
+            "value": null
+        },
+        "min_metadata.treatment.outsideStandardPhaseOfloxacin.stop": {
+            "value": null
+        },
+        "results.predictor.r": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": []
+        },
+        "metadata.phenotyping.pretomanid.method": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": []
+        },
+        "max_metadata.sample.dateArrived": {
+            "value": 1535760000000,
+            "value_as_string": "2018-09-01T00:00:00.000Z"
+        },
+        "max_metadata.treatment.continuation.stop": {
+            "value": null
+        },
+        "metadata.phenotyping.pretomanid.susceptibility": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": []
+        },
+        "min_metadata.treatment.outsideStandardPhaseAmikacin.start": {
+            "value": null
+        },
+        "min_metadata.treatment.priorTreatmentDate": {
+            "value": null
+        },
+        "results.predictor.xdr": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": [
+                {
+                    "key": 0,
+                    "key_as_string": "false",
+                    "doc_count": 1
+                }
+            ]
+        },
+        "metadata.genotyping.hainEth": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": [
+                {
+                    "key": "Not tested",
+                    "doc_count": 1
+                }
+            ]
+        },
+        "min_metadata.sample.longitudeIsolate": {
+            "value": 72.8776559
+        },
+        "metadata.phenotyping.ethambutol.susceptibility": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": [
+                {
+                    "key": "Sensitive",
+                    "doc_count": 1
+                }
+            ]
+        },
+        "min_metadata.treatment.outsideStandardPhasePyrazinamide.stop": {
+            "value": null
+        },
+        "min_metadata.treatment.outsideStandardPhaseEthionamideProthionamide.stop": {
+            "value": null
+        },
+        "metadata.phenotyping.highDoseIsoniazid.method": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": []
+        },
+        "metadata.phenotyping.amikacin.method": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": []
+        },
+        "metadata.phenotyping.rerizidone.method": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": []
+        },
+        "metadata.phenotyping.delamanid.susceptibility": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": []
+        },
+        "results.predictor.susceptibility.Ethambutol.prediction": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": []
+        },
+        "max_metadata.treatment.outsideStandardPhaseMeropenem.stop": {
+            "value": null
+        },
+        "metadata.phenotyping.meropenem.susceptibility": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": []
+        },
+        "max_results.distance-nearest-neighbour.received": {
+            "value": null
+        },
+        "max_metadata.treatment.outsideStandardPhaseMeropenem.start": {
+            "value": null
+        },
+        "min_metadata.treatment.outsideStandardPhaseMoxifloxacin.start": {
+            "value": null
+        },
+        "metadata.phenotyping.ethambutol.method": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": [
+                {
+                    "key": "Not known",
+                    "doc_count": 1
+                }
+            ]
+        },
+        "metadata.phenotyping.pas.susceptibility": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": []
+        },
+        "min_results.distance-tree-distance.received": {
+            "value": null
+        },
+        "min_metadata.treatment.outsideStandardPhaseEthambutol.start": {
+            "value": null
+        },
+        "max_metadata.treatment.outsideStandardPhaseEthionamideProthionamide.start": {
+            "value": null
+        },
+        "max_metadata.patient.age": {
+            "value": 43
+        },
+        "metadata.patient.injectingDrugUse": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": [
+                {
+                    "key": "No",
+                    "doc_count": 1
+                }
+            ]
+        },
+        "metadata.patient.countryOfBirth": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": [
+                {
+                    "key": "IN",
+                    "doc_count": 1
+                }
+            ]
+        },
+        "min_metadata.treatment.outsideStandardPhaseLinezolid.stop": {
+            "value": null
+        },
+        "results.predictor.susceptibility.Ciprofloxacin.prediction": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": []
+        },
+        "metadata.phenotyping.amikacin.susceptibility": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": []
+        },
+        "min_metadata.treatment.continuation.stop": {
+            "value": null
+        },
+        "metadata.phenotyping.linezolid.method": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": []
+        },
+        "results.predictor.susceptibility.Moxifloxacin.prediction": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": []
+        },
+        "metadata.phenotyping.amoxicilinClavulanate.susceptibility": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": []
+        },
+        "metadata.phenotyping.isoniazid.method": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": [
+                {
+                    "key": "Not known",
+                    "doc_count": 1
+                }
+            ]
+        },
+        "metadata.genotyping.hainInh": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": [
+                {
+                    "key": "INH sensitive",
+                    "doc_count": 1
+                }
+            ]
+        },
+        "metadata.patient.smoker": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": [
+                {
+                    "key": "Yes",
+                    "doc_count": 1
+                }
+            ]
+        },
+        "metadata.phenotyping.levofloxacin.susceptibility": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": []
+        },
+        "min_metadata.treatment.outsideStandardPhaseHighDoseIsoniazid.start": {
+            "value": null
+        },
+        "metadata.phenotyping.bedaquiline.susceptibility": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": []
+        },
+        "min_metadata.treatment.outsideStandardPhaseRifampicinRifabutin.start": {
+            "value": null
+        },
+        "max_metadata.treatment.outsideStandardPhaseClofazimine.start": {
+            "value": null
+        },
+        "metadata.phenotyping.rifabutin.method": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": []
+        },
+        "min_metadata.treatment.outsideStandardPhaseAmikacin.stop": {
+            "value": null
+        },
+        "min_metadata.treatment.outsideStandardPhaseThioacetazone.stop": {
+            "value": null
+        },
+        "min_metadata.treatment.outsideStandardPhaseIsoniazid.stop": {
+            "value": null
+        },
+        "max_results.distance-nearest-neighbour.analysed": {
+            "value": null
+        },
+        "min_metadata.treatment.outsideStandardPhaseTerizidone.stop": {
+            "value": null
+        },
+        "min_metadata.sample.dateArrived": {
+            "value": 1535760000000,
+            "value_as_string": "2018-09-01T00:00:00.000Z"
+        },
+        "results.predictor.susceptibility.Capreomycin.prediction": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": []
+        },
+        "metadata.genotyping.hain": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": [
+                {
+                    "key": "INH/RIF test",
+                    "doc_count": 1
+                }
+            ]
+        },
+        "metadata.sample.countryIsolate": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": [
+                {
+                    "key": "IN",
+                    "doc_count": 1
+                }
+            ]
+        },
+        "metadata.phenotyping.rifampicin.method": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": [
+                {
+                    "key": "Not known",
+                    "doc_count": 1
+                }
+            ]
+        },
+        "max_metadata.treatment.outsideStandardPhasePas.start": {
+            "value": null
+        },
+        "metadata.phenotyping.ethionamideProthionamide.method": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": []
+        },
+        "metadata.phenotyping.gatifloxacin.susceptibility": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": []
+        },
+        "results.distance-tree-distance.subType": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": []
+        },
+        "metadata.sample.prospectiveIsolate": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": [
+                {
+                    "key": "Yes",
+                    "doc_count": 1
+                }
+            ]
+        },
+        "metadata.phenotyping.amoxicilinClavulanate.method": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": []
+        },
+        "max_metadata.treatment.outsideStandardPhaseGatifloxacin.start": {
+            "value": null
+        },
+        "metadata.phenotyping.gentamicin.susceptibility": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": []
+        },
+        "min_metadata.treatment.outsideStandardPhaseLevofloxacin.start": {
+            "value": null
+        },
+        "min_results.predictor.analysed": {
+            "value": 1536751400964,
+            "value_as_string": "2018-09-12T11:23:20.964Z"
+        },
+        "metadata.phenotyping.rifabutin.susceptibility": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": []
+        },
+        "max_results.distance-tree-distance.received": {
+            "value": null
+        },
+        "min_metadata.treatment.outsideStandardPhaseOfloxacin.start": {
+            "value": null
+        },
+        "max_metadata.treatment.outsideStandardPhaseMoxifloxacin.stop": {
+            "value": null
+        },
+        "min_metadata.treatment.outsideStandardPhaseImipenemImipenemcilastatin.stop": {
+            "value": null
+        },
+        "metadata.phenotyping.clofazimine.susceptibility": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": []
+        },
+        "min_metadata.treatment.outsideStandardPhasePyrazinamide.start": {
+            "value": null
+        },
+        "metadata.phenotyping.ciprofloxacin.susceptibility": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": []
+        },
+        "min_metadata.treatment.tbProphylaxisDate": {
+            "value": null
+        },
+        "metadata.phenotyping.imipenemImipenemcilastatin.susceptibility": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": []
+        },
+        "metadata.phenotyping.linezolid.susceptibility": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": []
+        },
+        "max_metadata.treatment.outsideStandardPhaseClarythromycin.start": {
+            "value": null
+        },
+        "metadata.treatment.tbProphylaxis": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 0,
+            "buckets": []
+        }
+    }
+}

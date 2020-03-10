@@ -1,0 +1,61 @@
+HTTP/1.1 201 OK
+Content-Type: application/json; charset=utf-8
+
+[
+    {
+        "id": "46e23392-1773-4ab0-9f54-14eb2200d077",
+        "createdTimestamp": 1575042436725,
+        "username": "admin@nhs.co.uk",
+        "enabled": true,
+        "totp": false,
+        "emailVerified": false,
+        "firstName": "David",
+        "lastName": "Robin",
+        "email": "admin@nhs.co.uk",
+        "attributes": {
+            "phone": [
+                "06734929442"
+            ]
+        },
+        "disableableCredentialTypes": [],
+        "requiredActions": [
+            "VERIFY_EMAIL"
+        ],
+        "notBefore": 0,
+        "access": {
+            "manageGroupMembership": true,
+            "view": true,
+            "mapRoles": true,
+            "impersonate": true,
+            "manage": true
+        }
+    },
+    {
+        "id": "46e23392-1773-4ab0-9f54-14eb2200d077",
+        "createdTimestamp": 1575042436725,
+        "username": "thomas.carlos@nhs.net",
+        "enabled": true,
+        "totp": false,
+        "emailVerified": false,
+        "firstName": "Thomas",
+        "lastName": "Carlos",
+        "email": "thomas.carlos@nhs.net",
+        "attributes": {
+            "phone": [
+                "06734929442"
+            ]
+        },
+        "disableableCredentialTypes": [],
+        "requiredActions": [
+            "VERIFY_EMAIL"
+        ],
+        "notBefore": 0,
+        "access": {
+            "manageGroupMembership": true,
+            "view": true,
+            "mapRoles": true,
+            "impersonate": true,
+            "manage": true
+        }
+    }
+]

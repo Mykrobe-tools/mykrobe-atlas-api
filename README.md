@@ -91,6 +91,14 @@ $ yarn add --dev husky --force
 http://host/swagger.json
 ```
 
+### Load the results from json files
+
+Run this command to load the results from json files in /path/to/folder
+
+```
+$ yarn results:load --folder=/path/to/folder --username=<username> --password=<password> --basePath=<apiBasePath>
+```
+
 ### AWS KEYS
 
 Add your aws keys as environment variables.

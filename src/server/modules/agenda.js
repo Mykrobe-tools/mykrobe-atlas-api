@@ -1,5 +1,5 @@
 import Agenda from "agenda";
-import winston from "winston";
+import logger from "./winston";
 import axios from "axios";
 import Audit from "../models/audit.model";
 import AgendaHelper from "../helpers/AgendaHelper";
@@ -17,7 +17,7 @@ agendaInstance.define("call search api", AgendaHelper.callSearchApi.bind(agendaI
 agendaInstance.define("refresh isolateId", AgendaHelper.refreshIsolateId.bind(agendaInstance));
 
 agendaInstance.on("ready", async () => {
-  winston.info("agenda is ready and started.");
+  logger.debug("Agenda is ready ...");
   await agendaInstance.start();
   await agendaInstance.every("0 0 * * *", "refresh isolateId");
 });

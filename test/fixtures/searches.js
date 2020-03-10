@@ -219,6 +219,34 @@ export default {
         ]
       }
     },
+    dnaVariantWith0Genotype: {
+      type: "dna-variant",
+      result: {
+        id: "a699c1ecde6f6e6713190eed9",
+        reference: "/data/NC_000961.4.fasta",
+        ref: "G",
+        pos: 4346385,
+        alt: "C",
+        genbank: null,
+        gene: null,
+        completed_bigsi_queries: 2,
+        total_bigsi_queries: 1,
+        results: [
+          {
+            sample_name: "HN079",
+            genotype: "1/1"
+          },
+          {
+            sample_name: "SAMN06092584",
+            genotype: "1/1"
+          },
+          {
+            sample_name: "SAMN06092583",
+            genotype: "0/0"
+          }
+        ]
+      }
+    },
     proteinVariant: {
       type: "protein-variant",
       result: {
@@ -239,6 +267,34 @@ export default {
           {
             sample_name: "SAMN06192378",
             genotype: "1/1"
+          }
+        ]
+      }
+    },
+    proteinVariantWith0Genotype: {
+      type: "protein-variant",
+      result: {
+        id: "a699c1eaee6f6e618910eed9",
+        reference: "/data/NC_000962.3.fasta",
+        ref: "S",
+        pos: 450,
+        alt: "L",
+        genbank: null,
+        gene: "rpoB",
+        completed_bigsi_queries: 3,
+        total_bigsi_queries: 1,
+        results: [
+          {
+            sample_name: "HN081",
+            genotype: "1/1"
+          },
+          {
+            sample_name: "SAMN06192378",
+            genotype: "1/1"
+          },
+          {
+            sample_name: "SAMN06192379",
+            genotype: "0/0"
           }
         ]
       }

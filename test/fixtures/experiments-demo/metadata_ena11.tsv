@@ -1,12 +1,12 @@
-sample_name	geo_metadata
-SRR8237379	Switzerland: Geneva
-SRR8237352	Tanzania 
-ERR552125	Sierra Leone
-ERR552658	Sierra Leone
-ERR552694	unknown
-ERR553037	Sierra Leone
-ERR550945	New Guinea
-ERR550946	New Guinea
-ERR550947	New Guinea
-ERR551411	unknown
-ERR551412	unknown
+sample_name,geo_metadata
+SRR8237379,Switzerland: Geneva
+SRR8237352,Tanzania 
+ERR552125,Sierra Leone
+ERR552658,Sierra Leone
+ERR552694,unknown
+ERR553037,Sierra Leone
+ERR550945,New Guinea
+ERR550946,New Guinea
+ERR550947,New Guinea
+ERR551411,unknown
+ERR551412,unknown

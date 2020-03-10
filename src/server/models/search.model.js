@@ -1,8 +1,9 @@
 import mongoose from "mongoose";
-import errors from "errors";
 import moment from "moment";
 import schemaValidator from "mongoose-jsonschema-validator";
 import { search as searchJsonSchema } from "mykrobe-atlas-jsonschema";
+
+import { APIError } from "makeandship-api-common/lib/modules/error";
 
 import Constants from "../Constants";
 
@@ -126,9 +127,9 @@ SearchSchema.statics = {
       if (search) {
         return search;
       }
-      throw new errors.ObjectNotFound(`Search not found with id ${id}`);
+      throw new APIError(Constants.ERRORS.GET_SEARCH, `Search not found with id ${id}`);
     } catch (e) {
-      throw new errors.ObjectNotFound(e.message);
+      throw new APIError(Constants.ERRORS.GET_SEARCH, e.message);
     }
   },
 

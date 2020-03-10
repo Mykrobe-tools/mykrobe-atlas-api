@@ -28,8 +28,8 @@ beforeEach(async done => {
 });
 
 afterEach(async done => {
-  await User.remove({});
-  await Experiment.remove({});
+  await User.deleteMany({});
+  await Experiment.deleteMany({});
   done();
 });
 
@@ -171,29 +171,17 @@ describe("DataController", () => {
     });
   });
 
-  describe("POST /data/demo/:folder", () => {
+  describe("POST /data/demo", () => {
     describe("when passing invalid data", () => {
       it("should be a protected route", done => {
         request(app)
-          .post("/data/demo/experiments-demo")
+          .post("/data/demo")
           .set("Authorization", "Bearer INVALID")
+          .attach("file", "test/fixtures/experiments-demo/metadata_ena11.tsv")
           .expect(httpStatus.UNAUTHORIZED)
           .end((err, res) => {
             expect(res.body.status).toEqual("error");
             expect(res.body.message).toEqual("Not Authorised");
-            done();
-          });
-      });
-      it("should check if the folder exists", done => {
-        request(app)
-          .post("/data/demo/experiments-demo-invalid")
-          .set("Authorization", `Bearer ${token}`)
-          .expect(httpStatus.OK)
-          .end((err, res) => {
-            expect(res.body.status).toEqual("error");
-            expect(res.body.message).toEqual(
-              "Cannot find test/fixtures/experiments-demo-invalid directory"
-            );
             done();
           });
       });
@@ -206,9 +194,10 @@ describe("DataController", () => {
       });
       it("should purge all the experiments", done => {
         request(app)
-          .post("/data/demo/experiments-demo")
+          .post("/data/demo")
           .set("Authorization", `Bearer ${token}`)
-          .send({ purge: true })
+          .field("purge", "true")
+          .attach("file", "test/fixtures/experiments-demo/metadata_ena11.tsv")
           .expect(httpStatus.OK)
           .end(async (err, res) => {
             let total = await Experiment.count();
@@ -217,18 +206,17 @@ describe("DataController", () => {
               total = await Experiment.count();
             }
             expect(res.body.status).toEqual("success");
-            expect(res.body.data).toEqual(
-              "Demo data upload started from test/fixtures/experiments-demo"
-            );
+            expect(res.body.data).toEqual("Demo data upload started");
             expect(total).toEqual(11);
             done();
           });
       });
       it("should successfully load the experiments", done => {
         request(app)
-          .post("/data/demo/experiments-demo")
+          .post("/data/demo")
           .set("Authorization", `Bearer ${token}`)
-          .send({ purge: true })
+          .field("purge", "true")
+          .attach("file", "test/fixtures/experiments-demo/metadata_ena11.tsv")
           .expect(httpStatus.OK)
           .end(async (err, res) => {
             let total = await Experiment.count();
@@ -236,9 +224,7 @@ describe("DataController", () => {
               total = await Experiment.count();
             }
             expect(res.body.status).toEqual("success");
-            expect(res.body.data).toEqual(
-              "Demo data upload started from test/fixtures/experiments-demo"
-            );
+            expect(res.body.data).toEqual("Demo data upload started");
             const experiment = await Experiment.findOne({
               "metadata.sample.isolateId": "ERR550945"
             });
@@ -248,9 +234,10 @@ describe("DataController", () => {
       });
       it("should replace the city and country", done => {
         request(app)
-          .post("/data/demo/experiments-demo")
+          .post("/data/demo")
           .set("Authorization", `Bearer ${token}`)
-          .send({ purge: true })
+          .field("purge", "true")
+          .attach("file", "test/fixtures/experiments-demo/metadata_ena11.tsv")
           .expect(httpStatus.OK)
           .end(async (err, res) => {
             let total = await Experiment.count();
@@ -258,9 +245,7 @@ describe("DataController", () => {
               total = await Experiment.count();
             }
             expect(res.body.status).toEqual("success");
-            expect(res.body.data).toEqual(
-              "Demo data upload started from test/fixtures/experiments-demo"
-            );
+            expect(res.body.data).toEqual("Demo data upload started");
             const experiment = await Experiment.findOne({
               "metadata.sample.isolateId": "SRR8237379"
             });
@@ -271,15 +256,14 @@ describe("DataController", () => {
       });
       it("should populate geo data", done => {
         request(app)
-          .post("/data/demo/experiments-demo")
+          .post("/data/demo")
           .set("Authorization", `Bearer ${token}`)
-          .send({ purge: true })
+          .field("purge", "true")
+          .attach("file", "test/fixtures/experiments-demo/metadata_ena11.tsv")
           .expect(httpStatus.OK)
           .end(async (err, res) => {
             expect(res.body.status).toEqual("success");
-            expect(res.body.data).toEqual(
-              "Demo data upload started from test/fixtures/experiments-demo"
-            );
+            expect(res.body.data).toEqual("Demo data upload started");
             let experiment = await Experiment.findOne({
               "metadata.sample.isolateId": "SRR8237379"
             });
@@ -301,9 +285,10 @@ describe("DataController", () => {
       });
       it("should not populate the value if unknown", done => {
         request(app)
-          .post("/data/demo/experiments-demo")
+          .post("/data/demo")
           .set("Authorization", `Bearer ${token}`)
-          .send({ purge: true })
+          .field("purge", "true")
+          .attach("file", "test/fixtures/experiments-demo/metadata_ena11.tsv")
           .expect(httpStatus.OK)
           .end(async (err, res) => {
             let total = await Experiment.count();
@@ -311,9 +296,7 @@ describe("DataController", () => {
               total = await Experiment.count();
             }
             expect(res.body.status).toEqual("success");
-            expect(res.body.data).toEqual(
-              "Demo data upload started from test/fixtures/experiments-demo"
-            );
+            expect(res.body.data).toEqual("Demo data upload started");
             const experiment = await Experiment.findOne({
               "metadata.sample.isolateId": "ERR552694"
             });
@@ -331,8 +314,9 @@ describe("DataController", () => {
       });
       it("should not purge the experiments", done => {
         request(app)
-          .post("/data/demo/experiments-demo")
+          .post("/data/demo")
           .set("Authorization", `Bearer ${token}`)
+          .attach("file", "test/fixtures/experiments-demo/metadata_ena11.tsv")
           .expect(httpStatus.OK)
           .end(async (err, res) => {
             let total = await Experiment.count();
@@ -340,17 +324,16 @@ describe("DataController", () => {
               total = await Experiment.count();
             }
             expect(res.body.status).toEqual("success");
-            expect(res.body.data).toEqual(
-              "Demo data upload started from test/fixtures/experiments-demo"
-            );
+            expect(res.body.data).toEqual("Demo data upload started");
             expect(total).toEqual(12);
             done();
           });
       });
       it("should successfully load the experiments", done => {
         request(app)
-          .post("/data/demo/experiments-demo")
+          .post("/data/demo")
           .set("Authorization", `Bearer ${token}`)
+          .attach("file", "test/fixtures/experiments-demo/metadata_ena11.tsv")
           .expect(httpStatus.OK)
           .end(async (err, res) => {
             let total = await Experiment.count();
@@ -358,9 +341,7 @@ describe("DataController", () => {
               total = await Experiment.count();
             }
             expect(res.body.status).toEqual("success");
-            expect(res.body.data).toEqual(
-              "Demo data upload started from test/fixtures/experiments-demo"
-            );
+            expect(res.body.data).toEqual("Demo data upload started");
             const experiment = await Experiment.findOne({
               "metadata.sample.isolateId": "ERR550945"
             });

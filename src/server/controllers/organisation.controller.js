@@ -1,7 +1,23 @@
-import errors from "errors";
+import normalizer from "makeandship-api-common/lib/modules/jsonschema/normalizer";
+import { coercer } from "makeandship-api-common/lib/modules/jsonschema";
 import ArrayJSONTransformer from "makeandship-api-common/lib/transformers/ArrayJSONTransformer";
+import { ValidationError, ErrorUtil, APIError } from "makeandship-api-common/lib/modules/error";
+import Validator from "makeandship-api-common/lib/modules/ajv/Validator";
+
+import { organisation as organisationSchema } from "mykrobe-atlas-jsonschema";
+
 import Organisation from "../models/organisation.model";
+import User from "../models/user.model";
+import Member from "../models/member.model";
+
 import OrganisationJSONTransformer from "../transformers/OrganisationJSONTransformer";
+import UserJSONTransformer from "../transformers/UserJSONTransformer";
+import OrganisationHelper from "../helpers/OrganisationHelper";
+import AccountsHelper from "../helpers/AccountsHelper";
+
+import Constants from "../Constants";
+
+const keycloak = AccountsHelper.keycloakInstance();
 
 /**
  * Load organisation and append to req.
@@ -27,12 +43,18 @@ const get = (req, res) => res.jsend(req.organisation);
  * @returns {Organisation}
  */
 const create = async (req, res) => {
-  const organisation = new Organisation(req.body);
+  const body = normalizer.normalize(organisationSchema, req.body);
+  const organisation = new Organisation(body);
+
+  const member = await OrganisationHelper.createMember(req.dbUser);
+  organisation.owners.push(member);
+
   try {
     const savedOrganisation = await organisation.save();
+    await keycloak.addToGroup(savedOrganisation.ownersGroupId, req.dbUser.keycloakId);
     return res.jsend(savedOrganisation);
   } catch (e) {
-    return res.jerror(new errors.CreateOrganisationError(e.message));
+    return res.jerror(ErrorUtil.convert(e, Constants.ERRORS.CREATE_ORGANISATION));
   }
 };
 
@@ -41,12 +63,29 @@ const create = async (req, res) => {
  * @returns {Organisation}
  */
 const update = async (req, res) => {
-  const organisation = Object.assign(req.organisation, req.body);
+  const body = normalizer.normalize(organisationSchema, req.body);
+
+  const organisationData = Object.assign(req.organisation.toObject(), body);
+  const validationData = Object.assign({}, organisationData);
+  await coercer.coerce(organisationSchema, validationData);
+
+  const validator = new Validator(organisationSchema, {});
+  const validationErrors = validator.validate(validationData);
+  if (validationErrors) {
+    const validationError = ErrorUtil.convert(
+      { errors: validationErrors },
+      Constants.ERRORS.UPDATE_ORGANISATION
+    );
+    return res.jerror(validationError);
+  }
+
   try {
+    const organisation = Object.assign(req.organisation, body);
     const savedOrganisation = await organisation.save();
+
     return res.jsend(savedOrganisation);
   } catch (e) {
-    return res.jerror(new errors.UpdateOrganisationError(e.message));
+    return res.jerror(ErrorUtil.convert(e, Constants.ERRORS.UPDATE_ORGANISATION));
   }
 };
 
@@ -67,7 +106,7 @@ const list = async (req, res) => {
       })
     );
   } catch (e) {
-    return res.jerror(e);
+    return res.jerror(ErrorUtil.convert(e, Constants.ERRORS.GET_ORGANISATIONS));
   }
 };
 
@@ -81,7 +120,148 @@ const remove = async (req, res) => {
     await organisation.remove();
     return res.jsend("Organisation was successfully deleted.");
   } catch (e) {
-    return res.jerror(e);
+    return res.jerror(ErrorUtil.convert(e, Constants.ERRORS.DELETE_ORGANISATION));
+  }
+};
+
+/**
+ * Join organisation.
+ * @returns {Organisation}
+ */
+const join = async (req, res) => {
+  const organisation = req.organisation;
+  try {
+    const member = await OrganisationHelper.createMember(req.dbUser);
+    organisation.unapprovedMembers.push(member);
+    const savedOrganisation = await organisation.save();
+    return res.jsend(savedOrganisation);
+  } catch (e) {
+    return res.jerror(ErrorUtil.convert(e, Constants.ERRORS.JOIN_ORGANISATION));
+  }
+};
+
+/**
+ * Approve a request.
+ * @returns {Organisation}
+ */
+const approve = async (req, res) => {
+  const organisation = req.organisation;
+  try {
+    const userJson = {
+      userId: req.dbUser.id,
+      ...req.dbUser.toJSON()
+    };
+    delete userJson.id;
+    const member = await Member.get(req.params.memberId);
+    member.set("actionedBy", userJson);
+    member.set("actionedAt", new Date());
+    member.set("action", "approve");
+    const savedMember = await member.save();
+    organisation.members.push(savedMember);
+    const savedOrganisation = await organisation.save();
+    const memberUser = await User.get(savedMember.userId);
+    await keycloak.addToGroup(organisation.membersGroupId, memberUser.keycloakId);
+    return res.jsend(savedOrganisation);
+  } catch (e) {
+    return res.jerror(ErrorUtil.convert(e, Constants.ERRORS.APPROVE_MEMBER));
+  }
+};
+
+/**
+ * Reject a request.
+ * @returns {Organisation}
+ */
+const reject = async (req, res) => {
+  const organisation = req.organisation;
+  try {
+    const userJson = {
+      userId: req.dbUser.id,
+      ...req.dbUser.toJSON()
+    };
+    delete userJson.id;
+    const member = await Member.get(req.params.memberId);
+    member.set("actionedBy", userJson);
+    member.set("actionedAt", new Date());
+    member.set("action", "reject");
+    const savedMember = await member.save();
+    organisation.rejectedMembers.push(savedMember);
+    const savedOrganisation = await organisation.save();
+    return res.jsend(savedOrganisation);
+  } catch (e) {
+    return res.jerror(ErrorUtil.convert(e, Constants.ERRORS.REJECT_MEMBER));
+  }
+};
+
+/**
+ * Remove a member.
+ * @returns {Organisation}
+ */
+const removeMember = async (req, res) => {
+  const organisation = req.organisation;
+  try {
+    const member = await Member.get(req.params.memberId);
+    const memberUser = await User.get(member.userId);
+    await keycloak.deleteFromGroup(organisation.membersGroupId, memberUser.keycloakId);
+    const savedOrganisation = await organisation.save();
+    return res.jsend(savedOrganisation);
+  } catch (e) {
+    return res.jerror(ErrorUtil.convert(e, Constants.ERRORS.REMOVE_MEMBER));
+  }
+};
+
+/**
+ * Promote a member.
+ * @returns {Organisation}
+ */
+const promote = async (req, res) => {
+  const organisation = req.organisation;
+  try {
+    const userJson = {
+      userId: req.dbUser.id,
+      ...req.dbUser.toJSON()
+    };
+    delete userJson.id;
+    const member = await Member.get(req.params.memberId);
+    member.set("actionedBy", userJson);
+    member.set("actionedAt", new Date());
+    member.set("action", "promote");
+    const savedMember = await member.save();
+    organisation.owners.push(savedMember);
+    const savedOrganisation = await organisation.save();
+    const memberUser = await User.get(savedMember.userId);
+    await keycloak.addToGroup(organisation.ownersGroupId, memberUser.keycloakId);
+    await keycloak.deleteFromGroup(organisation.membersGroupId, memberUser.keycloakId);
+    return res.jsend(savedOrganisation);
+  } catch (e) {
+    return res.jerror(ErrorUtil.convert(e, Constants.ERRORS.PROMOTE_MEMBER));
+  }
+};
+
+/**
+ * Demote an owner.
+ * @returns {Organisation}
+ */
+const demote = async (req, res) => {
+  const organisation = req.organisation;
+  try {
+    const userJson = {
+      userId: req.dbUser.id,
+      ...req.dbUser.toJSON()
+    };
+    delete userJson.id;
+    const member = await Member.get(req.params.memberId);
+    member.set("actionedBy", userJson);
+    member.set("actionedAt", new Date());
+    member.set("action", "demote");
+    const savedMember = await member.save();
+    organisation.members.push(savedMember);
+    const savedOrganisation = await organisation.save();
+    const memberUser = await User.get(savedMember.userId);
+    await keycloak.addToGroup(organisation.membersGroupId, memberUser.keycloakId);
+    await keycloak.deleteFromGroup(organisation.ownersGroupId, memberUser.keycloakId);
+    return res.jsend(savedOrganisation);
+  } catch (e) {
+    return res.jerror(ErrorUtil.convert(e, Constants.ERRORS.DEMOTE_MEMBER));
   }
 };
 
@@ -91,5 +271,11 @@ export default {
   create,
   update,
   list,
-  remove
+  remove,
+  join,
+  approve,
+  reject,
+  removeMember,
+  promote,
+  demote
 };

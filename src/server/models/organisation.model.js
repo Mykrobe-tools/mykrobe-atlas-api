@@ -1,16 +1,52 @@
 import mongoose from "mongoose";
-import errors from "errors";
+import slugify from "slugify";
+import uniqueValidator from "mongoose-unique-validator";
 
 import { organisation as organisationJsonSchema } from "mykrobe-atlas-jsonschema";
+
+import { APIError } from "makeandship-api-common/lib/modules/error";
 
 import JSONMongooseSchema from "./jsonschema.model";
 
 import OrganisationJSONTransformer from "../transformers/OrganisationJSONTransformer";
 
+import AccountsHelper from "../helpers/AccountsHelper";
+
+import Constants from "../Constants";
+
 /**
  * Organisation Schema
  */
-const OrganisationSchema = new JSONMongooseSchema(organisationJsonSchema, {}, {});
+const OrganisationSchema = new JSONMongooseSchema(
+  organisationJsonSchema,
+  {
+    owners: [
+      {
+        type: "ObjectId",
+        ref: "Member"
+      }
+    ],
+    members: [
+      {
+        type: "ObjectId",
+        ref: "Member"
+      }
+    ],
+    unapprovedMembers: [
+      {
+        type: "ObjectId",
+        ref: "Member"
+      }
+    ],
+    rejectedMembers: [
+      {
+        type: "ObjectId",
+        ref: "Member"
+      }
+    ]
+  },
+  {}
+);
 
 /**
  * Add your
@@ -19,6 +55,53 @@ const OrganisationSchema = new JSONMongooseSchema(organisationJsonSchema, {}, {}
  * - virtuals
  * - plugins
  */
+OrganisationSchema.pre("validate", async function(next) {
+  if (!this.slug) {
+    this.slug = slugify(this.name, { lower: true });
+  }
+});
+
+OrganisationSchema.path("name").validate(
+  function(value) {
+    return new Promise(resolve => {
+      if (this.isNew) {
+        const model = this.model(this.constructor.modelName);
+        model.count({ name: value }, (err, count) => {
+          return resolve(count === 0);
+        });
+      } else {
+        return resolve(true);
+      }
+    });
+  },
+  "Organisation already exists with name {VALUE}",
+  "unique"
+);
+
+OrganisationSchema.path("slug").validate(
+  function(value) {
+    return new Promise(resolve => {
+      if (this.isNew) {
+        const model = this.model(this.constructor.modelName);
+        model.count({ slug: value }, (err, count) => {
+          return resolve(count === 0);
+        });
+      } else {
+        return resolve(true);
+      }
+    });
+  },
+  "An organisation with slug {VALUE} has been used in the past and cannot be used again",
+  "unique"
+);
+
+OrganisationSchema.pre("save", async function(next) {
+  if (!this.slug) {
+    this.slug = slugify(this.name, { lower: true });
+  }
+
+  await AccountsHelper.setupGroupsAndRoles(this);
+});
 
 /**
  * Methods
@@ -36,13 +119,15 @@ OrganisationSchema.statics = {
    */
   async get(id) {
     try {
-      const organisation = await this.findById(id).exec();
+      const organisation = await this.findById(id)
+        .populate(["owners", "members", "unapprovedMembers", "rejectedMembers"])
+        .exec();
       if (organisation) {
         return organisation;
       }
-      throw new errors.ObjectNotFound(`Organisation not found with id ${id}`);
+      throw new APIError(Constants.ERRORS.GET_ORGANISATION, `Organisation not found with id ${id}`);
     } catch (e) {
-      throw new errors.ObjectNotFound(e.message);
+      throw new APIError(Constants.ERRORS.GET_ORGANISATION, e.message);
     }
   },
 
@@ -66,6 +151,7 @@ OrganisationSchema.statics = {
    */
   list({ skip = 0, limit = 50 } = {}) {
     return this.find()
+      .populate(["owners", "members", "rejectedMembers", "unapprovedMembers"])
       .skip(skip)
       .limit(limit)
       .exec();

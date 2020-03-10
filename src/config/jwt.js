@@ -1,5 +1,8 @@
-import errors from "errors";
 import User from "../server/models/user.model";
+
+import { ErrorUtil, APIError } from "makeandship-api-common/lib/modules/error";
+
+import Constants from "../server/Constants";
 
 function checkPermission(role) {
   return async (req, res, next) => {
@@ -8,10 +11,15 @@ function checkPermission(role) {
       if (user.role === role) {
         next();
       } else {
-        return res.jerror(new errors.NotAllowed());
+        return res.jerror(
+          new APIError(
+            Constants.ERRORS.NOT_ALLOWED,
+            `You are not allowed to perform that operation`
+          )
+        );
       }
     } catch (e) {
-      return res.jerror(new errors.NotAllowed(e.message));
+      return res.jerror(ErrorUtil.convert(e, Constants.ERRORS.NOT_ALLOWED));
     }
   };
 }

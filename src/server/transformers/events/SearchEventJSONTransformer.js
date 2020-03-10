@@ -21,11 +21,6 @@ class SearchEventJSONTransformer extends CLIEventJSONTransformer {
       res.id = search.id;
     }
 
-    const type = o.type;
-    if (type) {
-      res.type = type;
-    }
-
     return res;
   }
 }

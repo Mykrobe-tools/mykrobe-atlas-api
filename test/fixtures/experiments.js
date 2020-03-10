@@ -68,5 +68,14 @@ export default {
       phenotyping: metadata.uploadedMetadata.phenotyping
     },
     results: [results.distance.nearestNeighbour, results.distance.treeDistance]
+  },
+  tbUploadMetadataPredictorResults: {
+    metadata: {
+      patient: metadata.uploadedMetadata.patient,
+      sample: metadata.uploadedMetadata.sample,
+      genotyping: metadata.uploadedMetadata.genotyping,
+      phenotyping: metadata.uploadedMetadata.phenotyping
+    },
+    results: [results.predictor]
   }
 };

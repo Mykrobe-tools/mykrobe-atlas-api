@@ -11,8 +11,8 @@ class MetadataJSONTransformer extends ModelJSONTransformer {
   /**
    * The transformation engine
    */
-  transform(o) {
-    let res = super.transform(o, {});
+  transform(o, options = {}) {
+    let res = super.transform(o, options);
     res = new BlacklistTransformer().transform(res, { blacklist: BLACKLIST });
     return res;
   }

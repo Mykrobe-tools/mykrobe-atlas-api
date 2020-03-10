@@ -7,31 +7,46 @@ import Audit from "../../src/server/models/audit.model";
 import User from "../../src/server/models/user.model";
 import Organisation from "../../src/server/models/organisation.model";
 import Search from "../../src/server/models/search.model";
+import Experiment from "../../src/server/models/experiment.model";
+import Event from "../../src/server/models/event.model";
+
+import Constants from "../../src/server/Constants";
 
 import users from "../fixtures/users";
 import searches from "../fixtures/searches";
+import experiments from "../fixtures/experiments";
+import MDR from "../fixtures/files/MDR_Results.json";
 
 const app = createApp();
 
 let savedUser = null;
 let token = null;
+let experimentId = null;
 
 beforeEach(async done => {
   const userData = new User(users.admin);
-  const user = await userData.save();
-  savedUser = user;
+  const experimentData = new Experiment(experiments.tbUploadMetadata);
+
+  savedUser = await userData.save();
   request(app)
     .post("/auth/login")
     .send({ username: "admin@nhs.co.uk", password: "password" })
-    .end((err, res) => {
+    .end(async (err, res) => {
       token = res.body.data.access_token;
+
+      experimentData.owner = savedUser;
+      const savedExperiment = await experimentData.save();
+
+      experimentId = savedExperiment.id;
       done();
     });
 });
 
 afterEach(async done => {
-  await User.remove({});
-  await Organisation.remove({});
+  await User.deleteMany({});
+  await Experiment.deleteMany({});
+  await Organisation.deleteMany({});
+  await Event.deleteMany({});
   done();
 });
 
@@ -72,8 +87,9 @@ describe("UserController", () => {
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
-          expect(res.body.code).toEqual(10005);
-          expect(res.body.data.errors[""].message).toEqual(
+          expect(res.body.code).toEqual(Constants.ERRORS.VALIDATION_ERROR);
+          expect(res.body.message).toEqual("Unable to create user");
+          expect(res.body.data.errors.username.message).toEqual(
             "should have required property 'username'"
           );
           done();
@@ -92,7 +108,8 @@ describe("UserController", () => {
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
-          expect(res.body.data).toEqual("Please provide a password");
+          expect(res.body.code).toEqual(Constants.ERRORS.CREATE_USER);
+          expect(res.body.message).toEqual("Please provide a password");
           done();
         });
     });
@@ -111,7 +128,7 @@ describe("UserController", () => {
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
-          expect(res.body.code).toEqual("ValidationError");
+          expect(res.body.code).toEqual(Constants.ERRORS.CREATE_USER);
           expect(res.body.message).toEqual(
             "User validation failed: username: admin@nhs.co.uk has already been registered"
           );
@@ -133,7 +150,10 @@ describe("UserController", () => {
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
-          expect(res.body.data).toEqual("Invalid username");
+          expect(res.body.code).toEqual(Constants.ERRORS.CREATE_USER);
+          expect(res.body.message).toEqual("Invalid username");
+          expect(res.body.data).toHaveProperty("errors");
+          expect(res.body.data.errors).toHaveProperty("username");
           done();
         });
     });
@@ -158,8 +178,7 @@ describe("UserController", () => {
   describe("# GET /users/:id", () => {
     beforeEach(async done => {
       const org = new Organisation({
-        name: "Apex Entertainment",
-        template: "MODS"
+        name: "Apex Entertainment"
       });
       const savedOrg = await org.save();
       savedUser.organisation = savedOrg;
@@ -188,7 +207,7 @@ describe("UserController", () => {
           expect(res.body.data.firstname).toEqual(savedUser.firstname);
           expect(res.body.data.lastname).toEqual(savedUser.lastname);
           expect(res.body.data.organisation.name).toEqual("Apex Entertainment");
-          expect(res.body.data.organisation.template).toEqual("MODS");
+          expect(res.body.data.organisation.slug).toEqual("apex-entertainment");
           done();
         });
     });
@@ -389,8 +408,8 @@ describe("UserController", () => {
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
-          expect(res.body.code).toEqual("ValidationError");
-          expect(res.body.data.errors.email.message).toEqual('should match format "email"');
+          expect(res.body.code).toEqual(Constants.ERRORS.UPDATE_USER);
+          expect(res.body.message).toEqual("User validation failed");
           done();
         });
     });
@@ -457,8 +476,10 @@ describe("UserController", () => {
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
-          expect(res.body.message).toEqual("Failed to reset the password.");
-          expect(res.body.data.errors[""].message).toEqual("should have required property 'email'");
+          expect(res.body.code).toEqual(Constants.ERRORS.VALIDATION_ERROR);
+          expect(res.body.data.errors.email.message).toEqual(
+            "should have required property 'email'"
+          );
           done();
         });
     });
@@ -472,7 +493,7 @@ describe("UserController", () => {
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
-          expect(res.body.message).toEqual("Failed to reset the password.");
+          expect(res.body.code).toEqual(Constants.ERRORS.VALIDATION_ERROR);
           expect(res.body.data.errors.email.message).toEqual('should match format "email"');
           done();
         });
@@ -485,8 +506,8 @@ describe("UserController", () => {
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
-          expect(res.body.code).toEqual(10006);
-          expect(res.body.message).toEqual("The object requested was not found.");
+          expect(res.body.code).toEqual(Constants.ERRORS.FORGOT_PASSWORD);
+          expect(res.body.message).toEqual("User not found with email invalid@email.com");
           done();
         });
     });
@@ -512,8 +533,9 @@ describe("UserController", () => {
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
-          expect(res.body.message).toEqual("Failed to resend the notification.");
-          expect(res.body.data.errors[""].message).toEqual("should have required property 'email'");
+          expect(res.body.data.errors.email.message).toEqual(
+            "should have required property 'email'"
+          );
           done();
         });
     });
@@ -524,7 +546,6 @@ describe("UserController", () => {
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
-          expect(res.body.message).toEqual("Failed to resend the notification.");
           expect(res.body.data.errors.email.message).toEqual('should match format "email"');
           done();
         });
@@ -548,7 +569,7 @@ describe("UserController", () => {
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
-          expect(res.body.message).toEqual("The object requested was not found.");
+          expect(res.body.message).toEqual("User not found with email invalid@nhs.co.uk");
           done();
         });
     });
@@ -587,7 +608,7 @@ describe("UserController", () => {
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
-          expect(res.body.message).toEqual("You are not allowed to perform this action.");
+          expect(res.body.message).toEqual("You are not allowed to perform that operation");
           done();
         });
     });
@@ -601,6 +622,246 @@ describe("UserController", () => {
           expect(res.body.message).toEqual("User not found with id 56c787ccc67fc16ccc1a5e92");
           done();
         });
+    });
+  });
+
+  describe("# GET /user/events/status", () => {
+    describe("when calling the upload", () => {
+      describe("when the upload is in progress", () => {
+        it("should return the openUploads", done => {
+          request(app)
+            .put(`/experiments/${experimentId}/file`)
+            .set("Authorization", `Bearer ${token}`)
+            .field("resumableChunkNumber", 1)
+            .field("resumableChunkSize", 1517242)
+            .field("resumableCurrentChunkSize", 251726)
+            .field("resumableTotalSize", 5034482)
+            .field("resumableType", "application/json")
+            .field("resumableIdentifier", "251726-333-08json")
+            .field("resumableFilename", "333-08-large.json")
+            .field("resumableRelativePath", "333-08-large.json")
+            .field("resumableTotalChunks", 2)
+            .field("checksum", "517553ce74f55f6162ba0939e3c42c7e")
+            .attach("file", "test/fixtures/files/333-08-large.json")
+            .expect(httpStatus.OK)
+            .end(() => {
+              request(app)
+                .get("/user/events/status")
+                .set("Authorization", `Bearer ${token}`)
+                .expect(httpStatus.OK)
+                .end((err, res) => {
+                  expect(res.body.status).toEqual("success");
+                  expect(res.body.data.openUploads.length).toEqual(1);
+
+                  const openUpload = res.body.data.openUploads[0];
+                  expect(openUpload.id).toEqual(experimentId);
+                  expect(openUpload.complete).toEqual(false);
+                  expect(openUpload.percentageComplete).toEqual(50);
+                  done();
+                });
+            });
+        });
+      });
+      describe("when the upload is completed", () => {
+        it("should clear the openUploads", done => {
+          request(app)
+            .put(`/experiments/${experimentId}/file`)
+            .set("Authorization", `Bearer ${token}`)
+            .field("resumableChunkNumber", 1)
+            .field("resumableChunkSize", 1048576)
+            .field("resumableCurrentChunkSize", 251726)
+            .field("resumableTotalSize", 251726)
+            .field("resumableType", "application/json")
+            .field("resumableIdentifier", "251726-333-08json")
+            .field("resumableFilename", "333-08.json")
+            .field("resumableRelativePath", "333-08.json")
+            .field("resumableTotalChunks", 1)
+            .field("checksum", "4f36e4cbfc9dfc37559e13bd3a309d50")
+            .attach("file", "test/fixtures/files/333-08.json")
+            .expect(httpStatus.OK)
+            .end(() => {
+              request(app)
+                .get("/user/events/status")
+                .set("Authorization", `Bearer ${token}`)
+                .expect(httpStatus.OK)
+                .end((err, res) => {
+                  expect(res.body.status).toEqual("success");
+                  expect(res.body.data.openUploads.length).toEqual(0);
+                  done();
+                });
+            });
+        });
+      });
+      describe("when the user is not authenticated", () => {
+        it("should return an error", done => {
+          request(app)
+            .get("/user/events/status")
+            .set("Authorization", "Bearer INVALID_TOKEN")
+            .expect(httpStatus.OK)
+            .end((err, res) => {
+              expect(res.body.status).toEqual("error");
+              expect(res.body.message).toEqual("Not Authorised");
+              done();
+            });
+        });
+      });
+    });
+    describe("when uploading from a 3rd party provider", () => {
+      describe("when the upload is in progress", () => {
+        it("should return the openUploads", done => {
+          request(app)
+            .put(`/experiments/${experimentId}/provider`)
+            .set("Authorization", `Bearer ${token}`)
+            .send({
+              provider: "dropbox",
+              name: "MDR.fastq.gz",
+              path: "https://dl.dropboxusercontent.com/1/view/1234"
+            })
+            .expect(httpStatus.OK)
+            .end(() => {
+              request(app)
+                .get("/user/events/status")
+                .set("Authorization", `Bearer ${token}`)
+                .expect(httpStatus.OK)
+                .end((err, res) => {
+                  expect(res.body.status).toEqual("success");
+                  expect(res.body.data.openUploads.length).toEqual(1);
+
+                  const openUpload = res.body.data.openUploads[0];
+                  expect(openUpload.id).toEqual(experimentId);
+                  expect(openUpload.provider).toEqual("dropbox");
+                  expect(openUpload.totalSize).toEqual(23);
+                  done();
+                });
+            });
+        });
+      });
+    });
+    describe("when calling the analysis api", () => {
+      describe("when the api call is triggered", () => {
+        it("should return the openAnalysis", done => {
+          request(app)
+            .put(`/experiments/${experimentId}/file`)
+            .set("Authorization", `Bearer ${token}`)
+            .field("resumableChunkNumber", 1)
+            .field("resumableChunkSize", 1048576)
+            .field("resumableCurrentChunkSize", 251726)
+            .field("resumableTotalSize", 251726)
+            .field("resumableType", "application/json")
+            .field("resumableIdentifier", "251726-333-08json")
+            .field("resumableFilename", "333-08.json")
+            .field("resumableRelativePath", "333-08.json")
+            .field("resumableTotalChunks", 1)
+            .field("checksum", "4f36e4cbfc9dfc37559e13bd3a309d50")
+            .attach("file", "test/fixtures/files/333-08.json")
+            .expect(httpStatus.OK)
+            .end(() => {
+              request(app)
+                .get("/user/events/status")
+                .set("Authorization", `Bearer ${token}`)
+                .expect(httpStatus.OK)
+                .end((err, res) => {
+                  expect(res.body.status).toEqual("success");
+                  expect(res.body.data.openAnalysis.length).toEqual(1);
+
+                  const analysis = res.body.data.openAnalysis[0];
+                  expect(analysis.id).toEqual(experimentId);
+                  expect(analysis.fileLocation).toBeTruthy();
+                  done();
+                });
+            });
+        });
+      });
+      describe("when the api call is completed", () => {
+        it("should clear the openAnalysis", done => {
+          request(app)
+            .put(`/experiments/${experimentId}/file`)
+            .set("Authorization", `Bearer ${token}`)
+            .field("resumableChunkNumber", 1)
+            .field("resumableChunkSize", 1048576)
+            .field("resumableCurrentChunkSize", 251726)
+            .field("resumableTotalSize", 251726)
+            .field("resumableType", "application/json")
+            .field("resumableIdentifier", "251726-333-08json")
+            .field("resumableFilename", "333-08.json")
+            .field("resumableRelativePath", "333-08.json")
+            .field("resumableTotalChunks", 1)
+            .field("checksum", "4f36e4cbfc9dfc37559e13bd3a309d50")
+            .attach("file", "test/fixtures/files/333-08.json")
+            .expect(httpStatus.OK)
+            .end(() => {
+              request(app)
+                .post(`/experiments/${experimentId}/results`)
+                .send(MDR)
+                .expect(httpStatus.OK)
+                .end(() => {
+                  request(app)
+                    .get("/user/events/status")
+                    .set("Authorization", `Bearer ${token}`)
+                    .expect(httpStatus.OK)
+                    .end((err, res) => {
+                      expect(res.body.status).toEqual("success");
+                      expect(res.body.data.openAnalysis.length).toEqual(0);
+                      done();
+                    });
+                });
+            });
+        });
+      });
+    });
+    describe("when calling the search api", () => {
+      describe("when the search api call is triggered", () => {
+        it("should return the openSearches", done => {
+          request(app)
+            .get("/experiments/search?q=rpoB_S450L")
+            .set("Authorization", `Bearer ${token}`)
+            .expect(httpStatus.OK)
+            .end(() => {
+              request(app)
+                .get("/user/events/status")
+                .set("Authorization", `Bearer ${token}`)
+                .expect(httpStatus.OK)
+                .end((err, res) => {
+                  expect(res.body.status).toEqual("success");
+                  expect(res.body.data.openSearches.length).toEqual(1);
+
+                  const search = res.body.data.openSearches[0];
+                  expect(search.bigsi.query.gene).toEqual("rpoB");
+                  expect(search.bigsi.query.ref).toEqual("S");
+                  expect(search.bigsi.query.pos).toEqual(450);
+                  expect(search.bigsi.query.alt).toEqual("L");
+                  expect(search.type).toEqual("protein-variant");
+                  done();
+                });
+            });
+        });
+      });
+      describe("when the api call is completed", () => {
+        it("should clear the openSearches", done => {
+          request(app)
+            .get("/experiments/search?q=rpoB_S234J")
+            .set("Authorization", `Bearer ${token}`)
+            .expect(httpStatus.OK)
+            .end((err, res) => {
+              const searchId = res.body.data.id;
+              request(app)
+                .put(`/searches/${searchId}/results`)
+                .send(searches.results.proteinVariant)
+                .expect(httpStatus.OK)
+                .end(() => {
+                  request(app)
+                    .get("/user/events/status")
+                    .set("Authorization", `Bearer ${token}`)
+                    .expect(httpStatus.OK)
+                    .end((err1, res1) => {
+                      expect(res1.body.status).toEqual("success");
+                      expect(res1.body.data.openSearches.length).toEqual(0);
+                      done();
+                    });
+                });
+            });
+        });
+      });
     });
   });
 });

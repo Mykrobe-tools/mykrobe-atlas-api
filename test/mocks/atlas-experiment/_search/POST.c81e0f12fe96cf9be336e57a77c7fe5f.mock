@@ -1,0 +1,315 @@
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=utf-8
+
+{
+    "took": 1,
+    "timed_out": false,
+    "_shards": {
+        "total": 5,
+        "successful": 5,
+        "skipped": 0,
+        "failed": 0
+    },
+    "hits": {
+        "total": 2,
+        "max_score": 1.4422531,
+        "hits": [
+            {
+                "_index": "atlas",
+                "_type": "experiment",
+                "_id": "5db01b5183babb16c8a31f2f",
+                "_score": 1.4422531,
+                "_source": {
+                    "metadata": {
+                        "patient": {
+                            "patientId": "eff2fa6a-9d79-41ab-a307-b620cedf7293",
+                            "siteId": "a2a910e3-25ef-475c-bdf9-f6fe215d949f",
+                            "genderAtBirth": "Male",
+                            "countryOfBirth": "IN",
+                            "age": 43,
+                            "bmi": 25.3,
+                            "injectingDrugUse": "No",
+                            "homeless": "No",
+                            "imprisoned": "No",
+                            "smoker": "Yes",
+                            "diabetic": "Insulin",
+                            "hivStatus": "Not tested"
+                        },
+                        "sample": {
+                            "labId": "d19637ed-e5b4-4ca7-8418-8713646a3359",
+                            "isolateId": "9c0c00f2-8cb1-4254-bf53-3271f35ce696",
+                            "collectionDate": "2018-10-19T00:00:00.000Z",
+                            "prospectiveIsolate": "Yes",
+                            "countryIsolate": "IN",
+                            "cityIsolate": "Mumbai",
+                            "dateArrived": "2018-09-01T00:00:00.000Z",
+                            "anatomicalOrigin": "Respiratory",
+                            "smear": "Not known",
+                            "latitudeIsolate": 19.0759837,
+                            "longitudeIsolate": 72.8776559
+                        },
+                        "genotyping": {
+                            "wgsPlatform": "MiSeq",
+                            "otherGenotypeInformation": "Yes",
+                            "genexpert": "Not tested",
+                            "hain": "INH/RIF test",
+                            "hainRif": "RIF resistant",
+                            "hainInh": "INH sensitive",
+                            "hainFl": "Not tested",
+                            "hainAm": "Not tested",
+                            "hainEth": "Not tested"
+                        },
+                        "phenotyping": {
+                            "rifampicin": {
+                                "susceptibility": "Resistant",
+                                "method": "Not known"
+                            },
+                            "ethambutol": {
+                                "susceptibility": "Sensitive",
+                                "method": "Not known"
+                            },
+                            "pyrazinamide": {
+                                "susceptibility": "Sensitive",
+                                "method": "Not known"
+                            },
+                            "isoniazid": {
+                                "susceptibility": "Sensitive",
+                                "method": "Not known"
+                            },
+                            "phenotypeInformationFirstLineDrugs": "Yes",
+                            "phenotypeInformationOtherDrugs": "No"
+                        }
+                    },
+                    "results": {
+                        "predictor": {
+                            "probeSets": [
+                                "/home/admin/git/mykrobe-atlas-cli/src/mykrobe/data/panels/tb-species-170421.fasta.gz",
+                                "/home/admin/git/mykrobe-atlas-cli/src/mykrobe/data/panels/tb-walker-probe-set-feb-09-2017.fasta.gz"
+                            ],
+                            "susceptibility": {
+                                "Isoniazid": {
+                                    "prediction": "R"
+                                },
+                                "Pyrazinamide": {
+                                    "prediction": "S"
+                                },
+                                "Rifampicin": {
+                                    "prediction": "R"
+                                },
+                                "Amikacin": {
+                                    "prediction": "S"
+                                }
+                            },
+                            "phylogenetics": {
+                                "complex": {
+                                    "Mycobacterium_tuberculosis_complex": {
+                                        "percentCoverage": 99.631,
+                                        "medianDepth": 55
+                                    }
+                                },
+                                "sub-species": {
+                                    "European_American": {
+                                        "percentCoverage": 100,
+                                        "medianDepth": 47
+                                    }
+                                }
+                            },
+                            "files": [
+                                "/atlas/test-data/MDR.fastq.gz"
+                            ],
+                            "type": "predictor",
+                            "received": "2018-09-12T11:23:20.964Z",
+                            "analysed": "2018-09-12T11:23:20.964Z",
+                            "kmer": 21,
+                            "version": {
+                                "mykrobe-predictor": "v0.6.5",
+                                "mykrobe-atlas": "v0.6.5"
+                            },
+                            "genotypeModel": "median_depth",
+                            "mdr": true,
+                            "xdr": false,
+                            "id": "5db01b5183babb16c8a31f30"
+                        }
+                    },
+                    "created": "2019-10-23T09:20:18.520Z",
+                    "modified": "2019-10-23T09:20:18.520Z",
+                    "id": "5db01b5183babb16c8a31f2f"
+                }
+            },
+            {
+                "_index": "atlas",
+                "_type": "experiment",
+                "_id": "5db01b5183babb16c8a31f37",
+                "_score": 0.60033584,
+                "_source": {
+                    "metadata": {
+                        "patient": {
+                            "patientId": "9bd049c5-7407-4129-a973-17291ccdd2cc",
+                            "siteId": "ccc4e687-a094-4533-b136-c507fe00a9a8",
+                            "genderAtBirth": "Female",
+                            "countryOfBirth": "CN",
+                            "age": 32,
+                            "bmi": 33.1,
+                            "injectingDrugUse": "No",
+                            "homeless": "Yes",
+                            "imprisoned": "No",
+                            "smoker": "No",
+                            "diabetic": "Not known",
+                            "hivStatus": "Not known"
+                        },
+                        "sample": {
+                            "labId": "f134b514-d2ac-460c-808b-9c5fd9cb9859",
+                            "isolateId": "820a78d6-b5b9-45c4-95d1-9463e6bdb14a",
+                            "collectionDate": "2018-07-22T00:00:00.000Z",
+                            "prospectiveIsolate": "Yes",
+                            "countryIsolate": "CH",
+                            "cityIsolate": "Chongqing",
+                            "dateArrived": "2017-11-05T00:00:00.000Z",
+                            "anatomicalOrigin": "Respiratory",
+                            "smear": "Not known"
+                        },
+                        "genotyping": {
+                            "wgsPlatform": "HiSeq",
+                            "otherGenotypeInformation": "Yes",
+                            "genexpert": "Not tested",
+                            "hain": "INH/RIF test",
+                            "hainRif": "RIF resistant",
+                            "hainInh": "INH resistant",
+                            "hainFl": "Not tested",
+                            "hainAm": "Not tested",
+                            "hainEth": "Not tested"
+                        },
+                        "phenotyping": {
+                            "rifampicin": {
+                                "susceptibility": "Resistant",
+                                "method": "Not known"
+                            },
+                            "ethambutol": {
+                                "susceptibility": "Resistant",
+                                "method": "Not known"
+                            },
+                            "pyrazinamide": {
+                                "susceptibility": "Sensitive",
+                                "method": "Not known"
+                            },
+                            "isoniazid": {
+                                "susceptibility": "Sensitive",
+                                "method": "Not known"
+                            },
+                            "rifabutin": {
+                                "susceptibility": "Sensitive",
+                                "method": "Not known"
+                            },
+                            "ofloxacin": {
+                                "susceptibility": "Sensitive",
+                                "method": "Not known"
+                            },
+                            "ciprofloxacin": {
+                                "susceptibility": "Sensitive",
+                                "method": "Not known"
+                            },
+                            "levofloxacin": {
+                                "susceptibility": "Sensitive",
+                                "method": "Not known"
+                            },
+                            "gatifloxacin": {
+                                "susceptibility": "Sensitive",
+                                "method": "Not known"
+                            },
+                            "amikacin": {
+                                "susceptibility": "Sensitive",
+                                "method": "Not known"
+                            },
+                            "kanamycin": {
+                                "susceptibility": "Sensitive",
+                                "method": "Not known"
+                            },
+                            "gentamicin": {
+                                "susceptibility": "Sensitive",
+                                "method": "Not known"
+                            },
+                            "streptomycin": {
+                                "susceptibility": "Sensitive",
+                                "method": "Not known"
+                            },
+                            "capreomycin": {
+                                "susceptibility": "Sensitive",
+                                "method": "Not known"
+                            },
+                            "clofazimine": {
+                                "susceptibility": "Sensitive",
+                                "method": "Not known"
+                            },
+                            "pas": {
+                                "susceptibility": "Sensitive",
+                                "method": "Not known"
+                            },
+                            "linezolid": {
+                                "susceptibility": "Sensitive",
+                                "method": "Not known"
+                            },
+                            "ethionamideProthionamide": {
+                                "susceptibility": "Sensitive",
+                                "method": "Not known"
+                            },
+                            "rerizidone": {
+                                "susceptibility": "Sensitive",
+                                "method": "Not known"
+                            },
+                            "amoxicilinClavulanate": {
+                                "susceptibility": "Sensitive",
+                                "method": "Not known"
+                            },
+                            "thioacetazone": {
+                                "susceptibility": "Sensitive",
+                                "method": "Not known"
+                            },
+                            "imipenemImipenemcilastatin": {
+                                "susceptibility": "Sensitive",
+                                "method": "Not known"
+                            },
+                            "meropenem": {
+                                "susceptibility": "Sensitive",
+                                "method": "Not known"
+                            },
+                            "clarythromycin": {
+                                "susceptibility": "Sensitive",
+                                "method": "Not known"
+                            },
+                            "highDoseIsoniazid": {
+                                "susceptibility": "Sensitive",
+                                "method": "Not known"
+                            },
+                            "bedaquiline": {
+                                "susceptibility": "Sensitive",
+                                "method": "Not known"
+                            },
+                            "delamanid": {
+                                "susceptibility": "Sensitive",
+                                "method": "Not known"
+                            },
+                            "prothionamide": {
+                                "susceptibility": "Sensitive",
+                                "method": "Not known"
+                            },
+                            "pretothionamide": {
+                                "susceptibility": "Sensitive",
+                                "method": "Not known"
+                            },
+                            "pretomanid": {
+                                "susceptibility": "Sensitive",
+                                "method": "Not known"
+                            },
+                            "phenotypeInformationFirstLineDrugs": "Yes",
+                            "phenotypeInformationOtherDrugs": "Yes"
+                        }
+                    },
+                    "results": {},
+                    "created": "2019-10-23T09:20:18.795Z",
+                    "modified": "2019-10-23T09:20:18.795Z",
+                    "id": "5db01b5183babb16c8a31f37"
+                }
+            }
+        ]
+    }
+}

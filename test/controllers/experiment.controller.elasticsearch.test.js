@@ -2,8 +2,12 @@ import moment from "moment";
 import request from "supertest";
 import httpStatus from "http-status";
 
-import { ElasticsearchHelper } from "makeandship-api-common/lib/modules/elasticsearch";
-import { experiment as experimentSchema } from "mykrobe-atlas-jsonschema";
+import { ElasticService } from "makeandship-api-common/lib/modules/elasticsearch/";
+import {
+  SearchQuery,
+  AggregationSearchQuery
+} from "makeandship-api-common/lib/modules/elasticsearch/";
+import { experimentSearch as experimentSearchSchema } from "mykrobe-atlas-jsonschema";
 
 import Constants from "../../src/server/Constants";
 
@@ -23,7 +27,11 @@ const app = createApp();
 
 let token = null;
 
-const experimentWithMetadata = new Experiment(experiments.tbUploadMetadata);
+// constants
+const esConfig = { type: "experiment", ...config.elasticsearch };
+const elasticService = new ElasticService(esConfig, experimentSearchSchema);
+
+const experimentWithMetadata = new Experiment(experiments.tbUploadMetadataPredictorResults);
 const experimentWithChineseMetadata = new Experiment(experiments.tbUploadMetadataChinese);
 
 let isolateId1,
@@ -44,14 +52,14 @@ beforeEach(async done => {
 });
 
 afterEach(async done => {
-  await User.remove({});
-  await Search.remove({});
+  await User.deleteMany({});
+  await Search.deleteMany({});
   done();
 });
 
 beforeAll(async done => {
-  await ElasticsearchHelper.deleteIndexIfExists(config);
-  await ElasticsearchHelper.createIndex(config, experimentSchema, "experiment");
+  await elasticService.deleteIndex();
+  await elasticService.createIndex();
 
   const experiment1 = await experimentWithMetadata.save();
   const experiment2 = await experimentWithChineseMetadata.save();
@@ -64,24 +72,23 @@ beforeAll(async done => {
 
   // index to elasticsearch
   const experiments = await Experiment.list();
-  await ElasticsearchHelper.indexDocuments(config, experiments, "experiment");
-  let data = await ElasticsearchHelper.search(config, {}, "experiment");
+  await elasticService.indexDocuments(experiments);
+  let data = await elasticService.search(new SearchQuery({}), { type: "experiment" });
   while (data.hits.total < 2) {
-    data = await ElasticsearchHelper.search(config, {}, "experiment");
+    data = await await elasticService.search(new SearchQuery({}), { type: "experiment" });
   }
   done();
 }, 60000);
 
 afterAll(async done => {
-  await ElasticsearchHelper.deleteIndexIfExists(config);
-  await ElasticsearchHelper.createIndex(config, experimentSchema, "experiment");
-  await Experiment.remove({});
+  await elasticService.deleteIndex();
+  await elasticService.createIndex();
+  await Experiment.deleteMany({});
   done();
 });
 
 describe("ExperimentController > Elasticsearch", () => {
   describe("# GET /experiments/choices", () => {
-    // POST.c40633601de3b1ca1d7aa77ad5fbd6284a20781f.mock
     it("should return choices and counts for enums", done => {
       request(app)
         .get("/experiments/choices")
@@ -114,7 +121,52 @@ describe("ExperimentController > Elasticsearch", () => {
           done();
         });
     });
-    // POST.c40633601de3b1ca1d7aa77ad5fbd6284a20781f.mock
+    it("should return choices for susceptibility and resistance", done => {
+      request(app)
+        .get("/experiments/choices")
+        .set("Authorization", `Bearer ${token}`)
+        .expect(httpStatus.OK)
+        .end((err, res) => {
+          expect(res.body.status).toEqual("success");
+          const data = res.body.data;
+
+          // use Rifampicin as a sample enum
+          expect(data["results.predictor.susceptibility.Rifampicin.prediction"]).toBeTruthy();
+          const susceptibility = data["results.predictor.susceptibility.Rifampicin.prediction"];
+
+          expect(susceptibility).toHaveProperty("choices");
+          expect(susceptibility.choices.length).toEqual(1);
+
+          expect(susceptibility.choices[0].key).toEqual("R");
+          expect(susceptibility.choices[0].count).toEqual(1);
+
+          done();
+        });
+    });
+    it("should return choices for predictor flags", done => {
+      request(app)
+        .get("/experiments/choices")
+        .set("Authorization", `Bearer ${token}`)
+        .expect(httpStatus.OK)
+        .end((err, res) => {
+          expect(res.body.status).toEqual("success");
+          const data = res.body.data;
+
+          const mdr = data["results.predictor.mdr"];
+          const xdr = data["results.predictor.xdr"];
+
+          expect(mdr).toHaveProperty("choices");
+          expect(mdr.choices.length).toEqual(1);
+
+          expect(mdr.choices[0].key).toEqual(true);
+          expect(mdr.choices[0].count).toEqual(1);
+
+          expect(xdr.choices[0].key).toEqual(false);
+          expect(xdr.choices[0].count).toEqual(1);
+
+          done();
+        });
+    });
     it("should return min and max dates", done => {
       request(app)
         .get("/experiments/choices")
@@ -129,7 +181,6 @@ describe("ExperimentController > Elasticsearch", () => {
           done();
         });
     });
-    // POST.c40633601de3b1ca1d7aa77ad5fbd6284a20781f.mock
     it("should include the titles", done => {
       request(app)
         .get("/experiments/choices")
@@ -156,7 +207,6 @@ describe("ExperimentController > Elasticsearch", () => {
           done();
         });
     });
-    // POST.c40633601de3b1ca1d7aa77ad5fbd6284a20781f.mock
     it("should include the titles array", done => {
       request(app)
         .get("/experiments/choices")
@@ -204,12 +254,10 @@ describe("ExperimentController > Elasticsearch", () => {
             "Genotyping",
             "HAIN AM"
           ]);
-          expect(data["results.kmer"].titles).toEqual(["Results", "K-mer"]);
 
           done();
         });
     });
-    // POST.c40633601de3b1ca1d7aa77ad5fbd6284a20781f.mock
     it("should return min and max bmi values", done => {
       request(app)
         .get("/experiments/choices")
@@ -223,7 +271,6 @@ describe("ExperimentController > Elasticsearch", () => {
           done();
         });
     });
-    // POST.c40633601de3b1ca1d7aa77ad5fbd6284a20781f.mock
     it("should return min and max patient age", done => {
       request(app)
         .get("/experiments/choices")
@@ -237,7 +284,6 @@ describe("ExperimentController > Elasticsearch", () => {
           done();
         });
     });
-    // POST.287e3ec4e46a5b7f9803be03f252c29284f56572.mock
     it("should filter the choices", done => {
       request(app)
         .get("/experiments/choices?metadata.patient.patientId=9bd049c5-7407-4129-a973-17291ccdd2cc")
@@ -253,11 +299,10 @@ describe("ExperimentController > Elasticsearch", () => {
           expect(data["metadata.patient.bmi"].max).toEqual(33.1);
           expect(data["metadata.sample.dateArrived"].min).toEqual("2017-11-05T00:00:00.000Z");
           expect(data["metadata.sample.dateArrived"].max).toEqual("2017-11-05T00:00:00.000Z");
+
           done();
         });
     });
-    // POST.30f98efc12e95978db30d97497fc490d27058009.mock
-    // new POST.8c0d09b2058ddc4583b0cb05a9a3a614a062cc1e.mock
     it("should apply a free text query to choices - male", done => {
       request(app)
         .get("/experiments/choices?q=Male")
@@ -277,7 +322,6 @@ describe("ExperimentController > Elasticsearch", () => {
           done();
         });
     });
-    // POST.2913e48e54ced7c197a2fdd88702dd1a9ae1983f.mock
     it("should apply a free text query to choices - female", done => {
       request(app)
         .get("/experiments/choices?q=Female")
@@ -288,16 +332,15 @@ describe("ExperimentController > Elasticsearch", () => {
 
           const data = res.body.data;
           expect(data["metadata.patient.age"].min).toEqual(32);
-          expect(data["metadata.patient.age"].max).toEqual(32);
-          expect(data["metadata.patient.bmi"].min).toEqual(33.1);
+          expect(data["metadata.patient.age"].max).toEqual(43);
+          expect(data["metadata.patient.bmi"].min).toEqual(25.3);
           expect(data["metadata.patient.bmi"].max).toEqual(33.1);
           expect(data["metadata.sample.dateArrived"].min).toEqual("2017-11-05T00:00:00.000Z");
-          expect(data["metadata.sample.dateArrived"].max).toEqual("2017-11-05T00:00:00.000Z");
+          expect(data["metadata.sample.dateArrived"].max).toEqual("2018-09-01T00:00:00.000Z");
 
           done();
         });
     });
-    // POST.4d725fbbca4c98531075480ee54680326418211f.mock
     it("should apply case insensitive free text query to choices", done => {
       request(app)
         .get("/experiments/choices?q=INSU")
@@ -316,7 +359,6 @@ describe("ExperimentController > Elasticsearch", () => {
           done();
         });
     });
-    // POST.114cdd30775d2652ad5e5ad9d9e42942812e23c4.mock
     it("should apply case insensitive free text query to choices", done => {
       request(app)
         .get("/experiments/choices?q=nSuL")
@@ -335,7 +377,6 @@ describe("ExperimentController > Elasticsearch", () => {
           done();
         });
     });
-    // POST.3b76a1019f239ceed5f8ea6f9034d80de307efd0.mock
     it("should apply partial match free text queries", done => {
       request(app)
         .get("/experiments/choices?q=emale")
@@ -349,11 +390,11 @@ describe("ExperimentController > Elasticsearch", () => {
 
           const data = res.body.data;
           expect(data["metadata.patient.age"].min).toEqual(32);
-          expect(data["metadata.patient.age"].max).toEqual(32);
-          expect(data["metadata.patient.bmi"].min).toEqual(33.1);
+          expect(data["metadata.patient.age"].max).toEqual(43);
+          expect(data["metadata.patient.bmi"].min).toEqual(25.3);
           expect(data["metadata.patient.bmi"].max).toEqual(33.1);
           expect(data["metadata.sample.dateArrived"].min).toEqual("2017-11-05T00:00:00.000Z");
-          expect(data["metadata.sample.dateArrived"].max).toEqual("2017-11-05T00:00:00.000Z");
+          expect(data["metadata.sample.dateArrived"].max).toEqual("2018-09-01T00:00:00.000Z");
 
           done();
         });
@@ -428,15 +469,49 @@ describe("ExperimentController > Elasticsearch", () => {
           done();
         });
     });
+    it("should filter by susceptibility fields", done => {
+      request(app)
+        .get("/experiments/search?results.predictor.susceptibility.Rifampicin.prediction=R")
+        .set("Authorization", `Bearer ${token}`)
+        .expect(httpStatus.OK)
+        .end((err, res) => {
+          expect(res.body.status).toEqual("success");
+          expect(res.body.data).toHaveProperty("total", 1);
+          expect(res.body.data).toHaveProperty("results");
+          expect(res.body.data.results.length).toEqual(1);
+
+          const susceptibility = res.body.data.results[0].results.predictor.susceptibility;
+          expect(susceptibility.Rifampicin.prediction).toEqual("R");
+
+          done();
+        });
+    });
+    it("should filter by predictor flags", done => {
+      request(app)
+        .get("/experiments/search?results.predictor.mdr=true")
+        .set("Authorization", `Bearer ${token}`)
+        .expect(httpStatus.OK)
+        .end((err, res) => {
+          expect(res.body.status).toEqual("success");
+          expect(res.body.data).toHaveProperty("total", 1);
+          expect(res.body.data).toHaveProperty("results");
+          expect(res.body.data.results.length).toEqual(1);
+
+          const predictor = res.body.data.results[0].results.predictor;
+          expect(predictor.mdr).toEqual(true);
+
+          done();
+        });
+    });
     it("should match the relevance to the score from elasticsearch", done => {
       request(app)
         .get("/experiments/search?q=insulin")
         .set("Authorization", `Bearer ${token}`)
         .expect(httpStatus.OK)
         .end((err, res) => {
-          expect(res.body.data.metadata.maxRelevance).toEqual(3.8100972);
+          expect(res.body.data.metadata.maxRelevance).toEqual(3.7886243);
           res.body.data.results.forEach(result => {
-            expect(result).toHaveProperty("relevance", 3.8100972);
+            expect(result).toHaveProperty("relevance", 3.7886243);
           });
           done();
         });
@@ -516,6 +591,23 @@ describe("ExperimentController > Elasticsearch", () => {
           expect(res.body.data).toHaveProperty("search");
           expect(res.body.data.search).toHaveProperty("q", "Female");
           expect(res.body.data.search["metadata.patient.smoker"]).toEqual("No");
+
+          done();
+        });
+    });
+    it("should allow filters and query", done => {
+      request(app)
+        .get("/experiments/search?metadata.patient.smoker=Yes&q=male")
+        .set("Authorization", `Bearer ${token}`)
+        .expect(httpStatus.OK)
+        .end((err, res) => {
+          expect(res.body.status).toEqual("success");
+          expect(res.body.data).toHaveProperty("total", 1);
+          expect(res.body.data).toHaveProperty("results");
+          expect(res.body.data.results.length).toEqual(1);
+          expect(res.body.data).toHaveProperty("search");
+          expect(res.body.data.search).toHaveProperty("q", "male");
+          expect(res.body.data.search["metadata.patient.smoker"]).toEqual("Yes");
 
           done();
         });

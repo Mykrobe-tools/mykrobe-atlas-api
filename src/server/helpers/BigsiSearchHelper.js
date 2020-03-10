@@ -1,7 +1,9 @@
 import flatten from "flat";
 import deepmerge from "deepmerge";
 
-import { ElasticsearchHelper } from "makeandship-api-common/lib/modules/elasticsearch/";
+import { ElasticService } from "makeandship-api-common/lib/modules/elasticsearch/";
+import { SearchQuery } from "makeandship-api-common/lib/modules/elasticsearch/";
+import { experimentSearch as experimentSearchSchema } from "mykrobe-atlas-jsonschema";
 
 import Constants from "../Constants";
 
@@ -17,8 +19,13 @@ import ExperimentsResultJSONTransformer from "../transformers/es/ExperimentsResu
 
 import { userEventEmitter } from "../modules/events";
 import { schedule } from "../modules/agenda";
+import EventHelper from "./events/EventHelper";
+import logger from "../modules/winston";
 
 const config = require("../../config/env");
+
+const esConfig = { type: "experiment", ...config.elasticsearch };
+const elasticService = new ElasticService(esConfig, experimentSearchSchema);
 
 class BigsiSearchHelper {
   /**
@@ -58,17 +65,47 @@ class BigsiSearchHelper {
     if (search.isPending() && !search.userExists(user)) {
       await this.addAndNotifyUser(search, user);
     } else if (!search.isPending()) {
-      const result = search.get("result");
+      const type = search.type;
 
+      const result = search.get("result");
       const results = result.results;
 
-      const experiments = await this.enhanceBigsiResultsWithExperiments(results, query);
+      const filteredResults = this.filter(type, results);
+
+      const experiments = await this.enhanceBigsiResultsWithExperiments(filteredResults, query);
       result.results = experiments;
 
       search.set("result", result);
     }
 
     return search;
+  }
+
+  /**
+   * Filter results to remove any non matches
+   *
+   * @param type
+   * @param results
+   *
+   * @return filtered results
+   */
+  static filter(type, results) {
+    if (type && results) {
+      switch (type) {
+        case "protein-variant":
+          return results.filter(result => {
+            return !result.genotype || result.genotype !== "0/0";
+          });
+          break;
+        case "dna-variant":
+          return results.filter(result => {
+            return !result.genotype || result.genotype !== "0/0";
+          });
+          break;
+      }
+    }
+
+    return results;
   }
 
   /**
@@ -94,6 +131,12 @@ class BigsiSearchHelper {
     }
     const searchJson = new SearchJSONTransformer().transform(savedSearch);
     const userJson = new UserJSONTransformer().transform(user);
+
+    try {
+      await EventHelper.updateSearchesState(userJson.id, searchJson);
+    } catch (e) {
+      logger.error(`Unable to save search state: ${e}`);
+    }
     // call bigsi via agenda to support retries
     await schedule("now", "call search api", {
       search: searchJson,
@@ -145,7 +188,7 @@ class BigsiSearchHelper {
         ? Object.assign(isolateQuery, flatten(query))
         : isolateQuery;
 
-    const resp = await ElasticsearchHelper.search(config, elasticQuery, "experiment");
+    const resp = await elasticService.search(new SearchQuery(elasticQuery), { type: "experiment" });
 
     const experiments = new ExperimentsResultJSONTransformer().transform(resp, {});
 

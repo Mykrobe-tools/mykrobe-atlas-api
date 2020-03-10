@@ -1,6 +1,8 @@
 import User from "../../src/server/models/user.model";
 import setup from "../setup";
 
+import Constants from "../../src/server/Constants";
+
 const users = require("../fixtures/users");
 
 let id = null;
@@ -13,7 +15,7 @@ beforeEach(async done => {
 });
 
 afterEach(async done => {
-  await User.remove({});
+  await User.deleteMany({});
   done();
 });
 
@@ -58,10 +60,8 @@ describe("User", () => {
         try {
           await userData.save();
         } catch (e) {
-          expect(e.code).toEqual("ValidationError");
-          expect(e.data.errors.username.message).toEqual(
-            "should have required property 'username'"
-          );
+          expect(e.name).toEqual("ValidationError");
+          expect(e.errors.username.message).toEqual("should have required property 'username'");
           done();
         }
       });
@@ -82,7 +82,7 @@ describe("User", () => {
           await User.get("58d3f3795d34d121805fdc61");
           fail();
         } catch (e) {
-          expect(e.name).toEqual("ObjectNotFound");
+          expect(e.code).toEqual(Constants.ERRORS.GET_USER);
           expect(e.message).toEqual("User not found with id 58d3f3795d34d121805fdc61");
           done();
         }
@@ -101,11 +101,11 @@ describe("User", () => {
     describe("when the email does not exist", () => {
       it("should return an error message", async done => {
         try {
-          await User.findByEmail("amir@nhs.co.uk");
+          await User.findByEmail("a.shiebany@nhs.net");
           fail();
         } catch (e) {
-          expect(e.name).toEqual("ObjectNotFound");
-          expect(e.message).toEqual("The object requested was not found.");
+          expect(e.code).toEqual(Constants.ERRORS.GET_USER);
+          expect(e.message).toEqual("User not found with email a.shiebany@nhs.net");
           done();
         }
       });
@@ -126,8 +126,8 @@ describe("User", () => {
           await User.findUserAndUpdate({ firstname: "James" }, { lastname: "Vardy" });
           fail();
         } catch (e) {
-          expect(e.name).toEqual("ObjectNotFound");
-          expect(e.message).toEqual("No registered user with the given criteria");
+          expect(e.code).toEqual(Constants.ERRORS.UPDATE_USER);
+          expect(e.message).toEqual("User not found with criteria");
           done();
         }
       });

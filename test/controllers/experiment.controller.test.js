@@ -98,7 +98,6 @@ describe("ExperimentController", () => {
           expect(metadata).toHaveProperty("phenotyping");
           expect(metadata).not.toHaveProperty("treatment");
           expect(metadata).not.toHaveProperty("outcome");
-
           done();
         });
     });
@@ -223,7 +222,8 @@ describe("ExperimentController", () => {
           const experimentResults = [];
           experimentResults.push(results.mdr);
           experiment.set("results", experimentResults);
-          await experiment.save();
+          const savedExperiment = await experiment.save();
+
           done();
         });
         it("should return the results per type", done => {
@@ -246,6 +246,29 @@ describe("ExperimentController", () => {
               expect(predictor.type).toEqual("predictor");
               expect(predictor.variantCalls).toBeUndefined();
               expect(predictor.sequenceCalls).toBeUndefined();
+              done();
+            });
+        });
+        it("should include calledBy", done => {
+          request(app)
+            .get(`/experiments/${id}`)
+            .set("Authorization", `Bearer ${token}`)
+            .expect(httpStatus.OK)
+            .end((err, res) => {
+              expect(res.body.status).toEqual("success");
+              expect(res.body.data).toHaveProperty("results");
+
+              const results = res.body.data.results;
+              expect(results).toHaveProperty("predictor");
+
+              const predictor = results.predictor;
+              expect(predictor).toHaveProperty("susceptibility");
+              const susceptibility = predictor.susceptibility;
+              expect(susceptibility).toHaveProperty("Isoniazid");
+              expect(susceptibility.Isoniazid).toHaveProperty("calledBy");
+              expect(susceptibility).toHaveProperty("Rifampicin");
+              expect(susceptibility.Rifampicin).toHaveProperty("calledBy");
+
               done();
             });
         });
@@ -828,6 +851,7 @@ describe("ExperimentController", () => {
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
+          expect(res.body.code).toEqual(Constants.ERRORS.GET_EXPERIMENT);
           expect(res.body.message).toEqual("Experiment not found with id 589dcdd38d71fee259dc4e00");
           done();
         });
@@ -849,6 +873,7 @@ describe("ExperimentController", () => {
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
+          expect(res.body.code).toEqual(Constants.ERRORS.UPLOAD_FILE);
           expect(res.body.message).toEqual("No files found to upload");
           done();
         });
@@ -871,6 +896,7 @@ describe("ExperimentController", () => {
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
+          expect(res.body.code).toEqual(Constants.ERRORS.UPLOAD_FILE);
           expect(res.body.data.complete).toEqual(false);
           expect(res.body.data.message).toEqual(
             "Uploaded file checksum doesn't match original checksum"
@@ -896,6 +922,8 @@ describe("ExperimentController", () => {
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
+          expect(res.body.code).toEqual(Constants.ERRORS.UPLOAD_FILE);
+          expect(res.body.message).toEqual("Error uploading file");
           expect(res.body.data.complete).toEqual(false);
           expect(res.body.data.message).toEqual("Incorrect individual chunk size");
           done();
@@ -914,7 +942,8 @@ describe("ExperimentController", () => {
           .expect(httpStatus.OK)
           .end((err, res) => {
             expect(res.body.status).toEqual("error");
-            expect(res.body.message).toEqual("Failed to upload sample file.");
+            expect(res.body.code).toEqual(Constants.ERRORS.VALIDATION_ERROR);
+            expect(res.body.message).toEqual("Unable to upload experiment");
             expect(res.body.data.errors.provider.message).toEqual(
               "should be equal to one of the allowed values"
             );
@@ -1008,10 +1037,10 @@ describe("ExperimentController", () => {
             const status = object.status;
             const experiment = object.experiment;
 
-            expect(experiment.id).toEqual(id);
+            expect(experiment.id).toBeTruthy();
             expect(status.provider).toEqual("dropbox");
-            expect(status.totalSize).toEqual(23);
-            expect(status.fileLocation).toEqual("/1/view/1234");
+            expect(status.totalSize).toBeTruthy();
+            expect(status.fileLocation).toBeTruthy();
 
             done();
           });
@@ -1235,7 +1264,6 @@ describe("ExperimentController", () => {
           .expect(httpStatus.OK)
           .end((err, res) => {
             expect(res.body.status).toEqual("error");
-            expect(res.body.message).toEqual("Failed to upload sample file.");
             expect(res.body.data.errors.accessToken.message).toEqual(
               "should have required property 'accessToken'"
             );
@@ -1632,7 +1660,8 @@ describe("ExperimentController", () => {
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
-          expect(res.body.data).toEqual("No file found for this Experiment");
+          expect(res.body.code).toEqual(Constants.ERRORS.GET_EXPERIMENT);
+          expect(res.body.message).toEqual("Error reading file");
           done();
         });
     });
@@ -1735,7 +1764,7 @@ describe("ExperimentController", () => {
 
           const predictor = res.body.data.results["predictor"];
 
-          expect(Object.keys(predictor.susceptibility).length).toEqual(9);
+          expect(Object.keys(predictor.susceptibility).length).toEqual(11);
           expect(Object.keys(predictor.phylogenetics).length).toEqual(4);
           expect(predictor.variantCalls).toBeFalsy();
           expect(predictor.sequenceCalls).toBeFalsy();
@@ -1812,7 +1841,8 @@ describe("ExperimentController", () => {
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
-          expect(res.body.message).toEqual("Invalid result type.");
+          expect(res.body.code).toEqual(Constants.ERRORS.UPDATE_EXPERIMENT_RESULTS);
+          expect(res.body.message).toEqual("Invalid result type");
           done();
         });
     });
@@ -2040,7 +2070,7 @@ describe("ExperimentController", () => {
     });
   });
   describe("# POST /experiments/reindex", () => {
-    it("should reindex all experiments to ES", done => {
+    it("should reindex all experiments", done => {
       request(app)
         .post("/experiments/reindex")
         .set("Authorization", `Bearer ${token}`)
@@ -2569,57 +2599,117 @@ describe("ExperimentController", () => {
               done();
             });
         });
-        it("should return cached search results", async done => {
-          // make sure this is the only rpob_S450L search
-          await Search.remove({});
+        describe("when results contain genotype 1/1", () => {
+          it("should return cached search results", async done => {
+            // make sure this is the only rpob_S450L search
+            await Search.remove({});
 
-          // clear any existing results
-          const data = searches.searchOnly.proteinVariant;
-          const search = new Search(data);
-          const savedSearch = await search.save();
+            // clear any existing results
+            const data = searches.searchOnly.proteinVariant;
+            const search = new Search(data);
+            const savedSearch = await search.save();
 
-          // audit for the sequence search
-          const proteinVariantAudit = new Audit({
-            searchId: search.id,
-            attempts: 1,
-            status: "Success"
-          });
-          await proteinVariantAudit.save();
-
-          const experiment = await Experiment.get(id);
-          const isolateId = experiment.get("metadata.sample.isolateId");
-
-          const proteinVariant = Object.assign({}, searches.results.proteinVariant);
-          proteinVariant.result.results[0].sample_name = isolateId;
-
-          // store some results
-          request(app)
-            .put(`/searches/${search.id}/results`)
-            .send(proteinVariant)
-            .expect(httpStatus.OK)
-            .end(async (err, res) => {
-              // search for the results
-              request(app)
-                .get("/experiments/search?q=rpoB_S450L")
-                .set("Authorization", `Bearer ${token}`)
-                .expect(httpStatus.OK)
-                .end(async (err, res) => {
-                  expect(res.body).toHaveProperty("status", "success");
-                  expect(res.body).toHaveProperty("data");
-
-                  const data = res.body.data;
-                  expect(data).toHaveProperty("bigsi");
-                  expect(data).toHaveProperty("status", "complete");
-                  expect(data).toHaveProperty("type", "protein-variant");
-                  expect(data).toHaveProperty("results");
-                  expect(data.results.length).toEqual(1);
-
-                  expect(data).toHaveProperty("total", 1);
-                  expect(data).toHaveProperty("pagination");
-
-                  done();
-                });
+            // audit for the sequence search
+            const proteinVariantAudit = new Audit({
+              searchId: search.id,
+              attempts: 1,
+              status: "Success"
             });
+            await proteinVariantAudit.save();
+
+            const experiment = await Experiment.get(id);
+            const isolateId = experiment.get("metadata.sample.isolateId");
+
+            const proteinVariant = Object.assign({}, searches.results.proteinVariant);
+            proteinVariant.result.results[0].sample_name = isolateId;
+
+            // store some results
+            request(app)
+              .put(`/searches/${search.id}/results`)
+              .send(proteinVariant)
+              .expect(httpStatus.OK)
+              .end(async (err, res) => {
+                // search for the results
+                request(app)
+                  .get("/experiments/search?q=rpoB_S450L")
+                  .set("Authorization", `Bearer ${token}`)
+                  .expect(httpStatus.OK)
+                  .end(async (err, res) => {
+                    expect(res.body).toHaveProperty("status", "success");
+                    expect(res.body).toHaveProperty("data");
+
+                    const data = res.body.data;
+                    expect(data).toHaveProperty("bigsi");
+                    expect(data).toHaveProperty("status", "complete");
+                    expect(data).toHaveProperty("type", "protein-variant");
+                    expect(data).toHaveProperty("results");
+                    expect(data.results.length).toEqual(1);
+
+                    expect(data).toHaveProperty("total", 1);
+                    expect(data).toHaveProperty("pagination");
+
+                    done();
+                  });
+              });
+          });
+        });
+        describe("when results contain genotype 0/0", () => {
+          it("should return cached search results", async done => {
+            // make sure this is the only rpob_S450L search
+            await Search.remove({});
+
+            // clear any existing results
+            const data = searches.searchOnly.proteinVariant;
+            const search = new Search(data);
+            const savedSearch = await search.save();
+
+            // audit for the sequence search
+            const proteinVariantAudit = new Audit({
+              searchId: search.id,
+              attempts: 1,
+              status: "Success"
+            });
+            await proteinVariantAudit.save();
+
+            const experiment = await Experiment.get(id);
+            const isolateId = experiment.get("metadata.sample.isolateId");
+
+            const proteinVariantWith0Genotype = Object.assign(
+              {},
+              searches.results.proteinVariantWith0Genotype
+            );
+            proteinVariantWith0Genotype.result.results[2].sample_name = isolateId;
+
+            // store some results
+            request(app)
+              .put(`/searches/${search.id}/results`)
+              .send(proteinVariantWith0Genotype)
+              .expect(httpStatus.OK)
+              .end(async (err, res) => {
+                // search for the results
+                request(app)
+                  .get("/experiments/search?q=rpoB_S450L")
+                  .set("Authorization", `Bearer ${token}`)
+                  .expect(httpStatus.OK)
+                  .end(async (err, res) => {
+                    expect(res.body).toHaveProperty("status", "success");
+                    expect(res.body).toHaveProperty("data");
+
+                    const data = res.body.data;
+                    expect(data).toHaveProperty("bigsi");
+                    expect(data).toHaveProperty("status", "complete");
+                    expect(data).toHaveProperty("type", "protein-variant");
+
+                    expect(data).toHaveProperty("results");
+                    expect(data.results.length).toEqual(0);
+                    expect(data).toHaveProperty("total", 0);
+
+                    expect(data).toHaveProperty("pagination");
+
+                    done();
+                  });
+              });
+          });
         });
       });
       describe("when a results are expired", () => {
@@ -2792,6 +2882,20 @@ describe("ExperimentController", () => {
             done();
           });
       });
+    });
+  });
+
+  describe("# GET /experiments/mappings", () => {
+    it("should get the experiments mappings with isolate ids", done => {
+      request(app)
+        .get("/experiments/mappings")
+        .set("Authorization", `Bearer ${token}`)
+        .expect(httpStatus.OK)
+        .end((err, res) => {
+          expect(res.body.status).toEqual("success");
+          expect(res.body.data["9c0c00f2-8cb1-4254-bf53-3271f35ce696"]).toEqual(id);
+          done();
+        });
     });
   });
 });
