@@ -1,6 +1,6 @@
 import ResultParser from "./ResultParser";
 import {
-  calculateResistantAttributes,
+  calculateResistanceAttributes,
   getPredictorResult,
   parseSusceptibility,
   parsePhylogenetics
@@ -71,9 +71,9 @@ class PredictorResultParser extends ResultParser {
               break;
           }
         }
-        const resistantAttributes = calculateResistantAttributes(result.susceptibility);
+        const resistanceAttributes = calculateResistanceAttributes(result.susceptibility);
 
-        Object.assign(result, resistantAttributes);
+        Object.assign(result, resistanceAttributes);
       }
     }
 
