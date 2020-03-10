@@ -94,33 +94,31 @@ const isSequenceQuery = (query, options) => {
 
 /**
  * Build a free-text query string for a given type of search
- * @param type
  * @param bigsi
  *
- * @return query containing free text query
+ * @return bigsi query containing free text query
  */
-const createQuery = (type, bigsi) => {
-  if (type) {
+const createQuery = bigsi => {
+  const search = {};
+
+  if (bigsi && bigsi.type && bigsi.query) {
+    const type = bigsi.type;
+    const query = bigsi.query;
+
     switch (type) {
       case SEQUENCE:
-        return {
-          q: `${bigsi.ref}${bigsi.pos}${bigsi.alt}`
-        };
+        search.q = `${query.seq}`;
         break;
       case PROTEIN_VARIANT:
-        return {
-          q: `${bigsi.gene}_${bigsi.ref}${bigsi.pos}${bigsi.alt}`
-        };
+        search.q = `${query.gene}_${query.ref}${query.pos}${query.alt}`;
         break;
       case DNA_VARIANT:
-        return {
-          q: `${bigsi.seq}`
-        };
+        search.q = `${query.ref}${query.pos}${query.alt}`;
         break;
     }
   }
 
-  return null;
+  return search;
 };
 
 /**
@@ -271,6 +269,7 @@ const callBigsiApi = async query => {
 const bigsi = Object.freeze({
   isBigsiQuery,
   extractBigsiQuery,
+  createQuery,
   callBigsiApi
 });
 
