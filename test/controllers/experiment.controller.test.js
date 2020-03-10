@@ -1764,7 +1764,7 @@ describe("ExperimentController", () => {
 
           const predictor = res.body.data.results["predictor"];
 
-          expect(Object.keys(predictor.susceptibility).length).toEqual(9);
+          expect(Object.keys(predictor.susceptibility).length).toEqual(11);
           expect(Object.keys(predictor.phylogenetics).length).toEqual(4);
           expect(predictor.variantCalls).toBeFalsy();
           expect(predictor.sequenceCalls).toBeFalsy();
