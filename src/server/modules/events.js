@@ -177,6 +177,10 @@ userEventEmitter.on(Constants.EVENTS.PROTEIN_VARIANT_SEARCH_STARTED.EVENT, async
     logger.debug(`Protein variant search started`);
     const { search, audit, user } = payload;
 
+    logger.debug(`userEventEmitter: audit: ${JSON.stringify(audit, null, 2)}`);
+    logger.debug(`userEventEmitter: user: ${JSON.stringify(user, null, 2)}`);
+    logger.debug(`userEventEmitter: search: ${JSON.stringify(search, null, 2)}`);
+
     if (audit && search && user) {
       const data = new ProteinVariantSearchStartedEventJSONTransformer().transform(
         {
@@ -199,6 +203,10 @@ userEventEmitter.on(Constants.EVENTS.PROTEIN_VARIANT_SEARCH_COMPLETE.EVENT, asyn
     logger.debug(`Protein variant search complete`);
     const { search, audit, user } = payload;
 
+    logger.debug(`userEventEmitter: audit: ${JSON.stringify(audit, null, 2)}`);
+    logger.debug(`userEventEmitter: user: ${JSON.stringify(user, null, 2)}`);
+    logger.debug(`userEventEmitter: search: ${JSON.stringify(search, null, 2)}`);
+
     if (audit && search && user) {
       const data = new ProteinVariantSearchCompleteEventJSONTransformer().transform(
         {
@@ -215,10 +223,14 @@ userEventEmitter.on(Constants.EVENTS.PROTEIN_VARIANT_SEARCH_COMPLETE.EVENT, asyn
   } catch (e) {}
 });
 
-userEventEmitter.on(Constants.EVENTS.DNA_VARIANT_SEARCH_STARTED.EVENT, async audit => {
+userEventEmitter.on(Constants.EVENTS.DNA_VARIANT_SEARCH_STARTED.EVENT, async payload => {
   try {
     logger.debug(`DNA variant search started`);
-    const { experiment, audit, user } = payload;
+    const { search, audit, user } = payload;
+
+    logger.debug(`userEventEmitter: audit: ${JSON.stringify(audit, null, 2)}`);
+    logger.debug(`userEventEmitter: user: ${JSON.stringify(user, null, 2)}`);
+    logger.debug(`userEventEmitter: search: ${JSON.stringify(search, null, 2)}`);
 
     if (audit && search && user) {
       const data = new DnaVariantSearchStartedJSONTransformer().transform(
@@ -236,10 +248,14 @@ userEventEmitter.on(Constants.EVENTS.DNA_VARIANT_SEARCH_STARTED.EVENT, async aud
   } catch (e) {}
 });
 
-userEventEmitter.on(Constants.EVENTS.DNA_VARIANT_SEARCH_COMPLETE.EVENT, async audit => {
+userEventEmitter.on(Constants.EVENTS.DNA_VARIANT_SEARCH_COMPLETE.EVENT, async payload => {
   try {
     logger.debug(`DNA variant search complete`);
-    const { experiment, audit, user } = payload;
+    const { search, audit, user } = payload;
+
+    logger.debug(`userEventEmitter: audit: ${JSON.stringify(audit, null, 2)}`);
+    logger.debug(`userEventEmitter: user: ${JSON.stringify(user, null, 2)}`);
+    logger.debug(`userEventEmitter: search: ${JSON.stringify(search, null, 2)}`);
 
     if (audit && search && user) {
       const data = new DnaVariantSearchCompletedJSONTransformer().transform(
