@@ -15,6 +15,8 @@ import SequenceSearchStartedEventJSONTransformer from "../transformers/events/Se
 import SequenceSearchCompleteEventJSONTransformer from "../transformers/events/SequenceSearchCompleteEventJSONTransformer";
 import ProteinVariantSearchStartedEventJSONTransformer from "../transformers/events/ProteinVariantSearchStartedEventJSONTransformer";
 import ProteinVariantSearchCompleteEventJSONTransformer from "../transformers/events/ProteinVariantSearchCompleteEventJSONTransformer";
+import DnaVariantSearchStartedEventJSONTransformer from "../transformers/events/DnaVariantSearchStartedEventJSONTransformer";
+import DnaVariantSearchCompleteEventJSONTransformer from "../transformers/events/DnaVariantSearchCompleteEventJSONTransformer";
 
 import logger from "./winston";
 
@@ -130,8 +132,8 @@ experimentEventEmitter.on(Constants.EVENTS.DISTANCE_SEARCH_STARTED.EVENT, async 
 
 userEventEmitter.on(Constants.EVENTS.SEQUENCE_SEARCH_STARTED.EVENT, async payload => {
   try {
+    logger.debug(`Sequence search started`);
     const { audit, search, user } = payload;
-
     if (audit && search && user) {
       const data = new SequenceSearchStartedEventJSONTransformer().transform(
         {
@@ -143,6 +145,7 @@ userEventEmitter.on(Constants.EVENTS.SEQUENCE_SEARCH_STARTED.EVENT, async payloa
       );
 
       const userId = user.id;
+      logger.debug(`Sequence search started: Send event`);
       sendUserEvent(userId, data);
     }
   } catch (e) {}
@@ -150,8 +153,8 @@ userEventEmitter.on(Constants.EVENTS.SEQUENCE_SEARCH_STARTED.EVENT, async payloa
 
 userEventEmitter.on(Constants.EVENTS.SEQUENCE_SEARCH_COMPLETE.EVENT, async payload => {
   try {
+    logger.debug(`Sequence search complete`);
     const { audit, search, user } = payload;
-
     if (audit && search && user) {
       const data = new SequenceSearchCompleteEventJSONTransformer().transform(
         {
@@ -163,6 +166,7 @@ userEventEmitter.on(Constants.EVENTS.SEQUENCE_SEARCH_COMPLETE.EVENT, async paylo
       );
 
       const userId = user.id;
+      logger.debug(`Sequence search complete: Send event`);
       sendUserEvent(userId, data);
     }
   } catch (e) {}
@@ -170,6 +174,7 @@ userEventEmitter.on(Constants.EVENTS.SEQUENCE_SEARCH_COMPLETE.EVENT, async paylo
 
 userEventEmitter.on(Constants.EVENTS.PROTEIN_VARIANT_SEARCH_STARTED.EVENT, async payload => {
   try {
+    logger.debug(`Protein variant search started`);
     const { search, audit, user } = payload;
 
     if (audit && search && user) {
@@ -183,6 +188,7 @@ userEventEmitter.on(Constants.EVENTS.PROTEIN_VARIANT_SEARCH_STARTED.EVENT, async
       );
 
       const userId = user.id;
+      logger.debug(`Protein variant search started: Send event`);
       sendUserEvent(userId, data);
     }
   } catch (e) {}
@@ -190,6 +196,7 @@ userEventEmitter.on(Constants.EVENTS.PROTEIN_VARIANT_SEARCH_STARTED.EVENT, async
 
 userEventEmitter.on(Constants.EVENTS.PROTEIN_VARIANT_SEARCH_COMPLETE.EVENT, async payload => {
   try {
+    logger.debug(`Protein variant search complete`);
     const { search, audit, user } = payload;
 
     if (audit && search && user) {
@@ -202,6 +209,7 @@ userEventEmitter.on(Constants.EVENTS.PROTEIN_VARIANT_SEARCH_COMPLETE.EVENT, asyn
         {}
       );
       const userId = user.id;
+      logger.debug(`Protein variant search complete: Send event`);
       sendUserEvent(userId, data);
     }
   } catch (e) {}
@@ -209,6 +217,7 @@ userEventEmitter.on(Constants.EVENTS.PROTEIN_VARIANT_SEARCH_COMPLETE.EVENT, asyn
 
 userEventEmitter.on(Constants.EVENTS.DNA_VARIANT_SEARCH_STARTED.EVENT, async audit => {
   try {
+    logger.debug(`DNA variant search started`);
     const { experiment, audit, user } = payload;
 
     if (audit && search && user) {
@@ -221,6 +230,28 @@ userEventEmitter.on(Constants.EVENTS.DNA_VARIANT_SEARCH_STARTED.EVENT, async aud
         {}
       );
       const userId = user.id;
+      logger.debug(`DNA variant search started: Send event`);
+      sendUserEvent(userId, data);
+    }
+  } catch (e) {}
+});
+
+userEventEmitter.on(Constants.EVENTS.DNA_VARIANT_SEARCH_COMPLETE.EVENT, async audit => {
+  try {
+    logger.debug(`DNA variant search complete`);
+    const { experiment, audit, user } = payload;
+
+    if (audit && search && user) {
+      const data = new DnaVariantSearchCompletedJSONTransformer().transform(
+        {
+          audit,
+          search,
+          user
+        },
+        {}
+      );
+      const userId = user.id;
+      logger.debug(`DNA variant search complete: Send event`);
       sendUserEvent(userId, data);
     }
   } catch (e) {}

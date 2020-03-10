@@ -8,32 +8,41 @@ const PERCENT_COVERAGE = "percent_coverage";
 const MEDIAN_DEPTH = "median_depth";
 
 // drug names
-const ISONIAZID = "Isoniazid";
-const RIFAMPICIN = "Rifampicin";
-const QUINOLONES = "Quinolones";
 const AMIKACIN = "Amikacin";
 const CAPREOMYCIN = "Capreomycin";
-const KANAMYCIN = "Kanamycin";
+const CIPROFLOXACIN = "Ciprofloxacin";
 const ETHAMBUTOL = "Ethambutol";
-const STREPTOMYCIN = "Streptomycin";
+const ISONIAZID = "Isoniazid";
+const KANAMYCIN = "Kanamycin";
+const MOXIFLOXACIN = "Moxifloxacin";
+const OFLOXACIN = "Ofloxacin";
 const PYRAZINAMIDE = "Pyrazinamide";
+const RIFAMPICIN = "Rifampicin";
+const STREPTOMYCIN = "Streptomycin";
+
+const FIRST_LINE_DRUGS = [ISONIAZID, RIFAMPICIN];
+const SECOND_LINE_DRUGS = [AMIKACIN, KANAMYCIN, CAPREOMYCIN]; // for resistance calculations
+const QUINOLONES = [CIPROFLOXACIN, MOXIFLOXACIN, OFLOXACIN];
+
 const ALL_DRUGS = [
-  ISONIAZID,
-  RIFAMPICIN,
-  QUINOLONES,
   AMIKACIN,
   CAPREOMYCIN,
-  KANAMYCIN,
+  CIPROFLOXACIN,
   ETHAMBUTOL,
-  STREPTOMYCIN,
-  PYRAZINAMIDE
+  ISONIAZID,
+  KANAMYCIN,
+  MOXIFLOXACIN,
+  OFLOXACIN,
+  PYRAZINAMIDE,
+  RIFAMPICIN,
+  STREPTOMYCIN
 ];
 
 /**
- * Caluclate the resistance per drug
+ * Calculate the resistance per drug
  * @param {*} susceptibility
  */
-const buildDrugResistance = susceptibility => {
+const buildDrugResistanceSummary = susceptibility => {
   const drugResistance = {};
   susceptibility.forEach(drug => {
     drugResistance[drug.name] = drug.prediction;
@@ -42,51 +51,52 @@ const buildDrugResistance = susceptibility => {
 };
 
 /**
- * Caluclate the resistance
+ * Calculate resistance
+ * - resistant to a drug
  * @param {*} susceptibility
  */
-const calculateResistance = drugResistance => {
-  let r = false;
-  ALL_DRUGS.forEach(drug => {
-    if (drugResistance[drug] && drugResistance[drug] === RESISTANT) {
-      r = true;
-    }
-  });
-  return r;
-};
-
-/**
- * Caluclate the TDR
- * @param {*} susceptibility
- */
-const calculateTDR = drugResistance => {
-  let tdr = true;
-  ALL_DRUGS.forEach(drug => {
-    if (drugResistance[drug] && drugResistance[drug] !== RESISTANT) {
-      tdr = false;
-    }
-  });
-  return tdr;
-};
+const calculateResistance = drugResistance =>
+  typeof drugResistance !== "undefined" &&
+  drugResistance !== null &&
+  drugResistance &&
+  ALL_DRUGS.some(drug => drugResistance[drug] && drugResistance[drug] === RESISTANT);
 
 /**
  * Calculate MDR value
+ * - resistant to all first-line-drugs
  * @param {*} drugResistance
  */
 const calculateMDR = drugResistance =>
-  drugResistance[ISONIAZID] === RESISTANT && drugResistance[RIFAMPICIN] === RESISTANT;
+  typeof drugResistance !== "undefined" &&
+  drugResistance !== null &&
+  drugResistance &&
+  FIRST_LINE_DRUGS.every(drug => drugResistance[drug] && drugResistance[drug] === RESISTANT);
 
 /**
  * Calculate XDR value
+ * - resistant to all first-line drugs
+ * - resistant to one quinolone
+ * - resistant to one second-line drug
  * @param {*} drugResistance
  */
 const calculateXDR = drugResistance =>
-  drugResistance[ISONIAZID] === RESISTANT &&
-  drugResistance[RIFAMPICIN] === RESISTANT &&
-  drugResistance[QUINOLONES] === RESISTANT &&
-  (drugResistance[AMIKACIN] === RESISTANT ||
-    drugResistance[CAPREOMYCIN] === RESISTANT ||
-    drugResistance[KANAMYCIN] === RESISTANT);
+  typeof drugResistance !== "undefined" &&
+  drugResistance !== null &&
+  drugResistance &&
+  FIRST_LINE_DRUGS.every(drug => drugResistance[drug] && drugResistance[drug] === RESISTANT) &&
+  QUINOLONES.some(drug => drugResistance[drug] && drugResistance[drug] === RESISTANT) &&
+  SECOND_LINE_DRUGS.some(drug => drugResistance[drug] && drugResistance[drug] === RESISTANT);
+
+/**
+ * Calculate TDR
+ * - resistant to all drugs
+ * @param {*} susceptibility
+ */
+const calculateTDR = drugResistance =>
+  typeof drugResistance !== "undefined" &&
+  drugResistance !== null &&
+  drugResistance &&
+  ALL_DRUGS.every(drug => drugResistance[drug] && drugResistance[drug] === RESISTANT);
 
 /**
  * Extract the results from a result object
@@ -166,11 +176,11 @@ const parsePhylogenetics = predictorPhylogenetics => {
   return phylogenetics;
 };
 
-const calculateResistantAttributes = susceptibility => {
+const calculateResistanceAttributes = susceptibility => {
   let resistance = {};
 
   if (susceptibility) {
-    const drugResistance = buildDrugResistance(susceptibility);
+    const drugResistance = buildDrugResistanceSummary(susceptibility);
     resistance.r = calculateResistance(drugResistance);
     resistance.mdr = calculateMDR(drugResistance);
     resistance.xdr = calculateXDR(drugResistance);
@@ -206,7 +216,12 @@ const buildRandomDistanceResult = async () => {
 };
 
 const resultsUtil = Object.freeze({
-  calculateResistantAttributes,
+  buildDrugResistanceSummary,
+  calculateResistanceAttributes,
+  calculateResistance,
+  calculateMDR,
+  calculateXDR,
+  calculateTDR,
   getPredictorResult,
   parseSusceptibility,
   parsePhylogenetics,

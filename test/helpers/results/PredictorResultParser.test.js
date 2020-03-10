@@ -39,7 +39,7 @@ describe("PredictorResultParser", () => {
       const result = parser.parse();
       const susceptibility = result.susceptibility;
 
-      expect(susceptibility.length).toEqual(9);
+      expect(susceptibility.length).toEqual(11);
 
       const mappedResults = {};
       susceptibility.forEach(item => {
@@ -66,10 +66,6 @@ describe("PredictorResultParser", () => {
       expect(mappedResults["Capreomycin"].prediction).toEqual("S");
       expect(mappedResults["Capreomycin"].calledBy).toBeFalsy();
 
-      expect(mappedResults["Quinolones"].name).toEqual("Quinolones");
-      expect(mappedResults["Quinolones"].prediction).toEqual("S");
-      expect(mappedResults["Quinolones"].calledBy).toBeFalsy();
-
       expect(mappedResults["Pyrazinamide"].name).toEqual("Pyrazinamide");
       expect(mappedResults["Pyrazinamide"].prediction).toEqual("S");
       expect(mappedResults["Pyrazinamide"].calledBy).toBeFalsy();
@@ -81,6 +77,18 @@ describe("PredictorResultParser", () => {
       expect(mappedResults["Amikacin"].name).toEqual("Amikacin");
       expect(mappedResults["Amikacin"].prediction).toEqual("S");
       expect(mappedResults["Amikacin"].calledBy).toBeFalsy();
+
+      expect(mappedResults["Ciprofloxacin"].name).toEqual("Ciprofloxacin");
+      expect(mappedResults["Ciprofloxacin"].prediction).toEqual("S");
+      expect(mappedResults["Ciprofloxacin"].calledBy).toBeFalsy();
+
+      expect(mappedResults["Moxifloxacin"].name).toEqual("Moxifloxacin");
+      expect(mappedResults["Moxifloxacin"].prediction).toEqual("S");
+      expect(mappedResults["Moxifloxacin"].calledBy).toBeFalsy();
+
+      expect(mappedResults["Ofloxacin"].name).toEqual("Ofloxacin");
+      expect(mappedResults["Ofloxacin"].prediction).toEqual("S");
+      expect(mappedResults["Ofloxacin"].calledBy).toBeFalsy();
 
       done();
     });
@@ -136,7 +144,7 @@ describe("PredictorResultParser", () => {
 
       done();
     });
-    describe("when patient is susceptible to all drugs", () => {
+    describe("when TB is susceptible to all drugs", () => {
       it("should set all resistance indicators to false", done => {
         const parser = new PredictorResultParser(SUSCEPTIBLE_ALL);
         const result = parser.parse();
@@ -154,7 +162,7 @@ describe("PredictorResultParser", () => {
         done();
       });
     });
-    describe("when patient is first line drug resitant", () => {
+    describe("when TB is first line drug resitant", () => {
       describe("when resistant to one drug", () => {
         it("should set resistance to true and other indicators to false", done => {
           const parser = new PredictorResultParser(ONE_FIRST_CLASS_RESISTANCE);
@@ -173,7 +181,7 @@ describe("PredictorResultParser", () => {
           done();
         });
       });
-      describe("when resistant to multiple drugs", () => {
+      describe("when TB is resistant to multiple drugs", () => {
         it("should set resistance and mdr to true and other indicators to false", done => {
           const parser = new PredictorResultParser(MULTIPLE_FIRST_CLASS_RESISTANCE);
           const result = parser.parse();
@@ -192,7 +200,7 @@ describe("PredictorResultParser", () => {
         });
       });
     });
-    describe("when patient is second line drug resitant", () => {
+    describe("when TB is second line drug resitant", () => {
       it("should set resistance to true and other indicators to false", done => {
         const parser = new PredictorResultParser(SECOND_CLASS_RESISTANCE);
         const result = parser.parse();
@@ -210,7 +218,7 @@ describe("PredictorResultParser", () => {
         done();
       });
     });
-    describe("when patient is first and second line drug resitant", () => {
+    describe("when TB is first and second line drug resitant", () => {
       it("should set resistance and xdr to true and other indicators to false", done => {
         const parser = new PredictorResultParser(MDR_XDR_RESISTANCE);
         const result = parser.parse();
@@ -227,6 +235,8 @@ describe("PredictorResultParser", () => {
 
         done();
       });
+    });
+    describe("when TB is resitant to all drugs", () => {
       it("should set all resistance indicators to true", done => {
         const parser = new PredictorResultParser(RESISTANCE_ALL);
         const result = parser.parse();

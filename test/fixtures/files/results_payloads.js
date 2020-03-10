@@ -49,7 +49,13 @@ export default {
           Capreomycin: {
             predict: "S"
           },
-          Quinolones: {
+          Ciprofloxacin: {
+            predict: "S"
+          },
+          Moxifloxacin: {
+            predict: "S"
+          },
+          Ofloxacin: {
             predict: "S"
           },
           Pyrazinamide: {
@@ -534,7 +540,13 @@ export default {
           Capreomycin: {
             predict: "S"
           },
-          Quinolones: {
+          Ciprofloxacin: {
+            predict: "S"
+          },
+          Moxifloxacin: {
+            predict: "S"
+          },
+          Ofloxacin: {
             predict: "S"
           },
           Pyrazinamide: {
@@ -602,7 +614,13 @@ export default {
           Capreomycin: {
             predict: "S"
           },
-          Quinolones: {
+          Ciprofloxacin: {
+            predict: "S"
+          },
+          Moxifloxacin: {
+            predict: "S"
+          },
+          Ofloxacin: {
             predict: "S"
           },
           Pyrazinamide: {
@@ -670,7 +688,13 @@ export default {
           Capreomycin: {
             predict: "S"
           },
-          Quinolones: {
+          Ciprofloxacin: {
+            predict: "S"
+          },
+          Moxifloxacin: {
+            predict: "S"
+          },
+          Ofloxacin: {
             predict: "S"
           },
           Pyrazinamide: {
@@ -738,8 +762,14 @@ export default {
           Capreomycin: {
             predict: "S"
           },
-          Quinolones: {
+          Ciprofloxacin: {
             predict: "R"
+          },
+          Moxifloxacin: {
+            predict: "S"
+          },
+          Ofloxacin: {
+            predict: "S"
           },
           Pyrazinamide: {
             predict: "S"
@@ -806,8 +836,14 @@ export default {
           Capreomycin: {
             predict: "S"
           },
-          Quinolones: {
+          Ciprofloxacin: {
             predict: "R"
+          },
+          Moxifloxacin: {
+            predict: "S"
+          },
+          Ofloxacin: {
+            predict: "S"
           },
           Pyrazinamide: {
             predict: "R"
@@ -874,7 +910,13 @@ export default {
           Capreomycin: {
             predict: "R"
           },
-          Quinolones: {
+          Ciprofloxacin: {
+            predict: "R"
+          },
+          Moxifloxacin: {
+            predict: "R"
+          },
+          Ofloxacin: {
             predict: "R"
           },
           Pyrazinamide: {
