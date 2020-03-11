@@ -258,11 +258,11 @@ describe("SearchController", () => {
             .end((err, res) => {
               body = res.body;
 
-              // expect(mockCallback.mock.calls.length).toEqual(1);
-              // calls = mockCallback.mock.calls;
+              expect(mockCallback.mock.calls.length).toEqual(1);
+              calls = mockCallback.mock.calls;
 
-              // expect(mockCallback.mock.calls[0].length).toEqual(1);
-              // notification = mockCallback.mock.calls[0][0];
+              expect(mockCallback.mock.calls[0].length).toEqual(1);
+              notification = mockCallback.mock.calls[0][0];
 
               done();
             });
@@ -355,7 +355,7 @@ describe("SearchController", () => {
           done();
         });
         it.only("should notify all the users", done => {
-          expect(notification.search.id).toEqual(sequenceSearchId);
+          expect(notification.search.id).toEqual(proteinVariantSearchId);
           expect(notification.user.firstname).toEqual("David");
 
           done();
