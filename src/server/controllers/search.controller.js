@@ -51,8 +51,9 @@ const saveResult = async (req, res) => {
     const savedSearch = await search.updateAndSetExpiry(result);
 
     const searchJson = new SearchJSONTransformer().transform(savedSearch);
+    let regeneratedSearch;
     if (searchJson.bigsi) {
-      const regeneratedSearch = createQuery(searchJson.bigsi);
+      regeneratedSearch = createQuery(searchJson.bigsi);
       logger.debug(
         `SearchController#saveResult: regeneratedSearch: ${JSON.stringify(
           regeneratedSearch,
@@ -62,9 +63,6 @@ const saveResult = async (req, res) => {
       );
       if (regeneratedSearch && regeneratedSearch.q) {
         searchJson.bigsi.search = regeneratedSearch;
-        const bigsi = savedSearch.get("bigsi");
-        bigsi.search = regeneratedSearch;
-        savedSearch.set("bigsi", bigsi);
       }
     }
 
@@ -99,6 +97,13 @@ const saveResult = async (req, res) => {
     logger.debug(
       `SearchController#saveResult: savedSearch: ${JSON.stringify(savedSearch, null, 2)}`
     );
+
+    // set the bigsi only before return to avoid regenerating the hash
+    if (regeneratedSearch && regeneratedSearch.q) {
+      const bigsi = savedSearch.get("bigsi");
+      bigsi.search = regeneratedSearch;
+      savedSearch.set("bigsi", bigsi);
+    }
 
     return res.jsend(savedSearch);
   } catch (e) {

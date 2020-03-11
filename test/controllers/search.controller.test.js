@@ -121,6 +121,12 @@ describe("SearchController", () => {
               done();
             });
         });
+
+        afterEach(done => {
+          userEventEmitter.removeAllListeners(["sequence-search-complete"]);
+          done();
+        });
+
         it("should be successful", done => {
           expect(body).toHaveProperty("status", "success");
           done();
@@ -267,6 +273,12 @@ describe("SearchController", () => {
               done();
             });
         });
+
+        afterEach(done => {
+          userEventEmitter.removeAllListeners(["protein-variant-search-complete"]);
+          done();
+        });
+
         it("should be successful", done => {
           expect(body).toHaveProperty("status", "success");
           done();
@@ -390,6 +402,11 @@ describe("SearchController", () => {
 
               done();
             });
+        });
+
+        afterEach(done => {
+          userEventEmitter.removeAllListeners(["dna-variant-search-complete"]);
+          done();
         });
 
         it("should be successful", done => {
