@@ -12,6 +12,8 @@ import EventHelper from "../helpers/events/EventHelper";
 
 import logger from "../modules/winston";
 
+import { createQuery } from "../modules/search/bigsi";
+
 import { userEventEmitter } from "../modules/events";
 
 import Constants from "../Constants";
@@ -49,6 +51,26 @@ const saveResult = async (req, res) => {
     const savedSearch = await search.updateAndSetExpiry(result);
 
     const searchJson = new SearchJSONTransformer().transform(savedSearch);
+    if (searchJson.bigsi) {
+      const regeneratedSearch = createQuery(searchJson.bigsi);
+      logger.debug(
+        `SearchController#saveResult: regeneratedSearch: ${JSON.stringify(
+          regeneratedSearch,
+          null,
+          2
+        )}`
+      );
+      if (regeneratedSearch && regeneratedSearch.q) {
+        searchJson.bigsi.search = regeneratedSearch;
+        const bigsi = savedSearch.get("bigsi");
+        bigsi.search = regeneratedSearch;
+        savedSearch.set("bigsi", bigsi);
+      }
+    }
+
+    logger.debug(
+      `SearchController#saveResult: savedSearch: ${JSON.stringify(savedSearch, null, 2)}`
+    );
 
     if (search && search.type) {
       const audit = (await Audit.getBySearchId(searchJson.id)) || {};
@@ -62,6 +84,7 @@ const saveResult = async (req, res) => {
       }
       logger.debug(`SearchController#saveResult: notify ${search.users.length} user(s)`);
       const event = `${result.type}-search-complete`;
+      console.log(`event: ${event}`);
       search.users.forEach(user => {
         const userJson = new UserJSONTransformer().transform(user);
         userEventEmitter.emit(event, {
@@ -72,6 +95,10 @@ const saveResult = async (req, res) => {
       });
       await savedSearch.clearUsers();
     }
+
+    logger.debug(
+      `SearchController#saveResult: savedSearch: ${JSON.stringify(savedSearch, null, 2)}`
+    );
 
     return res.jsend(savedSearch);
   } catch (e) {
