@@ -11,8 +11,6 @@ describe("util", () => {
         const susceptibility = util.parseSusceptibility(result.susceptibility);
         const resistance = util.buildDrugResistanceSummary(susceptibility);
 
-        console.log(`resistance: ${JSON.stringify(resistance, null, 2)}`);
-
         expect(Object.keys(resistance).length).toEqual(11);
         [
           "Amikacin",

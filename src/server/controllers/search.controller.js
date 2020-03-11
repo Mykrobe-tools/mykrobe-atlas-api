@@ -82,7 +82,6 @@ const saveResult = async (req, res) => {
       }
       logger.debug(`SearchController#saveResult: notify ${search.users.length} user(s)`);
       const event = `${result.type}-search-complete`;
-      console.log(`event: ${event}`);
       search.users.forEach(user => {
         const userJson = new UserJSONTransformer().transform(user);
         userEventEmitter.emit(event, {
