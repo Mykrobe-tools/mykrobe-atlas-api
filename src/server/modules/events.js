@@ -24,6 +24,7 @@ const experimentEventEmitter = new EventEmitter();
 const userEventEmitter = new EventEmitter();
 
 const sendUserEvent = (userId, data) => {
+  logger.debug(`sendUserEvent: userId: ${userId}`);
   if (userId) {
     const channel = channels.getUserChannel(userId);
     channel.send({ data });
@@ -32,6 +33,7 @@ const sendUserEvent = (userId, data) => {
 
 const sendExperimentOwnerEvent = (experiment, data, type) => {
   const owner = experiment.owner;
+  logger.debug(`sendExperimentOwnerEvent: owner: ${owner}`);
   if (owner) {
     const ownerId = owner.id || owner;
     if (ownerId) {

@@ -12,6 +12,8 @@ import EventHelper from "../helpers/events/EventHelper";
 
 import logger from "../modules/winston";
 
+import { createQuery } from "../modules/search/bigsi";
+
 import { userEventEmitter } from "../modules/events";
 
 import Constants from "../Constants";
@@ -49,6 +51,24 @@ const saveResult = async (req, res) => {
     const savedSearch = await search.updateAndSetExpiry(result);
 
     const searchJson = new SearchJSONTransformer().transform(savedSearch);
+    let regeneratedSearch;
+    if (searchJson.bigsi) {
+      regeneratedSearch = createQuery(searchJson.bigsi);
+      logger.debug(
+        `SearchController#saveResult: regeneratedSearch: ${JSON.stringify(
+          regeneratedSearch,
+          null,
+          2
+        )}`
+      );
+      if (regeneratedSearch && regeneratedSearch.q) {
+        searchJson.bigsi.search = regeneratedSearch;
+      }
+    }
+
+    logger.debug(
+      `SearchController#saveResult: savedSearch: ${JSON.stringify(savedSearch, null, 2)}`
+    );
 
     if (search && search.type) {
       const audit = (await Audit.getBySearchId(searchJson.id)) || {};
@@ -71,6 +91,17 @@ const saveResult = async (req, res) => {
         });
       });
       await savedSearch.clearUsers();
+    }
+
+    logger.debug(
+      `SearchController#saveResult: savedSearch: ${JSON.stringify(savedSearch, null, 2)}`
+    );
+
+    // set the bigsi only before return to avoid regenerating the hash
+    if (regeneratedSearch && regeneratedSearch.q) {
+      const bigsi = savedSearch.get("bigsi");
+      bigsi.search = regeneratedSearch;
+      savedSearch.set("bigsi", bigsi);
     }
 
     return res.jsend(savedSearch);
