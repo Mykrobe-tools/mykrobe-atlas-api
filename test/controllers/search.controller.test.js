@@ -227,7 +227,7 @@ describe("SearchController", () => {
 
           done();
         });
-        it.only("should notify all the users", done => {
+        it("should notify all the users", done => {
           expect(notification.search.id).toEqual(sequenceSearchId);
           expect(notification.user.firstname).toEqual("David");
 
@@ -354,7 +354,7 @@ describe("SearchController", () => {
 
           done();
         });
-        it.only("should notify all the users", done => {
+        it("should notify all the users", done => {
           expect(notification.search.id).toEqual(proteinVariantSearchId);
           expect(notification.user.firstname).toEqual("David");
 
@@ -369,63 +369,128 @@ describe("SearchController", () => {
         });
       });
       describe("when searching by dna variant", () => {
-        it("should return dna variant results", done => {
+        let body = null;
+        let calls = null;
+        let notification = null;
+        beforeEach(done => {
+          const mockCallback = jest.fn();
+          userEventEmitter.on("dna-variant-search-complete", mockCallback);
           request(app)
             .put(`/searches/${dnaVariantSearchId}/results`)
             .send(searches.results.dnaVariant)
             .expect(httpStatus.OK)
             .end((err, res) => {
-              expect(res.body).toHaveProperty("status", "success");
-              expect(res.body).toHaveProperty("data");
+              body = res.body;
 
-              const data = res.body.data;
-              expect(data).toHaveProperty("type", "dna-variant");
-              expect(data).toHaveProperty("bigsi");
-              const bigsi = data.bigsi;
-              expect(bigsi).toHaveProperty("query");
-              const query = bigsi.query;
-              expect(query).toHaveProperty("ref", "G");
-              expect(query).toHaveProperty("alt", "C");
-              expect(query).toHaveProperty("pos", 4346385);
-              expect(query).not.toHaveProperty("gene");
+              expect(mockCallback.mock.calls.length).toEqual(1);
+              calls = mockCallback.mock.calls;
 
-              expect(data).toHaveProperty("created");
-              expect(data).toHaveProperty("modified");
-              expect(data).toHaveProperty("users");
-              expect(data).toHaveProperty("id");
-
-              expect(data).toHaveProperty("results");
-              const results = data.results;
-              expect(results.length).toEqual(2);
-
-              expect(results.length).toEqual(2);
-              results.forEach(entry => {
-                const isolateId = entry["metadata.sample.isolateId"];
-                const genotype = entry.genotype;
-
-                expect(["HN079", "SAMN06092584"].includes(isolateId)).toEqual(true);
-                expect(genotype).toEqual("1/1");
-              });
+              expect(mockCallback.mock.calls[0].length).toEqual(1);
+              notification = mockCallback.mock.calls[0][0];
 
               done();
             });
         });
-        it("should store dna variant results in the search", done => {
-          request(app)
-            .put(`/searches/${dnaVariantSearchId}/results`)
-            .send(searches.results.dnaVariant)
-            .expect(httpStatus.OK)
-            .end(async (err, res) => {
-              const search = await Search.get(dnaVariantSearchId);
-              expect(search).toBeTruthy();
 
-              const result = search.get("result");
-              expect(result.type).toEqual("dna-variant");
-              expect(result).toHaveProperty("results");
-              expect(result.results.length).toEqual(2);
+        it("should be successful", done => {
+          expect(body).toHaveProperty("status", "success");
+          done();
+        });
 
-              done();
-            });
+        it("should return a bigsi search", done => {
+          expect(body).toHaveProperty("data");
+
+          const data = body.data;
+
+          expect(data).toHaveProperty("type", "dna-variant");
+          expect(data).toHaveProperty("bigsi");
+
+          const bigsi = data.bigsi;
+          expect(bigsi).toHaveProperty("query");
+
+          const query = bigsi.query;
+          expect(query).toHaveProperty("ref", "G");
+          expect(query).toHaveProperty("alt", "C");
+          expect(query).toHaveProperty("pos", 4346385);
+
+          done();
+        });
+        it("should return search attributes", done => {
+          const data = body.data;
+          expect(data).toHaveProperty("created");
+          expect(data).toHaveProperty("modified");
+          expect(data).toHaveProperty("users");
+          expect(data).toHaveProperty("id");
+          done();
+        });
+        it("should return a freetext search query", done => {
+          expect(body).toHaveProperty("data");
+
+          const data = body.data;
+
+          expect(data).toHaveProperty("bigsi");
+          const bigsi = data.bigsi;
+
+          expect(bigsi).toHaveProperty("search");
+          expect(bigsi.search).toHaveProperty("q", "G4346385C");
+          done();
+        });
+        it("should clear waiting users", done => {
+          const data = body.data;
+
+          expect(data).toHaveProperty("users");
+          expect(data.users.length).toEqual(0);
+          done();
+        });
+        it("should return results", done => {
+          const data = body.data;
+
+          expect(data).toHaveProperty("results");
+          expect(data.results.length).toEqual(2);
+
+          done();
+        });
+        it("should return result isolate ids", done => {
+          const data = body.data;
+          data.results.forEach(entry => {
+            const isolateId = entry["metadata.sample.isolateId"];
+            const genotype = entry.genotype;
+
+            expect(["HN079", "SAMN06092584"].includes(isolateId)).toEqual(true);
+            expect(genotype).toEqual("1/1");
+          });
+          done();
+        });
+        it("should save search result", async done => {
+          const search = await Search.get(dnaVariantSearchId);
+          const searchObject = search.toObject();
+
+          expect(searchObject).toHaveProperty("result");
+          expect(searchObject.result).toHaveProperty("type", "dna-variant");
+          expect(searchObject.result).toHaveProperty("results");
+          expect(searchObject.result.results.length).toEqual(2);
+
+          done();
+        });
+        it("should set the status to complete", done => {
+          const data = body.data;
+
+          expect(data).toHaveProperty("status", Constants.SEARCH_COMPLETE);
+
+          done();
+        });
+        it("should notify all the users", done => {
+          expect(notification.search.id).toEqual(dnaVariantSearchId);
+          expect(notification.user.firstname).toEqual("David");
+
+          done();
+        });
+        it("should show the query in each notification", done => {
+          // regenerated bigsi search query
+          expect(notification.search.bigsi).toHaveProperty("search");
+          expect(notification.search.bigsi.search).toHaveProperty("q", "G4346385C");
+
+          done();
         });
       });
     });
