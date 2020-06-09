@@ -14,7 +14,7 @@ steps:
       path: /root/.ssh
     
 # Set up git with key and domain
-  - name: 'gcr.io/cloud-builders/git'
+  - name: gcr.io/cloud-builders/git
     entrypoint: 'bash'
     args:
     - '-c'
@@ -32,14 +32,15 @@ steps:
       EOF
       ssh-keyscan bitbucket.org >> /root/.ssh/known_hosts
       ssh-keyscan github.com >> /root/.ssh/known_hosts
-      cat /root/.ssh/known_hosts
-      cat /root/.ssh/config
     volumes:
     - name: 'ssh'
       path: /root/.ssh
   - name: node:$_NODE_VERSION
     entrypoint: yarn
-    args: ['install', '--production=false']  
+    args: ['install', '--production=false'] 
+    volumes:
+    - name: 'ssh'
+      path: /root/.ssh
   - name: 'gcr.io/cloud-builders/docker'
     args:
       [
