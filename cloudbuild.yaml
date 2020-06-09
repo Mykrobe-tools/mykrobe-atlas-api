@@ -35,11 +35,11 @@ steps:
     args:
     - '-c'
     - |
-      cd /app && yarn
-      cp -rf /app/node_modules/makeandship-api-common /tmp
-      rm -rf /app/node_modules
-      cd /app && yarn --ignore-scripts --production
-      cp -rf /tmp/makeandship-api-common /app/node_modules
+      yarn
+      cp -rf node_modules/makeandship-api-common /tmp
+      rm -rf node_modules
+      yarn --ignore-scripts --production
+      cp -rf /tmp/makeandship-api-common node_modules
     volumes:
     - name: 'ssh'
       path: /root/.ssh
