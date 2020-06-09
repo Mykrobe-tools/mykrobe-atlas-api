@@ -31,16 +31,11 @@ steps:
     - name: 'ssh'
       path: /root/.ssh
   - name: node:$_NODE_VERSION
-    entrypoint: yarn
-    args: ['install', '--production=false'] 
-    volumes:
-    - name: 'ssh'
-      path: /root/.ssh
-  - name: node:$_NODE_VERSION
     entrypoint: 'bash'
     args:
     - '-c'
     - |
+      cd /app && yarn
       cp -rf /app/node_modules/makeandship-api-common /tmp
       rm -rf /app/node_modules
       cd /app && yarn --ignore-scripts --production
