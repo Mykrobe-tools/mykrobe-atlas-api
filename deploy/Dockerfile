@@ -11,12 +11,6 @@ RUN mkdir /app
 WORKDIR /app
 ADD . /app
 
-# trim to production dependencies post build
-RUN cp -rf /app/node_modules/makeandship-api-common /tmp
-RUN rm -rf /app/node_modules
-RUN cd /app && yarn --ignore-scripts --production
-RUN cp -rf /tmp/makeandship-api-common /app/node_modules
-
 # run local api on 3000
 EXPOSE 3000
 
