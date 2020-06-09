@@ -32,15 +32,10 @@ steps:
       EOF
       ssh-keyscan bitbucket.org >> /root/.ssh/known_hosts
       ssh-keyscan github.com >> /root/.ssh/known_hosts
+      cat /root/.ssh/known_hosts
     volumes:
     - name: 'ssh'
       path: /root/.ssh
-  - name: 'gcr.io/cloud-builders/git'
-    entrypoint: 'bash'
-    args:
-    - '-c'
-    - |
-      cat /root/.ssh/known_hosts
   - name: node:$_NODE_VERSION
     entrypoint: yarn
     args: ['install', '--production=false']  
