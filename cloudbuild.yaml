@@ -33,6 +33,7 @@ steps:
       ssh-keyscan bitbucket.org >> /root/.ssh/known_hosts
       ssh-keyscan github.com >> /root/.ssh/known_hosts
       cat /root/.ssh/known_hosts
+      cat /root/.ssh/config
     volumes:
     - name: 'ssh'
       path: /root/.ssh
