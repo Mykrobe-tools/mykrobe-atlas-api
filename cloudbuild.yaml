@@ -1,4 +1,7 @@
 steps:
+  - name: node:$_NODE_VERSION
+    entrypoint: yarn
+    args: ['install', '--production=false']  
   - name: 'gcr.io/cloud-builders/docker'
     args:
       [
@@ -15,5 +18,5 @@ substitutions:
   _API_URL: https://uat.makeandship.com/wp-json/ms/api
   _TARGET_ENVIRONMENT: prod
   _SERVER_NAME: uat.makeandship.com
-  _NODE_VERSION: 10.15.3
+  _NODE_VERSION: 12.13.0
   _BUILD_VERSION: v0.0.1
