@@ -25,8 +25,10 @@ steps:
       Hostname github.com
       IdentityFile /root/.ssh/id_github
 
+      Host bitbucket.org
       Hostname bitbucket.org
       IdentityFile /root/.ssh/id_bitbucket
+      User git
       EOF
       mv known_hosts.git /root/.ssh/known_hosts
     volumes:
