@@ -1,4 +1,27 @@
+  # Access the id_github file from Secret Manager
 steps:
+  - name: gcr.io/cloud-builders/gcloud
+    entrypoint: 'bash'
+    args: [ '-c', 'gcloud secrets versions access latest --secret=atlas-jsonschema-readonly > /root/.ssh/id_github' ]
+    volumes:
+    - name: 'ssh'
+      path: /root/.ssh
+    
+# Set up git with key and domain
+  - name: 'gcr.io/cloud-builders/git'
+    entrypoint: 'bash'
+    args:
+    - '-c'
+    - |
+      chmod 600 /root/.ssh/id_github
+      cat <<EOF >/root/.ssh/config
+      Hostname github.com
+      IdentityFile /root/.ssh/id_github
+      EOF
+      mv known_hosts.github /root/.ssh/known_hosts
+    volumes:
+    - name: 'ssh'
+      path: /root/.ssh  
   - name: node:$_NODE_VERSION
     entrypoint: yarn
     args: ['install', '--production=false']  
