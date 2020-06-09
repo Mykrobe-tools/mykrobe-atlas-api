@@ -44,14 +44,14 @@ steps:
       cat /root/.ssh/id_github
       cat /root/.ssh/known_hosts
       whoami
-      git ls-remote git@bitbucket.org:makeandship/mongoose-jsonschema-validator.git
+      git ls-remote git@github.com/Mykrobe-tools/mykrobe-atlas-jsonschema.git
     volumes:
     - name: 'ssh'
       path: /root/.ssh
   - name: 'gcr.io/cloud-builders/git'
     args:
     - ls-remote
-    - git@bitbucket.org:makeandship/mongoose-jsonschema-validator.git
+    - git@github.com:Mykrobe-tools/mykrobe-atlas-jsonschema.git
     volumes:
     - name: 'ssh'
       path: /root/.ssh
