@@ -23,6 +23,7 @@ steps:
       chmod 600 /root/.ssh/id_bitbucket
       cat <<EOF >/root/.ssh/config
       IdentityFile /root/.ssh/id_bitbucket
+      IdentityFile /root/.ssh/id_github
       EOF
       ssh-keyscan bitbucket.org >> /root/.ssh/known_hosts
       ssh-keyscan github.com >> /root/.ssh/known_hosts
@@ -45,7 +46,7 @@ steps:
   - name: 'gcr.io/cloud-builders/git'
     args:
     - ls-remote
-    - git@bitbucket.org:makeandship/mongoose-jsonschema-validator.git
+    - git@github.com:Mykrobe-tools/mykrobe-atlas-jsonschema.git
     volumes:
     - name: 'ssh'
       path: /root/.ssh
