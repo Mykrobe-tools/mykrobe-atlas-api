@@ -22,10 +22,6 @@ steps:
       chmod 600 /root/.ssh/id_github
       chmod 600 /root/.ssh/id_bitbucket
       cat <<EOF >/root/.ssh/config
-      Hostname github.com
-      IdentityFile /root/.ssh/id_github
-
-      Hostname bitbucket.org
       IdentityFile /root/.ssh/id_bitbucket
       EOF
       ssh-keyscan bitbucket.org >> /root/.ssh/known_hosts
