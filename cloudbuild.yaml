@@ -30,7 +30,8 @@ steps:
       IdentityFile /root/.ssh/id_bitbucket
       User git
       EOF
-      mv known_hosts.git /root/.ssh/known_hosts
+      cat known_hosts.github >> /root/.ssh/known_hosts
+      cat known_hosts.bitbucket >> /root/.ssh/known_hosts
     volumes:
     - name: 'ssh'
       path: /root/.ssh  
