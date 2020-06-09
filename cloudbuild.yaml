@@ -27,32 +27,24 @@ steps:
       EOF
       ssh-keyscan bitbucket.org >> /root/.ssh/known_hosts
       ssh-keyscan github.com >> /root/.ssh/known_hosts
-      whoami
-    volumes:
-    - name: 'ssh'
-      path: /root/.ssh
-  - name: gcr.io/cloud-builders/git
-    entrypoint: 'bash'
-    args:
-    - '-c'
-    - |
-      cat /root/.ssh/id_bitbucket
-      cat /root/.ssh/known_hosts
-      whoami
-      git ls-remote git@bitbucket.org:makeandship/mongoose-jsonschema-validator.git
-    volumes:
-    - name: 'ssh'
-      path: /root/.ssh
-  - name: 'gcr.io/cloud-builders/git'
-    args:
-    - ls-remote
-    - git@github.com:Mykrobe-tools/mykrobe-atlas-jsonschema.git
     volumes:
     - name: 'ssh'
       path: /root/.ssh
   - name: node:$_NODE_VERSION
     entrypoint: yarn
     args: ['install', '--production=false'] 
+    volumes:
+    - name: 'ssh'
+      path: /root/.ssh
+  - name: node:$_NODE_VERSION
+    entrypoint: 'bash'
+    args:
+    - '-c'
+    - |
+      cp -rf /app/node_modules/makeandship-api-common /tmp
+      rm -rf /app/node_modules
+      cd /app && yarn --ignore-scripts --production
+      cp -rf /tmp/makeandship-api-common /app/node_modules
     volumes:
     - name: 'ssh'
       path: /root/.ssh
@@ -66,11 +58,11 @@ steps:
         'deploy/Dockerfile',
         '.',
       ]
+    volumes:
+    - name: 'ssh'
+      path: /root/.ssh
   - name: 'gcr.io/cloud-builders/docker'
     args: ['push', 'atlas-275810/mykrobe-atlas-api:$_BUILD_VERSION']
 substitutions:
-  _API_URL: https://uat.makeandship.com/wp-json/ms/api
-  _TARGET_ENVIRONMENT: prod
-  _SERVER_NAME: uat.makeandship.com
   _NODE_VERSION: 12.13.0
   _BUILD_VERSION: v0.0.1
