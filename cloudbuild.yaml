@@ -1,4 +1,4 @@
-  # Access the id_github file from Secret Manager
+# Access the id_github file from Secret Manager
 steps:
   - name: gcr.io/cloud-builders/gcloud
     entrypoint: 'bash'
@@ -30,8 +30,8 @@ steps:
       IdentityFile /root/.ssh/id_bitbucket
       User git
       EOF
-      cat known_hosts.github >> /root/.ssh/known_hosts
-      cat known_hosts.bitbucket >> /root/.ssh/known_hosts
+      ssh-keyscan bitbucket.org >> /root/.ssh/known_hosts
+      ssh-keyscan github.com >> /root/.ssh/known_hosts
     volumes:
     - name: 'ssh'
       path: /root/.ssh  
