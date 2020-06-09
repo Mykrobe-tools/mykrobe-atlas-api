@@ -14,7 +14,7 @@ steps:
       path: /root/.ssh
     
 # Set up git with key and domain
-  - name: gcr.io/cloud-builders/git
+  - name: node:$_NODE_VERSION
     entrypoint: 'bash'
     args:
     - '-c'
