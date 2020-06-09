@@ -1,0 +1,19 @@
+steps:
+    - name: 'gcr.io/cloud-builders/docker'
+      args:
+        [
+          'build',
+          '-t',
+          'gcr.io/atlas-275810/mykrobe-atlas-api:$_BUILD_VERSION',
+          '-f',
+          'deploy/Dockerfile',
+          '.',
+        ]
+    - name: 'gcr.io/cloud-builders/docker'
+      args: ['push', 'atlas-275810/mykrobe-atlas-api:$_BUILD_VERSION']
+  substitutions:
+    _API_URL: https://uat.makeandship.com/wp-json/ms/api
+    _TARGET_ENVIRONMENT: prod
+    _SERVER_NAME: uat.makeandship.com
+    _NODE_VERSION: 12.13.0
+    _BUILD_VERSION: v0.0.1
