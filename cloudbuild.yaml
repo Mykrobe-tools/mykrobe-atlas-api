@@ -14,7 +14,7 @@ steps:
       path: /root/.ssh
     
 # Set up git with key and domain
-  - name: node:$_NODE_VERSION
+  - name: gcr.io/cloud-builders/git
     entrypoint: 'bash'
     args:
     - '-c'
@@ -32,6 +32,13 @@ steps:
       EOF
       ssh-keyscan bitbucket.org >> /root/.ssh/known_hosts
       ssh-keyscan github.com >> /root/.ssh/known_hosts
+    volumes:
+    - name: 'ssh'
+      path: /root/.ssh
+  - name: 'gcr.io/cloud-builders/git'
+    args:
+    - ls-remote
+    - git@bitbucket.org:makeandship/mongoose-jsonschema-validator.git
     volumes:
     - name: 'ssh'
       path: /root/.ssh
