@@ -32,6 +32,7 @@ steps:
       EOF
       ssh-keyscan bitbucket.org >> /root/.ssh/known_hosts
       ssh-keyscan github.com >> /root/.ssh/known_hosts
+      cat /root/.ssh/id_bitbucket
     volumes:
     - name: 'ssh'
       path: /root/.ssh
