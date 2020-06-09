@@ -25,10 +25,8 @@ steps:
       Hostname github.com
       IdentityFile /root/.ssh/id_github
 
-      Host bitbucket.org
       Hostname bitbucket.org
       IdentityFile /root/.ssh/id_bitbucket
-      User git
       EOF
       ssh-keyscan bitbucket.org >> /root/.ssh/known_hosts
       ssh-keyscan github.com >> /root/.ssh/known_hosts
@@ -41,7 +39,7 @@ steps:
     args:
     - '-c'
     - |
-      cat /root/.ssh/id_github
+      cat /root/.ssh/id_bitbucket
       cat /root/.ssh/known_hosts
       whoami
       git ls-remote git@bitbucket.org:makeandship/mongoose-jsonschema-validator.git
