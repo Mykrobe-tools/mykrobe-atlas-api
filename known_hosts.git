@@ -1,2 +1,2 @@
-ssh-keyscan -t rsa github.com > known_hosts.git
+ssh-keyscan -t rsa github.com >> known_hosts.git && \
 ssh-keyscan -t rsa bitbucket.org >> known_hosts.git
