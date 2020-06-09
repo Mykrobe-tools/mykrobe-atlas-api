@@ -6,6 +6,12 @@ steps:
     volumes:
     - name: 'ssh'
       path: /root/.ssh
+  - name: gcr.io/cloud-builders/gcloud
+    entrypoint: 'bash'
+    args: [ '-c', 'gcloud secrets versions access latest --secret=ms-bitbucket-readonly > /root/.ssh/id_bitbucket' ]
+    volumes:
+    - name: 'ssh'
+      path: /root/.ssh
     
 # Set up git with key and domain
   - name: 'gcr.io/cloud-builders/git'
@@ -14,11 +20,15 @@ steps:
     - '-c'
     - |
       chmod 600 /root/.ssh/id_github
+      chmod 600 /root/.ssh/id_bitbucket
       cat <<EOF >/root/.ssh/config
       Hostname github.com
       IdentityFile /root/.ssh/id_github
+
+      Hostname bitbucket.org
+      IdentityFile /root/.ssh/id_bitbucket
       EOF
-      mv known_hosts.github /root/.ssh/known_hosts
+      mv known_hosts.git /root/.ssh/known_hosts
     volumes:
     - name: 'ssh'
       path: /root/.ssh  
