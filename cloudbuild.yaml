@@ -51,7 +51,7 @@ steps:
   - name: 'gcr.io/cloud-builders/git'
     args:
     - ls-remote
-    - git@github.com:Mykrobe-tools/mykrobe-atlas-jsonschema.git
+    - ssh://git@bitbucket.org/makeandship/mongoose-jsonschema-validator.git
     volumes:
     - name: 'ssh'
       path: /root/.ssh
