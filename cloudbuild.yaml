@@ -51,7 +51,7 @@ steps:
   - name: 'gcr.io/cloud-builders/git'
     args:
     - ls-remote
-    - ssh://git@bitbucket.org/makeandship/mongoose-jsonschema-validator.git
+    - git@bitbucket.org:makeandship/mongoose-jsonschema-validator.git
     volumes:
     - name: 'ssh'
       path: /root/.ssh
