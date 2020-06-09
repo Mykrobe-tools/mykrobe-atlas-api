@@ -46,6 +46,9 @@ ADD . /app
 RUN cd /app && \
     yarn
 
+RUN ls -ltr
+RUN cat package.json
+
 # build and compile the source
 RUN cd /app && \
     yarn build
