@@ -47,7 +47,8 @@ RUN cd /app && \
     yarn
 
 # build and compile the source
-RUN yarn build
+RUN cd /app && \
+    yarn build
 
 # trim to production dependencies post build
 RUN cp -rf /app/node_modules/makeandship-api-common /tmp
