@@ -40,6 +40,7 @@ steps:
       rm -rf node_modules
       yarn --ignore-scripts --production
       cp -rf /tmp/makeandship-api-common node_modules
+      yarn build
     volumes:
     - name: 'ssh'
       path: /root/.ssh
