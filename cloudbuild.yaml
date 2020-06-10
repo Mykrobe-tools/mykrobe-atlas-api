@@ -48,7 +48,7 @@ steps:
       [
         'build',
         '-t',
-        'gcr.io/atlas-275810/mykrobe-atlas-api:$_BUILD_VERSION',
+        'eu.gcr.io/atlas-275810/mykrobe-atlas-api:$_BUILD_VERSION',
         '-f',
         'deploy/Dockerfile',
         '.',
@@ -57,7 +57,7 @@ steps:
     - name: 'ssh'
       path: /root/.ssh
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['push', 'atlas-275810/mykrobe-atlas-api:$_BUILD_VERSION']
+    args: ['push', 'eu.gcr.io/atlas-275810/mykrobe-atlas-api:$_BUILD_VERSION']
 substitutions:
   _NODE_VERSION: 12.13.0
   _BUILD_VERSION: v0.0.1
