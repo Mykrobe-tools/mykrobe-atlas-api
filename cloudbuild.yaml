@@ -59,7 +59,7 @@ steps:
   - name: 'gcr.io/cloud-builders/docker'
     args: ['push', '$_IMAGE_REPOSITORY:$_BUILD_VERSION']
 substitutions:
-  _NODE_VERSION: 12.16.2
+  _NODE_VERSION: 12.13.0
   _IMAGE_REPOSITORY: eu.gcr.io/atlas-275810/mykrobe-atlas-api
   _BITBUCKET_SECRET: ms-bitbucket-readonly
   _GITHUB_SECRET: atlas-jsonschema-readonly

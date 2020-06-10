@@ -1,4 +1,4 @@
-FROM node:12.16.2
+FROM node:12.13.0
 LABEL MAINTAINER="Yassire Elhani <yassire@makeandship.com>"
 
 ENV NPM_CONFIG_PREFIX=/home/node/.npm-global
