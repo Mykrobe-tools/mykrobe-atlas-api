@@ -2,13 +2,13 @@
 steps:
   - name: gcr.io/cloud-builders/gcloud
     entrypoint: 'bash'
-    args: [ '-c', 'gcloud secrets versions access latest --secret=atlas-jsonschema-readonly > /root/.ssh/id_github' ]
+    args: [ '-c', 'gcloud secrets versions access latest --secret=$_GITHUB_SECRET > /root/.ssh/id_github' ]
     volumes:
     - name: 'ssh'
       path: /root/.ssh
   - name: gcr.io/cloud-builders/gcloud
     entrypoint: 'bash'
-    args: [ '-c', 'gcloud secrets versions access latest --secret=ms-bitbucket-readonly > /root/.ssh/id_bitbucket' ]
+    args: [ '-c', 'gcloud secrets versions access latest --secret=$_BITBUCKET_SECRET > /root/.ssh/id_bitbucket' ]
     volumes:
     - name: 'ssh'
       path: /root/.ssh
@@ -48,7 +48,7 @@ steps:
       [
         'build',
         '-t',
-        'eu.gcr.io/atlas-275810/mykrobe-atlas-api:$_BUILD_VERSION',
+        '$_IMAGE_REPOSITORY:$_BUILD_VERSION',
         '-f',
         'deploy/Dockerfile',
         '.',
@@ -57,7 +57,10 @@ steps:
     - name: 'ssh'
       path: /root/.ssh
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['push', 'eu.gcr.io/atlas-275810/mykrobe-atlas-api:$_BUILD_VERSION']
+    args: ['push', '$_IMAGE_REPOSITORY:$_BUILD_VERSION']
 substitutions:
   _NODE_VERSION: 12.13.0
+  _IMAGE_REPOSITORY: eu.gcr.io/atlas-275810/mykrobe-atlas-api
+  _BITBUCKET_SECRET: ms-bitbucket-readonly
+  _GITHUB_SECRET: atlas-jsonschema-readonly
   _BUILD_VERSION: v0.0.1
