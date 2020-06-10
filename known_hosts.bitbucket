@@ -1,1 +1,0 @@
-ssh-keyscan -t rsa bitbucket.org > known_hosts.bitbucket
