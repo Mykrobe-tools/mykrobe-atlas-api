@@ -36,6 +36,7 @@ steps:
     - '-c'
     - |
       yarn
+      yarn build
       cp -rf node_modules/makeandship-api-common /tmp
       rm -rf node_modules
       yarn --ignore-scripts --production
