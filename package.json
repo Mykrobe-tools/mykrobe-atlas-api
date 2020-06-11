@@ -65,6 +65,7 @@
     "faker": "^4.1.0",
     "fast-csv": "^3.4.0",
     "flat": "^5.0.0",
+    "forever": "^3.0.0",
     "helmet": "^3.21.2",
     "http-status": "^1.4.0",
     "json-stable-stringify": "^1.0.1",
