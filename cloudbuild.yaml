@@ -1,0 +1,67 @@
+# Access the id_github file from Secret Manager
+steps:
+  - name: gcr.io/cloud-builders/gcloud
+    entrypoint: "bash"
+    args:
+      [
+        "-c",
+        "gcloud secrets versions access latest --secret=$_GITHUB_SECRET > /root/.ssh/id_github",
+      ]
+    volumes:
+      - name: "ssh"
+        path: /root/.ssh
+  - name: gcr.io/cloud-builders/gcloud
+    entrypoint: "bash"
+    args:
+      [
+        "-c",
+        "gcloud secrets versions access latest --secret=$_BITBUCKET_SECRET > /root/.ssh/id_bitbucket",
+      ]
+    volumes:
+      - name: "ssh"
+        path: /root/.ssh
+
+  # Set up git with key and domain
+  - name: gcr.io/cloud-builders/git
+    entrypoint: "bash"
+    args:
+      - "-c"
+      - |
+        chmod 600 /root/.ssh/id_github
+        chmod 600 /root/.ssh/id_bitbucket
+        cat <<EOF >/root/.ssh/config
+        IdentityFile /root/.ssh/id_bitbucket
+        IdentityFile /root/.ssh/id_github
+        EOF
+        ssh-keyscan bitbucket.org >> /root/.ssh/known_hosts
+        ssh-keyscan github.com >> /root/.ssh/known_hosts
+    volumes:
+      - name: "ssh"
+        path: /root/.ssh
+  - name: node:$_NODE_VERSION
+    entrypoint: "bash"
+    args:
+      - "-c"
+      - |
+        yarn
+        yarn build
+        cp -rf node_modules/makeandship-api-common /tmp
+        rm -rf node_modules
+        yarn --ignore-scripts --production
+        cp -rf /tmp/makeandship-api-common node_modules
+    volumes:
+      - name: "ssh"
+        path: /root/.ssh
+  - name: "gcr.io/cloud-builders/docker"
+    args: ["build", "-t", "$_IMAGE_REPOSITORY:$_BUILD_VERSION", "-f", "deploy/Dockerfile", "."]
+    volumes:
+      - name: "ssh"
+        path: /root/.ssh
+  - name: "gcr.io/cloud-builders/docker"
+    args: ["push", "$_IMAGE_REPOSITORY:$_BUILD_VERSION"]
+substitutions:
+  _NODE_VERSION: 12.13.0
+  _IMAGE_REPOSITORY: eu.gcr.io/atlas-275810/mykrobe-atlas-api
+  _BITBUCKET_SECRET: ms-bitbucket-readonly
+  _GITHUB_SECRET: atlas-jsonschema-readonly
+  _BUILD_VERSION: v0.0.3
