@@ -5,7 +5,8 @@ export default {
   express: {
     uploadsLocation: process.env.UPLOADS_LOCATION,
     demoDataRootFolder: process.env.DEMO_DATA_ROOT_FOLDER,
-    rateLimitReset: 1 * 60 * 1000
+    rateLimitReset: 1 * 60 * 1000,
+    swaggerApis: process.env.SWAGGER_API_FILES
   },
   accounts: {
     keycloak: {
