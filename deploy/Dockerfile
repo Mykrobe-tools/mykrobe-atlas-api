@@ -22,4 +22,4 @@ EXPOSE 3000
 
 # run up the server
 # CMD node /home/node/app/dist/index.js
-CMD FOREVER_ROOT=/home/node/data/forever NODE_ENV=$NODE_ENV forever -l /home/node/data/logs/forever.log -o /home/node/data/logs/out.log -e /home/node/data/logs/err.log /home/node/app/dist/index.js
+CMD FOREVER_ROOT=/home/node/data/forever NODE_ENV=$NODE_ENV /home/node/app/node_modules/.bin/forever -l /home/node/data/logs/forever.log -o /home/node/data/logs/out.log -e /home/node/data/logs/err.log /home/node/app/dist/index.js
