@@ -4,6 +4,7 @@ export default {
   },
   express: {
     uploadDir: process.env.UPLOAD_DIR,
+    analysisApiDir: process.env.ANALYSIS_API_DIR,
     uploadsLocation: process.env.UPLOADS_LOCATION,
     uploadsTempLocation: process.env.UPLOADS_TEMP_LOCATION,
     demoDataRootFolder: process.env.DEMO_DATA_ROOT_FOLDER,

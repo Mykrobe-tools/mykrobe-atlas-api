@@ -12,6 +12,8 @@ import { userEventEmitter, experimentEventEmitter } from "../modules/events";
 
 import AuditJSONTransformer from "../transformers/AuditJSONTransformer";
 
+import ExperimentHelper from "./ExperimentHelper";
+
 import config from "../../config/env";
 
 const esConfig = { type: "experiment", ...config.elasticsearch };
@@ -26,11 +28,11 @@ class AgendaHelper {
     try {
       if (data.attempt < config.services.analysisApiMaxRetries) {
         const payload = {
-          file: data.file,
+          file: ExperimentHelper.localiseFilepathForAnalysisApi(data.file),
           experiment_id: data.experiment_id
         };
-        logger.debug(`POST ${uri}`);
-        logger.debug(payload);
+        logger.debug(`#callAnalysisApi: POST ${uri}`);
+        logger.debug(`#callAnalysisApi: payload: ${JSON.stringify(payload, null, 2)}`);
         const response = await axios.post(uri, payload);
         const audit = new Audit({
           experimentId: data.experiment_id,
@@ -77,8 +79,8 @@ class AgendaHelper {
         experiment_id: data.experiment_id,
         distance_type: data.distance_type
       };
-      logger.debug(`POST ${uri}`);
-      logger.debug(payload);
+      logger.debug(`#callDistanceApi: POST ${uri}`);
+      logger.debug(`#callDistanceApi: payload: ${JSON.stringify(payload, null, 2)}`);
       const response = await axios.post(uri, payload);
       const audit = new Audit({
         experimentId: experiment.id,
