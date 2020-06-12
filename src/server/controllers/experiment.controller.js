@@ -279,14 +279,16 @@ const uploadFile = async (req, res) => {
   try {
     const experimentJson = new ExperimentJSONTransformer().transform(req.experiment);
     const resumableFilename = req.body.resumableFilename;
-    await resumable.setUploadDirectory(
-      `${config.express.uploadDir}/experiments/${experiment.id}/file`
-    );
+    const uploadDirectory = `${config.express.uploadDir}/experiments/${experiment.id}/file`;
+    logger.debug(`ExperimentsController#uploadFile: uploadDirectory: ${uploadDirectory}`);
+    await resumable.setUploadDirectory(uploadDirectory);
     const postUpload = await resumable.post(req);
     if (!postUpload.complete) {
+      logger.debug(`ExperimentsController#uploadFile: more`);
       const currentProgress = EventProgress.get(postUpload);
       // only update progress for each percent change
       const diff = EventProgress.diff(postUpload.id, postUpload);
+      logger.debug(`ExperimentsController#uploadFile: diff: ${JSON.stringify(diff, null, 2)}`);
       if (diff > 1 || !currentProgress) {
         try {
           await EventHelper.updateUploadsState(req.dbUser.id, experiment.id, postUpload);
@@ -300,16 +302,19 @@ const uploadFile = async (req, res) => {
         EventProgress.update(postUpload.id, postUpload);
       }
     } else {
+      logger.debug(`ExperimentsController#uploadFile: complete`);
       await EventHelper.clearUploadsState(req.dbUser.id, experiment.id);
       experimentEventEmitter.emit("upload-complete", {
         experiment: experimentJson,
         status: postUpload
       });
+      logger.debug(`ExperimentsController#uploadFile: updateAnalysisState`);
       await EventHelper.updateAnalysisState(
         req.dbUser.id,
         experimentJson.id,
         `${config.express.uploadsLocation}/experiments/${experimentJson.id}/file/${resumableFilename}`
       );
+      logger.debug(`ExperimentsController#uploadFile: reassembleChunks ...`);
       return resumable.reassembleChunks(experimentJson.id, resumableFilename, async () => {
         await schedule("now", "call analysis api", {
           file: `${config.express.uploadsLocation}/experiments/${experimentJson.id}/file/${resumableFilename}`,

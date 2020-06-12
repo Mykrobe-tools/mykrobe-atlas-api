@@ -49,13 +49,16 @@ const get = req => {
 // handle post requests
 const post = async req => {
   const files = req.file;
+  logger.debug(`Resumable#post: files: ${JSON.stringify(file, null, 2)}`);
   const status = initialise(req.body);
+  logger.debug(`Resumable#post: status: ${JSON.stringify(status, null, 2)}`);
   if (!files.size) {
     status.message = "Invalid resumable request";
     return status;
   }
 
   const fileSize = parseInt(files.size, 10);
+  logger.debug(`Resumable#post: fileSize: ${JSON.stringify(fileSize, null, 2)}`);
   const validation = validateRequest(status, fileSize);
   if (!validation.valid) {
     status.message = validation.message;
@@ -63,9 +66,11 @@ const post = async req => {
   }
 
   const path = files.path;
+  logger.debug(`Resumable#post: path: ${JSON.stringify(path, null, 2)}`);
   const checksum = status.checksum;
+  logger.debug(`Resumable#post: checksum: ${JSON.stringify(checksum, null, 2)}`);
   const validChecksum = validateChecksum(path, checksum);
-
+  logger.debug(`Resumable#post: validChecksum: ${JSON.stringify(validChecksum, null, 2)}`);
   if (!validChecksum) {
     status.message = "Uploaded file checksum doesn't match original checksum";
     return status;
@@ -73,13 +78,15 @@ const post = async req => {
 
   // save uploaded chunk to disk
   const chunkFilename = status.chunkFilename;
+  logger.debug(`Resumable#post: ${files.path} => ${JSON.stringify(chunkFilename, null, 2)}`);
   await spawn("mv", [files.path, chunkFilename]);
 
   // detailed verification of complete - chunk by chunk
   setComplete(status);
   const chunkNumber = status.chunkNumber;
+  logger.debug(`Resumable#post: chunkNumber: ${JSON.stringify(chunkNumber, null, 2)}`);
   status.message = `Chunk ${chunkNumber} uploaded`;
-
+  logger.debug(`Resumable#post: status: ${JSON.stringify(status, null, 2)}`);
   return status;
 };
 
