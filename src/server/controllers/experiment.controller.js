@@ -26,7 +26,7 @@ import resumable from "../modules/resumable";
 import { schedule } from "../modules/agenda";
 import { experimentEventEmitter, userEventEmitter } from "../modules/events";
 import { parseQuery, callTreeApi } from "../modules/search";
-import winston from "../modules/winston";
+import logger from "../modules/winston";
 
 import DownloadersFactory from "../helpers/DownloadersFactory";
 import BigsiSearchHelper from "../helpers/BigsiSearchHelper";
@@ -42,7 +42,6 @@ import ResultsJSONTransformer from "../transformers/ResultsJSONTransformer";
 import config from "../../config/env";
 import Constants from "../Constants";
 import SearchJSONTransformer from "../transformers/SearchJSONTransformer";
-import logger from "../modules/winston";
 
 const esConfig = { type: "experiment", ...config.elasticsearch };
 const elasticService = new ElasticService(esConfig, experimentSearchSchema);
@@ -343,13 +342,17 @@ const readFile = (req, res) => {
 };
 
 const uploadStatus = async (req, res) => {
+  logger.debug(`ExperimentController#uploadStatus: enter`);
   const experiment = req.experiment;
   try {
-    await resumable.setUploadDirectory(
-      `${config.express.uploadDir}/experiments/${experiment.id}/file`
-    );
+    const uploadDirectory = `${config.express.uploadDir}/experiments/${experiment.id}/file`;
+    logger.debug(`ExperimentController#uploadStatus: uploadDirectory: ${uploadDirectory}`);
+    await resumable.setUploadDirectory(uploadDirectory);
 
     const validateGetRequest = resumable.get(req);
+    logger.debug(
+      `ExperimentController#uploadStatus: validateGetRequest: ${JSON.stringify(validateGetRequest)}`
+    );
     if (validateGetRequest.valid) {
       return res.jsend(validateGetRequest);
     }
