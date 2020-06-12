@@ -11,12 +11,17 @@ import {
 } from "./util";
 import Experiment from "../../models/experiment.model";
 import config from "../../../config/env";
+import logger from "../../modules/winston";
 
 // handle get requests
 const get = req => {
+  logger.debug(`Resumable#get: enter`);
   const status = initialise(req.query);
+  logger.debug(`Resumable#get: status: ${JSON.stringify(status)}`);
 
   const validation = validateRequest(status);
+  logger.debug(`Resumable#get: validation: ${JSON.stringify(validation)}`);
+
   if (!validation.valid) {
     status.valid = validation.valid;
     status.message = validation.message;
