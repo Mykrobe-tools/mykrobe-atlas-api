@@ -6,7 +6,7 @@ import config from "../../config/env";
 class ExperimentHelper {
   static localiseFilepathForAnalysisApi(filepath) {
     if (filepath) {
-      const atlasApiDir = config.express.uploadDir;
+      const atlasApiDir = config.express.uploadsLocation;
       const analysisApiDir = config.express.analysisApiDir;
 
       if (atlasApiDir && analysisApiDir) {
