@@ -26,7 +26,7 @@ import resumable from "../modules/resumable";
 import { schedule } from "../modules/agenda";
 import { experimentEventEmitter, userEventEmitter } from "../modules/events";
 import { parseQuery, callTreeApi } from "../modules/search";
-import winston from "../modules/winston";
+import logger from "../modules/winston";
 
 import DownloadersFactory from "../helpers/DownloadersFactory";
 import BigsiSearchHelper from "../helpers/BigsiSearchHelper";
@@ -42,7 +42,6 @@ import ResultsJSONTransformer from "../transformers/ResultsJSONTransformer";
 import config from "../../config/env";
 import Constants from "../Constants";
 import SearchJSONTransformer from "../transformers/SearchJSONTransformer";
-import logger from "../modules/winston";
 
 const esConfig = { type: "experiment", ...config.elasticsearch };
 const elasticService = new ElasticService(esConfig, experimentSearchSchema);
@@ -280,14 +279,16 @@ const uploadFile = async (req, res) => {
   try {
     const experimentJson = new ExperimentJSONTransformer().transform(req.experiment);
     const resumableFilename = req.body.resumableFilename;
-    await resumable.setUploadDirectory(
-      `${config.express.uploadDir}/experiments/${experiment.id}/file`
-    );
+    const uploadDirectory = `${config.express.uploadDir}/experiments/${experiment.id}/file`;
+    logger.debug(`ExperimentsController#uploadFile: uploadDirectory: ${uploadDirectory}`);
+    await resumable.setUploadDirectory(uploadDirectory);
     const postUpload = await resumable.post(req);
     if (!postUpload.complete) {
+      logger.debug(`ExperimentsController#uploadFile: more`);
       const currentProgress = EventProgress.get(postUpload);
       // only update progress for each percent change
       const diff = EventProgress.diff(postUpload.id, postUpload);
+      logger.debug(`ExperimentsController#uploadFile: diff: ${JSON.stringify(diff, null, 2)}`);
       if (diff > 1 || !currentProgress) {
         try {
           await EventHelper.updateUploadsState(req.dbUser.id, experiment.id, postUpload);
@@ -301,16 +302,19 @@ const uploadFile = async (req, res) => {
         EventProgress.update(postUpload.id, postUpload);
       }
     } else {
+      logger.debug(`ExperimentsController#uploadFile: complete`);
       await EventHelper.clearUploadsState(req.dbUser.id, experiment.id);
       experimentEventEmitter.emit("upload-complete", {
         experiment: experimentJson,
         status: postUpload
       });
+      logger.debug(`ExperimentsController#uploadFile: updateAnalysisState`);
       await EventHelper.updateAnalysisState(
         req.dbUser.id,
         experimentJson.id,
         `${config.express.uploadsLocation}/experiments/${experimentJson.id}/file/${resumableFilename}`
       );
+      logger.debug(`ExperimentsController#uploadFile: reassembleChunks ...`);
       return resumable.reassembleChunks(experimentJson.id, resumableFilename, async () => {
         await schedule("now", "call analysis api", {
           file: `${config.express.uploadsLocation}/experiments/${experimentJson.id}/file/${resumableFilename}`,
@@ -343,13 +347,17 @@ const readFile = (req, res) => {
 };
 
 const uploadStatus = async (req, res) => {
+  logger.debug(`ExperimentController#uploadStatus: enter`);
   const experiment = req.experiment;
   try {
-    await resumable.setUploadDirectory(
-      `${config.express.uploadDir}/experiments/${experiment.id}/file`
-    );
+    const uploadDirectory = `${config.express.uploadDir}/experiments/${experiment.id}/file`;
+    logger.debug(`ExperimentController#uploadStatus: uploadDirectory: ${uploadDirectory}`);
+    await resumable.setUploadDirectory(uploadDirectory);
 
     const validateGetRequest = resumable.get(req);
+    logger.debug(
+      `ExperimentController#uploadStatus: validateGetRequest: ${JSON.stringify(validateGetRequest)}`
+    );
     if (validateGetRequest.valid) {
       return res.jsend(validateGetRequest);
     }
