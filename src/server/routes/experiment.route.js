@@ -7,7 +7,9 @@ import experimentController from "../controllers/experiment.controller";
 import userController from "../controllers/user.controller";
 import { ownerOnly } from "../modules/security";
 
-const upload = multer({ dest: "tmp/" });
+import config from "../../config/env";
+
+const upload = multer({ dest: config.express.uploadsTempLocation || "tmp/" });
 const router = express.Router(); // eslint-disable-line new-cap
 const keycloak = AccountsHelper.keycloakInstance();
 
