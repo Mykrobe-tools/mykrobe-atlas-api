@@ -49,7 +49,7 @@ const get = req => {
 // handle post requests
 const post = async req => {
   const files = req.file;
-  logger.debug(`Resumable#post: files: ${JSON.stringify(file, null, 2)}`);
+  logger.debug(`Resumable#post: files: ${JSON.stringify(files, null, 2)}`);
   const status = initialise(req.body);
   logger.debug(`Resumable#post: status: ${JSON.stringify(status, null, 2)}`);
   if (!files.size) {
