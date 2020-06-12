@@ -1,6 +1,6 @@
 {
   "name": "atlas-api",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Atlas RESTful API",
   "author": "Yassire Elhani <yassire@makeandship.com>",
   "main": "src/index.js",
@@ -14,6 +14,7 @@
     "precommit": "yarn prettier && yarn test",
     "serve": "node dist/index.js",
     "start": "yarn build && yarn serve",
+    "start:debug": "yarn build && LOG_LEVEL=debug yarn serve",
     "build": "babel src --out-dir dist",
     "prettier": "prettier --find-config-path --write 'src/**/*.js' 'test/**/*.js'",
     "prettier-watch": "onchange 'src/**/*.js' 'test/**/*.js' -- prettier --write {{changed}}",
