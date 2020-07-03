@@ -53,12 +53,12 @@ steps:
       - name: "ssh"
         path: /root/.ssh
   - name: "gcr.io/cloud-builders/docker"
-    args: ["build", "-t", "$_IMAGE_REPOSITORY:$_BUILD_VERSION", "-f", "deploy/Dockerfile", "."]
+    args: ["build", "-t", "$_IMAGE_REPOSITORY:$SHORT_SHA", "-f", "deploy/Dockerfile", "."]
     volumes:
       - name: "ssh"
         path: /root/.ssh
   - name: "gcr.io/cloud-builders/docker"
-    args: ["push", "$_IMAGE_REPOSITORY:$_BUILD_VERSION"]
+    args: ["push", "$_IMAGE_REPOSITORY:$SHORT_SHA"]
 substitutions:
   _NODE_VERSION: 12.13.0
   _IMAGE_REPOSITORY: eu.gcr.io/atlas-275810/mykrobe-atlas-api
