@@ -76,17 +76,14 @@ steps:
       ]
   - name: gcr.io/cloud-builders/gcloud
     entrypoint: "bash"
-    args: ["-c", "export TOKEN = $(cat ehk-token.txt)"]
-  - name: gcr.io/cloud-builders/gcloud
-    entrypoint: "bash"
     args:
       [
         "-c",
-        "curl",
+        "cat ehk-token.txt | curl",
         "-XPATCH",
         "https://45.86.170.176:6443/apis/apps/v1beta2/namespaces/mykrobe-dev/deployments/atlas-api-deployment",
         "-H",
-        "Authorization: Bearer $TOKEN",
+        "Authorization: Bearer $(</dev/stdin)",
         "-H",
         "Content-type: application/json-patch+json",
         "-d",
