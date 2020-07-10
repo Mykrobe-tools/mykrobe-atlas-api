@@ -81,13 +81,13 @@ steps:
         "-c",
         "curl",
         "-XPATCH",
-        "https://45.86.170.176:6443/apis/apps/v1beta2/namespaces/mykrobe-dev/deployments/atlas-api-deployment" 
-        "-H" 
+        "https://45.86.170.176:6443/apis/apps/v1beta2/namespaces/mykrobe-dev/deployments/atlas-api-deployment",
+        "-H",
         "Authorization: Bearer $TOKEN",
-        "-H", 
+        "-H",
         "Content-type: application/json-patch+json",
         "-d",
-        "[{ \"op\": \"replace\", \"path\": \"/spec/template/spec/containers/0/image\", \"value\": \"eu.gcr.io/atlas-275810/mykrobe-atlas-api:$SHORT_SHA\" }]}",
+        '[{ "op": "replace", "path": "/spec/template/spec/containers/0/image", "value": "eu.gcr.io/atlas-275810/mykrobe-atlas-api:$SHORT_SHA" }]}',
         "--insecure",
       ]
 substitutions:
