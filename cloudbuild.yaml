@@ -75,7 +75,8 @@ steps:
         "gcloud secrets versions access latest --secret=ehk-token --format='get(payload.data)' | tr '_-' '/+' | base64 -d > ehk-token.txt",
       ]
   - name: gcr.io/cloud-builders/gcloud
-    entrypoint: "ls -la ./"
+    entrypoint: "bash"
+    args: ["ls -la ./"]
   - name: gcr.io/cloud-builders/gcloud
     entrypoint: "bash"
     args: ['./cloudbuild-deploy.sh "$_IMAGE_REPOSITORY:$SHORT_SHA"']
