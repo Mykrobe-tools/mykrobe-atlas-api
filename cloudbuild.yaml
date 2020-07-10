@@ -88,7 +88,7 @@ steps:
         "Content-type: application/json-patch+json",
         "-d",
         "[{ \"op\": \"replace\", \"path\": \"/spec/template/spec/containers/0/image\", \"value\": \"eu.gcr.io/atlas-275810/mykrobe-atlas-api:$SHORT_SHA\" }]}",
-        "--insecure"
+        "--insecure",
       ]
 substitutions:
   _NODE_VERSION: 12.13.0
