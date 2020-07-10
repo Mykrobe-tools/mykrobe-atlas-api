@@ -53,15 +53,36 @@ steps:
       - name: "ssh"
         path: /root/.ssh
   - name: "gcr.io/cloud-builders/docker"
-    args: ["build", "-t", "$_IMAGE_REPOSITORY:$SHORT_SHA", "-f", "deploy/Dockerfile", "."]
+    args:
+      [
+        "build",
+        "-t",
+        "$_IMAGE_REPOSITORY:$SHORT_SHA",
+        "-f",
+        "deploy/Dockerfile",
+        ".",
+      ]
     volumes:
       - name: "ssh"
         path: /root/.ssh
   - name: "gcr.io/cloud-builders/docker"
     args: ["push", "$_IMAGE_REPOSITORY:$SHORT_SHA"]
+  - name: gcr.io/cloud-builders/gcloud
+    entrypoint: "bash"
+    args:
+      [
+        "-c",
+        "gcloud secrets versions access latest --secret=ehk-token --format='get(payload.data)' | tr '_-' '/+' | base64 -d > ehk-token.txt",
+      ]
+  - name: gcr.io/cloud-builders/gcloud
+    entrypoint: "bash"
+    args:
+      [
+        "-c",
+        "TOKEN=$(cat ehk-token.txt) && curl -XPATCH https://45.86.170.176:6443/apis/apps/v1beta2/namespaces/mykrobe-dev/deployments/atlas-api-deployment -H "Authorization: Bearer $TOKEN" -H "Content-type: application/json-patch+json" -d "[{ \"op\": \"replace\", \"path\": \"/spec/template/spec/containers/0/image\", \"value\": \"eu.gcr.io/atlas-275810/mykrobe-atlas-api:$SHORT_SHA\" }]" --insecure"
+      ]
 substitutions:
   _NODE_VERSION: 12.13.0
   _IMAGE_REPOSITORY: eu.gcr.io/atlas-275810/mykrobe-atlas-api
   _BITBUCKET_SECRET: ms-bitbucket-readonly
   _GITHUB_SECRET: atlas-jsonschema-readonly
-  _BUILD_VERSION: v0.0.6
