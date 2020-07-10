@@ -76,10 +76,10 @@ steps:
       ]
   - name: gcr.io/cloud-builders/gcloud
     entrypoint: "bash"
-    args: ["ls -la ./"]
+    args: ["ls -la"]
   - name: gcr.io/cloud-builders/gcloud
     entrypoint: "bash"
-    args: ['./cloudbuild-deploy.sh "$_IMAGE_REPOSITORY:$SHORT_SHA"']
+    args: ['cloudbuild-deploy.sh "$_IMAGE_REPOSITORY:$SHORT_SHA"']
 substitutions:
   _NODE_VERSION: 12.13.0
   _IMAGE_REPOSITORY: eu.gcr.io/atlas-275810/mykrobe-atlas-api
