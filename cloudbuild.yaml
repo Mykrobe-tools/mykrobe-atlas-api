@@ -76,7 +76,7 @@ steps:
       ]
   - name: gcr.io/cloud-builders/gcloud
     entrypoint: "bash"
-    args: ["echo $_IMAGE_REPOSITORY:$SHORT_SHA > /workspace/version.txt"]
+    args: ["echo '$_IMAGE_REPOSITORY:$SHORT_SHA' > /workspace/version.txt"]
   - name: gcr.io/cloud-builders/gcloud
     entrypoint: "bash"
     args: ["cloudbuild-deploy.sh"]
