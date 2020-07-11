@@ -72,11 +72,11 @@ steps:
     args:
       [
         "-c",
-        "gcloud secrets versions access latest --secret=ehk-token --format='get(payload.data)' | tr '_-' '/+' | base64 -d > ehk-token.txt",
+        "gcloud secrets versions access latest --secret=ehk-token --format='get(payload.data)' | tr '_-' '/+' | base64 -d > /workspace/ehk-token.txt",
       ]
   - name: gcr.io/cloud-builders/gcloud
     entrypoint: "bash"
-    args: ["echo $_IMAGE_REPOSITORY:$SHORT_SHA > version.txt"]
+    args: ["echo $_IMAGE_REPOSITORY:$SHORT_SHA > /workspace/version.txt"]
   - name: gcr.io/cloud-builders/gcloud
     entrypoint: "bash"
     args: ["cloudbuild-deploy.sh"]
