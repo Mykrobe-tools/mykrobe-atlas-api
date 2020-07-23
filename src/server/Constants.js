@@ -118,5 +118,8 @@ export default {
     }
   },
 
-  ORGANISATION_WHITELIST_FIELDS: ["name"]
+  ORGANISATION_WHITELIST_FIELDS: ["name"],
+
+  RESPONSE_CACHE_IN_SECONDS: 3600, // 1 hr
+  GEO_CACHE_IN_SECONDS: 3600 * 24 // 1 day
 };
