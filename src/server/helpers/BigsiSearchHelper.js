@@ -19,7 +19,8 @@ import ExperimentsResultJSONTransformer from "../transformers/es/ExperimentsResu
 
 import { userEventEmitter } from "../modules/events";
 import { schedule } from "../modules/agenda";
-import EventHelper from "./EventHelper";
+import EventHelper from "./events/EventHelper";
+import logger from "../modules/winston";
 
 const config = require("../../config/env");
 
@@ -130,7 +131,12 @@ class BigsiSearchHelper {
     }
     const searchJson = new SearchJSONTransformer().transform(savedSearch);
     const userJson = new UserJSONTransformer().transform(user);
-    await EventHelper.updateSearchesState(userJson.id, searchJson);
+
+    try {
+      await EventHelper.updateSearchesState(userJson.id, searchJson);
+    } catch (e) {
+      logger.error(`Unable to save search state: ${e}`);
+    }
     // call bigsi via agenda to support retries
     await schedule("now", "call search api", {
       search: searchJson,

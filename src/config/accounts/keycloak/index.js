@@ -1,6 +1,6 @@
 export default {
   admin: {
-    baseUrl: "https://accounts-dev.makeandship.com/auth",
+    baseUrl: process.env.KEYCLOAK_URL,
     username: "admin",
     password: process.env.KEYCLOAK_ADMIN_PASSWORD,
     grantType: "password",

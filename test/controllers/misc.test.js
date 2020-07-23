@@ -1,6 +1,7 @@
 import request from "supertest";
 import httpStatus from "http-status";
-import swaggerParser from "swagger-parser";
+
+import Constants from "../../src/server/Constants";
 
 import { createApp } from "../setup";
 
@@ -39,7 +40,9 @@ describe("Misc", () => {
         .get("/404")
         .expect(httpStatus.NOT_FOUND)
         .end((err, res) => {
-          expect(res.body.message).toEqual("Unknown API route.");
+          expect(res.body.status).toEqual("error");
+          expect(res.body.code).toEqual(Constants.ERRORS.ROUTE_NOT_FOUND);
+          expect(res.body.message).toEqual("Unknown API route");
           done();
         });
     });
@@ -51,7 +54,7 @@ describe("Misc", () => {
         .get("/users/56z787zzz67fc")
         .expect(httpStatus.INTERNAL_SERVER_ERROR)
         .end((err, res) => {
-          expect(res.body.code).toEqual(10001);
+          expect(res.body.code).toEqual(Constants.ERRORS.GET_USER);
           expect(res.body.message).toEqual(
             'Cast to ObjectId failed for value "56z787zzz67fc" at path "_id" for model "User"'
           );

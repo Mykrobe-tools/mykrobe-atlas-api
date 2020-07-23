@@ -1,5 +1,4 @@
 import mongoose from "mongoose";
-import errors from "errors";
 
 import { audit as auditJsonSchema } from "mykrobe-atlas-jsonschema";
 

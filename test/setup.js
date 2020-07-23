@@ -4,7 +4,6 @@ import MongodbMemoryServer from "mongodb-memory-server";
 import http from "http";
 import mockserver from "mockserver";
 import config from "../src/config/env";
-import errorsDefinition from "../src/config/errors-definition";
 import { mockThirdPartyCalls } from "./mocks";
 import {
   stubTreeApi,
@@ -14,14 +13,11 @@ import {
   stubSearchApi
 } from "../src/external";
 
-require("../src/express-jsend");
 jest.mock("../src/server/modules/agenda");
 const createApp = require("../src/server/app");
 
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 60000;
 let mongoServer;
-
-errorsDefinition.create();
 
 // mocked servers
 const elasticsearchMockServer = http.createServer(mockserver(`${__dirname}/mocks`));

@@ -1,8 +1,12 @@
 import express from "express";
+import multer from "multer";
 import dataController from "../controllers/data.controller";
 import AccountsHelper from "../helpers/AccountsHelper";
 
+import config from "../../config/env";
+
 const router = express.Router(); // eslint-disable-line new-cap
+const upload = multer({ dest: config.express.uploadsTempLocation || "tmp/" });
 const keycloak = AccountsHelper.keycloakInstance();
 /**
  * @swagger
@@ -51,7 +55,7 @@ router.route("/create").post(dataController.create);
 
 /**
  * @swagger
- * /data/demo/{folder}:
+ * /data/demo:
  *   post:
  *     tags:
  *       - Data
@@ -59,21 +63,15 @@ router.route("/create").post(dataController.create);
  *     produces:
  *       - application/json
  *     parameters:
- *       - in: path
- *         name: folder
- *         required: true
- *         type: string
- *         description: The folder name to load from
  *       - in: body
- *         name: purge
- *         description: A flag to purge existing experiments
+ *         name: file
+ *         description: The csv file name
  *         schema:
  *           type: object
  *           properties:
- *             purge:
- *               type: boolean
- *           example:
- *             purge: true
+ *             file:
+ *               type: string
+ *               format: binary
  *     security:
  *       - Bearer: []
  *     responses:
@@ -82,6 +80,8 @@ router.route("/create").post(dataController.create);
  *         schema:
  *           $ref: '#/definitions/BasicResponse'
  */
-router.route("/demo/:folder").post(keycloak.connect.protect(), dataController.loadDemo);
+router
+  .route("/demo")
+  .post(keycloak.connect.protect(), upload.single("file"), dataController.loadDemo);
 
 export default router;

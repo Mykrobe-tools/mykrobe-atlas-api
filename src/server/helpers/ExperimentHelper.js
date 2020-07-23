@@ -1,7 +1,23 @@
 import logger from "../modules/winston";
 import { geocode } from "../modules/geo";
 
+import config from "../../config/env";
+
 class ExperimentHelper {
+  static localiseFilepathForAnalysisApi(filepath) {
+    if (filepath) {
+      const atlasApiDir = config.express.uploadsLocation;
+      const analysisApiDir = config.express.analysisApiDir;
+
+      if (atlasApiDir && analysisApiDir) {
+        return filepath.replace(atlasApiDir, analysisApiDir);
+      }
+
+      return filepath;
+    }
+
+    return null;
+  }
   static async enhanceWithGeocode(experiment) {
     const o = typeof experiment.toObject === "function" ? experiment.toObject() : experiment;
     if (o.metadata && o.metadata.sample) {

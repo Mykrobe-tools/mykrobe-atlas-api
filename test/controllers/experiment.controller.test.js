@@ -851,6 +851,7 @@ describe("ExperimentController", () => {
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
+          expect(res.body.code).toEqual(Constants.ERRORS.GET_EXPERIMENT);
           expect(res.body.message).toEqual("Experiment not found with id 589dcdd38d71fee259dc4e00");
           done();
         });
@@ -872,6 +873,7 @@ describe("ExperimentController", () => {
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
+          expect(res.body.code).toEqual(Constants.ERRORS.UPLOAD_FILE);
           expect(res.body.message).toEqual("No files found to upload");
           done();
         });
@@ -894,6 +896,7 @@ describe("ExperimentController", () => {
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
+          expect(res.body.code).toEqual(Constants.ERRORS.UPLOAD_FILE);
           expect(res.body.data.complete).toEqual(false);
           expect(res.body.data.message).toEqual(
             "Uploaded file checksum doesn't match original checksum"
@@ -919,6 +922,8 @@ describe("ExperimentController", () => {
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
+          expect(res.body.code).toEqual(Constants.ERRORS.UPLOAD_FILE);
+          expect(res.body.message).toEqual("Error uploading file");
           expect(res.body.data.complete).toEqual(false);
           expect(res.body.data.message).toEqual("Incorrect individual chunk size");
           done();
@@ -937,6 +942,8 @@ describe("ExperimentController", () => {
           .expect(httpStatus.OK)
           .end((err, res) => {
             expect(res.body.status).toEqual("error");
+            expect(res.body.code).toEqual(Constants.ERRORS.VALIDATION_ERROR);
+            expect(res.body.message).toEqual("Unable to upload experiment");
             expect(res.body.data.errors.provider.message).toEqual(
               "should be equal to one of the allowed values"
             );
@@ -1653,7 +1660,8 @@ describe("ExperimentController", () => {
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
-          expect(res.body.data).toEqual("No file found for this Experiment");
+          expect(res.body.code).toEqual(Constants.ERRORS.GET_EXPERIMENT);
+          expect(res.body.message).toEqual("Error reading file");
           done();
         });
     });
@@ -1756,7 +1764,7 @@ describe("ExperimentController", () => {
 
           const predictor = res.body.data.results["predictor"];
 
-          expect(Object.keys(predictor.susceptibility).length).toEqual(9);
+          expect(Object.keys(predictor.susceptibility).length).toEqual(11);
           expect(Object.keys(predictor.phylogenetics).length).toEqual(4);
           expect(predictor.variantCalls).toBeFalsy();
           expect(predictor.sequenceCalls).toBeFalsy();
@@ -1833,7 +1841,8 @@ describe("ExperimentController", () => {
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
-          expect(res.body.message).toEqual("Invalid result type.");
+          expect(res.body.code).toEqual(Constants.ERRORS.UPDATE_EXPERIMENT_RESULTS);
+          expect(res.body.message).toEqual("Invalid result type");
           done();
         });
     });
@@ -2873,6 +2882,20 @@ describe("ExperimentController", () => {
             done();
           });
       });
+    });
+  });
+
+  describe("# GET /experiments/mappings", () => {
+    it("should get the experiments mappings with isolate ids", done => {
+      request(app)
+        .get("/experiments/mappings")
+        .set("Authorization", `Bearer ${token}`)
+        .expect(httpStatus.OK)
+        .end((err, res) => {
+          expect(res.body.status).toEqual("success");
+          expect(res.body.data["9c0c00f2-8cb1-4254-bf53-3271f35ce696"]).toEqual(id);
+          done();
+        });
     });
   });
 });

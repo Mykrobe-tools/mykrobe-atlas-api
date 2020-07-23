@@ -10,10 +10,11 @@ import Search from "../../src/server/models/search.model";
 import Experiment from "../../src/server/models/experiment.model";
 import Event from "../../src/server/models/event.model";
 
+import Constants from "../../src/server/Constants";
+
 import users from "../fixtures/users";
 import searches from "../fixtures/searches";
 import experiments from "../fixtures/experiments";
-
 import MDR from "../fixtures/files/MDR_Results.json";
 
 const app = createApp();
@@ -86,6 +87,8 @@ describe("UserController", () => {
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
+          expect(res.body.code).toEqual(Constants.ERRORS.VALIDATION_ERROR);
+          expect(res.body.message).toEqual("Unable to create user");
           expect(res.body.data.errors.username.message).toEqual(
             "should have required property 'username'"
           );
@@ -105,7 +108,8 @@ describe("UserController", () => {
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
-          expect(res.body.data).toEqual("Please provide a password");
+          expect(res.body.code).toEqual(Constants.ERRORS.CREATE_USER);
+          expect(res.body.message).toEqual("Please provide a password");
           done();
         });
     });
@@ -124,7 +128,7 @@ describe("UserController", () => {
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
-          expect(res.body.code).toEqual("ValidationError");
+          expect(res.body.code).toEqual(Constants.ERRORS.CREATE_USER);
           expect(res.body.message).toEqual(
             "User validation failed: username: admin@nhs.co.uk has already been registered"
           );
@@ -146,7 +150,10 @@ describe("UserController", () => {
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
-          expect(res.body.data).toEqual("Invalid username");
+          expect(res.body.code).toEqual(Constants.ERRORS.CREATE_USER);
+          expect(res.body.message).toEqual("Invalid username");
+          expect(res.body.data).toHaveProperty("errors");
+          expect(res.body.data.errors).toHaveProperty("username");
           done();
         });
     });
@@ -401,7 +408,7 @@ describe("UserController", () => {
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
-          expect(res.body.code).toEqual("ValidationError");
+          expect(res.body.code).toEqual(Constants.ERRORS.UPDATE_USER);
           expect(res.body.message).toEqual("User validation failed");
           done();
         });
@@ -469,6 +476,7 @@ describe("UserController", () => {
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
+          expect(res.body.code).toEqual(Constants.ERRORS.VALIDATION_ERROR);
           expect(res.body.data.errors.email.message).toEqual(
             "should have required property 'email'"
           );
@@ -485,6 +493,7 @@ describe("UserController", () => {
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
+          expect(res.body.code).toEqual(Constants.ERRORS.VALIDATION_ERROR);
           expect(res.body.data.errors.email.message).toEqual('should match format "email"');
           done();
         });
@@ -497,8 +506,8 @@ describe("UserController", () => {
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
-          expect(res.body.code).toEqual(10006);
-          expect(res.body.message).toEqual("The object requested was not found.");
+          expect(res.body.code).toEqual(Constants.ERRORS.FORGOT_PASSWORD);
+          expect(res.body.message).toEqual("User not found with email invalid@email.com");
           done();
         });
     });
@@ -560,7 +569,7 @@ describe("UserController", () => {
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
-          expect(res.body.message).toEqual("The object requested was not found.");
+          expect(res.body.message).toEqual("User not found with email invalid@nhs.co.uk");
           done();
         });
     });
@@ -599,7 +608,7 @@ describe("UserController", () => {
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
-          expect(res.body.message).toEqual("You are not allowed to perform this action.");
+          expect(res.body.message).toEqual("You are not allowed to perform that operation");
           done();
         });
     });

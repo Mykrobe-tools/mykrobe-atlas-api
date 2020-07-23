@@ -1,5 +1,7 @@
 import SearchEventJSONTransformer from "./SearchEventJSONTransformer";
 
+import Constants from "../../Constants";
+
 /**
  * A class to transform a protein variant started payload
  */
@@ -14,7 +16,7 @@ class ProteinVariantSearchCompleteEventJSONTransformer extends SearchEventJSONTr
   transform(o, options) {
     const res = super.transform(o, options);
 
-    res.event = "Protein variant search complete";
+    res.event = Constants.EVENTS.PROTEIN_VARIANT_SEARCH_COMPLETE.NAME;
 
     return res;
   }

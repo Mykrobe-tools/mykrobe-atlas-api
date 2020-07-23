@@ -1,8 +1,8 @@
-import errors from "errors";
 import httpStatus from "http-status";
 import mkdirp from "mkdirp-promise";
 import Promise from "bluebird";
 
+import { ValidationError, ErrorUtil, APIError } from "makeandship-api-common/lib/modules/error";
 import { ElasticService } from "makeandship-api-common/lib/modules/elasticsearch/";
 import ArrayJSONTransformer from "makeandship-api-common/lib/transformers/ArrayJSONTransformer";
 import SearchResultsJSONTransformer from "makeandship-api-common/lib/modules/elasticsearch/transformers/SearchResultsJSONTransformer";
@@ -26,13 +26,13 @@ import resumable from "../modules/resumable";
 import { schedule } from "../modules/agenda";
 import { experimentEventEmitter, userEventEmitter } from "../modules/events";
 import { parseQuery, callTreeApi } from "../modules/search";
-import winston from "../modules/winston";
+import logger from "../modules/winston";
 
-import APIError from "../helpers/APIError";
 import DownloadersFactory from "../helpers/DownloadersFactory";
 import BigsiSearchHelper from "../helpers/BigsiSearchHelper";
 import ResultsParserFactory from "../helpers/results/ResultsParserFactory";
-import EventHelper from "../helpers/EventHelper";
+import EventHelper from "../helpers/events/EventHelper";
+import EventProgress from "../helpers/events/EventProgress";
 
 import AuditJSONTransformer from "../transformers/AuditJSONTransformer";
 import ExperimentJSONTransformer from "../transformers/ExperimentJSONTransformer";
@@ -102,7 +102,7 @@ const create = async (req, res) => {
     await elasticService.indexDocument(savedExperiment);
     return res.jsend(savedExperiment);
   } catch (e) {
-    return res.jerror(new errors.CreateExperimentError(e.message));
+    return res.jerror(ErrorUtil.convert(e, Constants.ERRORS.CREATE_EXPERIMENT));
   }
 };
 
@@ -124,7 +124,7 @@ const update = async (req, res) => {
     await elasticService.updateDocument(savedExperiment);
     return res.jsend(savedExperiment);
   } catch (e) {
-    return res.jerror(new errors.UpdateExperimentError(e.message));
+    return res.jerror(ErrorUtil.convert(e, Constants.ERRORS.UPDATE_EXPERIMENT));
   }
 };
 
@@ -157,7 +157,7 @@ const remove = async (req, res) => {
     await elasticService.deleteDocument(experiment.id);
     return res.jsend("Experiment was successfully deleted.");
   } catch (e) {
-    return res.jerror(e);
+    return res.jerror(ErrorUtil.convert(e, Constants.ERRORS.DELETE_EXPERIMENT));
   }
 };
 
@@ -175,7 +175,7 @@ const metadata = async (req, res) => {
     await elasticService.updateDocument(savedExperiment);
     return res.jsend(savedExperiment);
   } catch (e) {
-    return res.jerror(new errors.UpdateExperimentError(e.message));
+    return res.jerror(ErrorUtil.convert(e, Constants.ERRORS.UPDATE_EXPERIMENT));
   }
 };
 
@@ -189,7 +189,9 @@ const results = async (req, res) => {
 
   const parser = await ResultsParserFactory.create(req.body);
   if (!parser) {
-    return res.jerror(new errors.UpdateExperimentError("Invalid result type."));
+    return res.jerror(
+      new APIError(Constants.ERRORS.UPDATE_EXPERIMENT_RESULTS, "Invalid result type")
+    );
   }
 
   const result = parser.parse(req.body);
@@ -201,7 +203,6 @@ const results = async (req, res) => {
   }
 
   updatedResults.push(result);
-
   experiment.set("results", updatedResults);
 
   try {
@@ -215,16 +216,18 @@ const results = async (req, res) => {
     const auditJSON = audit ? new AuditJSONTransformer().transform(audit) : null;
 
     await EventHelper.clearAnalysisState(savedExperiment.id);
+
     experimentEventEmitter.emit("analysis-complete", {
       audit: auditJSON,
       experiment: experimentJSON,
       type: result.type,
-      subType: result.subType
+      subType: result.subType,
+      fileLocation: result.files
     });
 
     return res.jsend(savedExperiment);
   } catch (e) {
-    return res.jerror(new errors.UpdateExperimentError(e.message));
+    return res.jerror(ErrorUtil.convert(e, Constants.ERRORS.UPDATE_EXPERIMENT_RESULTS));
   }
 };
 
@@ -263,41 +266,55 @@ const uploadFile = async (req, res) => {
 
       return res.jsend(`Download started from ${req.body.provider}`);
     } catch (e) {
-      return res.jerror(new errors.UploadFileError(e.message));
+      return res.jerror(ErrorUtil.convert(e, Constants.ERRORS.UPLOAD_FILE));
     }
   }
 
   // no file provided to upload
   if (!req.file) {
-    return res.jerror(new errors.UploadFileError("No files found to upload"));
+    return res.jerror(new APIError(Constants.ERRORS.UPLOAD_FILE, "No files found to upload"));
   }
 
   // from local file
   try {
     const experimentJson = new ExperimentJSONTransformer().transform(req.experiment);
     const resumableFilename = req.body.resumableFilename;
-
-    await resumable.setUploadDirectory(
-      `${config.express.uploadDir}/experiments/${experiment.id}/file`
-    );
+    const uploadDirectory = `${config.express.uploadDir}/experiments/${experiment.id}/file`;
+    logger.debug(`ExperimentsController#uploadFile: uploadDirectory: ${uploadDirectory}`);
+    await resumable.setUploadDirectory(uploadDirectory);
     const postUpload = await resumable.post(req);
     if (!postUpload.complete) {
-      await EventHelper.updateUploadsState(req.dbUser.id, experiment.id, postUpload);
-      experimentEventEmitter.emit("upload-progress", {
-        experiment: experimentJson,
-        status: postUpload
-      });
+      logger.debug(`ExperimentsController#uploadFile: more`);
+      const currentProgress = EventProgress.get(postUpload);
+      // only update progress for each percent change
+      const diff = EventProgress.diff(postUpload.id, postUpload);
+      logger.debug(`ExperimentsController#uploadFile: diff: ${JSON.stringify(diff, null, 2)}`);
+      if (diff > 1 || !currentProgress) {
+        try {
+          await EventHelper.updateUploadsState(req.dbUser.id, experiment.id, postUpload);
+        } catch (e) {
+          logger.error(`Unable to store upload state: ${JSON.stringify(e, null, 2)}`);
+        }
+        experimentEventEmitter.emit("upload-progress", {
+          experiment: experimentJson,
+          status: postUpload
+        });
+        EventProgress.update(postUpload.id, postUpload);
+      }
     } else {
+      logger.debug(`ExperimentsController#uploadFile: complete`);
       await EventHelper.clearUploadsState(req.dbUser.id, experiment.id);
       experimentEventEmitter.emit("upload-complete", {
         experiment: experimentJson,
         status: postUpload
       });
+      logger.debug(`ExperimentsController#uploadFile: updateAnalysisState`);
       await EventHelper.updateAnalysisState(
         req.dbUser.id,
         experimentJson.id,
         `${config.express.uploadsLocation}/experiments/${experimentJson.id}/file/${resumableFilename}`
       );
+      logger.debug(`ExperimentsController#uploadFile: reassembleChunks ...`);
       return resumable.reassembleChunks(experimentJson.id, resumableFilename, async () => {
         await schedule("now", "call analysis api", {
           file: `${config.express.uploadsLocation}/experiments/${experimentJson.id}/file/${resumableFilename}`,
@@ -308,9 +325,11 @@ const uploadFile = async (req, res) => {
         return res.jsend("File uploaded and reassembled");
       });
     }
-    return res.jerror(postUpload);
-  } catch (err) {
-    return res.jerror(new errors.UploadFileError(err.message));
+    return res.jerror(
+      new APIError(Constants.ERRORS.UPLOAD_FILE, "Error uploading file", postUpload)
+    );
+  } catch (e) {
+    return res.jerror(ErrorUtil.convert(e, Constants.ERRORS.UPLOAD_FILE));
   }
 };
 
@@ -323,24 +342,34 @@ const readFile = (req, res) => {
     const path = `${config.express.uploadDir}/experiments/${experiment.id}/file`;
     return res.sendFile(`${path}/${experiment.file}`);
   }
-  return res.jerror("No file found for this Experiment");
+
+  return res.jerror(new APIError(Constants.ERRORS.GET_EXPERIMENT, "Error reading file"));
 };
 
 const uploadStatus = async (req, res) => {
+  logger.debug(`ExperimentController#uploadStatus: enter`);
   const experiment = req.experiment;
   try {
-    await resumable.setUploadDirectory(
-      `${config.express.uploadDir}/experiments/${experiment.id}/file`
-    );
+    const uploadDirectory = `${config.express.uploadDir}/experiments/${experiment.id}/file`;
+    logger.debug(`ExperimentController#uploadStatus: uploadDirectory: ${uploadDirectory}`);
+    await resumable.setUploadDirectory(uploadDirectory);
 
     const validateGetRequest = resumable.get(req);
+    logger.debug(
+      `ExperimentController#uploadStatus: validateGetRequest: ${JSON.stringify(validateGetRequest)}`
+    );
     if (validateGetRequest.valid) {
       return res.jsend(validateGetRequest);
     }
-    const error = new APIError(validateGetRequest.message, httpStatus.NO_CONTENT);
+    const error = new APIError(
+      Constants.ERRORS.UPLOAD_FILE,
+      validateGetRequest.message,
+      null,
+      httpStatus.NO_CONTENT
+    );
     return res.jerror(error);
-  } catch (err) {
-    return res.jerror(new errors.UploadFileError(err.message));
+  } catch (e) {
+    return res.jerror(ErrorUtil.convert(e, Constants.ERRORS.UPLOAD_FILE));
   }
 };
 
@@ -374,7 +403,7 @@ const reindex = async (req, res) => {
     }
     return res.jsend(`All ${pagination.count} experiment(s) have been indexed.`);
   } catch (e) {
-    return res.jerror(e.message);
+    return res.jerror(ErrorUtil.convert(e, Constants.ERRORS.REINDEX_EXPERIMENTS));
   }
 };
 
@@ -400,7 +429,7 @@ const choices = async (req, res) => {
 
     return res.jsend(choices);
   } catch (e) {
-    return res.jerror(new errors.SearchMetadataValuesError(e.message));
+    return res.jerror(ErrorUtil.convert(e, Constants.ERRORS.SEARCH_METADATA_VALUES));
   }
 };
 
@@ -450,7 +479,7 @@ const search = async (req, res) => {
       return res.jsend(results);
     }
   } catch (e) {
-    return res.jerror(new errors.SearchMetadataValuesError(e.message));
+    return res.jerror(ErrorUtil.convert(e, Constants.ERRORS.SEARCH_METADATA_VALUES));
   }
 };
 
@@ -537,6 +566,16 @@ const refreshResults = async (req, res) => {
   return res.jsend("Update of existing results triggered");
 };
 
+const mappings = async (req, res) => {
+  const experiments = await Experiment.list();
+  const result = {};
+  experiments.forEach(experiment => {
+    const metadata = experiment.get("metadata");
+    result[metadata.sample.isolateId] = experiment.id;
+  });
+  return res.jsend(result);
+};
+
 export default {
   load,
   get,
@@ -554,5 +593,6 @@ export default {
   search,
   listResults,
   tree,
-  refreshResults
+  refreshResults,
+  mappings
 };

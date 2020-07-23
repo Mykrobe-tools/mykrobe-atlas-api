@@ -1,5 +1,8 @@
 import httpStatus from "http-status";
-import APIError from "../helpers/APIError";
+
+import { APIError } from "makeandship-api-common/lib/modules/error";
+
+import Constants from "../Constants";
 
 const ownerOnly = (req, res, next) => {
   const loggedInUserId = req.dbUser && req.dbUser.id;
@@ -8,7 +11,12 @@ const ownerOnly = (req, res, next) => {
     return next();
   }
   return res.jerror(
-    new APIError("Only the owner can edit this experiment", httpStatus.UNAUTHORIZED)
+    new APIError(
+      Constants.ERRORS.NOT_ALLOWED,
+      "Only the owner can edit this experiment",
+      null,
+      httpStatus.UNAUTHORIZED
+    )
   );
 };
 

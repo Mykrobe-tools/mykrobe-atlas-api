@@ -1,9 +1,11 @@
 import fs from "fs";
 import _ from "lodash";
 import faker from "faker";
+import httpStatus from "http-status";
 import * as schemas from "mykrobe-atlas-jsonschema";
 import Randomizer from "makeandship-api-common/lib/modules/schema-faker/Randomizer";
 import { getRandomPercentage } from "makeandship-api-common/lib/modules/schema-faker/utils";
+import { APIError } from "makeandship-api-common/lib/modules/error";
 import User from "../models/user.model";
 import Experiment from "../models/experiment.model";
 import phylogenetics from "../../config/faker/phylogenetics-choices";
@@ -125,17 +127,23 @@ const generatePhylogenetics = (
  * @returns {*}
  */
 const loadDemo = async (req, res) => {
-  const folder = req.params.folder;
   const purge = req.body.purge;
-  if (purge === true) {
+
+  if (!req.file) {
+    return res.jerror(new APIError("No file provided to upload", httpStatus.OK));
+  }
+
+  if (!req.file.originalname.includes(".tsv") && !req.file.originalname.includes(".csv")) {
+    return res.jerror(new APIError("Must be a csv file", httpStatus.OK));
+  }
+
+  if (purge === "true") {
     await Experiment.deleteMany({});
   }
 
   try {
-    await DataHelper.load(`${config.express.demoDataRootFolder}/${folder}`);
-    return res.jsend(
-      `Demo data upload started from ${config.express.demoDataRootFolder}/${folder}`
-    );
+    await DataHelper.load(req.file.path);
+    return res.jsend("Demo data upload started");
   } catch (e) {
     return res.jerror(e);
   }

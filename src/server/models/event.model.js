@@ -1,5 +1,4 @@
 import mongoose from "mongoose";
-import errors from "errors";
 
 import { event as eventJsonSchema } from "mykrobe-atlas-jsonschema";
 
