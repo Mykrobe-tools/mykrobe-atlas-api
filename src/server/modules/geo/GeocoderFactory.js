@@ -1,6 +1,12 @@
 import GoogleGeocoder from "./GoogleGeocoder";
+import LocationIQGeocoder from "./LocationIQGeocoder";
 
 class GeocoderFactory {
+  /**
+   * Get node-geocoder options based on a config
+   *
+   * @param {*} config
+   */
   static getOptions(config) {
     if (config) {
       if (config.google && config.google.apiKey) {
@@ -23,15 +29,20 @@ class GeocoderFactory {
     return null;
   }
 
+  /**
+   * Get a geocoder based on a config
+   *
+   * @param {*} config
+   */
   static getGeocoder(config) {
     const options = this.getOptions(config);
     if (options && options.provider) {
-      switch (provider) {
+      switch (options.provider) {
         case "google": {
           return new GoogleGeocoder(options);
         }
         case "locationiq": {
-          return new GoogleGeocoder(options);
+          return new LocationIQGeocoder(options);
         }
       }
     }

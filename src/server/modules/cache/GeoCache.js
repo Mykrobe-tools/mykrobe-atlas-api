@@ -1,17 +1,19 @@
+import Constants from "../../Constants";
+import CacheHelper from "./CacheHelper";
 import Cache from "./Cache";
 
 const PREFIX = "geo";
 
 class GeoCache {
   getKey(location) {
-    const key = typeof location === "object" ? JSON.stringify(location) : location;
+    const key = typeof location === "object" ? CacheHelper.getObjectHash(location) : location;
 
     return `${PREFIX}-${key}`;
   }
 
   setLocation(locationKey, location, expiry = Constants.GEO_CACHE_IN_SECONDS) {
     const key = this.getKey(locationKey);
-    Cache.setJson(key, location);
+    Cache.setJson(key, location, expiry);
   }
 
   async getLocation(location) {

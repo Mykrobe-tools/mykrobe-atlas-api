@@ -2,7 +2,7 @@ import Geocoder from "./Geocoder";
 
 class LocationIQGeocoder extends Geocoder {
   async search(address) {
-    if (address && this.impl) {
+    if (this.isValidAddress(address) && this.impl) {
       const query = {};
       if (address.countryCode) {
         query.country = address.countryCode;
@@ -10,16 +10,10 @@ class LocationIQGeocoder extends Geocoder {
       if (address.city) {
         query.city = address.city;
       }
-
       const matches = await this.impl.geocode(query);
-
       return matches;
     }
 
-    return null;
-  }
-
-  getCoordinates(address, matches) {
     return null;
   }
 }

@@ -1,4 +1,6 @@
 import GeocoderFactory from "../../../src/server/modules/geo/GeocoderFactory";
+import GoogleGeocoder from "../../../src/server/modules/geo/GoogleGeocoder";
+import LocationIQGeocoder from "../../../src/server/modules/geo/LocationIQGeocoder";
 
 describe("GeocoderFactory", () => {
   describe("#getOptions", () => {
@@ -49,7 +51,7 @@ describe("GeocoderFactory", () => {
         geocoder = GeocoderFactory.getGeocoder(config);
       });
       it("should return a Google geocoder", () => {
-        expect(typeof geocoder).toEqual("google");
+        expect(geocoder instanceof GoogleGeocoder).toEqual(true);
       });
     });
     describe("when LocationIQ", () => {
@@ -62,8 +64,8 @@ describe("GeocoderFactory", () => {
         };
         geocoder = GeocoderFactory.getGeocoder(config);
       });
-      it("should return a Google geocoder", () => {
-        expect(typeof geocoder).toEqual("google");
+      it("should return a LocationIQ geocoder", () => {
+        expect(geocoder instanceof LocationIQGeocoder).toEqual(true);
       });
     });
   });
