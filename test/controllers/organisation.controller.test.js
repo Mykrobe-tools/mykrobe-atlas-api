@@ -8,6 +8,8 @@ import Organisation from "../../src/server/models/organisation.model";
 import Member from "../../src/server/models/member.model";
 import OrganisationHelper from "../../src/server/helpers/OrganisationHelper";
 
+import Constants from "../../src/server/Constants";
+
 const app = createApp();
 
 const users = require("../fixtures/users");
@@ -42,32 +44,93 @@ afterEach(async done => {
 
 describe("OrganisationController", () => {
   describe("# POST /organisations", () => {
-    it("should create a new organisation", done => {
-      request(app)
-        .post("/organisations")
-        .set("Authorization", `Bearer ${token}`)
-        .send({ name: "Make and Ship" })
-        .expect(httpStatus.OK)
-        .end((err, res) => {
-          expect(res.body.status).toEqual("success");
-          expect(res.body.data.name).toEqual("Make and Ship");
-          expect(res.body.data.slug).toEqual("make-and-ship");
-          expect(res.body.data.ownersGroupId).toEqual("46e23392-1773-4ab0-9f54-14eb2200d077");
-          done();
-        });
+    describe("when valid", () => {
+      it("should create a new organisation", done => {
+        request(app)
+          .post("/organisations")
+          .set("Authorization", `Bearer ${token}`)
+          .send({ name: "Make and Ship" })
+          .expect(httpStatus.OK)
+          .end((err, res) => {
+            expect(res.body.status).toEqual("success");
+            expect(res.body.data.name).toEqual("Make and Ship");
+            expect(res.body.data.slug).toEqual("make-and-ship");
+            expect(res.body.data.ownersGroupId).toEqual("46e23392-1773-4ab0-9f54-14eb2200d077");
+            done();
+          });
+      });
     });
-
-    it("should work only for authenticated users", done => {
-      request(app)
-        .post("/organisations")
-        .set("Authorization", "Bearer INVALID_TOKEN")
-        .send({ name: "Make and Ship" })
-        .expect(httpStatus.UNAUTHORIZED)
-        .end((err, res) => {
-          expect(res.body.status).toEqual("error");
-          expect(res.body.message).toEqual("Not Authorised");
-          done();
+    describe("when not valid", () => {
+      describe("when the user is not authenticated", () => {
+        it("should return an error", done => {
+          request(app)
+            .post("/organisations")
+            .set("Authorization", "Bearer INVALID_TOKEN")
+            .send({ name: "Make and Ship" })
+            .expect(httpStatus.UNAUTHORIZED)
+            .end((err, res) => {
+              expect(res.body.status).toEqual("error");
+              expect(res.body.code).toEqual(Constants.ERRORS.NOT_ALLOWED);
+              expect(res.body.message).toEqual("Not Authorised");
+              done();
+            });
         });
+      });
+      describe("when the organisation already exists", () => {
+        describe("when the name already exists", () => {
+          it("should return an error", done => {
+            request(app)
+              .post("/organisations")
+              .set("Authorization", `Bearer ${token}`)
+              .send({ name: "Make and Ship" })
+              .expect(httpStatus.UNAUTHORIZED)
+              .end((err, res) => {
+                expect(res.body.status).toEqual("success");
+                request(app)
+                  .post("/organisations")
+                  .set("Authorization", `Bearer ${token}`)
+                  .send({ name: "Make and Ship" })
+                  .expect(httpStatus.UNAUTHORIZED)
+                  .end((err, res) => {
+                    expect(res.body.status).toEqual("error");
+                    expect(res.body.code).toEqual(Constants.ERRORS.CREATE_ORGANISATION);
+                    expect(res.body.data).toHaveProperty("errors");
+                    expect(res.body.data.errors).toHaveProperty("name");
+                    expect(res.body.data.errors.name).toHaveProperty(
+                      "message",
+                      "Organisation already exists with name Make and Ship"
+                    );
+                    done();
+                  });
+              });
+          });
+        });
+        describe("when the slug already exists", () => {
+          it("should return an error", async done => {
+            const organisation = new Organisation();
+            organisation.name = "Another organisation";
+            organisation.slug = "make-and-ship";
+            await organisation.save();
+
+            request(app)
+              .post("/organisations")
+              .set("Authorization", `Bearer ${token}`)
+              .send({ name: "Make and Ship" })
+              .expect(httpStatus.UNAUTHORIZED)
+              .end((err, res) => {
+                expect(res.body.status).toEqual("error");
+                expect(res.body.code).toEqual(Constants.ERRORS.CREATE_ORGANISATION);
+                expect(res.body.data).toHaveProperty("errors");
+                expect(res.body.data.errors).toHaveProperty("slug");
+                expect(res.body.data.errors.slug).toHaveProperty(
+                  "message",
+                  "An organisation with slug make-and-ship has been used in the past and cannot be used again"
+                );
+                done();
+              });
+          });
+        });
+      });
     });
   });
 
@@ -152,6 +215,53 @@ describe("OrganisationController", () => {
           done();
         });
     });
+    describe("when trying to update blacklisted fields", () => {
+      beforeEach(async done => {
+        const member = await OrganisationHelper.createMember(user);
+        organisation.owners.push(member);
+        await organisation.save();
+        done();
+      });
+      it("should only update the whitelisted fields", done => {
+        const data = {
+          owners: [
+            {
+              userId: "5e1da2eff1bf751cf6d5ba69",
+              firstname: "David",
+              lastname: "Robin",
+              phone: "06734929442",
+              username: "admin@nhs.co.uk",
+              email: "admin@nhs.co.uk",
+              id: "5e1da2eff1bf751cf6d5ba6b"
+            }
+          ],
+          members: [],
+          unapprovedMembers: [],
+          rejectedMembers: [],
+          name: "Make and Ship",
+          membersGroupId: "46e23392-1773-4ab0-9f54-14eb2200d077",
+          ownersGroupId: "46e23392-1773-4ab0-9f54-14eb2200d077",
+          id: "5e1da2eff1bf751cf6d5ba6a"
+        };
+        request(app)
+          .put(`/organisations/${id}`)
+          .set("Authorization", `Bearer ${token}`)
+          .send(data)
+          .expect(httpStatus.OK)
+          .end(() => {
+            request(app)
+              .get(`/organisations/${id}`)
+              .set("Authorization", `Bearer ${token}`)
+              .expect(httpStatus.OK)
+              .end((err, res) => {
+                expect(Array.isArray(res.body.data.owners)).toBe(true);
+                expect(res.body.data.owners.length).toEqual(1);
+                expect(res.body.data.name).toEqual("Make and Ship");
+                done();
+              });
+          });
+      });
+    });
   });
 
   describe("# GET /organisations", () => {
@@ -205,6 +315,7 @@ describe("OrganisationController", () => {
           .expect(httpStatus.UNAUTHORIZED)
           .end((err, res) => {
             expect(res.body.status).toEqual("error");
+            expect(res.body.code).toEqual(Constants.ERRORS.NOT_ALLOWED);
             expect(res.body.message).toEqual("Not Authorised");
             done();
           });
@@ -218,7 +329,8 @@ describe("OrganisationController", () => {
           .expect(httpStatus.OK)
           .end((err, res) => {
             expect(res.body.status).toEqual("success");
-            expect(res.body.data).toEqual("Request sent, waiting for approval.");
+            expect(res.body.data.id).toEqual(id);
+            expect(res.body.data.unapprovedMembers.length).toEqual(1);
             done();
           });
       });
@@ -237,7 +349,8 @@ describe("OrganisationController", () => {
           .expect(httpStatus.OK)
           .end((err, res) => {
             expect(res.body.status).toEqual("error");
-            expect(res.body.data).toEqual("You are already in the unapprovedMembers list");
+            expect(res.body.code).toEqual(Constants.ERRORS.JOIN_ORGANISATION);
+            expect(res.body.message).toEqual("You are already in the unapprovedMembers list");
             done();
           });
       });
@@ -267,7 +380,8 @@ describe("OrganisationController", () => {
           .expect(httpStatus.OK)
           .end((err, res) => {
             expect(res.body.status).toEqual("error");
-            expect(res.body.data).toEqual("You are already in the rejectedMembers list");
+            expect(res.body.code).toEqual(Constants.ERRORS.JOIN_ORGANISATION);
+            expect(res.body.message).toEqual("You are already in the rejectedMembers list");
             done();
           });
       });
@@ -297,7 +411,8 @@ describe("OrganisationController", () => {
           .expect(httpStatus.OK)
           .end((err, res) => {
             expect(res.body.status).toEqual("error");
-            expect(res.body.data).toEqual("You are already in the members list");
+            expect(res.body.code).toEqual(Constants.ERRORS.JOIN_ORGANISATION);
+            expect(res.body.message).toEqual("You are already in the members list");
             done();
           });
       });
@@ -329,6 +444,7 @@ describe("OrganisationController", () => {
           .expect(httpStatus.UNAUTHORIZED)
           .end((err, res) => {
             expect(res.body.status).toEqual("error");
+            expect(res.body.code).toEqual(Constants.ERRORS.NOT_ALLOWED);
             expect(res.body.message).toEqual("Not Authorised");
             done();
           });
@@ -342,7 +458,8 @@ describe("OrganisationController", () => {
           .expect(httpStatus.OK)
           .end((err, res) => {
             expect(res.body.status).toEqual("error");
-            expect(res.body.data).toEqual("You are not an owner of this organisation");
+            expect(res.body.code).toEqual(Constants.ERRORS.APPROVE_MEMBER);
+            expect(res.body.message).toEqual("You are not an owner of this organisation");
             done();
           });
       });
@@ -361,7 +478,8 @@ describe("OrganisationController", () => {
             .expect(httpStatus.OK)
             .end((err, res) => {
               expect(res.body.status).toEqual("error");
-              expect(res.body.data).toEqual(
+              expect(res.body.code).toEqual(Constants.ERRORS.APPROVE_MEMBER);
+              expect(res.body.message).toEqual(
                 "The provided member is not eligible for this operation"
               );
               done();
@@ -381,7 +499,8 @@ describe("OrganisationController", () => {
             .expect(httpStatus.OK)
             .end((err, res) => {
               expect(res.body.status).toEqual("error");
-              expect(res.body.data).toEqual("You are already in the members list");
+              expect(res.body.code).toEqual(Constants.ERRORS.APPROVE_MEMBER);
+              expect(res.body.message).toEqual("You are already in the members list");
               done();
             });
         });
@@ -399,7 +518,8 @@ describe("OrganisationController", () => {
             .expect(httpStatus.OK)
             .end((err, res) => {
               expect(res.body.status).toEqual("success");
-              expect(res.body.data).toEqual("Request approved.");
+              expect(res.body.data.id).toEqual(id);
+              expect(res.body.data.members.length).toEqual(1);
               done();
             });
         });
@@ -445,7 +565,8 @@ describe("OrganisationController", () => {
             .expect(httpStatus.OK)
             .end((err, res) => {
               expect(res.body.status).toEqual("success");
-              expect(res.body.data).toEqual("Request approved.");
+              expect(res.body.data.id).toEqual(id);
+              expect(res.body.data.members.length).toEqual(1);
               done();
             });
         });
@@ -495,6 +616,7 @@ describe("OrganisationController", () => {
           .expect(httpStatus.UNAUTHORIZED)
           .end((err, res) => {
             expect(res.body.status).toEqual("error");
+            expect(res.body.code).toEqual(Constants.ERRORS.NOT_ALLOWED);
             expect(res.body.message).toEqual("Not Authorised");
             done();
           });
@@ -508,7 +630,8 @@ describe("OrganisationController", () => {
           .expect(httpStatus.OK)
           .end((err, res) => {
             expect(res.body.status).toEqual("error");
-            expect(res.body.data).toEqual("You are not an owner of this organisation");
+            expect(res.body.code).toEqual(Constants.ERRORS.REJECT_MEMBER);
+            expect(res.body.message).toEqual("You are not an owner of this organisation");
             done();
           });
       });
@@ -527,7 +650,8 @@ describe("OrganisationController", () => {
             .expect(httpStatus.OK)
             .end((err, res) => {
               expect(res.body.status).toEqual("error");
-              expect(res.body.data).toEqual(
+              expect(res.body.code).toEqual(Constants.ERRORS.REJECT_MEMBER);
+              expect(res.body.message).toEqual(
                 "The provided member is not eligible for this operation"
               );
               done();
@@ -547,7 +671,8 @@ describe("OrganisationController", () => {
             .expect(httpStatus.OK)
             .end((err, res) => {
               expect(res.body.status).toEqual("error");
-              expect(res.body.data).toEqual("You are already in the members list");
+              expect(res.body.code).toEqual(Constants.ERRORS.REJECT_MEMBER);
+              expect(res.body.message).toEqual("You are already in the members list");
               done();
             });
         });
@@ -565,7 +690,8 @@ describe("OrganisationController", () => {
             .expect(httpStatus.OK)
             .end((err, res) => {
               expect(res.body.status).toEqual("error");
-              expect(res.body.data).toEqual("You are already in the rejectedMembers list");
+              expect(res.body.code).toEqual(Constants.ERRORS.REJECT_MEMBER);
+              expect(res.body.message).toEqual("You are already in the rejectedMembers list");
               done();
             });
         });
@@ -583,7 +709,8 @@ describe("OrganisationController", () => {
             .expect(httpStatus.OK)
             .end((err, res) => {
               expect(res.body.status).toEqual("success");
-              expect(res.body.data).toEqual("Request rejected.");
+              expect(res.body.data.id).toEqual(id);
+              expect(res.body.data.rejectedMembers.length).toEqual(1);
               done();
             });
         });
@@ -633,6 +760,7 @@ describe("OrganisationController", () => {
           .expect(httpStatus.UNAUTHORIZED)
           .end((err, res) => {
             expect(res.body.status).toEqual("error");
+            expect(res.body.code).toEqual(Constants.ERRORS.NOT_ALLOWED);
             expect(res.body.message).toEqual("Not Authorised");
             done();
           });
@@ -646,7 +774,8 @@ describe("OrganisationController", () => {
           .expect(httpStatus.OK)
           .end((err, res) => {
             expect(res.body.status).toEqual("error");
-            expect(res.body.data).toEqual("You are not an owner of this organisation");
+            expect(res.body.code).toEqual(Constants.ERRORS.REMOVE_MEMBER);
+            expect(res.body.message).toEqual("You are not an owner of this organisation");
             done();
           });
       });
@@ -665,7 +794,8 @@ describe("OrganisationController", () => {
             .expect(httpStatus.OK)
             .end((err, res) => {
               expect(res.body.status).toEqual("error");
-              expect(res.body.data).toEqual(
+              expect(res.body.code).toEqual(Constants.ERRORS.REMOVE_MEMBER);
+              expect(res.body.message).toEqual(
                 "The provided member is not eligible for this operation"
               );
               done();
@@ -685,7 +815,8 @@ describe("OrganisationController", () => {
             .expect(httpStatus.OK)
             .end((err, res) => {
               expect(res.body.status).toEqual("success");
-              expect(res.body.data).toEqual("Member removed successfully.");
+              expect(res.body.data.id).toEqual(id);
+              expect(res.body.data.members.length).toEqual(0);
               done();
             });
         });
@@ -718,6 +849,7 @@ describe("OrganisationController", () => {
           .expect(httpStatus.UNAUTHORIZED)
           .end((err, res) => {
             expect(res.body.status).toEqual("error");
+            expect(res.body.code).toEqual(Constants.ERRORS.NOT_ALLOWED);
             expect(res.body.message).toEqual("Not Authorised");
             done();
           });
@@ -731,7 +863,8 @@ describe("OrganisationController", () => {
           .expect(httpStatus.OK)
           .end((err, res) => {
             expect(res.body.status).toEqual("error");
-            expect(res.body.data).toEqual("You are not an owner of this organisation");
+            expect(res.body.code).toEqual(Constants.ERRORS.PROMOTE_MEMBER);
+            expect(res.body.message).toEqual("You are not an owner of this organisation");
             done();
           });
       });
@@ -750,7 +883,8 @@ describe("OrganisationController", () => {
             .expect(httpStatus.OK)
             .end((err, res) => {
               expect(res.body.status).toEqual("error");
-              expect(res.body.data).toEqual(
+              expect(res.body.code).toEqual(Constants.ERRORS.PROMOTE_MEMBER);
+              expect(res.body.message).toEqual(
                 "The provided member is not eligible for this operation"
               );
               done();
@@ -770,7 +904,8 @@ describe("OrganisationController", () => {
             .expect(httpStatus.OK)
             .end((err, res) => {
               expect(res.body.status).toEqual("success");
-              expect(res.body.data).toEqual("Member promoted.");
+              expect(res.body.data.id).toEqual(id);
+              expect(res.body.data.owners.length).toEqual(2);
               done();
             });
         });
@@ -814,6 +949,7 @@ describe("OrganisationController", () => {
           .expect(httpStatus.UNAUTHORIZED)
           .end((err, res) => {
             expect(res.body.status).toEqual("error");
+            expect(res.body.code).toEqual(Constants.ERRORS.NOT_ALLOWED);
             expect(res.body.message).toEqual("Not Authorised");
             done();
           });
@@ -827,7 +963,8 @@ describe("OrganisationController", () => {
           .expect(httpStatus.OK)
           .end((err, res) => {
             expect(res.body.status).toEqual("error");
-            expect(res.body.data).toEqual("You are not an owner of this organisation");
+            expect(res.body.code).toEqual(Constants.ERRORS.DEMOTE_MEMBER);
+            expect(res.body.message).toEqual("You are not an owner of this organisation");
             done();
           });
       });
@@ -846,7 +983,8 @@ describe("OrganisationController", () => {
             .expect(httpStatus.OK)
             .end((err, res) => {
               expect(res.body.status).toEqual("error");
-              expect(res.body.data).toEqual("The owners list cannot be empty");
+              expect(res.body.code).toEqual(Constants.ERRORS.DEMOTE_MEMBER);
+              expect(res.body.message).toEqual("The owners list cannot be empty");
               done();
             });
         });
@@ -879,7 +1017,8 @@ describe("OrganisationController", () => {
             .expect(httpStatus.OK)
             .end((err, res) => {
               expect(res.body.status).toEqual("success");
-              expect(res.body.data).toEqual("Owner demoted.");
+              expect(res.body.data.id).toEqual(id);
+              expect(res.body.data.owners.length).toEqual(1);
               done();
             });
         });

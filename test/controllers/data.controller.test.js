@@ -177,6 +177,7 @@ describe("DataController", () => {
         request(app)
           .post("/data/bulk")
           .set("Authorization", "Bearer INVALID")
+          .attach("file", "test/fixtures/experiments-demo/metadata_ena11.tsv")
           .expect(httpStatus.UNAUTHORIZED)
           .end((err, res) => {
             expect(res.body.status).toEqual("error");

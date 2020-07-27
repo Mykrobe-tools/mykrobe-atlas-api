@@ -1,7 +1,6 @@
 import express from "express";
-import errors from "errors";
 
-import { jsonschema } from "makeandship-api-common/lib/modules/express/middleware";
+import { jsonschema, request } from "makeandship-api-common/lib/modules/express/middleware";
 import * as schemas from "mykrobe-atlas-jsonschema";
 
 import AccountsHelper from "../helpers/AccountsHelper";
@@ -10,6 +9,7 @@ import OrganisationHelper from "../helpers/OrganisationHelper";
 import organisationController from "../controllers/organisation.controller";
 import userController from "../controllers/user.controller";
 import config from "../../config/env";
+import Constants from "../Constants";
 
 const router = express.Router(); // eslint-disable-line new-cap
 const keycloak = AccountsHelper.keycloakInstance();
@@ -184,7 +184,7 @@ router
    */
   .post(
     keycloak.connect.protect(),
-    jsonschema.schemaValidation(schemas["organisation"], errors, "CreateOrganisationError", "all"),
+    jsonschema.schemaValidation(schemas["organisation"]),
     userController.loadCurrentUser,
     organisationController.create
   );
@@ -250,7 +250,11 @@ router
    *         schema:
    *           $ref: '#/definitions/OrganisationResponse'
    */
-  .put(keycloak.connect.protect(), organisationController.update)
+  .put(
+    keycloak.connect.protect(),
+    request.whitelist(Constants.ORGANISATION_WHITELIST_FIELDS),
+    organisationController.update
+  )
   /**
    * @swagger
    * /organisations/{id}:
@@ -301,12 +305,16 @@ router
    *       200:
    *         description: A jsend response
    *         schema:
-   *           $ref: '#/definitions/BasicResponse'
+   *           $ref: '#/definitions/OrganisationResponse'
    */
   .post(
     keycloak.connect.protect(),
     userController.loadCurrentUser,
-    OrganisationHelper.checkInLists(["unapprovedMembers", "rejectedMembers", "members"]),
+    OrganisationHelper.checkInLists(Constants.ERRORS.JOIN_ORGANISATION, [
+      "unapprovedMembers",
+      "rejectedMembers",
+      "members"
+    ]),
     organisationController.join
   );
 
@@ -339,14 +347,17 @@ router
    *       200:
    *         description: A jsend response
    *         schema:
-   *           $ref: '#/definitions/BasicResponse'
+   *           $ref: '#/definitions/OrganisationResponse'
    */
   .post(
     keycloak.connect.protect(),
     userController.loadCurrentUser,
-    OrganisationHelper.isOwner(),
-    OrganisationHelper.checkInLists(["members"]),
-    OrganisationHelper.checkNotInLists(["unapprovedMembers", "rejectedMembers"]),
+    OrganisationHelper.isOwner(Constants.ERRORS.APPROVE_MEMBER),
+    OrganisationHelper.checkInLists(Constants.ERRORS.APPROVE_MEMBER, ["members"]),
+    OrganisationHelper.checkNotInLists(Constants.ERRORS.APPROVE_MEMBER, [
+      "unapprovedMembers",
+      "rejectedMembers"
+    ]),
     organisationController.approve
   );
 
@@ -379,14 +390,14 @@ router
    *       200:
    *         description: A jsend response
    *         schema:
-   *           $ref: '#/definitions/BasicResponse'
+   *           $ref: '#/definitions/OrganisationResponse'
    */
   .post(
     keycloak.connect.protect(),
     userController.loadCurrentUser,
-    OrganisationHelper.isOwner(),
-    OrganisationHelper.checkInLists(["members", "rejectedMembers"]),
-    OrganisationHelper.checkNotInLists(["unapprovedMembers"]),
+    OrganisationHelper.isOwner(Constants.ERRORS.REJECT_MEMBER),
+    OrganisationHelper.checkInLists(Constants.ERRORS.REJECT_MEMBER, ["members", "rejectedMembers"]),
+    OrganisationHelper.checkNotInLists(Constants.ERRORS.REJECT_MEMBER, ["unapprovedMembers"]),
     organisationController.reject
   );
 
@@ -419,13 +430,13 @@ router
    *       200:
    *         description: A jsend response
    *         schema:
-   *           $ref: '#/definitions/BasicResponse'
+   *           $ref: '#/definitions/OrganisationResponse'
    */
   .post(
     keycloak.connect.protect(),
     userController.loadCurrentUser,
-    OrganisationHelper.isOwner(),
-    OrganisationHelper.checkNotInLists(["members"]),
+    OrganisationHelper.isOwner(Constants.ERRORS.REMOVE_MEMBER),
+    OrganisationHelper.checkNotInLists(Constants.ERRORS.REMOVE_MEMBER, ["members"]),
     organisationController.removeMember
   );
 
@@ -458,13 +469,13 @@ router
    *       200:
    *         description: A jsend response
    *         schema:
-   *           $ref: '#/definitions/BasicResponse'
+   *           $ref: '#/definitions/OrganisationResponse'
    */
   .post(
     keycloak.connect.protect(),
     userController.loadCurrentUser,
-    OrganisationHelper.isOwner(),
-    OrganisationHelper.checkNotInLists(["members"]),
+    OrganisationHelper.isOwner(Constants.ERRORS.PROMOTE_MEMBER),
+    OrganisationHelper.checkNotInLists(Constants.ERRORS.PROMOTE_MEMBER, ["members"]),
     organisationController.promote
   );
 
@@ -497,14 +508,14 @@ router
    *       200:
    *         description: A jsend response
    *         schema:
-   *           $ref: '#/definitions/BasicResponse'
+   *           $ref: '#/definitions/OrganisationResponse'
    */
   .post(
     keycloak.connect.protect(),
     userController.loadCurrentUser,
-    OrganisationHelper.isOwner(),
-    OrganisationHelper.checkNotInLists(["owners"]),
-    OrganisationHelper.checkEmptyList("owners"),
+    OrganisationHelper.isOwner(Constants.ERRORS.DEMOTE_MEMBER),
+    OrganisationHelper.checkNotInLists(Constants.ERRORS.DEMOTE_MEMBER, ["owners"]),
+    OrganisationHelper.checkEmptyList(Constants.ERRORS.DEMOTE_MEMBER, "owners"),
     organisationController.demote
   );
 

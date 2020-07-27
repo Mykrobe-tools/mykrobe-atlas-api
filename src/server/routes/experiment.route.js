@@ -1,15 +1,15 @@
 import express from "express";
 import multer from "multer";
-import errors from "errors";
 import { jsonschema } from "makeandship-api-common/lib/modules/express/middleware";
 import * as schemas from "mykrobe-atlas-jsonschema";
 import AccountsHelper from "../helpers/AccountsHelper";
 import experimentController from "../controllers/experiment.controller";
 import userController from "../controllers/user.controller";
-import config from "../../config/env";
 import { ownerOnly } from "../modules/security";
 
-const upload = multer({ dest: "tmp/" });
+import config from "../../config/env";
+
+const upload = multer({ dest: config.express.uploadsTempLocation || "tmp/" });
 const router = express.Router(); // eslint-disable-line new-cap
 const keycloak = AccountsHelper.keycloakInstance();
 
@@ -2636,6 +2636,27 @@ const keycloak = AccountsHelper.keycloakInstance();
  *         expires: 2019-03-19T15:54:14.818Z
  *         id: 5ba263168d6c3e1c69943595
  */
+/**
+ * @swagger
+ * definitions:
+ *   ExperimentsMappingsResponse:
+ *     properties:
+ *       status:
+ *         type: string
+ *       data:
+ *         type: object
+ *         properties:
+ *           isolateId:
+ *             type: string
+ *           experimentId:
+ *             type: string
+ *
+ *     example:
+ *       status: success
+ *       data:
+ *         SAMEA3231524: 5ba263168d6c3e1c69943595
+ *         SAMEA3231525: 5ba263168d6c3e1c69943596
+ */
 router
   .route("/")
   /**
@@ -3418,7 +3439,7 @@ router
   .post(
     keycloak.connect.protect(),
     jsonschema.trim(schemas["experiment"]),
-    jsonschema.schemaValidation(schemas["experiment"], errors, "CreateExperimentError", "all"),
+    jsonschema.schemaValidation(schemas["experiment"], { message: "Unable to create experiment" }),
     userController.loadCurrentUser,
     experimentController.create
   );
@@ -3780,6 +3801,30 @@ router
    *         description: Failed authentication
    */
   .get(keycloak.connect.protect(), experimentController.tree);
+
+router
+  .route("/mappings")
+  /**
+   * @swagger
+   * /experiments/mappings:
+   *   get:
+   *     tags:
+   *       - Experiments
+   *     description: Experiments mappings to isolateId
+   *     operationId: experimentsMappings
+   *     produces:
+   *       - application/json
+   *     security:
+   *       - Bearer: []
+   *     responses:
+   *       200:
+   *         description: Experiments mappings
+   *         schema:
+   *           $ref: '#/definitions/ExperimentsMappingsResponse'
+   *       401:
+   *         description: Failed authentication
+   */
+  .get(keycloak.connect.protect(), experimentController.mappings);
 
 router
   .route("/:id")
@@ -4158,7 +4203,9 @@ router
    */
   .put(
     keycloak.connect.protect(),
-    jsonschema.schemaValidation(schemas["uploadExperiment"], errors, "UploadExperimentError"),
+    jsonschema.schemaValidation(schemas["uploadExperiment"], {
+      message: "Unable to upload experiment"
+    }),
     upload.single("file"),
     userController.loadCurrentUser,
     experimentController.uploadFile

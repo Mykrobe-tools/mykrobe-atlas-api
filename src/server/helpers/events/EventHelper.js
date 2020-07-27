@@ -1,18 +1,27 @@
-import Event from "../models/event.model";
+import Event from "../../models/event.model";
+
+import logger from "../../modules/winston";
 
 class EventHelper {
   static async updateUploadsState(userId, experimentId, uploadStatus) {
-    const event = (await Event.getByUserId(userId)) || new Event();
+    const existingEvent = await Event.getByUserId(userId);
+    const event = existingEvent ? existingEvent : new Event();
     event.userId = userId;
-    const openUpload = event.openUploads.find(item => item.id === experimentId);
-    if (!openUpload) {
+    const openUpload = event.openUploads.find(item => {
+      return item.id === experimentId;
+    });
+
+    if (openUpload) {
+      // remove the existing entry
       const index = event.openUploads.indexOf(openUpload);
       event.openUploads.splice(index, 1);
     }
+    // add to the array
     event.openUploads.push({
       id: experimentId,
       ...uploadStatus
     });
+
     await event.save();
   }
 
@@ -43,7 +52,7 @@ class EventHelper {
     const event = (await Event.getByUserId(userId)) || new Event();
     event.userId = userId;
     const open = event.openAnalysis.find(item => item.id === experimentId);
-    if (!open) {
+    if (open) {
       const index = event.openAnalysis.indexOf(open);
       event.openUploads.splice(index, 1);
     }

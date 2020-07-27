@@ -1,14 +1,18 @@
 import mongoose from "mongoose";
 import slugify from "slugify";
-import errors from "errors";
+import uniqueValidator from "mongoose-unique-validator";
 
 import { organisation as organisationJsonSchema } from "mykrobe-atlas-jsonschema";
+
+import { APIError } from "makeandship-api-common/lib/modules/error";
 
 import JSONMongooseSchema from "./jsonschema.model";
 
 import OrganisationJSONTransformer from "../transformers/OrganisationJSONTransformer";
 
 import AccountsHelper from "../helpers/AccountsHelper";
+
+import Constants from "../Constants";
 
 /**
  * Organisation Schema
@@ -51,11 +55,51 @@ const OrganisationSchema = new JSONMongooseSchema(
  * - virtuals
  * - plugins
  */
-
-OrganisationSchema.pre("save", async function() {
+OrganisationSchema.pre("validate", async function(next) {
   if (!this.slug) {
     this.slug = slugify(this.name, { lower: true });
   }
+});
+
+OrganisationSchema.path("name").validate(
+  function(value) {
+    return new Promise(resolve => {
+      if (this.isNew) {
+        const model = this.model(this.constructor.modelName);
+        model.count({ name: value }, (err, count) => {
+          return resolve(count === 0);
+        });
+      } else {
+        return resolve(true);
+      }
+    });
+  },
+  "Organisation already exists with name {VALUE}",
+  "unique"
+);
+
+OrganisationSchema.path("slug").validate(
+  function(value) {
+    return new Promise(resolve => {
+      if (this.isNew) {
+        const model = this.model(this.constructor.modelName);
+        model.count({ slug: value }, (err, count) => {
+          return resolve(count === 0);
+        });
+      } else {
+        return resolve(true);
+      }
+    });
+  },
+  "An organisation with slug {VALUE} has been used in the past and cannot be used again",
+  "unique"
+);
+
+OrganisationSchema.pre("save", async function(next) {
+  if (!this.slug) {
+    this.slug = slugify(this.name, { lower: true });
+  }
+
   await AccountsHelper.setupGroupsAndRoles(this);
 });
 
@@ -81,9 +125,9 @@ OrganisationSchema.statics = {
       if (organisation) {
         return organisation;
       }
-      throw new errors.ObjectNotFound(`Organisation not found with id ${id}`);
+      throw new APIError(Constants.ERRORS.GET_ORGANISATION, `Organisation not found with id ${id}`);
     } catch (e) {
-      throw new errors.ObjectNotFound(e.message);
+      throw new APIError(Constants.ERRORS.GET_ORGANISATION, e.message);
     }
   },
 

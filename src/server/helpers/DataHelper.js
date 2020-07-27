@@ -296,7 +296,7 @@ class DataHelper {
     if (rows) {
       for (let row of rows) {
         const isolateId = row.sample_name;
-        const country = row.geo_metadata;
+        const country = row.geo_metadata || row.geography_metadata;
         const results = await this.parseResults(row.predictor, directory);
 
         const mappedCountry = this.transformCountry(country);

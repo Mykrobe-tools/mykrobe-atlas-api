@@ -18,7 +18,13 @@
         "Capreomycin": {
           "predict": "S"
         },
-        "Quinolones": {
+        "Ciprofloxacin": {
+          "predict": "S"
+        },
+        "Moxifloxacin": {
+          "predict": "S"
+        },
+        "Ofloxacin": {
           "predict": "S"
         },
         "Pyrazinamide": {

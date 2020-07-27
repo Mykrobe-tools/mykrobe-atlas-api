@@ -1,5 +1,4 @@
 import express from "express";
-import errors from "errors";
 import { jsonschema } from "makeandship-api-common/lib/modules/express/middleware";
 import * as schemas from "mykrobe-atlas-jsonschema";
 import AccountsHelper from "../helpers/AccountsHelper";
@@ -133,7 +132,7 @@ router
    *           $ref: '#/definitions/ValidationErrorResponse'
    */
   .post(
-    jsonschema.schemaValidation(schemas["register"], errors, "CreateUserError"),
+    jsonschema.schemaValidation(schemas["register"], { message: "Unable to create user" }),
     userController.create
   );
 

@@ -3,8 +3,10 @@ import multer from "multer";
 import dataController from "../controllers/data.controller";
 import AccountsHelper from "../helpers/AccountsHelper";
 
-const upload = multer({ dest: "tmp/" });
+import config from "../../config/env";
+
 const router = express.Router(); // eslint-disable-line new-cap
+const upload = multer({ dest: config.express.uploadsTempLocation || "tmp/" });
 const keycloak = AccountsHelper.keycloakInstance();
 /**
  * @swagger

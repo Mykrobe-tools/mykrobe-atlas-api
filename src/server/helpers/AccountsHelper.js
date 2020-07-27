@@ -1,4 +1,3 @@
-import errors from "errors";
 import httpStatus from "http-status";
 import { Keycloak } from "makeandship-api-common/lib/modules/accounts";
 import { AuthError } from "makeandship-api-common/lib/modules/error";
@@ -15,7 +14,6 @@ class AccountsHelper {
   static keycloakInstance() {
     return new Keycloak({
       keycloakConfig: config.accounts.keycloak,
-      errors,
       userModel: User,
       userTransformer: UserJSONTransformer,
       apiError: new AuthError(
