@@ -1,5 +1,5 @@
 import Agenda from "agenda";
-import logger from "./winston";
+import logger from "./logger";
 import axios from "axios";
 import Audit from "../models/audit.model";
 import AgendaHelper from "../helpers/AgendaHelper";

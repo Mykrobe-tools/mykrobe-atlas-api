@@ -10,7 +10,18 @@ Content-Type: application/json; charset=utf-8
         "skipped": 0,
         "failed": 0
     },
-    "previous": "POST.4497bdb43890831d451ef4eb80773cc2.mock",
+    "previous": "POST.4688717e47a0f229dbc00b3bc4956838.mock",
+    "tests": [
+        "GET /experiments/choices > when valid > when not filtered > should return success",
+        "GET /experiments/choices > when valid > when not filtered > should return choices and counts for enums",
+        "GET /experiments/choices > when valid > when not filtered > should return choices for susceptibility and resistance",
+        "GET /experiments/choices > when valid > when not filtered > should return choices for predictor flags",
+        "GET /experiments/choices > when valid > when not filtered > should return min and max dates",
+        "GET /experiments/choices > when valid > when not filtered > should return min and max floating point numbers (BMI)",
+        "GET /experiments/choices > when valid > when not filtered > should return min and max integers (age)",
+        "GET /experiments/choices > when valid > when not filtered > should include the titles",
+        "GET /experiments/choices > when valid > when not filtered > should include the titles array"
+    ],
     "hits": {
         "total": 2,
         "max_score": 1.4422531,

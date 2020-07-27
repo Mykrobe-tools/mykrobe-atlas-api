@@ -7,7 +7,7 @@ import { experiment as experimentSchema } from "mykrobe-atlas-jsonschema";
 import Audit from "../models/audit.model";
 import Experiment from "../models/experiment.model";
 
-import logger from "../modules/winston";
+import logger from "../modules/logger";
 import { userEventEmitter, experimentEventEmitter } from "../modules/events";
 
 import AuditJSONTransformer from "../transformers/AuditJSONTransformer";

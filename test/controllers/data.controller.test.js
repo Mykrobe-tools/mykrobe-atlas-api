@@ -9,20 +9,27 @@ import Experiment from "../../src/server/models/experiment.model";
 
 import DataHelper from "../../src/server/helpers/DataHelper";
 
-const app = createApp();
-const users = require("../fixtures/users");
-const experiments = require("../fixtures/experiments");
-let token = null;
+import users from "../fixtures/users";
+import experiments from "../fixtures/experiments";
+
+const args = {
+  app: null,
+  token: null
+};
+
+beforeAll(async () => {
+  args.app = await createApp();
+});
 
 beforeEach(async done => {
   const userData = new User(users.admin);
 
   const savedUser = await userData.save();
-  request(app)
+  request(args.app)
     .post("/auth/login")
     .send({ username: "admin@nhs.co.uk", password: "password" })
     .end(async (err, res) => {
-      token = res.body.data.access_token;
+      args.token = res.body.data.access_token;
       done();
     });
 });
@@ -36,7 +43,7 @@ afterEach(async done => {
 describe("DataController", () => {
   describe("POST /data/create", () => {
     it("should return a successful response", done => {
-      request(app)
+      request(args.app)
         .post("/data/create")
         .send({ total: 1 })
         .expect(httpStatus.OK)
@@ -47,7 +54,7 @@ describe("DataController", () => {
         });
     });
     it("should create 5 users", done => {
-      request(app)
+      request(args.app)
         .post("/data/create")
         .send({ total: 1 })
         .expect(httpStatus.OK)
@@ -60,7 +67,7 @@ describe("DataController", () => {
     });
     it("should create the given number of experiments", done => {
       const random = faker.random.number({ min: 1, max: 5 });
-      request(app)
+      request(args.app)
         .post("/data/create")
         .send({ total: random })
         .expect(httpStatus.OK)
@@ -72,7 +79,7 @@ describe("DataController", () => {
         });
     });
     it("should populate the experiment file", done => {
-      request(app)
+      request(args.app)
         .post("/data/create")
         .send({ total: 1 })
         .expect(httpStatus.OK)
@@ -83,7 +90,7 @@ describe("DataController", () => {
         });
     });
     it("should populate the experiment metadata", done => {
-      request(app)
+      request(args.app)
         .post("/data/create")
         .send({ total: 1 })
         .expect(httpStatus.OK)
@@ -94,7 +101,7 @@ describe("DataController", () => {
         });
     });
     it("should populate experiment results", done => {
-      request(app)
+      request(args.app)
         .post("/data/create")
         .send({ total: 1 })
         .expect(httpStatus.OK)
@@ -124,7 +131,7 @@ describe("DataController", () => {
         });
     });
     it("should populate the experiment owner", done => {
-      request(app)
+      request(args.app)
         .post("/data/create")
         .send({ total: 1 })
         .expect(httpStatus.OK)
@@ -138,7 +145,7 @@ describe("DataController", () => {
 
   describe("POST /data/clean", () => {
     it("should return a successful response", done => {
-      request(app)
+      request(args.app)
         .post("/data/clean")
         .expect(httpStatus.OK)
         .end((err, res) => {
@@ -148,7 +155,7 @@ describe("DataController", () => {
         });
     });
     it("should clear all users", done => {
-      request(app)
+      request(args.app)
         .post("/data/clean")
         .expect(httpStatus.OK)
         .end(async (err, res) => {
@@ -159,7 +166,7 @@ describe("DataController", () => {
         });
     });
     it("should clear all experiments", done => {
-      request(app)
+      request(args.app)
         .post("/data/clean")
         .expect(httpStatus.OK)
         .end(async (err, res) => {
@@ -174,7 +181,7 @@ describe("DataController", () => {
   describe("POST /data/demo", () => {
     describe("when passing invalid data", () => {
       it("should be a protected route", done => {
-        request(app)
+        request(args.app)
           .post("/data/demo")
           .set("Authorization", "Bearer INVALID")
           .attach("file", "test/fixtures/experiments-demo/metadata_ena11.tsv")
@@ -193,9 +200,9 @@ describe("DataController", () => {
         done();
       });
       it("should purge all the experiments", done => {
-        request(app)
+        request(args.app)
           .post("/data/demo")
-          .set("Authorization", `Bearer ${token}`)
+          .set("Authorization", `Bearer ${args.token}`)
           .field("purge", "true")
           .attach("file", "test/fixtures/experiments-demo/metadata_ena11.tsv")
           .expect(httpStatus.OK)
@@ -212,9 +219,9 @@ describe("DataController", () => {
           });
       });
       it("should successfully load the experiments", done => {
-        request(app)
+        request(args.app)
           .post("/data/demo")
-          .set("Authorization", `Bearer ${token}`)
+          .set("Authorization", `Bearer ${args.token}`)
           .field("purge", "true")
           .attach("file", "test/fixtures/experiments-demo/metadata_ena11.tsv")
           .expect(httpStatus.OK)
@@ -233,9 +240,9 @@ describe("DataController", () => {
           });
       });
       it("should replace the city and country", done => {
-        request(app)
+        request(args.app)
           .post("/data/demo")
-          .set("Authorization", `Bearer ${token}`)
+          .set("Authorization", `Bearer ${args.token}`)
           .field("purge", "true")
           .attach("file", "test/fixtures/experiments-demo/metadata_ena11.tsv")
           .expect(httpStatus.OK)
@@ -255,9 +262,9 @@ describe("DataController", () => {
           });
       });
       it("should populate geo data", done => {
-        request(app)
+        request(args.app)
           .post("/data/demo")
-          .set("Authorization", `Bearer ${token}`)
+          .set("Authorization", `Bearer ${args.token}`)
           .field("purge", "true")
           .attach("file", "test/fixtures/experiments-demo/metadata_ena11.tsv")
           .expect(httpStatus.OK)
@@ -284,9 +291,9 @@ describe("DataController", () => {
           });
       });
       it("should not populate the value if unknown", done => {
-        request(app)
+        request(args.app)
           .post("/data/demo")
-          .set("Authorization", `Bearer ${token}`)
+          .set("Authorization", `Bearer ${args.token}`)
           .field("purge", "true")
           .attach("file", "test/fixtures/experiments-demo/metadata_ena11.tsv")
           .expect(httpStatus.OK)
@@ -313,9 +320,9 @@ describe("DataController", () => {
         done();
       });
       it("should not purge the experiments", done => {
-        request(app)
+        request(args.app)
           .post("/data/demo")
-          .set("Authorization", `Bearer ${token}`)
+          .set("Authorization", `Bearer ${args.token}`)
           .attach("file", "test/fixtures/experiments-demo/metadata_ena11.tsv")
           .expect(httpStatus.OK)
           .end(async (err, res) => {
@@ -330,9 +337,9 @@ describe("DataController", () => {
           });
       });
       it("should successfully load the experiments", done => {
-        request(app)
+        request(args.app)
           .post("/data/demo")
-          .set("Authorization", `Bearer ${token}`)
+          .set("Authorization", `Bearer ${args.token}`)
           .attach("file", "test/fixtures/experiments-demo/metadata_ena11.tsv")
           .expect(httpStatus.OK)
           .end(async (err, res) => {

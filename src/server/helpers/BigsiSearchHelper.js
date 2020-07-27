@@ -20,7 +20,7 @@ import ExperimentsResultJSONTransformer from "../transformers/es/ExperimentsResu
 import { userEventEmitter } from "../modules/events";
 import { schedule } from "../modules/agenda";
 import EventHelper from "./events/EventHelper";
-import logger from "../modules/winston";
+import logger from "../modules/logger";
 
 const config = require("../../config/env");
 

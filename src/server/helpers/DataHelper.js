@@ -5,7 +5,7 @@ import SchemaExplorer from "makeandship-api-common/lib/modules/jsonschema/schema
 import Experiment from "../models/experiment.model";
 import ExperimentJSONTransformer from "../transformers/ExperimentJSONTransformer";
 import { geocode } from "../modules/geo";
-import logger from "../modules/winston";
+import logger from "../modules/logger";
 
 // constants
 const explorer = new SchemaExplorer(experimentJsonSchema);

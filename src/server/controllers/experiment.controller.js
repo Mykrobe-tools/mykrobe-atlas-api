@@ -26,7 +26,7 @@ import resumable from "../modules/resumable";
 import { schedule } from "../modules/agenda";
 import { experimentEventEmitter, userEventEmitter } from "../modules/events";
 import { parseQuery, callTreeApi } from "../modules/search";
-import logger from "../modules/winston";
+import logger from "../modules/logger";
 
 import DownloadersFactory from "../helpers/DownloadersFactory";
 import BigsiSearchHelper from "../helpers/BigsiSearchHelper";
@@ -421,7 +421,7 @@ const choices = async (req, res) => {
 
     // apply status and organisation filters
     const searchQuery = new SearchQueryDecorator(req.originalUrl, req.user).decorate(parsedQuery);
-    const elasticsearchResults = await elasticService.search(searchQuery, { type: "experiment" });
+    const elasticsearchResults = await elasticService.search(searchQuery, {});
 
     const titles = jsonschemaUtil.schemaTitles(experimentSearchSchema);
 
@@ -458,7 +458,7 @@ const search = async (req, res) => {
 
       // apply status and organisation filters
       const searchQuery = new SearchQueryDecorator(req.originalUrl, req.user).decorate(parsedQuery);
-      const elasticsearchResults = await elasticService.search(searchQuery, { type: "experiment" });
+      const elasticsearchResults = await elasticService.search(searchQuery, {});
 
       // generate the core elastic search structure
       const options = {

@@ -10,6 +10,7 @@ Content-Type: application/json; charset=utf-8
         "skipped": 0,
         "failed": 0
     },
+    "previous": "POST.977cfb33acea1c9ef6e9646772bbce6b.mock",
     "hits": {
         "total": 1,
         "max_score": 0,

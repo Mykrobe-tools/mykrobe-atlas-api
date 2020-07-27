@@ -1,4 +1,4 @@
-import logger from "../modules/winston";
+import logger from "../modules/logger";
 import { geocode } from "../modules/geo/";
 
 import config from "../../config/env";

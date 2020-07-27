@@ -1,34 +1,54 @@
 import RedisService from "makeandship-api-common/lib/modules/cache/services/RedisService";
 
-const PREFIX = "mykrobe-atlas";
+const PREFIX = "atlas";
 
 class Cache {
   getKey(name) {
-    const key = `${PREFIX}-${name}`;
-    return key;
+    if (name) {
+      const key = `${PREFIX}-${name}`;
+      return key;
+    }
+    return null;
   }
   async get(name) {
     const key = this.getKey(name);
-    return await RedisService.get(key);
+
+    if (key) {
+      return await RedisService.get(key);
+    }
+
+    return null;
   }
 
   set(name, value) {
     const key = this.getKey(name);
-    return RedisService.set(key, value);
+
+    if (key) {
+      return RedisService.set(key, value);
+    }
+
+    return null;
   }
 
   async getJson(name) {
     const key = this.getKey(name);
-    const value = await RedisService.get(key);
-    if (value) {
-      return JSON.parse(value);
+    if (key) {
+      const value = await RedisService.get(key);
+      if (value) {
+        return JSON.parse(value);
+      }
     }
     return null;
   }
 
   setJson(name, value) {
     const key = this.getKey(name);
-    return RedisService.set(key, JSON.stringify(value));
+
+    if (key) {
+      return RedisService.set(key, JSON.stringify(value));
+    }
+
+    return null;
   }
 
   async keys(pattern) {

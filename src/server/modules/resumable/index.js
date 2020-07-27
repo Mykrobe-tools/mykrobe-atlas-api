@@ -11,7 +11,7 @@ import {
 } from "./util";
 import Experiment from "../../models/experiment.model";
 import config from "../../../config/env";
-import logger from "../../modules/winston";
+import logger from "../logger";
 
 // handle get requests
 const get = req => {

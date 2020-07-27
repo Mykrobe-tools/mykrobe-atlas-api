@@ -1,5 +1,4 @@
 import express from "express";
-import logger from "morgan";
 import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
 import compress from "compression";
@@ -12,25 +11,30 @@ import RateLimit from "express-rate-limit";
 import addRequestId from "express-request-id";
 
 import { ErrorUtil, APIError } from "makeandship-api-common/lib/modules/error";
+import {
+  ExpressInitializer,
+  JsendInitializer
+} from "makeandship-api-common/lib/modules/express/initializers";
 
 import Constants from "./Constants";
 
-import winstonInstance from "./modules/winston";
+import logger from "./modules/logger";
 import routes from "./routes/index.route";
 import config from "../config/env";
 
 import AccountsHelper from "./helpers/AccountsHelper";
-import initializer from "./modules/initializer";
 import { stubDevApis } from "../external";
 
 const keycloak = AccountsHelper.keycloakInstance();
 
-const createApp = ({ rateLimitReset, rateLimitMax, limit } = config.express) => {
+const createApp = async () => {
+  const { rateLimitReset, rateLimitMax, limit } = config.express;
+
   const app = express();
 
+  // TODO move mocking out
   if (config.env === "development") {
     stubDevApis();
-    app.use(logger("dev"));
   }
 
   // parse body params and attache them to req.body
@@ -62,7 +66,7 @@ const createApp = ({ rateLimitReset, rateLimitMax, limit } = config.express) => 
     expressWinston.responseWhitelist.push("body");
     app.use(
       expressWinston.logger({
-        winstonInstance,
+        winstonInstance: logger,
         meta: true, // optional: log meta data about request (defaults to true)
         msg: "HTTP {{req.method}} {{req.url}} {{res.statusCode}} {{res.responseTime}}ms",
         colorStatus: true, // Color the status code (default green, 3XX cyan, 4XX yellow, 5XX red).
@@ -75,13 +79,15 @@ const createApp = ({ rateLimitReset, rateLimitMax, limit } = config.express) => 
           "query",
           "body"
         ],
+        responseWhitelist: [],
         bodyBlacklist: ["password", "confirmPassword"],
-        ignoreRoute: (req, res) => {
+        ignoreRoute: req => {
           return /health-check/.test(req.url);
         }
       })
     );
   }
+
   // 1000 requests per 15 min
   const limiter = new RateLimit({
     windowMs: rateLimitReset,
@@ -125,10 +131,16 @@ const createApp = ({ rateLimitReset, rateLimitMax, limit } = config.express) => 
     // log error in winston transports except when executing test suite
     app.use(
       expressWinston.errorLogger({
-        winstonInstance
+        winstonInstance: logger
       })
     );
   }
+
+  logger.debug("ExpressInitializer#initialize: Initializing ...");
+  const initializer = new ExpressInitializer(express);
+  initializer.add(new JsendInitializer());
+  await initializer.initialize();
+  logger.debug("ExpressInitializer#initialize: Initialization complete");
 
   return app;
 };
