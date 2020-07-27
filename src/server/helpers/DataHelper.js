@@ -321,13 +321,17 @@ class DataHelper {
         const parts = country.split(":");
         location.countryIsolate = parts[0].trim();
         location.cityIsolate = parts[1].trim();
+      }
+      if (country.includes(",")) {
+        const parts = country.split(",");
+        location.countryIsolate = parts[1].trim();
+        location.cityIsolate = parts[0].trim();
       } else if (country.toLowerCase() === "unknown") {
         // no change
       } else {
         location.countryIsolate = country.trim();
       }
     }
-
     // re-map
     if (location.countryIsolate || location.cityIsolate) {
       // countries which may map to country or country + city
