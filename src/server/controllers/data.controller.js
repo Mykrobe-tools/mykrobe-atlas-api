@@ -1,6 +1,8 @@
 import fs from "fs";
 import _ from "lodash";
 import faker from "faker";
+import errors from "errors";
+import unzipper from "unzipper";
 import * as schemas from "mykrobe-atlas-jsonschema";
 import Randomizer from "makeandship-api-common/lib/modules/schema-faker/Randomizer";
 import { getRandomPercentage } from "makeandship-api-common/lib/modules/schema-faker/utils";
@@ -125,17 +127,26 @@ const generatePhylogenetics = (
  * @returns {*}
  */
 const loadDemo = async (req, res) => {
-  const folder = req.params.folder;
-  const purge = req.body.purge;
-  if (purge === true) {
+  if (!req.file) {
+    return res.jerror(new errors.UploadFileError("No files found to upload"));
+  }
+
+  const { file } = req;
+  const { purge } = req.body;
+
+  if (file.mimetype !== "application/zip") {
+    return res.jerror(new errors.UploadFileError("Input file must be a zip file"));
+  }
+
+  if (purge === "true" || purge === true) {
     await Experiment.deleteMany({});
   }
 
+  const directory = await unzipper.Open.file(file.path);
+
   try {
-    await DataHelper.load(`${config.express.demoDataRootFolder}/${folder}`);
-    return res.jsend(
-      `Demo data upload started from ${config.express.demoDataRootFolder}/${folder}`
-    );
+    await DataHelper.load(directory);
+    return res.jsend("Demo data upload started");
   } catch (e) {
     return res.jerror(e);
   }

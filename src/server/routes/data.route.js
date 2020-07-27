@@ -1,7 +1,9 @@
 import express from "express";
+import multer from "multer";
 import dataController from "../controllers/data.controller";
 import AccountsHelper from "../helpers/AccountsHelper";
 
+const upload = multer({ dest: "tmp/" });
 const router = express.Router(); // eslint-disable-line new-cap
 const keycloak = AccountsHelper.keycloakInstance();
 /**
@@ -51,29 +53,26 @@ router.route("/create").post(dataController.create);
 
 /**
  * @swagger
- * /data/demo/{folder}:
+ * /data/bulk:
  *   post:
  *     tags:
  *       - Data
  *     description: Load Demo Data
+ *     consumes:
+ *       - multipart/form-data
  *     produces:
  *       - application/json
  *     parameters:
- *       - in: path
- *         name: folder
- *         required: true
+ *       - in: formData
+ *         name: file
+ *         description: The file to upload
  *         type: string
- *         description: The folder name to load from
- *       - in: body
+ *         format: binary
+ *         required: true
+ *       - in: formData
  *         name: purge
  *         description: A flag to purge existing experiments
- *         schema:
- *           type: object
- *           properties:
- *             purge:
- *               type: boolean
- *           example:
- *             purge: true
+ *         type: boolean
  *     security:
  *       - Bearer: []
  *     responses:
@@ -82,6 +81,8 @@ router.route("/create").post(dataController.create);
  *         schema:
  *           $ref: '#/definitions/BasicResponse'
  */
-router.route("/demo/:folder").post(keycloak.connect.protect(), dataController.loadDemo);
+router
+  .route("/bulk")
+  .post(keycloak.connect.protect(), upload.single("file"), dataController.loadDemo);
 
 export default router;

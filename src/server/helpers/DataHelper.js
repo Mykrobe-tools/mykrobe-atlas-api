@@ -4,6 +4,7 @@ import { experiment as experimentJsonSchema } from "mykrobe-atlas-jsonschema";
 import SchemaExplorer from "makeandship-api-common/lib/modules/jsonschema/schema-explorer";
 import Experiment from "../models/experiment.model";
 import ExperimentJSONTransformer from "../transformers/ExperimentJSONTransformer";
+import PredictorResultParser from "./results/PredictorResultParser";
 import { geocode } from "../modules/geo";
 import logger from "../modules/winston";
 
@@ -223,18 +224,21 @@ class DataHelper {
   }
 
   /**
-   * Load all files from a given path
+   * Load all files from a given directory
    * @param {*} path
    */
-  static async load(path) {
-    if (!fs.existsSync(path)) {
-      throw new Error(`Cannot find ${path} directory`);
+  static async load(directory) {
+    const metadataFiles = directory.files.filter(
+      d => d.path.startsWith("metadata/") && d.type === "File"
+    );
+
+    if (metadataFiles.length === 0) {
+      throw new Error("Cannot find metadata files");
     }
 
-    const files = fs.readdirSync(path);
-    for (let file of files) {
-      if (file.includes(".tsv") || file.includes(".csv")) {
-        await this.process(`${path}/${file}`);
+    for (let file of metadataFiles) {
+      if (file.path.includes(".tsv") || file.path.includes(".csv")) {
+        await this.process(file, directory);
       }
     }
   }
@@ -243,14 +247,14 @@ class DataHelper {
    * Load data set into memory
    * @param {*} filepath
    */
-  static loadDataSet(filepath) {
-    if (filepath) {
+  static loadDataSet(file) {
+    if (file) {
       const load = new Promise((resolve, reject) => {
-        const stream = fs.createReadStream(filepath);
+        const stream = file.stream();
         const rows = [];
 
         csv
-          .fromStream(stream, { headers: true, delimiter: "\t" })
+          .parseStream(stream, { headers: true, delimiter: "\t" })
           .on("data", async data => {
             rows.push(data);
           })
@@ -286,20 +290,21 @@ class DataHelper {
    * Create experiments from raw rows
    * @param {*} rows
    */
-  static transform(rows) {
+  static async transform(rows, directory) {
     const experiments = [];
 
     if (rows) {
-      rows.forEach(row => {
+      for (let row of rows) {
         const isolateId = row.sample_name;
         const country = row.geo_metadata;
+        const results = await this.parseResults(row.predictor, directory);
 
         const mappedCountry = this.transformCountry(country);
 
-        const experiment = Object.assign({ isolateId }, mappedCountry);
+        const experiment = Object.assign({ results, isolateId }, mappedCountry);
 
         experiments.push(experiment);
-      });
+      }
     }
 
     return experiments;
@@ -486,8 +491,16 @@ class DataHelper {
 
     if (rows) {
       rows.forEach(row => {
-        const { isolateId, countryIsolate, cityIsolate, longitudeIsolate, latitudeIsolate } = row;
+        const {
+          isolateId,
+          countryIsolate,
+          cityIsolate,
+          longitudeIsolate,
+          latitudeIsolate,
+          results
+        } = row;
         const experiment = {
+          results,
           metadata: {
             sample: {
               isolateId,
@@ -498,6 +511,7 @@ class DataHelper {
             }
           }
         };
+
         experiments.push(experiment);
       });
     }
@@ -508,12 +522,12 @@ class DataHelper {
   /**
    * Process a CSV file
    * Bulk insert chunks of 1000
-   * @param {*} filepath
+   * @param {*} file
    */
-  static async process(filepath) {
-    const rows = await this.loadDataSet(filepath);
-    logger.debug(`${filepath} has ${rows.length} to process`);
-    const structuredRows = this.transform(rows);
+  static async process(file, directory) {
+    const rows = await this.loadDataSet(file);
+    logger.debug(`${file.path} has ${rows.length} to process`);
+    const structuredRows = await this.transform(rows, directory);
 
     const citiesAndCountries = this.getCitiesAndCountries(structuredRows);
     const structuredRowsWithGeoData = await this.enhanceWithGeoData(
@@ -522,7 +536,7 @@ class DataHelper {
     );
 
     const experiments = this.getExperiments(structuredRowsWithGeoData);
-    logger.debug(`${filepath} has ${experiments.length} experiments to store`);
+    logger.debug(`${file.path} has ${experiments.length} experiments to store`);
     const experimentChunks = this.chunk(experiments, BULK_INSERT_LIMIT);
 
     for (let experimentChunk of experimentChunks) {
@@ -531,9 +545,32 @@ class DataHelper {
     }
 
     return {
-      filepath,
+      filepath: file.path,
       count: experiments.length
     };
+  }
+
+  /**
+   * Parses the results
+   * Only predictor results are processed for now
+   * @param {*} resultFileName
+   */
+  static async parseResults(resultFileName, directory) {
+    const results = [];
+
+    const resultsFile = directory.files.find(
+      d => d.path === `results/${resultFileName}` && d.type === "File"
+    );
+
+    if (!resultsFile) {
+      return results;
+    }
+
+    const content = await resultsFile.buffer();
+    const parser = new PredictorResultParser({ result: JSON.parse(content.toString()) });
+    results.push(parser.parse());
+
+    return results;
   }
 }
 
