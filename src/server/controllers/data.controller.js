@@ -130,18 +130,14 @@ const generatePhylogenetics = (
  */
 const loadDemo = async (req, res) => {
   if (!req.file) {
-    return res.jerror(
-      new APIError(Constants.ERRORS.UPLOAD_FILE, "No files found to upload")
-    );
+    return res.jerror(new APIError(Constants.ERRORS.UPLOAD_FILE, "No files found to upload"));
   }
 
   const { file } = req;
   const { purge } = req.body;
 
   if (file.mimetype !== "application/zip") {
-    return res.jerror(
-      new APIError(Constants.ERRORS.UPLOAD_FILE, "Input file must be a zip file")
-    );
+    return res.jerror(new APIError(Constants.ERRORS.UPLOAD_FILE, "Input file must be a zip file"));
   }
 
   if (purge === "true" || purge === true) {
