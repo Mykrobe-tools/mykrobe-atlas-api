@@ -12,16 +12,20 @@ import Audit from "../../src/server/models/audit.model";
 
 import { userEventEmitter } from "../../src/server/modules/events";
 
-const app = createApp();
-
 import searches from "../fixtures/searches";
 import users from "../fixtures/users";
 
-let token = "123";
+const args = {
+  app: null,
+  token: null,
+  dnaVariantSearchId: null,
+  proteinVariantSearchId: null,
+  sequenceSearchId: null
+};
 
-let dnaVariantSearchId = null;
-let proteinVariantSearchId = null;
-let sequenceSearchId = null;
+beforeAll(async () => {
+  args.app = await createApp();
+});
 
 beforeEach(async done => {
   const userData = new User(users.admin);
@@ -31,11 +35,11 @@ beforeEach(async done => {
   const sequenceSearch = new Search(searches.searchOnly.sequence);
   sequenceSearch.users.push(savedUser);
   const savedSequenceSearch = await sequenceSearch.save();
-  sequenceSearchId = savedSequenceSearch.id;
+  args.sequenceSearchId = savedSequenceSearch.id;
 
   // audit for the sequence search
   const sequenceSearchAudit = new Audit({
-    searchId: sequenceSearchId,
+    searchId: args.sequenceSearchId,
     attempts: 1,
     status: "Success"
   });
@@ -45,11 +49,11 @@ beforeEach(async done => {
   const proteinVariantSearch = new Search(searches.searchOnly.proteinVariant);
   proteinVariantSearch.users.push(savedUser);
   const savedProteinVariantSearch = await proteinVariantSearch.save();
-  proteinVariantSearchId = savedProteinVariantSearch.id;
+  args.proteinVariantSearchId = savedProteinVariantSearch.id;
 
   // audit for the protein variant search
   const proteinSearchAudit = new Audit({
-    searchId: proteinVariantSearchId,
+    searchId: args.proteinVariantSearchId,
     attempts: 1,
     status: "Success"
   });
@@ -59,11 +63,11 @@ beforeEach(async done => {
   const dnaVariantSearch = new Search(searches.searchOnly.dnaVariant);
   dnaVariantSearch.users.push(savedUser);
   const savedDnaVariantSearch = await dnaVariantSearch.save();
-  dnaVariantSearchId = savedDnaVariantSearch.id;
+  args.dnaVariantSearchId = savedDnaVariantSearch.id;
 
   // audit for the protein variant search
   const dnaSearchAudit = new Audit({
-    searchId: dnaVariantSearchId,
+    searchId: args.dnaVariantSearchId,
     attempts: 1,
     status: "Success"
   });
@@ -79,10 +83,10 @@ afterEach(async done => {
 });
 
 describe("SearchController", () => {
-  describe("# PUT /searches/:id/results", () => {
+  describe("PUT /searches/:id/results", () => {
     describe("when the search id is not valid", () => {
       it("should return an error an error", done => {
-        request(app)
+        request(args.app)
           .put("/searches/56c787ccc67fc16ccc1a5e92/results")
           .send(searches.results.sequence)
           .expect(httpStatus.OK)
@@ -102,8 +106,8 @@ describe("SearchController", () => {
         beforeEach(done => {
           const mockCallback = jest.fn();
           userEventEmitter.on("sequence-search-complete", mockCallback);
-          request(app)
-            .put(`/searches/${sequenceSearchId}/results`)
+          request(args.app)
+            .put(`/searches/${args.sequenceSearchId}/results`)
             .send(searches.results.sequence)
             .expect(httpStatus.OK)
             .end((err, res) => {
@@ -199,7 +203,7 @@ describe("SearchController", () => {
           done();
         });
         it("should save search result", async done => {
-          const search = await Search.get(sequenceSearchId);
+          const search = await Search.get(args.sequenceSearchId);
           const searchObject = search.toObject();
 
           expect(searchObject).toHaveProperty("result");
@@ -221,7 +225,7 @@ describe("SearchController", () => {
 
           expect(data).toHaveProperty("status", Constants.SEARCH_COMPLETE);
 
-          const foundSearch = await Search.get(sequenceSearchId);
+          const foundSearch = await Search.get(args.sequenceSearchId);
 
           const newExpirationDate = moment();
           newExpirationDate.add(7, "days");
@@ -234,7 +238,7 @@ describe("SearchController", () => {
           done();
         });
         it("should notify all the users", done => {
-          expect(notification.search.id).toEqual(sequenceSearchId);
+          expect(notification.search.id).toEqual(args.sequenceSearchId);
           expect(notification.user.firstname).toEqual("David");
 
           done();
@@ -257,8 +261,8 @@ describe("SearchController", () => {
         beforeEach(done => {
           const mockCallback = jest.fn();
           userEventEmitter.on("protein-variant-search-complete", mockCallback);
-          request(app)
-            .put(`/searches/${proteinVariantSearchId}/results`)
+          request(args.app)
+            .put(`/searches/${args.proteinVariantSearchId}/results`)
             .send(searches.results.proteinVariant)
             .expect(httpStatus.OK)
             .end((err, res) => {
@@ -349,7 +353,7 @@ describe("SearchController", () => {
           done();
         });
         it("should save search result", async done => {
-          const search = await Search.get(proteinVariantSearchId);
+          const search = await Search.get(args.proteinVariantSearchId);
           const searchObject = search.toObject();
 
           expect(searchObject).toHaveProperty("result");
@@ -367,7 +371,7 @@ describe("SearchController", () => {
           done();
         });
         it("should notify all the users", done => {
-          expect(notification.search.id).toEqual(proteinVariantSearchId);
+          expect(notification.search.id).toEqual(args.proteinVariantSearchId);
           expect(notification.user.firstname).toEqual("David");
 
           done();
@@ -387,8 +391,8 @@ describe("SearchController", () => {
         beforeEach(done => {
           const mockCallback = jest.fn();
           userEventEmitter.on("dna-variant-search-complete", mockCallback);
-          request(app)
-            .put(`/searches/${dnaVariantSearchId}/results`)
+          request(args.app)
+            .put(`/searches/${args.dnaVariantSearchId}/results`)
             .send(searches.results.dnaVariant)
             .expect(httpStatus.OK)
             .end((err, res) => {
@@ -479,7 +483,7 @@ describe("SearchController", () => {
           done();
         });
         it("should save search result", async done => {
-          const search = await Search.get(dnaVariantSearchId);
+          const search = await Search.get(args.dnaVariantSearchId);
           const searchObject = search.toObject();
 
           expect(searchObject).toHaveProperty("result");
@@ -497,7 +501,7 @@ describe("SearchController", () => {
           done();
         });
         it("should notify all the users", done => {
-          expect(notification.search.id).toEqual(dnaVariantSearchId);
+          expect(notification.search.id).toEqual(args.dnaVariantSearchId);
           expect(notification.user.firstname).toEqual("David");
 
           done();
