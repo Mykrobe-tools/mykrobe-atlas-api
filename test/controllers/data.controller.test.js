@@ -171,11 +171,11 @@ describe("DataController", () => {
     });
   });
 
-  describe("POST /data/demo", () => {
-    describe("when passing invalid data", () => {
+  describe("POST /data/bulk", () => {
+    describe("when invalid", () => {
       it("should be a protected route", done => {
         request(app)
-          .post("/data/demo")
+          .post("/data/bulk")
           .set("Authorization", "Bearer INVALID")
           .attach("file", "test/fixtures/experiments-demo/metadata_ena11.tsv")
           .expect(httpStatus.UNAUTHORIZED)
@@ -185,169 +185,193 @@ describe("DataController", () => {
             done();
           });
       });
-    });
-    describe("when using purge", () => {
-      beforeEach(async done => {
-        const experimentData = new Experiment(experiments.tbUploadMetadata);
-        const experiment = await experimentData.save();
-        done();
-      });
-      it("should purge all the experiments", done => {
+      it("should check if the file is zipped", done => {
         request(app)
-          .post("/data/demo")
+          .post("/data/bulk")
           .set("Authorization", `Bearer ${token}`)
-          .field("purge", "true")
-          .attach("file", "test/fixtures/experiments-demo/metadata_ena11.tsv")
+          .field("purge", true)
+          .attach("file", "test/fixtures/files/333-08.json")
+          .expect(httpStatus.OK)
+          .end((err, res) => {
+            expect(res.body.status).toEqual("error");
+            expect(res.body.message).toEqual("Input file must be a zip file");
+            done();
+          });
+      });
+      it("should validate the zip content", done => {
+        request(app)
+          .post("/data/bulk")
+          .set("Authorization", `Bearer ${token}`)
+          .field("purge", true)
+          .attach("file", "test/fixtures/files/invalid.zip")
+          .expect(httpStatus.OK)
+          .end((err, res) => {
+            expect(res.body.status).toEqual("error");
+            expect(res.body.message).toEqual("Cannot find metadata files");
+            done();
+          });
+      });
+      describe("when purge is true", () => {
+        beforeEach(async done => {
+          const experimentData = new Experiment(experiments.tbUploadMetadata);
+          const experiment = await experimentData.save();
+          request(app)
+            .post("/data/bulk")
+            .set("Authorization", `Bearer ${token}`)
+            .field("purge", true)
+            .attach("file", "test/fixtures/files/upload.zip")
+            .expect(httpStatus.OK)
+            .end(async (err, res) => {
+              let total = await Experiment.count();
+              while (total < 3) {
+                await DataHelper.sleep(100);
+                total = await Experiment.count();
+              }
+              done();
+            });
+        });
+        it("should not populate the value if unknown", async done => {
+          const experiment = await Experiment.findOne({
+            "metadata.sample.isolateId": "SAMN09100439"
+          });
+
+          expect(experiment.metadata.sample.countryIsolate).toEqual("UK");
+          expect(experiment.metadata.sample.cityIsolate).toEqual("");
+
+          done();
+        });
+        it("should not populate the results if no results file provided", async done => {
+          const experiment = await Experiment.findOne({
+            "metadata.sample.isolateId": "SAMEA3281359"
+          });
+
+          const { results } = experiment;
+          expect(results.length).toEqual(0);
+
+          done();
+        });
+      });
+    });
+    describe("when valid", () => {
+      it("should successfully load the experiments", async done => {
+        request(app)
+          .post("/data/bulk")
+          .set("Authorization", `Bearer ${token}`)
+          .field("purge", true)
+          .attach("file", "test/fixtures/files/upload.zip")
           .expect(httpStatus.OK)
           .end(async (err, res) => {
             let total = await Experiment.count();
-            while (total < 11) {
+            while (total < 3) {
               await DataHelper.sleep(100);
               total = await Experiment.count();
             }
-            expect(res.body.status).toEqual("success");
-            expect(res.body.data).toEqual("Demo data upload started");
-            expect(total).toEqual(11);
-            done();
-          });
-      });
-      it("should successfully load the experiments", done => {
-        request(app)
-          .post("/data/demo")
-          .set("Authorization", `Bearer ${token}`)
-          .field("purge", "true")
-          .attach("file", "test/fixtures/experiments-demo/metadata_ena11.tsv")
-          .expect(httpStatus.OK)
-          .end(async (err, res) => {
-            let total = await Experiment.count();
-            while (total < 11) {
-              total = await Experiment.count();
-            }
-            expect(res.body.status).toEqual("success");
-            expect(res.body.data).toEqual("Demo data upload started");
-            const experiment = await Experiment.findOne({
-              "metadata.sample.isolateId": "ERR550945"
+            const experiment1 = await Experiment.findOne({
+              "metadata.sample.isolateId": "SAMN09100439"
             });
-            expect(experiment.metadata.sample.countryIsolate).toEqual("PG");
-            done();
-          });
-      });
-      it("should replace the city and country", done => {
-        request(app)
-          .post("/data/demo")
-          .set("Authorization", `Bearer ${token}`)
-          .field("purge", "true")
-          .attach("file", "test/fixtures/experiments-demo/metadata_ena11.tsv")
-          .expect(httpStatus.OK)
-          .end(async (err, res) => {
-            let total = await Experiment.count();
-            while (total < 11) {
-              total = await Experiment.count();
-            }
-            expect(res.body.status).toEqual("success");
-            expect(res.body.data).toEqual("Demo data upload started");
-            const experiment = await Experiment.findOne({
-              "metadata.sample.isolateId": "SRR8237379"
-            });
-            expect(experiment.metadata.sample.countryIsolate).toEqual("CH");
-            expect(experiment.metadata.sample.cityIsolate).toEqual("Geneva");
-            done();
-          });
-      });
-      it("should populate geo data", done => {
-        request(app)
-          .post("/data/demo")
-          .set("Authorization", `Bearer ${token}`)
-          .field("purge", "true")
-          .attach("file", "test/fixtures/experiments-demo/metadata_ena11.tsv")
-          .expect(httpStatus.OK)
-          .end(async (err, res) => {
-            expect(res.body.status).toEqual("success");
-            expect(res.body.data).toEqual("Demo data upload started");
-            let experiment = await Experiment.findOne({
-              "metadata.sample.isolateId": "SRR8237379"
-            });
-            while (!experiment || !experiment.metadata.sample.latitudeIsolate) {
-              experiment = await Experiment.findOne({
-                "metadata.sample.isolateId": "SRR8237379"
-              });
-            }
-            expect(experiment.metadata.sample.countryIsolate).toEqual("CH");
-            expect(experiment.metadata.sample.cityIsolate).toEqual("Geneva");
 
-            expect(experiment.metadata.sample.latitudeIsolate).toBeGreaterThan(46.2);
-            expect(experiment.metadata.sample.latitudeIsolate).toBeLessThan(47);
+            const experiment2 = await Experiment.findOne({
+              "metadata.sample.isolateId": "SAMEA3281359"
+            });
 
-            expect(experiment.metadata.sample.longitudeIsolate).toBeGreaterThan(6.142);
-            expect(experiment.metadata.sample.longitudeIsolate).toBeLessThan(6.147);
-            done();
-          });
-      });
-      it("should not populate the value if unknown", done => {
-        request(app)
-          .post("/data/demo")
-          .set("Authorization", `Bearer ${token}`)
-          .field("purge", "true")
-          .attach("file", "test/fixtures/experiments-demo/metadata_ena11.tsv")
-          .expect(httpStatus.OK)
-          .end(async (err, res) => {
-            let total = await Experiment.count();
-            while (total < 11) {
-              total = await Experiment.count();
-            }
-            expect(res.body.status).toEqual("success");
-            expect(res.body.data).toEqual("Demo data upload started");
-            const experiment = await Experiment.findOne({
-              "metadata.sample.isolateId": "ERR552694"
+            const experiment3 = await Experiment.findOne({
+              "metadata.sample.isolateId": "SAMEA3231775"
             });
-            expect(experiment.metadata.sample.countryIsolate).toEqual("");
-            expect(experiment.metadata.sample.cityIsolate).toEqual("");
+
+            expect(experiment1.metadata.sample.countryIsolate).toEqual("UK");
+            expect(experiment2.metadata.sample.countryIsolate).toEqual("AR");
+            expect(experiment2.metadata.sample.cityIsolate).toEqual("Rosario");
+            expect(experiment3.metadata.sample.countryIsolate).toEqual("AR");
+            expect(experiment3.metadata.sample.cityIsolate).toEqual("Buenos Aires");
+
             done();
           });
       });
-    });
-    describe("when purge is not set", () => {
-      beforeEach(async done => {
-        const experimentData = new Experiment(experiments.tbUploadMetadata);
-        await experimentData.save();
-        done();
-      });
-      it("should not purge the experiments", done => {
-        request(app)
-          .post("/data/demo")
-          .set("Authorization", `Bearer ${token}`)
-          .attach("file", "test/fixtures/experiments-demo/metadata_ena11.tsv")
-          .expect(httpStatus.OK)
-          .end(async (err, res) => {
-            let total = await Experiment.count();
-            while (total < 12) {
-              total = await Experiment.count();
-            }
-            expect(res.body.status).toEqual("success");
-            expect(res.body.data).toEqual("Demo data upload started");
-            expect(total).toEqual(12);
-            done();
-          });
-      });
-      it("should successfully load the experiments", done => {
-        request(app)
-          .post("/data/demo")
-          .set("Authorization", `Bearer ${token}`)
-          .attach("file", "test/fixtures/experiments-demo/metadata_ena11.tsv")
-          .expect(httpStatus.OK)
-          .end(async (err, res) => {
-            let total = await Experiment.count();
-            while (total < 12) {
-              total = await Experiment.count();
-            }
-            expect(res.body.status).toEqual("success");
-            expect(res.body.data).toEqual("Demo data upload started");
-            const experiment = await Experiment.findOne({
-              "metadata.sample.isolateId": "ERR550945"
+      describe("when purge is true", () => {
+        beforeEach(async done => {
+          const experimentData = new Experiment(experiments.tbUploadMetadata);
+          const experiment = await experimentData.save();
+          request(app)
+            .post("/data/bulk")
+            .set("Authorization", `Bearer ${token}`)
+            .field("purge", true)
+            .attach("file", "test/fixtures/files/upload.zip")
+            .expect(httpStatus.OK)
+            .end(async (err, res) => {
+              let total = await Experiment.count();
+              while (total < 3) {
+                await DataHelper.sleep(100);
+                total = await Experiment.count();
+              }
+              done();
             });
-            expect(experiment.metadata.sample.countryIsolate).toEqual("PG");
-            done();
+        });
+        it("should purge all the experiments", async done => {
+          const total = await Experiment.count();
+          expect(total).toEqual(3);
+          done();
+        });
+        it("should replace the city and country", async done => {
+          const experiment = await Experiment.findOne({
+            "metadata.sample.isolateId": "SAMEA3281359"
           });
+
+          expect(experiment.metadata.sample.countryIsolate).toEqual("AR");
+          expect(experiment.metadata.sample.cityIsolate).toEqual("Rosario");
+
+          done();
+        });
+        it("should populate geo data", async done => {
+          const experiment = await Experiment.findOne({
+            "metadata.sample.isolateId": "SAMEA3281359"
+          });
+
+          expect(experiment.metadata.sample.countryIsolate).toEqual("AR");
+          expect(experiment.metadata.sample.cityIsolate).toEqual("Rosario");
+
+          expect(experiment.metadata.sample.latitudeIsolate).toBeGreaterThan(-33);
+          expect(experiment.metadata.sample.latitudeIsolate).toBeLessThan(-32.9);
+
+          expect(experiment.metadata.sample.longitudeIsolate).toBeGreaterThan(-60.7);
+          expect(experiment.metadata.sample.longitudeIsolate).toBeLessThan(-60.6);
+
+          done();
+        });
+        it("should populate the results", async done => {
+          const experiment = await Experiment.findOne({
+            "metadata.sample.isolateId": "SAMN09100439"
+          });
+
+          const { results } = experiment;
+          expect(results.length).toEqual(1);
+          expect(results[0].type).toEqual("predictor");
+
+          done();
+        });
+      });
+      describe("when purge is false", () => {
+        beforeEach(async done => {
+          const experimentData = new Experiment(experiments.tbUploadMetadata);
+          const experiment = await experimentData.save();
+          request(app)
+            .post("/data/bulk")
+            .set("Authorization", `Bearer ${token}`)
+            .attach("file", "test/fixtures/files/upload.zip")
+            .expect(httpStatus.OK)
+            .end(async (err, res) => {
+              let total = await Experiment.count();
+              while (total < 4) {
+                await DataHelper.sleep(100);
+                total = await Experiment.count();
+              }
+              done();
+            });
+        });
+        it("should keep the existing experiments", async done => {
+          const total = await Experiment.count();
+          expect(total).toEqual(4);
+          done();
+        });
       });
     });
   });

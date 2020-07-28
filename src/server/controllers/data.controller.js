@@ -1,16 +1,18 @@
 import fs from "fs";
 import _ from "lodash";
 import faker from "faker";
+import unzipper from "unzipper";
 import httpStatus from "http-status";
 import * as schemas from "mykrobe-atlas-jsonschema";
 import Randomizer from "makeandship-api-common/lib/modules/schema-faker/Randomizer";
 import { getRandomPercentage } from "makeandship-api-common/lib/modules/schema-faker/utils";
-import { APIError } from "makeandship-api-common/lib/modules/error";
+import { APIError, ErrorUtil } from "makeandship-api-common/lib/modules/error";
 import User from "../models/user.model";
 import Experiment from "../models/experiment.model";
 import phylogenetics from "../../config/faker/phylogenetics-choices";
 import config from "../../config/env";
 import DataHelper from "../helpers/DataHelper";
+import Constants from "../Constants";
 
 // randomizers
 const userRandomizer = new Randomizer(schemas.user, {
@@ -127,22 +129,25 @@ const generatePhylogenetics = (
  * @returns {*}
  */
 const loadDemo = async (req, res) => {
-  const purge = req.body.purge;
-
   if (!req.file) {
-    return res.jerror(new APIError("No file provided to upload", httpStatus.OK));
+    return res.jerror(new APIError(Constants.ERRORS.UPLOAD_FILE, "No files found to upload"));
   }
 
-  if (!req.file.originalname.includes(".tsv") && !req.file.originalname.includes(".csv")) {
-    return res.jerror(new APIError("Must be a csv file", httpStatus.OK));
+  const { file } = req;
+  const { purge } = req.body;
+
+  if (file.mimetype !== "application/zip") {
+    return res.jerror(new APIError(Constants.ERRORS.UPLOAD_FILE, "Input file must be a zip file"));
   }
 
-  if (purge === "true") {
+  if (purge === "true" || purge === true) {
     await Experiment.deleteMany({});
   }
 
+  const directory = await unzipper.Open.file(file.path);
+
   try {
-    await DataHelper.load(req.file.path);
+    await DataHelper.load(directory);
     return res.jsend("Demo data upload started");
   } catch (e) {
     return res.jerror(e);
