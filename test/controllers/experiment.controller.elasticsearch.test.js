@@ -62,12 +62,12 @@ afterEach(async done => {
   done();
 });
 
-/*beforeAll(async done => {
+beforeAll(async done => {
   console.log(`beforeAll: enter`);
-  await elasticService.deleteIndex();
-  console.log(`beforeAll: deleted`);
-  await elasticService.createIndex();
-  console.log(`beforeAll: created`);
+  // await elasticService.deleteIndex();
+  // console.log(`beforeAll: deleted`);
+  // await elasticService.createIndex();
+  // console.log(`beforeAll: created`);
 
   const experiment1 = await experimentWithMetadata.save();
   console.log(JSON.stringify(experiment1));
@@ -82,17 +82,17 @@ afterEach(async done => {
   args.isolateId2 = metadata2.sample.isolateId;
 
   // index to elasticsearch
-  const experiments = await Experiment.list();
-  console.log(`beforeAll: experiments: ${experiments.length}`);
-  await elasticService.indexDocuments(experiments);
-  console.log(`beforeAll: indexed`);
-  let data = await elasticService.search(new SearchQuery({}), {});
-  while (data.hits.total < 2) {
-    data = await await elasticService.search(new SearchQuery({}), {});
-  }
+  // const experiments = await Experiment.list();
+  // console.log(`beforeAll: experiments: ${experiments.length}`);
+  // await elasticService.indexDocuments(experiments);
+  // console.log(`beforeAll: indexed`);
+  // let data = await elasticService.search(new SearchQuery({}), {});
+  // while (data.hits.total < 2) {
+  //   data = await await elasticService.search(new SearchQuery({}), {});
+  // }
   console.log(`beforeAll: exit`);
   done();
-}, 60000);*/
+}, 60000);
 
 afterAll(async done => {
   // await elasticService.deleteIndex();
@@ -875,12 +875,14 @@ describe("ExperimentController > Elasticsearch", () => {
           threshold: 80
         }
       };
+      const isolateId1 = args.isolateId1;
+      const isolateId2 = args.isolateId2;
       result.results.push({
-        "metadata.sample.isolateId": args.isolateId1,
+        "metadata.sample.isolateId": isolateId1,
         percent_kmers_found: 100
       });
       result.results.push({
-        "metadata.sample.isolateId": args.isolateId2,
+        "metadata.sample.isolateId": isolateId2,
         percent_kmers_found: 90
       });
 
@@ -889,45 +891,58 @@ describe("ExperimentController > Elasticsearch", () => {
       sequenceSearchData.status = Constants.SEARCH_COMPLETE;
 
       const sequenceSearch = await sequenceSearchData.save();
+
       done();
     });
     describe("when no additional criteria provided", () => {
-      it("should filter by experiments ids", done => {
+      let status = null;
+      let data = null;
+      beforeEach(done => {
+        // mocks/atlas-experiment/_search/POST.f17040a0181759118ca7d33418965d7b.mock
         request(args.app)
           .get("/experiments/search?q=GTCAGTCCGTTTGTTCTTGTGGCGAGTGTAGTA&threshold=90")
           .set("Authorization", `Bearer ${args.token}`)
           .expect(httpStatus.OK)
           .end((err, res) => {
-            expect(res.body.status).toEqual("success");
-
-            const data = res.body.data;
-
-            expect(data.type).toEqual("sequence");
-            expect(data.bigsi).toBeTruthy();
-            expect(data.users).toBeTruthy();
-            expect(data.results).toBeTruthy();
-            expect(data.type).toEqual("sequence");
-
-            const results = data.results;
-            expect(results.length).toEqual(2);
-
-            const result1 = results[0];
-            const result2 = results[1];
-
-            expect(result1.id).toBeTruthy();
-            expect(result1.metadata).toBeTruthy();
-            expect(result1.percent_kmers_found).toBeTruthy();
-
-            expect(result2.id).toBeTruthy();
-            expect(result2.metadata).toBeTruthy();
-            expect(result2.percent_kmers_found).toBeTruthy();
+            status = res.body.status;
+            data = res.body.data;
 
             done();
           });
       });
+      it("should return success", () => {
+        expect(status).toEqual("success");
+      });
+      it("should inflate results", () => {
+        const results = data.results;
+        expect(results.length).toEqual(2);
+
+        const result1 = results[0];
+        const result2 = results[1];
+
+        expect(result1.id).toBeTruthy();
+        expect(result1.metadata).toBeTruthy();
+        expect(result1.percent_kmers_found).toBeTruthy();
+
+        expect(result2.id).toBeTruthy();
+        expect(result2.metadata).toBeTruthy();
+        expect(result2.percent_kmers_found).toBeTruthy();
+      });
+      it("should run a sequence search", done => {
+        expect(data.type).toEqual("sequence");
+        expect(data.bigsi).toBeTruthy();
+        expect(data.users).toBeTruthy();
+        expect(data.results).toBeTruthy();
+        expect(data.type).toEqual("sequence");
+
+        done();
+      });
     });
     describe("when additional criteria provided", () => {
-      it.only("should filter by experiments ids and search criteria", done => {
+      let status = null;
+      let data = null;
+      beforeEach(done => {
+        // mocks/atlas-experiment/_search/POST.d19a299a334fca941c4bba0dcb615ff9.mock
         request(args.app)
           .get(
             "/experiments/search?q=GTCAGTCCGTTTGTTCTTGTGGCGAGTGTAGTA&threshold=90&metadata.patient.smoker=No"
@@ -935,32 +950,50 @@ describe("ExperimentController > Elasticsearch", () => {
           .set("Authorization", `Bearer ${args.token}`)
           .expect(httpStatus.OK)
           .end((err, res) => {
-            expect(res.body.status).toEqual("success");
-
-            const data = res.body.data;
-
-            expect(data.type).toEqual("sequence");
-            expect(data.bigsi).toBeTruthy();
-            expect(data.users).toBeTruthy();
-            expect(data.results).toBeTruthy();
-            expect(data.type).toEqual("sequence");
-
-            const results = data.results;
-            expect(results.length).toEqual(1);
-
-            const result = results.shift();
-
-            expect(result.id).toBeTruthy();
-            expect(result.metadata).toBeTruthy();
-            expect(result.metadata.patient.smoker).toEqual("No");
-            expect(result.percent_kmers_found).toEqual(90);
+            status = res.body.status;
+            data = res.body.data;
 
             done();
           });
       });
+      it("should return success", done => {
+        expect(status).toEqual("success");
+
+        done();
+      });
+      it("should run a sequence search", done => {
+        expect(data.type).toEqual("sequence");
+        expect(data.bigsi).toBeTruthy();
+        expect(data.users).toBeTruthy();
+        expect(data.results).toBeTruthy();
+        expect(data.type).toEqual("sequence");
+
+        done();
+      });
+      it("should inflate search results", done => {
+        const results = data.results;
+        expect(results.length).toEqual(1);
+
+        const result = results[0];
+
+        expect(result.id).toBeTruthy();
+        expect(result.metadata).toBeTruthy();
+        expect(result.metadata.patient.smoker).toEqual("No");
+        expect(result.percent_kmers_found).toEqual(90);
+        done();
+      });
+      it("should filter search results", done => {
+        const result = data.results[0];
+
+        expect(result.metadata.patient.smoker).toEqual("No");
+        done();
+      });
     });
     describe("when no results", () => {
-      it("should return empty experiments", done => {
+      let status = null;
+      let data = null;
+      beforeEach(done => {
+        // mocks/atlas-experiment/_search/POST.f7727e8fb312a5601d06ac318674b0f0.mock
         request(args.app)
           .get(
             "/experiments/search?q=GTCAGTCCGTTTGTTCTTGTGGCGAGTGTAGTA&threshold=90&metadata.patient.smoker=Y"
@@ -968,21 +1001,27 @@ describe("ExperimentController > Elasticsearch", () => {
           .set("Authorization", `Bearer ${args.token}`)
           .expect(httpStatus.OK)
           .end((err, res) => {
-            expect(res.body.status).toEqual("success");
-
-            const data = res.body.data;
-
-            expect(data.type).toEqual("sequence");
-            expect(data.bigsi).toBeTruthy();
-            expect(data.users).toBeTruthy();
-            expect(data.results).toBeTruthy();
-            expect(data.type).toEqual("sequence");
-
-            const results = data.results;
-            expect(results.length).toEqual(0);
+            status = res.body.status;
+            data = res.body.data;
 
             done();
           });
+      });
+      it("should return success", done => {
+        expect(status).toEqual("success");
+        done();
+      });
+      it("should return no results", done => {
+        expect(data.type).toEqual("sequence");
+        expect(data.bigsi).toBeTruthy();
+        expect(data.users).toBeTruthy();
+        expect(data.results).toBeTruthy();
+        expect(data.type).toEqual("sequence");
+
+        const results = data.results;
+        expect(results.length).toEqual(0);
+
+        done();
       });
     });
   });

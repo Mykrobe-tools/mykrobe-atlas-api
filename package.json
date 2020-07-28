@@ -75,7 +75,7 @@
     "method-override": "^3.0.0",
     "mkdirp": "^0.5.1",
     "mkdirp-promise": "^5.0.1",
-    "mongoose": "^5.9.25",
+    "mongoose": "5.1.5",
     "mongoose-jsonschema-validator": "git+ssh://git@bitbucket.org/makeandship/mongoose-jsonschema-validator.git#v1.0.4",
     "mongoose-unique-validator": "^2.0.1",
     "morgan": "^1.9.1",

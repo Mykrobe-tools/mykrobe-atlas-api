@@ -448,7 +448,6 @@ const search = async (req, res) => {
     if (bigsi) {
       const search = await BigsiSearchHelper.search(bigsi, query, req.dbUser);
       const searchJson = new SearchJSONTransformer().transform(search);
-
       searchJson.search = new SearchQueryJSONTransformer().transform(req.query, {});
 
       return res.jsend(searchJson);
