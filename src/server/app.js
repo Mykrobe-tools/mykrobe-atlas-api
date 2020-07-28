@@ -27,8 +27,9 @@ import { stubDevApis } from "../external";
 
 const keycloak = AccountsHelper.keycloakInstance();
 
-const createApp = async () => {
-  const { rateLimitReset, rateLimitMax, limit } = config.express;
+const createApp = async options => {
+  const settings = Object.assign(config.express, options);
+  const { rateLimitReset, rateLimitMax, limit } = settings;
 
   const app = express();
 
