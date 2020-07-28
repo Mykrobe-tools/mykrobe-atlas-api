@@ -2565,7 +2565,6 @@ describe("ExperimentController", () => {
             .set("Authorization", `Bearer ${args.token}`)
             .expect(httpStatus.OK)
             .end(async (err, res) => {
-              console.log(JSON.stringify(res.body));
               expect(res.body.status).toEqual("success");
               expect(res.body.data.id).toEqual(searchId);
               expect(res.body.data.users.length).toEqual(0);
