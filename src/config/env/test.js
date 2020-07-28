@@ -25,11 +25,8 @@ export default {
   services: {
     geo: {
       google: {
-        apiKey: "AIzaSyA_xGtYZ8EouAFVlSjM5o5Iv3b7D_PBZsk" //"mock-google-geocoding-api-key"
+        apiKey: "mock-google-geocoding-api-key"
       }
-    },
-    locationiq: {
-      apiKey: "d1c26595029974"
     }
   }
 };

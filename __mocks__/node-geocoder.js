@@ -100,7 +100,7 @@ GoogleGeocoder.prototype.geocode = function(location) {
           provider: "google"
         }
       ];
-    case "Chongqing, China":
+    case "Chongqing, CN":
       return [
         {
           formattedAddress: "Chongqing, China",
@@ -118,6 +118,73 @@ GoogleGeocoder.prototype.geocode = function(location) {
           city: "Chongqing",
           country: "China",
           countryCode: "CN",
+          provider: "google"
+        }
+      ];
+    case "Buenos Aires, AR":
+      return [
+        {
+          formattedAddress: "Buenos Aires, Argentina",
+          latitude: -34.6036844,
+          longitude: -58.3815591,
+          extra: {
+            googlePlaceId: "ChIJvQz5TjvKvJURh47oiC6Bs6A",
+            confidence: 0.5,
+            premise: null,
+            subpremise: null,
+            neighborhood: "Buenos Aires",
+            establishment: null
+          },
+          administrativeLevels: { level1long: "Buenos Aires", level1short: "CABA" },
+          city: "Buenos Aires",
+          country: "Argentina",
+          countryCode: "AR",
+          provider: "google"
+        }
+      ];
+    case "Rosario, AR":
+      return [
+        {
+          formattedAddress: "Rosario, Santa Fe Province, Argentina",
+          latitude: -32.9587022,
+          longitude: -60.69304159999999,
+          extra: {
+            googlePlaceId: "ChIJW9fXNZNTtpURV6VYAumGQOw",
+            confidence: 0.5,
+            premise: null,
+            subpremise: null,
+            neighborhood: "Rosario",
+            establishment: null
+          },
+          administrativeLevels: {
+            level2long: "Rosario Department",
+            level2short: "Rosario Department",
+            level1long: "Santa Fe Province",
+            level1short: "Santa Fe Province"
+          },
+          city: "Rosario",
+          country: "Argentina",
+          countryCode: "AR",
+          provider: "google"
+        }
+      ];
+    case "UK":
+      return [
+        {
+          formattedAddress: "United Kingdom",
+          latitude: 55.378051,
+          longitude: -3.435973,
+          extra: {
+            googlePlaceId: "ChIJqZHHQhE7WgIReiWIMkOg-MQ",
+            confidence: 0.5,
+            premise: null,
+            subpremise: null,
+            neighborhood: "United Kingdom",
+            establishment: null
+          },
+          administrativeLevels: {},
+          country: "United Kingdom",
+          countryCode: "GB",
           provider: "google"
         }
       ];
@@ -302,6 +369,157 @@ LocationIQGeocoder.prototype.geocode = function(location) {
           city: "Mumbai",
           state: "Maharashtra",
           countryCode: "IN",
+          provider: "locationiq"
+        }
+      ];
+    } else if (location.city === "Rosario" && location.country === "AR") {
+      return [
+        {
+          latitude: -32.9595004,
+          longitude: -60.6615415,
+          country: "Argentina",
+          city: "Rosario",
+          state: "Santa Fe",
+          zipcode: "S2000",
+          countryCode: "AR",
+          provider: "locationiq"
+        },
+        {
+          latitude: -27.7034987,
+          longitude: -63.3908894,
+          country: "Argentina",
+          city: "Rosario",
+          state: "Santiago del Estero",
+          zipcode: "G4354",
+          countryCode: "AR",
+          provider: "locationiq"
+        },
+        {
+          latitude: -25.9362757,
+          longitude: -63.741326,
+          country: "Argentina",
+          city: "Rosario",
+          state: "Santiago del Estero",
+          zipcode: "G4189",
+          countryCode: "AR",
+          provider: "locationiq"
+        },
+        {
+          latitude: -27.1810653,
+          longitude: -64.2806232,
+          country: "Argentina",
+          city: "El Rosario",
+          state: "Santiago del Estero",
+          zipcode: "G4184",
+          countryCode: "AR",
+          provider: "locationiq"
+        },
+        {
+          latitude: -28.9996963,
+          longitude: -65.1940534,
+          country: "Argentina",
+          city: "El Rosario",
+          state: "Catamarca",
+          zipcode: "K5264",
+          countryCode: "AR",
+          provider: "locationiq"
+        },
+        {
+          latitude: -29.2270034,
+          longitude: -65.9145975,
+          country: "Argentina",
+          city: "El Rosario",
+          state: "La Rioja",
+          zipcode: "F5300",
+          countryCode: "AR",
+          provider: "locationiq"
+        },
+        {
+          latitude: -29.6095584,
+          longitude: -63.1550199,
+          country: "Argentina",
+          city: "El Rosario",
+          state: "Santiago del Estero",
+          zipcode: "G5253",
+          countryCode: "AR",
+          provider: "locationiq"
+        },
+        {
+          latitude: -27.9058692,
+          longitude: -63.7531288,
+          country: "Argentina",
+          city: "El Rosario",
+          state: "Santiago del Estero",
+          zipcode: "G4308",
+          countryCode: "AR",
+          provider: "locationiq"
+        },
+        {
+          latitude: -27.9888038,
+          longitude: -65.6892484,
+          country: "Argentina",
+          city: "San Antonio de Paclin",
+          state: "Catamarca",
+          zipcode: "K4718",
+          countryCode: "AR",
+          provider: "locationiq"
+        }
+      ];
+    } else if (location.city === "Buenos Aires" && location.country === "AR") {
+      return [
+        {
+          latitude: -34.6075682,
+          longitude: -58.4370894,
+          country: "Argentina",
+          city: "Autonomous City of Buenos Aires",
+          state: "Autonomous City of Buenos Aires",
+          countryCode: "AR",
+          provider: "locationiq"
+        },
+        {
+          latitude: -42.9165061,
+          longitude: -71.3363881,
+          country: "Argentina",
+          city: "Esquel",
+          state: "Chubut",
+          countryCode: "AR",
+          provider: "locationiq"
+        },
+        {
+          latitude: -24.691851,
+          longitude: -64.0173581,
+          country: "Argentina",
+          city: "Buenos Aires",
+          state: "Salta",
+          countryCode: "AR",
+          provider: "locationiq"
+        },
+        {
+          latitude: -47.3447696,
+          longitude: -66.8025582,
+          country: "Argentina",
+          city: "Buenos Aires",
+          state: "Santa Cruz Province, Argentina",
+          countryCode: "AR",
+          provider: "locationiq"
+        },
+        {
+          latitude: -54.162247,
+          longitude: -67.647717,
+          country: "Argentina",
+          city: "Buenos Aires",
+          state: "Tierra del Fuego Province",
+          countryCode: "AR",
+          provider: "locationiq"
+        }
+      ];
+    } else if (location.country === "UK") {
+      return [
+        {
+          latitude: 55.367,
+          longitude: -3.96141844454237,
+          country: "United Kingdom",
+          countryCode: "GB",
           provider: "locationiq"
         }
       ];

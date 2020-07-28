@@ -55,23 +55,26 @@ router.route("/create").post(dataController.create);
 
 /**
  * @swagger
- * /data/demo:
+ * /data/bulk:
  *   post:
  *     tags:
  *       - Data
  *     description: Load Demo Data
+ *     consumes:
+ *       - multipart/form-data
  *     produces:
  *       - application/json
  *     parameters:
- *       - in: body
+ *       - in: formData
  *         name: file
- *         description: The csv file name
- *         schema:
- *           type: object
- *           properties:
- *             file:
- *               type: string
- *               format: binary
+ *         description: The file to upload
+ *         type: string
+ *         format: binary
+ *         required: true
+ *       - in: formData
+ *         name: purge
+ *         description: A flag to purge existing experiments
+ *         type: boolean
  *     security:
  *       - Bearer: []
  *     responses:
@@ -80,8 +83,6 @@ router.route("/create").post(dataController.create);
  *         schema:
  *           $ref: '#/definitions/BasicResponse'
  */
-router
-  .route("/demo")
-  .post(keycloak.connect.protect(), upload.single("file"), dataController.loadDemo);
+router.route("/bulk").post(keycloak.connect.protect(), upload.single("file"), dataController.bulk);
 
 export default router;

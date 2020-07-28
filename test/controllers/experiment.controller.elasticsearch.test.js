@@ -481,7 +481,7 @@ describe("ExperimentController > Elasticsearch", () => {
               .end((err, res) => {
                 status = res.body.status;
                 data = res.body.data;
-                console.log(`data: ${JSON.stringify(data)}`);
+
                 done();
               });
           });
@@ -521,7 +521,7 @@ describe("ExperimentController > Elasticsearch", () => {
               .end((err, res) => {
                 status = res.body.status;
                 data = res.body.data;
-                console.log(`data: ${JSON.stringify(data)}`);
+
                 done();
               });
           });
@@ -561,7 +561,7 @@ describe("ExperimentController > Elasticsearch", () => {
               .end((err, res) => {
                 status = res.body.status;
                 data = res.body.data;
-                console.log(`data: ${JSON.stringify(data)}`);
+
                 done();
               });
           });
