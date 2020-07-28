@@ -43,7 +43,6 @@ const experimentWithMetadata = new Experiment(experiments.tbUploadMetadataPredic
 const experimentWithChineseMetadata = new Experiment(experiments.tbUploadMetadataChinese);
 
 beforeEach(async done => {
-  console.log(`beforeEach: enter`);
   const userData = new User(users.admin);
   args.user = await userData.save();
   request(args.app)
@@ -51,7 +50,6 @@ beforeEach(async done => {
     .send({ username: "admin@nhs.co.uk", password: "password" })
     .end((err, res) => {
       args.token = res.body.data.access_token;
-      console.log(`beforeEach: exit`);
       done();
     });
 });
@@ -71,18 +69,17 @@ beforeAll(async done => {
 
   args.isolateId1 = metadata1.sample.isolateId;
   args.isolateId2 = metadata2.sample.isolateId;
+
   done();
-}, 60000);
+});
 
 afterAll(async done => {
-  // await elasticService.deleteIndex();
-  // await elasticService.createIndex();
   await Experiment.deleteMany({});
   done();
 });
 
 describe("ExperimentController > Elasticsearch", () => {
-  describe("# GET /experiments/choices", () => {
+  describe("GET /experiments/choices", () => {
     describe("when invalid", () => {
       describe("when token is invalid", () => {
         it("should return a not authorised error", done => {
@@ -416,7 +413,7 @@ describe("ExperimentController > Elasticsearch", () => {
       });
     });
   });
-  describe("# GET /experiments/search", () => {
+  describe("GET /experiments/search", () => {
     describe("when not valid", () => {
       describe("when using an invalid token", () => {
         it("should return an error", done => {
@@ -437,7 +434,7 @@ describe("ExperimentController > Elasticsearch", () => {
         let status = null;
         let data = null;
         beforeEach(async done => {
-          // mocks/atlas-experiment/_search/POST.3c6669e507bacd6b7850cde557e17323.mock
+          // mocks/atlas-experiment/_search/POST.41e02ddaf093476691ec5e5d7b1e66e0.mock
           request(args.app)
             .get("/experiments/search")
             .set("Authorization", `Bearer ${args.token}`)
@@ -445,7 +442,7 @@ describe("ExperimentController > Elasticsearch", () => {
             .end((err, res) => {
               status = res.body.status;
               data = res.body.data;
-              console.log(`data: ${JSON.stringify(data)}`);
+
               done();
             });
         });
@@ -605,7 +602,7 @@ describe("ExperimentController > Elasticsearch", () => {
             .end((err, res) => {
               status = res.body.status;
               data = res.body.data;
-              console.log(`data: ${JSON.stringify(data)}`);
+
               done();
             });
         });
@@ -840,7 +837,7 @@ describe("ExperimentController > Elasticsearch", () => {
       });
     });
   });
-  describe("# GET /experiments/search", () => {
+  describe("GET /experiments/search", () => {
     beforeEach(async done => {
       const sequenceSearchData = new Search(searches.searchOnly.sequence);
       const expires = moment();

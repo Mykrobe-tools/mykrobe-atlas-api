@@ -188,7 +188,7 @@ describe("OrganisationController", () => {
     });
   });
   describe("PUT /organisations/:id", () => {
-    it("should update args.organisation details", done => {
+    it("should update organisation details", done => {
       const data = {
         name: "Make and Ship"
       };
@@ -202,7 +202,7 @@ describe("OrganisationController", () => {
           done();
         });
     });
-    it("should not update args.organisation slug", done => {
+    it("should not update organisation slug", done => {
       const data = {
         name: "Make and Ship"
       };
@@ -267,7 +267,7 @@ describe("OrganisationController", () => {
     });
   });
   describe("GET /organisations", () => {
-    it("should get all args.organisations", done => {
+    it("should get all organisations", done => {
       request(args.app)
         .get("/organisations")
         .set("Authorization", `Bearer ${args.token}`)
@@ -280,7 +280,7 @@ describe("OrganisationController", () => {
     });
   });
   describe("DELETE /organisations/:id", () => {
-    it("should delete args.organisation", done => {
+    it("should delete organisation", done => {
       request(args.app)
         .delete(`/organisations/${args.id}`)
         .set("Authorization", `Bearer ${args.token}`)
@@ -292,7 +292,7 @@ describe("OrganisationController", () => {
         });
     });
 
-    it("should return an error if args.organisation not found", done => {
+    it("should return an error if organisation not found", done => {
       request(args.app)
         .delete("/organisations/589dcdd38d71fee259dc4e00")
         .set("Authorization", `Bearer ${args.token}`)
@@ -986,7 +986,7 @@ describe("OrganisationController", () => {
               done();
             });
         });
-        it("should keep the owner in the args.organisation", done => {
+        it("should keep the owner in the organisation", done => {
           request(args.app)
             .post(`/organisations/${args.id}/owners/${member.id}/demote`)
             .set("Authorization", `Bearer ${args.token}`)
@@ -998,7 +998,7 @@ describe("OrganisationController", () => {
             });
         });
       });
-      describe("when there are multiple args.organisation owners", () => {
+      describe("when there are multiple organisation owners", () => {
         beforeEach(async done => {
           const ownerData = new User(users.thomas);
           const savedOwner = await ownerData.save();
