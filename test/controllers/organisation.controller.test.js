@@ -50,7 +50,7 @@ afterEach(async done => {
 describe("OrganisationController", () => {
   describe("POST /organisations", () => {
     describe("when valid", () => {
-      it("should create a new args.organisation", done => {
+      it("should create a new organisation", done => {
         request(args.app)
           .post("/organisations")
           .set("Authorization", `Bearer ${args.token}`)
@@ -81,7 +81,7 @@ describe("OrganisationController", () => {
             });
         });
       });
-      describe("when the args.organisation already exists", () => {
+      describe("when the organisation already exists", () => {
         describe("when the name already exists", () => {
           it("should return an error", done => {
             request(args.app)
@@ -113,7 +113,7 @@ describe("OrganisationController", () => {
         describe("when the slug already exists", () => {
           it("should return an error", async done => {
             const anotherOrganisation = new Organisation();
-            anotherOrganisation.name = "Another args.organisation";
+            anotherOrganisation.name = "Another organisation";
             anotherOrganisation.slug = "make-and-ship";
             await anotherOrganisation.save();
 
@@ -139,7 +139,7 @@ describe("OrganisationController", () => {
     });
   });
   describe("GET /organisations/:id", () => {
-    it("should get args.organisation details", done => {
+    it("should get organisation details", done => {
       request(args.app)
         .get(`/organisations/${args.id}`)
         .set("Authorization", `Bearer ${args.token}`)
@@ -151,7 +151,7 @@ describe("OrganisationController", () => {
         });
     });
 
-    it("should report error with message - Not found, when args.organisation does not exists", done => {
+    it("should report error with message - Not found, when organisation does not exists", done => {
       request(args.app)
         .get("/organisations/56c787ccc67fc16ccc1a5e92")
         .set("Authorization", `Bearer ${args.token}`)
@@ -890,7 +890,7 @@ describe("OrganisationController", () => {
             });
         });
       });
-      describe("when the user is in the args.organisation members", () => {
+      describe("when the user is in the organisation members", () => {
         beforeEach(async done => {
           args.organisation.members.push(member);
           await args.organisation.save();
