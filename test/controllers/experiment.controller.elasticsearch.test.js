@@ -63,34 +63,14 @@ afterEach(async done => {
 });
 
 beforeAll(async done => {
-  console.log(`beforeAll: enter`);
-  // await elasticService.deleteIndex();
-  // console.log(`beforeAll: deleted`);
-  // await elasticService.createIndex();
-  // console.log(`beforeAll: created`);
-
   const experiment1 = await experimentWithMetadata.save();
-  console.log(JSON.stringify(experiment1));
-
   const experiment2 = await experimentWithChineseMetadata.save();
-  console.log(JSON.stringify(experiment2));
 
   const metadata1 = experiment1.get("metadata");
   const metadata2 = experiment2.get("metadata");
 
   args.isolateId1 = metadata1.sample.isolateId;
   args.isolateId2 = metadata2.sample.isolateId;
-
-  // index to elasticsearch
-  // const experiments = await Experiment.list();
-  // console.log(`beforeAll: experiments: ${experiments.length}`);
-  // await elasticService.indexDocuments(experiments);
-  // console.log(`beforeAll: indexed`);
-  // let data = await elasticService.search(new SearchQuery({}), {});
-  // while (data.hits.total < 2) {
-  //   data = await await elasticService.search(new SearchQuery({}), {});
-  // }
-  console.log(`beforeAll: exit`);
   done();
 }, 60000);
 
