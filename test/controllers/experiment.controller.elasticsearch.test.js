@@ -123,7 +123,7 @@ describe("ExperimentController > Elasticsearch", () => {
         let status = null;
         let data = null;
         beforeEach(done => {
-          // mocks/atlas-experiment/_search/POST.4688717e47a0f229dbc00b3bc4956838
+          // mocks/atlas-experiment/_search/POST.4688717e47a0f229dbc00b3bc4956838.mock
           request(args.app)
             .get("/experiments/choices")
             .set("Authorization", `Bearer ${args.token}`)
@@ -274,10 +274,10 @@ describe("ExperimentController > Elasticsearch", () => {
         let data = null;
         beforeEach(done => {
           // choices will remove filter attribute (when removed)
-          // mocks/atlas-experiment/_search/POST.4688717e47a0f229dbc00b3bc4956838
+          // mocks/atlas-experiment/_search/POST.4688717e47a0f229dbc00b3bc4956838.mock
 
           // choices will remove filter attribute (when set)
-          // mocks/atlas-experiment/_search/POST.3c6669e507bacd6b7850cde557e17323
+          // mocks/atlas-experiment/_search/POST.3c6669e507bacd6b7850cde557e17323.mock
           request(args.app)
             .get(
               "/experiments/choices?metadata.patient.patientId=9bd049c5-7407-4129-a973-17291ccdd2cc"
@@ -396,10 +396,10 @@ describe("ExperimentController > Elasticsearch", () => {
         let data = null;
         beforeEach(done => {
           // choices will remove filter attribute (when removed)
-          // mocks/atlas-experiment/_search/POST.4688717e47a0f229dbc00b3bc4956838
+          // mocks/atlas-experiment/_search/POST.4688717e47a0f229dbc00b3bc4956838.mock
 
           // choices will remove filter attribute (when set)
-          // mocks/atlas-experiment/_search/POST.3c6669e507bacd6b7850cde557e17323
+          // mocks/atlas-experiment/_search/POST.3c6669e507bacd6b7850cde557e17323.mock
           request(args.app)
             .get(
               "/experiments/choices?q=CAGTCCGTTTGTTCT&metadata.patient.patientId=9bd049c5-7407-4129-a973-17291ccdd2cc"
@@ -457,7 +457,7 @@ describe("ExperimentController > Elasticsearch", () => {
         let status = null;
         let data = null;
         beforeEach(async done => {
-          // mocks/atlas-experiment/_search/POST.3c6669e507bacd6b7850cde557e17323
+          // mocks/atlas-experiment/_search/POST.3c6669e507bacd6b7850cde557e17323.mock
           request(args.app)
             .get("/experiments/search")
             .set("Authorization", `Bearer ${args.token}`)
@@ -496,7 +496,7 @@ describe("ExperimentController > Elasticsearch", () => {
           let status = null;
           let data = null;
           beforeEach(async done => {
-            // mocks/atlas-experiment/_search/POST.20aa703ef9174498f37f7159e801ba4d
+            // mocks/atlas-experiment/_search/POST.20aa703ef9174498f37f7159e801ba4d.mock
             request(args.app)
               .get("/experiments/search?metadata.patient.smoker=Yes&metadata.patient.imprisoned=No")
               .set("Authorization", `Bearer ${args.token}`)
@@ -536,7 +536,7 @@ describe("ExperimentController > Elasticsearch", () => {
           let status = null;
           let data = null;
           beforeEach(async done => {
-            // mocks/atlas-experiment/_search/POST.c35162290e4c1781766d43eb2e991cf2
+            // mocks/atlas-experiment/_search/POST.c35162290e4c1781766d43eb2e991cf2.mock
             request(args.app)
               .get("/experiments/search?results.predictor.susceptibility.Rifampicin.prediction=R")
               .set("Authorization", `Bearer ${args.token}`)
@@ -576,7 +576,7 @@ describe("ExperimentController > Elasticsearch", () => {
           let status = null;
           let data = null;
           beforeEach(async done => {
-            // mocks/atlas-experiment/_search/POST.3930e23f448576dd0da1628dea4a838b
+            // mocks/atlas-experiment/_search/POST.3930e23f448576dd0da1628dea4a838b.mock
             request(args.app)
               .get("/experiments/search?results.predictor.mdr=true")
               .set("Authorization", `Bearer ${args.token}`)
@@ -617,7 +617,7 @@ describe("ExperimentController > Elasticsearch", () => {
         let status = null;
         let data = null;
         beforeEach(async done => {
-          // mocks/atlas-experiment/_search/POST.cdfe886982486513ba30bd0641fc339b
+          // mocks/atlas-experiment/_search/POST.cdfe886982486513ba30bd0641fc339b.mock
           request(args.app)
             .get("/experiments/search?q=insulin")
             .set("Authorization", `Bearer ${args.token}`)
@@ -662,7 +662,7 @@ describe("ExperimentController > Elasticsearch", () => {
           let status = null;
           let data = null;
           beforeEach(done => {
-            // mocks/atlas-experiment/_search/POST.4a225cfef3805aa3268f67cfa36488a4
+            // mocks/atlas-experiment/_search/POST.4a225cfef3805aa3268f67cfa36488a4.mock
             request(args.app)
               .get("/experiments/search?metadata.patient.imprisoned=No&per=10&page=1")
               .set("Authorization", `Bearer ${args.token}`)
@@ -692,7 +692,7 @@ describe("ExperimentController > Elasticsearch", () => {
           let status = null;
           let data = null;
           beforeEach(done => {
-            // mocks/atlas-experiment/_search/POST.5ad09260988ff3af158764814334dcad
+            // mocks/atlas-experiment/_search/POST.5ad09260988ff3af158764814334dcad.mock
             request(args.app)
               .get("/experiments/search?metadata.patient.imprisoned=No&per=1&page=1")
               .set("Authorization", `Bearer ${args.token}`)
