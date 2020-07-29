@@ -8,7 +8,13 @@ import User from "../../src/server/models/user.model";
 
 import users from "../fixtures/users";
 
-const app = createApp();
+const args = {
+  app: null
+};
+
+beforeAll(async () => {
+  args.app = await createApp();
+});
 
 beforeEach(async () => {
   const userData = new User(users.admin);
@@ -22,7 +28,7 @@ afterEach(async () => {
 describe("Swagger", () => {
   describe("when serving swagger docs", () => {
     it("should serve a valid json", async done => {
-      request(app)
+      request(args.app)
         .get("/swagger.json")
         .expect(httpStatus.OK)
         .end((err, res) => {
@@ -33,7 +39,7 @@ describe("Swagger", () => {
     });
 
     it("should be valid against the swagger spec", async done => {
-      request(app)
+      request(args.app)
         .get("/swagger.json")
         .expect(httpStatus.OK)
         .end(async (err, res) => {
@@ -50,7 +56,7 @@ describe("Swagger", () => {
     });
 
     it("should return a success response", async done => {
-      request(app)
+      request(args.app)
         .get("/swagger.json")
         .expect(httpStatus.OK)
         .end((err, res) => {

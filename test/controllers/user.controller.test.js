@@ -17,27 +17,34 @@ import searches from "../fixtures/searches";
 import experiments from "../fixtures/experiments";
 import MDR from "../fixtures/files/MDR_Results.json";
 
-const app = createApp();
+const args = {
+  app: null,
+  user: null,
+  token: null,
+  experimentId: null
+};
 
-let savedUser = null;
-let token = null;
-let experimentId = null;
+beforeAll(async () => {
+  args.app = await createApp();
+});
+
+const app = createApp();
 
 beforeEach(async done => {
   const userData = new User(users.admin);
   const experimentData = new Experiment(experiments.tbUploadMetadata);
 
-  savedUser = await userData.save();
-  request(app)
+  args.user = await userData.save();
+  request(args.app)
     .post("/auth/login")
     .send({ username: "admin@nhs.co.uk", password: "password" })
     .end(async (err, res) => {
-      token = res.body.data.access_token;
+      args.token = res.body.data.access_token;
 
-      experimentData.owner = savedUser;
+      experimentData.owner = args.user;
       const savedExperiment = await experimentData.save();
 
-      experimentId = savedExperiment.id;
+      args.experimentId = savedExperiment.id;
       done();
     });
 });
@@ -61,7 +68,7 @@ describe("UserController", () => {
 
   describe("# POST /users", () => {
     it("should create a new user", done => {
-      request(app)
+      request(args.app)
         .post("/users")
         .send(user)
         .expect(httpStatus.OK)
@@ -81,7 +88,7 @@ describe("UserController", () => {
         lastname: "Robin",
         password: "password"
       };
-      request(app)
+      request(args.app)
         .post("/users")
         .send(invalid)
         .expect(httpStatus.OK)
@@ -102,7 +109,7 @@ describe("UserController", () => {
         lastname: "Robin",
         username: "admin@gmail.com"
       };
-      request(app)
+      request(args.app)
         .post("/users")
         .send(invalid)
         .expect(httpStatus.OK)
@@ -122,7 +129,7 @@ describe("UserController", () => {
         phone: "06734929442",
         username: "admin@nhs.co.uk"
       };
-      request(app)
+      request(args.app)
         .post("/users")
         .send(invalid)
         .expect(httpStatus.OK)
@@ -144,7 +151,7 @@ describe("UserController", () => {
         username: "david",
         password: "password"
       };
-      request(app)
+      request(args.app)
         .post("/users")
         .send(invalid)
         .expect(httpStatus.OK)
@@ -159,7 +166,7 @@ describe("UserController", () => {
     });
 
     it("should save a valid keycloak id", done => {
-      request(app)
+      request(args.app)
         .post("/users")
         .send(user)
         .expect(httpStatus.OK)
@@ -181,38 +188,38 @@ describe("UserController", () => {
         name: "Apex Entertainment"
       });
       const savedOrg = await org.save();
-      savedUser.organisation = savedOrg;
-      await savedUser.save();
+      args.user.organisation = savedOrg;
+      await args.user.save();
       done();
     });
     it("should get user details", done => {
-      request(app)
-        .get(`/users/${savedUser.id}`)
-        .set("Authorization", `Bearer ${token}`)
+      request(args.app)
+        .get(`/users/${args.user.id}`)
+        .set("Authorization", `Bearer ${args.token}`)
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("success");
-          expect(res.body.data.firstname).toEqual(savedUser.firstname);
-          expect(res.body.data.lastname).toEqual(savedUser.lastname);
+          expect(res.body.data.firstname).toEqual(args.user.firstname);
+          expect(res.body.data.lastname).toEqual(args.user.lastname);
           done();
         });
     });
     it("should get user details with organisation", done => {
-      request(app)
-        .get(`/users/${savedUser.id}`)
-        .set("Authorization", `Bearer ${token}`)
+      request(args.app)
+        .get(`/users/${args.user.id}`)
+        .set("Authorization", `Bearer ${args.token}`)
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("success");
-          expect(res.body.data.firstname).toEqual(savedUser.firstname);
-          expect(res.body.data.lastname).toEqual(savedUser.lastname);
+          expect(res.body.data.firstname).toEqual(args.user.firstname);
+          expect(res.body.data.lastname).toEqual(args.user.lastname);
           expect(res.body.data.organisation.name).toEqual("Apex Entertainment");
           expect(res.body.data.organisation.slug).toEqual("apex-entertainment");
           done();
         });
     });
     it("should report error with message - Not found, when user does not exists", done => {
-      request(app)
+      request(args.app)
         .get("/users/56c787ccc67fc16ccc1a5e92")
         .expect(httpStatus.NOT_FOUND)
         .end((err, res) => {
@@ -222,9 +229,9 @@ describe("UserController", () => {
     });
 
     it("should remove unwanted fields", done => {
-      request(app)
-        .get(`/users/${savedUser.id}`)
-        .set("Authorization", `Bearer ${token}`)
+      request(args.app)
+        .get(`/users/${args.user.id}`)
+        .set("Authorization", `Bearer ${args.token}`)
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.data._id).toBeUndefined();
@@ -235,12 +242,12 @@ describe("UserController", () => {
     });
 
     it("should add virtual fields", done => {
-      request(app)
-        .get(`/users/${savedUser.id}`)
-        .set("Authorization", `Bearer ${token}`)
+      request(args.app)
+        .get(`/users/${args.user.id}`)
+        .set("Authorization", `Bearer ${args.token}`)
         .expect(httpStatus.OK)
         .end((err, res) => {
-          expect(res.body.data.id).toEqual(savedUser.id);
+          expect(res.body.data.id).toEqual(args.user.id);
           done();
         });
     });
@@ -248,9 +255,9 @@ describe("UserController", () => {
 
   describe("# GET /user", () => {
     it("should return the current user details", done => {
-      request(app)
+      request(args.app)
         .get("/user")
-        .set("Authorization", `Bearer ${token}`)
+        .set("Authorization", `Bearer ${args.token}`)
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("success");
@@ -260,7 +267,7 @@ describe("UserController", () => {
         });
     });
     it("should return an error if user not found", done => {
-      request(app)
+      request(args.app)
         .get("/user")
         .set("Authorization", "Bearer INVLID_TOKEN")
         .expect(httpStatus.UNAUTHORIZED)
@@ -277,9 +284,9 @@ describe("UserController", () => {
   describe("# PUT /users/:id", () => {
     it("should update user details", done => {
       user.firstname = "James";
-      request(app)
-        .put(`/users/${savedUser.id}`)
-        .set("Authorization", `Bearer ${token}`)
+      request(args.app)
+        .put(`/users/${args.user.id}`)
+        .set("Authorization", `Bearer ${args.token}`)
         .send(user)
         .expect(httpStatus.OK)
         .end((err, res) => {
@@ -293,9 +300,9 @@ describe("UserController", () => {
   describe("# PUT /user", () => {
     it("should update the current user details", done => {
       user.firstname = "James";
-      request(app)
+      request(args.app)
         .put("/user")
-        .set("Authorization", `Bearer ${token}`)
+        .set("Authorization", `Bearer ${args.token}`)
         .send(user)
         .expect(httpStatus.OK)
         .end((err, res) => {
@@ -306,7 +313,7 @@ describe("UserController", () => {
     });
     it("should return an error if the user doesnt exist", done => {
       user.firstname = "James";
-      request(app)
+      request(args.app)
         .put("/user")
         .set("Authorization", "Bearer INVALID_TOKEN")
         .send(user)
@@ -321,9 +328,9 @@ describe("UserController", () => {
 
   describe("# GET /users/", () => {
     it("should get all users", done => {
-      request(app)
+      request(args.app)
         .get("/users")
-        .set("Authorization", `Bearer ${token}`)
+        .set("Authorization", `Bearer ${args.token}`)
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(Array.isArray(res.body.data)).toBe(true);
@@ -334,9 +341,9 @@ describe("UserController", () => {
 
   describe("# DELETE /users/:id", () => {
     it("should delete user", done => {
-      request(app)
-        .delete(`/users/${savedUser.id}`)
-        .set("Authorization", `Bearer ${token}`)
+      request(args.app)
+        .delete(`/users/${args.user.id}`)
+        .set("Authorization", `Bearer ${args.token}`)
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("success");
@@ -346,9 +353,9 @@ describe("UserController", () => {
     });
 
     it("should return an error if user not found", done => {
-      request(app)
+      request(args.app)
         .delete("/users/589dcdd38d71fee259dc4e00")
-        .set("Authorization", `Bearer ${token}`)
+        .set("Authorization", `Bearer ${args.token}`)
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
@@ -360,9 +367,9 @@ describe("UserController", () => {
 
   describe("# DELETE /user", () => {
     it("should delete the current user", done => {
-      request(app)
+      request(args.app)
         .delete("/user")
-        .set("Authorization", `Bearer ${token}`)
+        .set("Authorization", `Bearer ${args.token}`)
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("success");
@@ -371,7 +378,7 @@ describe("UserController", () => {
         });
     });
     it("should return an error if user not authenticated", done => {
-      request(app)
+      request(args.app)
         .delete("/user")
         .set("Authorization", "Bearer INVALID_TOKEN")
         .expect(httpStatus.UNAUTHORIZED)
@@ -385,9 +392,9 @@ describe("UserController", () => {
 
   describe("# PUT /users/:id", () => {
     it("should update the user data", done => {
-      request(app)
-        .put(`/users/${savedUser.id}`)
-        .set("Authorization", `Bearer ${token}`)
+      request(args.app)
+        .put(`/users/${args.user.id}`)
+        .set("Authorization", `Bearer ${args.token}`)
         .send({ phone: "06686833972", email: "david@nhs.co.uk" })
         .expect(httpStatus.OK)
         .end((err, res) => {
@@ -401,9 +408,9 @@ describe("UserController", () => {
 
   describe("# PUT /users/:id", () => {
     it("should not allow empty email", done => {
-      request(app)
-        .put(`/users/${savedUser.id}`)
-        .set("Authorization", `Bearer ${token}`)
+      request(args.app)
+        .put(`/users/${args.user.id}`)
+        .set("Authorization", `Bearer ${args.token}`)
         .send({ email: "", phone: "0576237437993" })
         .expect(httpStatus.OK)
         .end((err, res) => {
@@ -414,9 +421,9 @@ describe("UserController", () => {
         });
     });
     it("should keep phone value if not provided", done => {
-      request(app)
-        .put(`/users/${savedUser.id}`)
-        .set("Authorization", `Bearer ${token}`)
+      request(args.app)
+        .put(`/users/${args.user.id}`)
+        .set("Authorization", `Bearer ${args.token}`)
         .send({ email: "david@nhs.co.uk" })
         .expect(httpStatus.OK)
         .end((err, res) => {
@@ -427,9 +434,9 @@ describe("UserController", () => {
         });
     });
     it("should clear phone if empty", done => {
-      request(app)
-        .put(`/users/${savedUser.id}`)
-        .set("Authorization", `Bearer ${token}`)
+      request(args.app)
+        .put(`/users/${args.user.id}`)
+        .set("Authorization", `Bearer ${args.token}`)
         .send({ phone: "", email: "admin@gmail.com" })
         .expect(httpStatus.OK)
         .end((err, res) => {
@@ -440,9 +447,9 @@ describe("UserController", () => {
         });
     });
     it("should keep email value if not provided", done => {
-      request(app)
-        .put(`/users/${savedUser.id}`)
-        .set("Authorization", `Bearer ${token}`)
+      request(args.app)
+        .put(`/users/${args.user.id}`)
+        .set("Authorization", `Bearer ${args.token}`)
         .send({ phone: "06686833972" })
         .expect(httpStatus.OK)
         .end((err, res) => {
@@ -456,7 +463,7 @@ describe("UserController", () => {
 
   describe("# POST /auth/forgot", () => {
     it("should return a success response", done => {
-      request(app)
+      request(args.app)
         .post("/auth/forgot")
         .send({
           email: "admin@nhs.co.uk"
@@ -470,7 +477,7 @@ describe("UserController", () => {
     });
 
     it("should requires an email address", done => {
-      request(app)
+      request(args.app)
         .post("/auth/forgot")
         .send({})
         .expect(httpStatus.OK)
@@ -485,7 +492,7 @@ describe("UserController", () => {
     });
 
     it("should requires a valid email address", done => {
-      request(app)
+      request(args.app)
         .post("/auth/forgot")
         .send({
           email: "admin"
@@ -500,7 +507,7 @@ describe("UserController", () => {
     });
 
     it("should return an error if user doesnt exist", done => {
-      request(app)
+      request(args.app)
         .post("/auth/forgot")
         .send({ email: "invalid@email.com" })
         .expect(httpStatus.OK)
@@ -515,9 +522,9 @@ describe("UserController", () => {
 
   describe("# POST /auth/resend", () => {
     it("should resend the notification", done => {
-      request(app)
+      request(args.app)
         .post("/auth/resend")
-        .set("Authorization", `Bearer ${token}`)
+        .set("Authorization", `Bearer ${args.token}`)
         .send({ email: "admin@nhs.co.uk" })
         .expect(httpStatus.OK)
         .end((err, res) => {
@@ -527,9 +534,9 @@ describe("UserController", () => {
         });
     });
     it("should require an email", done => {
-      request(app)
+      request(args.app)
         .post("/auth/resend")
-        .set("Authorization", `Bearer ${token}`)
+        .set("Authorization", `Bearer ${args.token}`)
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
@@ -540,7 +547,7 @@ describe("UserController", () => {
         });
     });
     it("should require a valid email", done => {
-      request(app)
+      request(args.app)
         .post("/auth/resend")
         .send({ email: "admin" })
         .expect(httpStatus.OK)
@@ -551,7 +558,7 @@ describe("UserController", () => {
         });
     });
     it("should also work for unauthenticated users", done => {
-      request(app)
+      request(args.app)
         .post("/auth/resend")
         .send({ email: "admin@nhs.co.uk" })
         .expect(httpStatus.OK)
@@ -562,9 +569,9 @@ describe("UserController", () => {
         });
     });
     it("should return an error if the user doesnt exist", done => {
-      request(app)
+      request(args.app)
         .post("/auth/resend")
-        .set("Authorization", `Bearer ${token}`)
+        .set("Authorization", `Bearer ${args.token}`)
         .send({ email: "invalid@nhs.co.uk" })
         .expect(httpStatus.OK)
         .end((err, res) => {
@@ -577,9 +584,9 @@ describe("UserController", () => {
 
   describe("# POST /users/:id/role", () => {
     it("should assign the admin role to the user", done => {
-      request(app)
-        .post(`/users/${savedUser.id}/role`)
-        .set("Authorization", `Bearer ${token}`)
+      request(args.app)
+        .post(`/users/${args.user.id}/role`)
+        .set("Authorization", `Bearer ${args.token}`)
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("success");
@@ -589,8 +596,8 @@ describe("UserController", () => {
         });
     });
     it("should work only for authenticated users", done => {
-      request(app)
-        .post(`/users/${savedUser.id}/role`)
+      request(args.app)
+        .post(`/users/${args.user.id}/role`)
         .set("Authorization", "Bearer INVALID_TOKEN")
         .expect(httpStatus.UNAUTHORIZED)
         .end((err, res) => {
@@ -600,11 +607,11 @@ describe("UserController", () => {
         });
     });
     it("should work only for admin users", async done => {
-      savedUser.role = "";
-      const atlasUser = await savedUser.save();
-      request(app)
+      args.user.role = "";
+      const atlasUser = await args.user.save();
+      request(args.app)
         .post(`/users/${atlasUser.id}/role`)
-        .set("Authorization", `Bearer ${token}`)
+        .set("Authorization", `Bearer ${args.token}`)
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
@@ -613,9 +620,9 @@ describe("UserController", () => {
         });
     });
     it("should return an error if the user not found", done => {
-      request(app)
+      request(args.app)
         .post("/users/56c787ccc67fc16ccc1a5e92/role")
-        .set("Authorization", `Bearer ${token}`)
+        .set("Authorization", `Bearer ${args.token}`)
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
@@ -629,9 +636,9 @@ describe("UserController", () => {
     describe("when calling the upload", () => {
       describe("when the upload is in progress", () => {
         it("should return the openUploads", done => {
-          request(app)
-            .put(`/experiments/${experimentId}/file`)
-            .set("Authorization", `Bearer ${token}`)
+          request(args.app)
+            .put(`/experiments/${args.experimentId}/file`)
+            .set("Authorization", `Bearer ${args.token}`)
             .field("resumableChunkNumber", 1)
             .field("resumableChunkSize", 1517242)
             .field("resumableCurrentChunkSize", 251726)
@@ -645,16 +652,16 @@ describe("UserController", () => {
             .attach("file", "test/fixtures/files/333-08-large.json")
             .expect(httpStatus.OK)
             .end(() => {
-              request(app)
+              request(args.app)
                 .get("/user/events/status")
-                .set("Authorization", `Bearer ${token}`)
+                .set("Authorization", `Bearer ${args.token}`)
                 .expect(httpStatus.OK)
                 .end((err, res) => {
                   expect(res.body.status).toEqual("success");
                   expect(res.body.data.openUploads.length).toEqual(1);
 
                   const openUpload = res.body.data.openUploads[0];
-                  expect(openUpload.id).toEqual(experimentId);
+                  expect(openUpload.id).toEqual(args.experimentId);
                   expect(openUpload.complete).toEqual(false);
                   expect(openUpload.percentageComplete).toEqual(50);
                   done();
@@ -664,9 +671,9 @@ describe("UserController", () => {
       });
       describe("when the upload is completed", () => {
         it("should clear the openUploads", done => {
-          request(app)
-            .put(`/experiments/${experimentId}/file`)
-            .set("Authorization", `Bearer ${token}`)
+          request(args.app)
+            .put(`/experiments/${args.experimentId}/file`)
+            .set("Authorization", `Bearer ${args.token}`)
             .field("resumableChunkNumber", 1)
             .field("resumableChunkSize", 1048576)
             .field("resumableCurrentChunkSize", 251726)
@@ -680,9 +687,9 @@ describe("UserController", () => {
             .attach("file", "test/fixtures/files/333-08.json")
             .expect(httpStatus.OK)
             .end(() => {
-              request(app)
+              request(args.app)
                 .get("/user/events/status")
-                .set("Authorization", `Bearer ${token}`)
+                .set("Authorization", `Bearer ${args.token}`)
                 .expect(httpStatus.OK)
                 .end((err, res) => {
                   expect(res.body.status).toEqual("success");
@@ -694,7 +701,7 @@ describe("UserController", () => {
       });
       describe("when the user is not authenticated", () => {
         it("should return an error", done => {
-          request(app)
+          request(args.app)
             .get("/user/events/status")
             .set("Authorization", "Bearer INVALID_TOKEN")
             .expect(httpStatus.OK)
@@ -709,9 +716,9 @@ describe("UserController", () => {
     describe("when uploading from a 3rd party provider", () => {
       describe("when the upload is in progress", () => {
         it("should return the openUploads", done => {
-          request(app)
-            .put(`/experiments/${experimentId}/provider`)
-            .set("Authorization", `Bearer ${token}`)
+          request(args.app)
+            .put(`/experiments/${args.experimentId}/provider`)
+            .set("Authorization", `Bearer ${args.token}`)
             .send({
               provider: "dropbox",
               name: "MDR.fastq.gz",
@@ -719,16 +726,16 @@ describe("UserController", () => {
             })
             .expect(httpStatus.OK)
             .end(() => {
-              request(app)
+              request(args.app)
                 .get("/user/events/status")
-                .set("Authorization", `Bearer ${token}`)
+                .set("Authorization", `Bearer ${args.token}`)
                 .expect(httpStatus.OK)
                 .end((err, res) => {
                   expect(res.body.status).toEqual("success");
                   expect(res.body.data.openUploads.length).toEqual(1);
 
                   const openUpload = res.body.data.openUploads[0];
-                  expect(openUpload.id).toEqual(experimentId);
+                  expect(openUpload.id).toEqual(args.experimentId);
                   expect(openUpload.provider).toEqual("dropbox");
                   expect(openUpload.totalSize).toEqual(23);
                   done();
@@ -740,9 +747,9 @@ describe("UserController", () => {
     describe("when calling the analysis api", () => {
       describe("when the api call is triggered", () => {
         it("should return the openAnalysis", done => {
-          request(app)
-            .put(`/experiments/${experimentId}/file`)
-            .set("Authorization", `Bearer ${token}`)
+          request(args.app)
+            .put(`/experiments/${args.experimentId}/file`)
+            .set("Authorization", `Bearer ${args.token}`)
             .field("resumableChunkNumber", 1)
             .field("resumableChunkSize", 1048576)
             .field("resumableCurrentChunkSize", 251726)
@@ -756,16 +763,16 @@ describe("UserController", () => {
             .attach("file", "test/fixtures/files/333-08.json")
             .expect(httpStatus.OK)
             .end(() => {
-              request(app)
+              request(args.app)
                 .get("/user/events/status")
-                .set("Authorization", `Bearer ${token}`)
+                .set("Authorization", `Bearer ${args.token}`)
                 .expect(httpStatus.OK)
                 .end((err, res) => {
                   expect(res.body.status).toEqual("success");
                   expect(res.body.data.openAnalysis.length).toEqual(1);
 
                   const analysis = res.body.data.openAnalysis[0];
-                  expect(analysis.id).toEqual(experimentId);
+                  expect(analysis.id).toEqual(args.experimentId);
                   expect(analysis.fileLocation).toBeTruthy();
                   done();
                 });
@@ -774,9 +781,9 @@ describe("UserController", () => {
       });
       describe("when the api call is completed", () => {
         it("should clear the openAnalysis", done => {
-          request(app)
-            .put(`/experiments/${experimentId}/file`)
-            .set("Authorization", `Bearer ${token}`)
+          request(args.app)
+            .put(`/experiments/${args.experimentId}/file`)
+            .set("Authorization", `Bearer ${args.token}`)
             .field("resumableChunkNumber", 1)
             .field("resumableChunkSize", 1048576)
             .field("resumableCurrentChunkSize", 251726)
@@ -790,14 +797,14 @@ describe("UserController", () => {
             .attach("file", "test/fixtures/files/333-08.json")
             .expect(httpStatus.OK)
             .end(() => {
-              request(app)
-                .post(`/experiments/${experimentId}/results`)
+              request(args.app)
+                .post(`/experiments/${args.experimentId}/results`)
                 .send(MDR)
                 .expect(httpStatus.OK)
                 .end(() => {
-                  request(app)
+                  request(args.app)
                     .get("/user/events/status")
-                    .set("Authorization", `Bearer ${token}`)
+                    .set("Authorization", `Bearer ${args.token}`)
                     .expect(httpStatus.OK)
                     .end((err, res) => {
                       expect(res.body.status).toEqual("success");
@@ -812,14 +819,14 @@ describe("UserController", () => {
     describe("when calling the search api", () => {
       describe("when the search api call is triggered", () => {
         it("should return the openSearches", done => {
-          request(app)
+          request(args.app)
             .get("/experiments/search?q=rpoB_S450L")
-            .set("Authorization", `Bearer ${token}`)
+            .set("Authorization", `Bearer ${args.token}`)
             .expect(httpStatus.OK)
             .end(() => {
-              request(app)
+              request(args.app)
                 .get("/user/events/status")
-                .set("Authorization", `Bearer ${token}`)
+                .set("Authorization", `Bearer ${args.token}`)
                 .expect(httpStatus.OK)
                 .end((err, res) => {
                   expect(res.body.status).toEqual("success");
@@ -838,20 +845,20 @@ describe("UserController", () => {
       });
       describe("when the api call is completed", () => {
         it("should clear the openSearches", done => {
-          request(app)
+          request(args.app)
             .get("/experiments/search?q=rpoB_S234J")
-            .set("Authorization", `Bearer ${token}`)
+            .set("Authorization", `Bearer ${args.token}`)
             .expect(httpStatus.OK)
             .end((err, res) => {
               const searchId = res.body.data.id;
-              request(app)
+              request(args.app)
                 .put(`/searches/${searchId}/results`)
                 .send(searches.results.proteinVariant)
                 .expect(httpStatus.OK)
                 .end(() => {
-                  request(app)
+                  request(args.app)
                     .get("/user/events/status")
-                    .set("Authorization", `Bearer ${token}`)
+                    .set("Authorization", `Bearer ${args.token}`)
                     .expect(httpStatus.OK)
                     .end((err1, res1) => {
                       expect(res1.body.status).toEqual("success");

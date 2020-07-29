@@ -10,7 +10,7 @@ import UserJSONTransformer from "../transformers/UserJSONTransformer";
 import ResultsParserFactory from "../helpers/results/ResultsParserFactory";
 import EventHelper from "../helpers/events/EventHelper";
 
-import logger from "../modules/winston";
+import logger from "../modules/logger";
 
 import { createQuery } from "../modules/search/bigsi";
 

@@ -1,6 +1,6 @@
 import Event from "../../models/event.model";
 
-import logger from "../../modules/winston";
+import logger from "../../modules/logger";
 
 class EventHelper {
   static async updateUploadsState(userId, experimentId, uploadStatus) {

@@ -21,5 +21,12 @@ export default {
         baseUrl: `http://localhost:${mockedKeycloakPort}/auth`
       }
     }
+  },
+  services: {
+    geo: {
+      google: {
+        apiKey: "mock-google-geocoding-api-key"
+      }
+    }
   }
 };
