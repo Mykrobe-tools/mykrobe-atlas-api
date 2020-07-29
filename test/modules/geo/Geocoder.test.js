@@ -27,6 +27,12 @@ describe("Geocoder()", () => {
           done();
         });
       });
+      describe("when object with correct structure but empty partial values", () => {
+        it("should return false", done => {
+          expect(new Geocoder().isValidAddress({ city: "" })).toEqual(false);
+          done();
+        });
+      });
       describe("when undefined", () => {
         it("should return false", done => {
           expect(new Geocoder().isValidAddress(undefined)).toEqual(false);
