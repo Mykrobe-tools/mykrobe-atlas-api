@@ -35,11 +35,16 @@ class Geocoder {
   }
 
   isValidAddress(address) {
-    if (typeof address === "object") {
-      return Object.keys(address).length;
-    } else if (typeof address === "string") {
+    if (typeof address === "string") {
       return address !== "" && address !== null;
+    } else if (typeof address === "object") {
+      const match = Object.values(address || {}).some(value => value !== null && value !== "");
+      if (match) {
+        return true;
+      }
     }
+
+    return false;
   }
 
   async search(address) {

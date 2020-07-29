@@ -108,11 +108,22 @@ class DataHelper {
         const country = row.geo_metadata || row.geography_metadata;
         const mappedCountry = LocationHelper.parseLocation(country);
 
+        logger.debug(
+          `DataHelper#buildExperimentObjectsFromCSVRows: ${JSON.stringify(mappedCountry, null, 2)}`
+        );
+
+        // create a location query - prefer country over countryCode
+        const location = {
+          city: mappedCountry.cityIsolate
+        };
+        if (mappedCountry.countryIsolate && mappedCountry.countryIsolateName) {
+          location.country = mappedCountry.countryIsolateName;
+        } else if (mappedCountry.countryIsolate) {
+          location.countryCode = mappedCountry.countryIsolate;
+        }
+
         // geo coordinates
-        const coordinates = await LocationHelper.getCoordinates({
-          city: mappedCountry.cityIsolate,
-          countryCode: mappedCountry.countryIsolate
-        });
+        const coordinates = await LocationHelper.getCoordinates(location);
 
         // predictor results
         const results = await this.loadAndParsePredictorResults(row.predictor, directory);

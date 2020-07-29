@@ -1,3 +1,5 @@
+import logger from "../logger";
+
 import Geocoder from "./Geocoder";
 
 class GoogleGeocoder extends Geocoder {
@@ -8,7 +10,10 @@ class GoogleGeocoder extends Geocoder {
           ? [address.city, address.country || address.countryCode].filter(Boolean).join(", ")
           : address;
       const matches = await this.impl.geocode(query);
+      logger.debug(`GoogleGeocoder#search: matches: ${JSON.stringify(matches)}`);
       return matches;
+    } else {
+      logger.debug(`GoogleGeocoder#search: Address invalid, no search`);
     }
 
     return null;
