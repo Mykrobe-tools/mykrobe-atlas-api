@@ -23,9 +23,17 @@ import users from "../fixtures/users";
 import experiments from "../fixtures/experiments";
 import searches from "../fixtures/searches";
 
-const app = createApp();
+const args = {
+  app: null,
+  token: null,
+  isolateId1: null,
+  isolateId2: null,
+  user: null
+};
 
-let token = null;
+beforeAll(async () => {
+  args.app = await createApp();
+});
 
 // constants
 const esConfig = { type: "experiment", ...config.elasticsearch };
@@ -34,19 +42,14 @@ const elasticService = new ElasticService(esConfig, experimentSearchSchema);
 const experimentWithMetadata = new Experiment(experiments.tbUploadMetadataPredictorResults);
 const experimentWithChineseMetadata = new Experiment(experiments.tbUploadMetadataChinese);
 
-let isolateId1,
-  isolateId2 = null;
-
-let savedUser = null;
-
 beforeEach(async done => {
   const userData = new User(users.admin);
-  savedUser = await userData.save();
-  request(app)
+  args.user = await userData.save();
+  request(args.app)
     .post("/auth/login")
     .send({ username: "admin@nhs.co.uk", password: "password" })
     .end((err, res) => {
-      token = res.body.data.access_token;
+      args.token = res.body.data.access_token;
       done();
     });
 });
@@ -58,46 +61,63 @@ afterEach(async done => {
 });
 
 beforeAll(async done => {
-  await elasticService.deleteIndex();
-  await elasticService.createIndex();
-
   const experiment1 = await experimentWithMetadata.save();
   const experiment2 = await experimentWithChineseMetadata.save();
 
   const metadata1 = experiment1.get("metadata");
   const metadata2 = experiment2.get("metadata");
 
-  isolateId1 = metadata1.sample.isolateId;
-  isolateId2 = metadata2.sample.isolateId;
+  args.isolateId1 = metadata1.sample.isolateId;
+  args.isolateId2 = metadata2.sample.isolateId;
 
-  // index to elasticsearch
-  const experiments = await Experiment.list();
-  await elasticService.indexDocuments(experiments);
-  let data = await elasticService.search(new SearchQuery({}), { type: "experiment" });
-  while (data.hits.total < 2) {
-    data = await await elasticService.search(new SearchQuery({}), { type: "experiment" });
-  }
   done();
-}, 60000);
+});
 
 afterAll(async done => {
-  await elasticService.deleteIndex();
-  await elasticService.createIndex();
   await Experiment.deleteMany({});
   done();
 });
 
 describe("ExperimentController > Elasticsearch", () => {
-  describe("# GET /experiments/choices", () => {
-    it("should return choices and counts for enums", done => {
-      request(app)
-        .get("/experiments/choices")
-        .set("Authorization", `Bearer ${token}`)
-        .expect(httpStatus.OK)
-        .end((err, res) => {
-          expect(res.body.status).toEqual("success");
-          const data = res.body.data;
+  describe("GET /experiments/choices", () => {
+    describe("when invalid", () => {
+      describe("when token is invalid", () => {
+        it("should return a not authorised error", done => {
+          request(args.app)
+            .get("/experiments/choices")
+            .set("Authorization", "Bearer INVALID_TOKEN")
+            .expect(httpStatus.UNAUTHORIZED)
+            .end((err, res) => {
+              expect(res.body.status).toEqual("error");
+              expect(res.body.message).toEqual("Not Authorised");
+              done();
+            });
+        });
+      });
+    });
+    describe("when valid", () => {
+      describe("when not filtered", () => {
+        let status = null;
+        let data = null;
+        beforeEach(done => {
+          // mocks/atlas-experiment/_search/POST.4688717e47a0f229dbc00b3bc4956838.mock
+          request(args.app)
+            .get("/experiments/choices")
+            .set("Authorization", `Bearer ${args.token}`)
+            .expect(httpStatus.OK)
+            .end((err, res) => {
+              status = res.body.status;
+              data = res.body.data;
 
+              done();
+            });
+        });
+        it("should return success", done => {
+          expect(status).toEqual("success");
+
+          done();
+        });
+        it("should return choices and counts for enums", done => {
           // use country as a sample enum
           expect(data["metadata.sample.countryIsolate"]).toBeTruthy();
           const country = data["metadata.sample.countryIsolate"];
@@ -120,16 +140,7 @@ describe("ExperimentController > Elasticsearch", () => {
 
           done();
         });
-    });
-    it("should return choices for susceptibility and resistance", done => {
-      request(app)
-        .get("/experiments/choices")
-        .set("Authorization", `Bearer ${token}`)
-        .expect(httpStatus.OK)
-        .end((err, res) => {
-          expect(res.body.status).toEqual("success");
-          const data = res.body.data;
-
+        it("should return choices for susceptibility and resistance", done => {
           // use Rifampicin as a sample enum
           expect(data["results.predictor.susceptibility.Rifampicin.prediction"]).toBeTruthy();
           const susceptibility = data["results.predictor.susceptibility.Rifampicin.prediction"];
@@ -142,16 +153,7 @@ describe("ExperimentController > Elasticsearch", () => {
 
           done();
         });
-    });
-    it("should return choices for predictor flags", done => {
-      request(app)
-        .get("/experiments/choices")
-        .set("Authorization", `Bearer ${token}`)
-        .expect(httpStatus.OK)
-        .end((err, res) => {
-          expect(res.body.status).toEqual("success");
-          const data = res.body.data;
-
+        it("should return choices for predictor flags", done => {
           const mdr = data["results.predictor.mdr"];
           const xdr = data["results.predictor.xdr"];
 
@@ -166,30 +168,23 @@ describe("ExperimentController > Elasticsearch", () => {
 
           done();
         });
-    });
-    it("should return min and max dates", done => {
-      request(app)
-        .get("/experiments/choices")
-        .set("Authorization", `Bearer ${token}`)
-        .expect(httpStatus.OK)
-        .end((err, res) => {
-          expect(res.body.status).toEqual("success");
-          const data = res.body.data;
-
+        it("should return min and max dates", done => {
           expect(data["metadata.sample.dateArrived"].min).toEqual("2017-11-05T00:00:00.000Z");
           expect(data["metadata.sample.dateArrived"].max).toEqual("2018-09-01T00:00:00.000Z");
+
           done();
         });
-    });
-    it("should include the titles", done => {
-      request(app)
-        .get("/experiments/choices")
-        .set("Authorization", `Bearer ${token}`)
-        .expect(httpStatus.OK)
-        .end((err, res) => {
-          expect(res.body.status).toEqual("success");
-          const data = res.body.data;
-
+        it("should return min and max floating point numbers (BMI)", done => {
+          expect(data["metadata.patient.bmi"].min).toEqual(25.3);
+          expect(data["metadata.patient.bmi"].max).toEqual(33.1);
+          done();
+        });
+        it("should return min and max integers (age)", done => {
+          expect(data["metadata.patient.age"].min).toEqual(32);
+          expect(data["metadata.patient.age"].max).toEqual(43);
+          done();
+        });
+        it("should include the titles", done => {
           expect(data["metadata.phenotyping.gatifloxacin.method"].title).toEqual("Method");
           expect(data["metadata.phenotyping.phenotypeInformationFirstLineDrugs"].title).toEqual(
             "Phenotype Information First Line Drugs"
@@ -206,16 +201,7 @@ describe("ExperimentController > Elasticsearch", () => {
 
           done();
         });
-    });
-    it("should include the titles array", done => {
-      request(app)
-        .get("/experiments/choices")
-        .set("Authorization", `Bearer ${token}`)
-        .expect(httpStatus.OK)
-        .end((err, res) => {
-          expect(res.body.status).toEqual("success");
-          const data = res.body.data;
-
+        it("should include the titles array", done => {
           expect(data["metadata.phenotyping.gatifloxacin.method"].titles).toEqual([
             "Metadata",
             "Phenotyping",
@@ -257,494 +243,585 @@ describe("ExperimentController > Elasticsearch", () => {
 
           done();
         });
+      });
     });
-    it("should return min and max bmi values", done => {
-      request(app)
-        .get("/experiments/choices")
-        .set("Authorization", `Bearer ${token}`)
-        .expect(httpStatus.OK)
-        .end((err, res) => {
-          expect(res.body.status).toEqual("success");
-          const data = res.body.data;
-          expect(data["metadata.patient.bmi"].min).toEqual(25.3);
-          expect(data["metadata.patient.bmi"].max).toEqual(33.1);
+    describe("when filtered", () => {
+      describe("when filtered by keywords", () => {
+        let status = null;
+        let data = null;
+        beforeEach(done => {
+          // choices will remove filter attribute (when removed)
+          // mocks/atlas-experiment/_search/POST.4688717e47a0f229dbc00b3bc4956838.mock
+
+          // choices will remove filter attribute (when set)
+          // mocks/atlas-experiment/_search/POST.3c6669e507bacd6b7850cde557e17323.mock
+          request(args.app)
+            .get(
+              "/experiments/choices?metadata.patient.patientId=9bd049c5-7407-4129-a973-17291ccdd2cc"
+            )
+            .set("Authorization", `Bearer ${args.token}`)
+            .expect(httpStatus.OK)
+            .end((err, res) => {
+              status = res.body.status;
+              data = res.body.data;
+
+              done();
+            });
+        });
+        it("should return success", done => {
+          expect(status).toEqual("success");
           done();
         });
-    });
-    it("should return min and max patient age", done => {
-      request(app)
-        .get("/experiments/choices")
-        .set("Authorization", `Bearer ${token}`)
-        .expect(httpStatus.OK)
-        .end((err, res) => {
-          expect(res.body.status).toEqual("success");
-          const data = res.body.data;
-          expect(data["metadata.patient.age"].min).toEqual(32);
-          expect(data["metadata.patient.age"].max).toEqual(43);
-          done();
-        });
-    });
-    it("should filter the choices", done => {
-      request(app)
-        .get("/experiments/choices?metadata.patient.patientId=9bd049c5-7407-4129-a973-17291ccdd2cc")
-        .set("Authorization", `Bearer ${token}`)
-        .expect(httpStatus.OK)
-        .end((err, res) => {
-          expect(res.body.status).toEqual("success");
-          const data = res.body.data;
-
-          expect(data["metadata.patient.age"].min).toEqual(32);
-          expect(data["metadata.patient.age"].max).toEqual(32);
-          expect(data["metadata.patient.bmi"].min).toEqual(33.1);
-          expect(data["metadata.patient.bmi"].max).toEqual(33.1);
-          expect(data["metadata.sample.dateArrived"].min).toEqual("2017-11-05T00:00:00.000Z");
-          expect(data["metadata.sample.dateArrived"].max).toEqual("2017-11-05T00:00:00.000Z");
-
-          done();
-        });
-    });
-    it("should apply a free text query to choices - male", done => {
-      request(app)
-        .get("/experiments/choices?q=Male")
-        .set("Authorization", `Bearer ${token}`)
-        .expect(httpStatus.OK)
-        .end((err, res) => {
-          expect(res.body.status).toEqual("success");
-
-          const data = res.body.data;
-          expect(data["metadata.patient.age"].min).toEqual(32);
-          expect(data["metadata.patient.age"].max).toEqual(43);
-          expect(data["metadata.patient.bmi"].min).toEqual(25.3);
-          expect(data["metadata.patient.bmi"].max).toEqual(33.1);
-          expect(data["metadata.sample.dateArrived"].min).toEqual("2017-11-05T00:00:00.000Z");
-          expect(data["metadata.sample.dateArrived"].max).toEqual("2018-09-01T00:00:00.000Z");
-
-          done();
-        });
-    });
-    it("should apply a free text query to choices - female", done => {
-      request(app)
-        .get("/experiments/choices?q=Female")
-        .set("Authorization", `Bearer ${token}`)
-        .expect(httpStatus.OK)
-        .end((err, res) => {
-          expect(res.body.status).toEqual("success");
-
-          const data = res.body.data;
-          expect(data["metadata.patient.age"].min).toEqual(32);
-          expect(data["metadata.patient.age"].max).toEqual(43);
-          expect(data["metadata.patient.bmi"].min).toEqual(25.3);
-          expect(data["metadata.patient.bmi"].max).toEqual(33.1);
-          expect(data["metadata.sample.dateArrived"].min).toEqual("2017-11-05T00:00:00.000Z");
-          expect(data["metadata.sample.dateArrived"].max).toEqual("2018-09-01T00:00:00.000Z");
-
-          done();
-        });
-    });
-    it("should apply case insensitive free text query to choices", done => {
-      request(app)
-        .get("/experiments/choices?q=INSU")
-        .set("Authorization", `Bearer ${token}`)
-        .expect(httpStatus.OK)
-        .end((err, res) => {
-          expect(res.body.status).toEqual("success");
-
-          const data = res.body.data;
-          expect(data["metadata.patient.diabetic"].choices[0].key).toEqual("Insulin");
-          expect(data["metadata.genotyping.genexpert"].choices[0].key).toEqual("Not tested");
-          expect(data["metadata.patient.age"].max).toEqual(43);
-          expect(data["metadata.patient.bmi"].min).toEqual(25.3);
-          expect(data["metadata.sample.dateArrived"].min).toEqual("2018-09-01T00:00:00.000Z");
-
-          done();
-        });
-    });
-    it("should apply case insensitive free text query to choices", done => {
-      request(app)
-        .get("/experiments/choices?q=nSuL")
-        .set("Authorization", `Bearer ${token}`)
-        .expect(httpStatus.OK)
-        .end((err, res) => {
-          expect(res.body.status).toEqual("success");
-
-          const data = res.body.data;
-          expect(data["metadata.patient.diabetic"].choices[0].key).toEqual("Insulin");
-          expect(data["metadata.genotyping.genexpert"].choices[0].key).toEqual("Not tested");
-          expect(data["metadata.patient.age"].max).toEqual(43);
-          expect(data["metadata.patient.bmi"].min).toEqual(25.3);
-          expect(data["metadata.sample.dateArrived"].min).toEqual("2018-09-01T00:00:00.000Z");
-
-          done();
-        });
-    });
-    it("should apply partial match free text queries", done => {
-      request(app)
-        .get("/experiments/choices?q=emale")
-        .set("Authorization", `Bearer ${token}`)
-        .expect(httpStatus.OK)
-        .end((err, res) => {
-          if (err) {
-            done(err);
-          }
-          expect(res.body.status).toEqual("success");
-
-          const data = res.body.data;
-          expect(data["metadata.patient.age"].min).toEqual(32);
-          expect(data["metadata.patient.age"].max).toEqual(43);
-          expect(data["metadata.patient.bmi"].min).toEqual(25.3);
-          expect(data["metadata.patient.bmi"].max).toEqual(33.1);
-          expect(data["metadata.sample.dateArrived"].min).toEqual("2017-11-05T00:00:00.000Z");
-          expect(data["metadata.sample.dateArrived"].max).toEqual("2018-09-01T00:00:00.000Z");
-
-          done();
-        });
-    });
-    it("should be a protected route", done => {
-      request(app)
-        .get("/experiments/choices")
-        .set("Authorization", "Bearer INVALID_TOKEN")
-        .expect(httpStatus.UNAUTHORIZED)
-        .end((err, res) => {
-          expect(res.body.status).toEqual("error");
-          expect(res.body.message).toEqual("Not Authorised");
-          done();
-        });
-    });
-    it("should remove bigsi search filters", done => {
-      request(app)
-        .get(
-          "/experiments/choices?q=CAGTCCGTTTGTTCT&metadata.patient.patientId=9bd049c5-7407-4129-a973-17291ccdd2cc"
-        )
-        .set("Authorization", `Bearer ${token}`)
-        .expect(httpStatus.OK)
-        .end((err, res) => {
-          expect(res.body.status).toEqual("success");
-          const data = res.body.data;
-
-          expect(data["metadata.patient.age"].min).toEqual(32);
-          expect(data["metadata.patient.age"].max).toEqual(32);
-          expect(data["metadata.patient.bmi"].min).toEqual(33.1);
-          expect(data["metadata.patient.bmi"].max).toEqual(33.1);
+        it("should set date ranges based on filters", done => {
           expect(data["metadata.sample.dateArrived"].min).toEqual("2017-11-05T00:00:00.000Z");
           expect(data["metadata.sample.dateArrived"].max).toEqual("2017-11-05T00:00:00.000Z");
           done();
         });
+        it("should set integer ranges based on filters", done => {
+          expect(data["metadata.patient.age"].min).toEqual(32);
+          expect(data["metadata.patient.age"].max).toEqual(32);
+
+          done();
+        });
+        it("should set float ranges based on filters", done => {
+          expect(data["metadata.patient.bmi"].min).toEqual(33.1);
+          expect(data["metadata.patient.bmi"].max).toEqual(33.1);
+          done();
+        });
+      });
+      describe("when filtered by a search", () => {
+        describe("when filtered by a free-text search that matches with case insensitivity", () => {
+          let status = null;
+          let data = null;
+          beforeEach(done => {
+            // mocks/atlas-experiment/_search/POST.50fb69570ac3d0df7537032c720f8ed3.mock
+            request(args.app)
+              .get("/experiments/choices?q=Male")
+              .set("Authorization", `Bearer ${args.token}`)
+              .expect(httpStatus.OK)
+              .end((err, res) => {
+                status = res.body.status;
+                data = res.body.data;
+
+                done();
+              });
+          });
+          it("should return success", done => {
+            expect(status).toEqual("success");
+
+            done();
+          });
+          it("should set date ranges based on filters", done => {
+            expect(data["metadata.sample.dateArrived"].min).toEqual("2017-11-05T00:00:00.000Z");
+            expect(data["metadata.sample.dateArrived"].max).toEqual("2018-09-01T00:00:00.000Z");
+            done();
+          });
+          it("should set integer ranges based on filters", done => {
+            expect(data["metadata.patient.age"].min).toEqual(32);
+            expect(data["metadata.patient.age"].max).toEqual(43);
+
+            done();
+          });
+          it("should set float ranges based on filters", done => {
+            expect(data["metadata.patient.bmi"].min).toEqual(25.3);
+            expect(data["metadata.patient.bmi"].max).toEqual(33.1);
+            done();
+          });
+        });
+        // TODO: review free-text search approach with fuzziness
+        describe("when filtered by a free-text search that matches phrases with fuzziness", () => {
+          let status = null;
+          let data = null;
+          beforeEach(done => {
+            // mocks/atlas-experiment/_search/POST.ffe491199a2823aacb1c9a20822eeca3.mock
+            request(args.app)
+              .get("/experiments/choices?q=Female")
+              .set("Authorization", `Bearer ${args.token}`)
+              .expect(httpStatus.OK)
+              .end((err, res) => {
+                status = res.body.status;
+                data = res.body.data;
+
+                done();
+              });
+          });
+          it("should return success", done => {
+            expect(status).toEqual("success");
+
+            done();
+          });
+          it("should set date ranges based on filters", done => {
+            expect(data["metadata.sample.dateArrived"].min).toEqual("2017-11-05T00:00:00.000Z");
+            expect(data["metadata.sample.dateArrived"].max).toEqual("2018-09-01T00:00:00.000Z");
+            done();
+          });
+          it("should set integer ranges based on filters", done => {
+            expect(data["metadata.patient.age"].min).toEqual(32);
+            expect(data["metadata.patient.age"].max).toEqual(43);
+
+            done();
+          });
+          it("should set float ranges based on filters", done => {
+            expect(data["metadata.patient.bmi"].min).toEqual(25.3);
+            expect(data["metadata.patient.bmi"].max).toEqual(33.1);
+            done();
+          });
+        });
+      });
+      describe("when filtered by bigsi attributes", () => {
+        let status = null;
+        let data = null;
+        beforeEach(done => {
+          // choices will remove filter attribute (when removed)
+          // mocks/atlas-experiment/_search/POST.4688717e47a0f229dbc00b3bc4956838.mock
+
+          // choices will remove filter attribute (when set)
+          // mocks/atlas-experiment/_search/POST.3c6669e507bacd6b7850cde557e17323.mock
+          request(args.app)
+            .get(
+              "/experiments/choices?q=CAGTCCGTTTGTTCT&metadata.patient.patientId=9bd049c5-7407-4129-a973-17291ccdd2cc"
+            )
+            .set("Authorization", `Bearer ${args.token}`)
+            .expect(httpStatus.OK)
+            .end((err, res) => {
+              status = res.body.status;
+              data = res.body.data;
+
+              done();
+            });
+        });
+        it("should return success", done => {
+          expect(status).toEqual("success");
+          done();
+        });
+        it("should ignore bigsi clauses and set date ranges based on filters", done => {
+          expect(data["metadata.sample.dateArrived"].min).toEqual("2017-11-05T00:00:00.000Z");
+          expect(data["metadata.sample.dateArrived"].max).toEqual("2017-11-05T00:00:00.000Z");
+          done();
+        });
+        it("should ignore bigsi clauses and set integer ranges based on filters", done => {
+          expect(data["metadata.patient.age"].min).toEqual(32);
+          expect(data["metadata.patient.age"].max).toEqual(32);
+
+          done();
+        });
+        it("should ignore bigsi clauses and set float ranges based on filters", done => {
+          expect(data["metadata.patient.bmi"].min).toEqual(33.1);
+          expect(data["metadata.patient.bmi"].max).toEqual(33.1);
+          done();
+        });
+      });
     });
   });
-  describe("# GET /experiments/search", () => {
-    it("should return experiment results", done => {
-      request(app)
-        .get("/experiments/search")
-        .set("Authorization", `Bearer ${token}`)
-        .expect(httpStatus.OK)
-        .end((err, res) => {
-          expect(res.body.status).toEqual("success");
-          expect(res.body.data).toHaveProperty("pagination");
-          expect(res.body.data).toHaveProperty("metadata");
-          expect(res.body.data).toHaveProperty("total", 2);
-          expect(res.body.data).toHaveProperty("results");
-          expect(res.body.data.results.length).toEqual(2);
-          expect(res.body.data).toHaveProperty("search");
+  describe("GET /experiments/search", () => {
+    describe("when not valid", () => {
+      describe("when using an invalid token", () => {
+        it("should return an error", done => {
+          request(args.app)
+            .get("/experiments/search?metadata.smoker=No&metadata.imprisoned=Yes")
+            .set("Authorization", "Bearer INVALID_TOKEN")
+            .expect(httpStatus.UNAUTHORIZED)
+            .end((err, res) => {
+              expect(res.body.status).toEqual("error");
+              expect(res.body.message).toEqual("Not Authorised");
+              done();
+            });
+        });
+      });
+    });
+    describe("when valid", () => {
+      describe("when not filtered", () => {
+        let status = null;
+        let data = null;
+        beforeEach(async done => {
+          // mocks/atlas-experiment/_search/POST.41e02ddaf093476691ec5e5d7b1e66e0.mock
+          request(args.app)
+            .get("/experiments/search")
+            .set("Authorization", `Bearer ${args.token}`)
+            .expect(httpStatus.OK)
+            .end((err, res) => {
+              status = res.body.status;
+              data = res.body.data;
 
-          res.body.data.results.forEach(result => {
+              done();
+            });
+        });
+        it("should return success", done => {
+          expect(status).toEqual("success");
+
+          done();
+        });
+        it("should return search metadata", () => {
+          expect(data).toHaveProperty("pagination");
+          expect(data).toHaveProperty("metadata");
+          expect(data).toHaveProperty("total", 2);
+          expect(data).toHaveProperty("results");
+          expect(data).toHaveProperty("search");
+        });
+        it("should return search results", () => {
+          expect(data.results.length).toEqual(2);
+          data.results.forEach(result => {
             expect(result).toHaveProperty("metadata");
             expect(result).toHaveProperty("created");
             expect(result).toHaveProperty("modified");
             expect(result).toHaveProperty("relevance");
           });
+        });
+      });
+      describe("when filtered", () => {
+        describe("when filtered by metadata", () => {
+          let status = null;
+          let data = null;
+          beforeEach(async done => {
+            // mocks/atlas-experiment/_search/POST.20aa703ef9174498f37f7159e801ba4d.mock
+            request(args.app)
+              .get("/experiments/search?metadata.patient.smoker=Yes&metadata.patient.imprisoned=No")
+              .set("Authorization", `Bearer ${args.token}`)
+              .expect(httpStatus.OK)
+              .end((err, res) => {
+                status = res.body.status;
+                data = res.body.data;
+
+                done();
+              });
+          });
+          it("should return success", done => {
+            expect(status).toEqual("success");
+
+            done();
+          });
+          it("should return search metadata", () => {
+            expect(data).toHaveProperty("pagination");
+            expect(data).toHaveProperty("metadata");
+            expect(data).toHaveProperty("total", 1);
+            expect(data).toHaveProperty("results");
+            expect(data).toHaveProperty("search");
+          });
+          it("should return matching search results", () => {
+            expect(data.results.length).toEqual(1);
+            data.results.forEach(result => {
+              expect(result).toHaveProperty("metadata");
+              expect(result.metadata.patient.smoker).toEqual("Yes");
+              expect(result.metadata.patient.imprisoned).toEqual("No");
+              expect(result).toHaveProperty("created");
+              expect(result).toHaveProperty("modified");
+              expect(result).toHaveProperty("relevance");
+            });
+          });
+        });
+        describe("when filtered by susceptibility", () => {
+          let status = null;
+          let data = null;
+          beforeEach(async done => {
+            // mocks/atlas-experiment/_search/POST.c35162290e4c1781766d43eb2e991cf2.mock
+            request(args.app)
+              .get("/experiments/search?results.predictor.susceptibility.Rifampicin.prediction=R")
+              .set("Authorization", `Bearer ${args.token}`)
+              .expect(httpStatus.OK)
+              .end((err, res) => {
+                status = res.body.status;
+                data = res.body.data;
+
+                done();
+              });
+          });
+          it("should return success", done => {
+            expect(status).toEqual("success");
+
+            done();
+          });
+          it("should return search metadata", () => {
+            expect(data).toHaveProperty("pagination");
+            expect(data).toHaveProperty("metadata");
+            expect(data).toHaveProperty("total", 1);
+            expect(data).toHaveProperty("results");
+            expect(data).toHaveProperty("search");
+          });
+          it("should return matching search results", () => {
+            expect(data.results.length).toEqual(1);
+            data.results.forEach(result => {
+              expect(result).toHaveProperty("metadata");
+              expect(result).toHaveProperty("created");
+              expect(result).toHaveProperty("modified");
+              expect(result).toHaveProperty("relevance");
+
+              expect(result.results.predictor.susceptibility.Rifampicin.prediction).toEqual("R");
+            });
+          });
+        });
+        describe("when filtered by predictor flags", () => {
+          let status = null;
+          let data = null;
+          beforeEach(async done => {
+            // mocks/atlas-experiment/_search/POST.3930e23f448576dd0da1628dea4a838b.mock
+            request(args.app)
+              .get("/experiments/search?results.predictor.mdr=true")
+              .set("Authorization", `Bearer ${args.token}`)
+              .expect(httpStatus.OK)
+              .end((err, res) => {
+                status = res.body.status;
+                data = res.body.data;
+
+                done();
+              });
+          });
+          it("should return success", done => {
+            expect(status).toEqual("success");
+
+            done();
+          });
+          it("should return search metadata", () => {
+            expect(data).toHaveProperty("pagination");
+            expect(data).toHaveProperty("metadata");
+            expect(data).toHaveProperty("total", 1);
+            expect(data).toHaveProperty("results");
+            expect(data).toHaveProperty("search");
+          });
+          it("should return matching search results", () => {
+            expect(data.results.length).toEqual(1);
+            data.results.forEach(result => {
+              expect(result).toHaveProperty("metadata");
+              expect(result).toHaveProperty("created");
+              expect(result).toHaveProperty("modified");
+              expect(result).toHaveProperty("relevance");
+
+              expect(result.results.predictor.mdr).toEqual(true);
+            });
+          });
+        });
+      });
+      describe("when using a free-text search", () => {
+        let status = null;
+        let data = null;
+        beforeEach(async done => {
+          // mocks/atlas-experiment/_search/POST.cdfe886982486513ba30bd0641fc339b.mock
+          request(args.app)
+            .get("/experiments/search?q=insulin")
+            .set("Authorization", `Bearer ${args.token}`)
+            .expect(httpStatus.OK)
+            .end((err, res) => {
+              status = res.body.status;
+              data = res.body.data;
+
+              done();
+            });
+        });
+        it("should return success", done => {
+          expect(status).toEqual("success");
 
           done();
         });
-    });
-    it("should filter by metadata fields", done => {
-      request(app)
-        .get("/experiments/search?metadata.patient.smoker=Yes&metadata.patient.imprisoned=No")
-        .set("Authorization", `Bearer ${token}`)
-        .expect(httpStatus.OK)
-        .end((err, res) => {
-          expect(res.body.status).toEqual("success");
-          expect(res.body.data).toHaveProperty("total", 1);
-          expect(res.body.data).toHaveProperty("results");
-          expect(res.body.data.results.length).toEqual(1);
-          done();
+        it("should return search metadata", () => {
+          expect(data).toHaveProperty("pagination");
+          expect(data).toHaveProperty("metadata");
+          expect(data).toHaveProperty("total", 1);
+          expect(data).toHaveProperty("results");
+          expect(data).toHaveProperty("search");
         });
-    });
-    it("should filter by susceptibility fields", done => {
-      request(app)
-        .get("/experiments/search?results.predictor.susceptibility.Rifampicin.prediction=R")
-        .set("Authorization", `Bearer ${token}`)
-        .expect(httpStatus.OK)
-        .end((err, res) => {
-          expect(res.body.status).toEqual("success");
-          expect(res.body.data).toHaveProperty("total", 1);
-          expect(res.body.data).toHaveProperty("results");
-          expect(res.body.data.results.length).toEqual(1);
-
-          const susceptibility = res.body.data.results[0].results.predictor.susceptibility;
-          expect(susceptibility.Rifampicin.prediction).toEqual("R");
-
-          done();
+        it("should return matching search results", () => {
+          expect(data.results.length).toEqual(1);
+          data.results.forEach(result => {
+            expect(result).toHaveProperty("metadata");
+            expect(result).toHaveProperty("created");
+            expect(result).toHaveProperty("modified");
+            expect(result).toHaveProperty("relevance");
+          });
         });
-    });
-    it("should filter by predictor flags", done => {
-      request(app)
-        .get("/experiments/search?results.predictor.mdr=true")
-        .set("Authorization", `Bearer ${token}`)
-        .expect(httpStatus.OK)
-        .end((err, res) => {
-          expect(res.body.status).toEqual("success");
-          expect(res.body.data).toHaveProperty("total", 1);
-          expect(res.body.data).toHaveProperty("results");
-          expect(res.body.data.results.length).toEqual(1);
-
-          const predictor = res.body.data.results[0].results.predictor;
-          expect(predictor.mdr).toEqual(true);
-
-          done();
-        });
-    });
-    it("should match the relevance to the score from elasticsearch", done => {
-      request(app)
-        .get("/experiments/search?q=insulin")
-        .set("Authorization", `Bearer ${token}`)
-        .expect(httpStatus.OK)
-        .end((err, res) => {
-          expect(res.body.data.metadata.maxRelevance).toEqual(3.7886243);
-          res.body.data.results.forEach(result => {
+        it("should set relevance", () => {
+          expect(data.metadata.maxRelevance).toEqual(3.7886243);
+          data.results.forEach(result => {
             expect(result).toHaveProperty("relevance", 3.7886243);
           });
-          done();
         });
-    });
-    it("should apply a free text search query", done => {
-      request(app)
-        .get("/experiments/search?q=Female")
-        .set("Authorization", `Bearer ${token}`)
-        .expect(httpStatus.OK)
-        .end((err, res) => {
-          expect(res.body.status).toEqual("success");
-          expect(res.body.data).toHaveProperty("total", 2);
-          expect(res.body.data).toHaveProperty("results");
-          expect(res.body.data.results.length).toEqual(2);
-          expect(res.body.data).toHaveProperty("search");
-          expect(res.body.data.search).toHaveProperty("q", "Female");
-          done();
-        });
-    });
-    it("should partial match free text search queries", done => {
-      request(app)
-        .get("/experiments/search?q=emale")
-        .set("Authorization", `Bearer ${token}`)
-        .expect(httpStatus.OK)
-        .end((err, res) => {
-          expect(res.body.status).toEqual("success");
-          expect(res.body.data).toHaveProperty("total", 2);
-          expect(res.body.data).toHaveProperty("results");
-          expect(res.body.data.results.length).toEqual(2);
-          expect(res.body.data).toHaveProperty("search");
-          expect(res.body.data.search).toHaveProperty("q", "emale");
-          done();
-        });
-    });
-    it("should support case-insensitive free text search queries", done => {
-      request(app)
-        .get("/experiments/search?q=INSUL")
-        .set("Authorization", `Bearer ${token}`)
-        .expect(httpStatus.OK)
-        .end((err, res) => {
-          expect(res.body.status).toEqual("success");
-          const result = res.body.data.results[0];
+      });
+      describe("when using pagination", () => {
+        describe("when controlling pagination", () => {
+          let status = null;
+          let data = null;
+          beforeEach(done => {
+            // mocks/atlas-experiment/_search/POST.4a225cfef3805aa3268f67cfa36488a4.mock
+            request(args.app)
+              .get("/experiments/search?metadata.patient.imprisoned=No&per=10&page=1")
+              .set("Authorization", `Bearer ${args.token}`)
+              .expect(httpStatus.OK)
+              .end((err, res) => {
+                status = res.body.status;
+                data = res.body.data;
 
-          expect(result.metadata.patient.diabetic).toEqual("Insulin");
-          expect(result.metadata.patient.age).toEqual(43);
-          expect(result.metadata.sample.labId).toEqual("d19637ed-e5b4-4ca7-8418-8713646a3359");
+                done();
+              });
+          });
+          it("should return success", () => {
+            expect(status).toEqual("success");
+          });
+          it("should paginate", done => {
+            const pagination = data.pagination;
+            expect(pagination).toHaveProperty("per", 10);
+            expect(pagination).toHaveProperty("pages", 1);
+            expect(pagination).toHaveProperty("next", 1);
+            expect(pagination).toHaveProperty("page", 1);
+            expect(pagination).toHaveProperty("previous", 1);
 
-          done();
-        });
-    });
-    it("should support case-insensitive free text search queries", done => {
-      request(app)
-        .get("/experiments/search?q=nSuL")
-        .set("Authorization", `Bearer ${token}`)
-        .expect(httpStatus.OK)
-        .end((err, res) => {
-          expect(res.body.status).toEqual("success");
-          const result = res.body.data.results[0];
-
-          expect(result.metadata.patient.diabetic).toEqual("Insulin");
-          expect(result.metadata.patient.age).toEqual(43);
-          expect(result.metadata.sample.labId).toEqual("d19637ed-e5b4-4ca7-8418-8713646a3359");
-
-          done();
-        });
-    });
-    it("should apply a free text search query with filters", done => {
-      request(app)
-        .get("/experiments/search?metadata.patient.smoker=No&q=Female")
-        .set("Authorization", `Bearer ${token}`)
-        .expect(httpStatus.OK)
-        .end((err, res) => {
-          expect(res.body.status).toEqual("success");
-          expect(res.body.data).toHaveProperty("total", 1);
-          expect(res.body.data).toHaveProperty("results");
-          expect(res.body.data.results.length).toEqual(1);
-          expect(res.body.data).toHaveProperty("search");
-          expect(res.body.data.search).toHaveProperty("q", "Female");
-          expect(res.body.data.search["metadata.patient.smoker"]).toEqual("No");
-
-          done();
-        });
-    });
-    it("should allow filters and query", done => {
-      request(app)
-        .get("/experiments/search?metadata.patient.smoker=Yes&q=male")
-        .set("Authorization", `Bearer ${token}`)
-        .expect(httpStatus.OK)
-        .end((err, res) => {
-          expect(res.body.status).toEqual("success");
-          expect(res.body.data).toHaveProperty("total", 1);
-          expect(res.body.data).toHaveProperty("results");
-          expect(res.body.data.results.length).toEqual(1);
-          expect(res.body.data).toHaveProperty("search");
-          expect(res.body.data.search).toHaveProperty("q", "male");
-          expect(res.body.data.search["metadata.patient.smoker"]).toEqual("Yes");
-
-          done();
-        });
-    });
-    it("should include a summary", done => {
-      request(app)
-        .get("/experiments/search?metadata.patient.smoker=Yes&metadata.patient.imprisoned=No")
-        .set("Authorization", `Bearer ${token}`)
-        .expect(httpStatus.OK)
-        .end((err, res) => {
-          expect(res.body.status).toEqual("success");
-          expect(res.body.data).toHaveProperty("total", 1);
-          expect(res.body.data).toHaveProperty("results");
-          expect(res.body.data.results.length).toEqual(1);
-          done();
-        });
-    });
-    it("should be a protected route", done => {
-      request(app)
-        .get("/experiments/search?metadata.smoker=No&metadata.imprisoned=Yes")
-        .set("Authorization", "Bearer INVALID_TOKEN")
-        .expect(httpStatus.UNAUTHORIZED)
-        .end((err, res) => {
-          expect(res.body.status).toEqual("error");
-          expect(res.body.message).toEqual("Not Authorised");
-          done();
-        });
-    });
-    it("should allow pagination", done => {
-      request(app)
-        .get("/experiments/search?metadata.patient.imprisoned=No&per=10&page=1")
-        .set("Authorization", `Bearer ${token}`)
-        .expect(httpStatus.OK)
-        .end((err, res) => {
-          expect(res.body.status).toEqual("success");
-          expect(res.body.data).toHaveProperty("pagination");
-          expect(res.body.data).toHaveProperty("metadata");
-          expect(res.body.data).toHaveProperty("total");
-          expect(res.body.data).toHaveProperty("results");
-          expect(res.body.data).toHaveProperty("search");
-
-          const pagination = res.body.data.pagination;
-          expect(pagination).toHaveProperty("per", 10);
-          expect(pagination).toHaveProperty("pages", 1);
-          expect(pagination).toHaveProperty("next", 1);
-          expect(pagination).toHaveProperty("page", 1);
-          expect(pagination).toHaveProperty("previous", 1);
-
-          done();
-        });
-    });
-    it("should allow paginate over multiple pages", done => {
-      request(app)
-        .get("/experiments/search?metadata.patient.imprisoned=No&per=1&page=1")
-        .set("Authorization", `Bearer ${token}`)
-        .expect(httpStatus.OK)
-        .end((err, res) => {
-          expect(res.body.status).toEqual("success");
-          expect(res.body.data).toHaveProperty("pagination");
-          expect(res.body.data).toHaveProperty("metadata");
-          expect(res.body.data).toHaveProperty("total");
-          expect(res.body.data).toHaveProperty("results");
-          expect(res.body.data).toHaveProperty("search");
-
-          const pagination = res.body.data.pagination;
-          expect(pagination).toHaveProperty("per", 1);
-          expect(pagination).toHaveProperty("pages", 2);
-          expect(pagination).toHaveProperty("next", 2);
-          expect(pagination).toHaveProperty("page", 1);
-          expect(pagination).toHaveProperty("previous", 1);
-
-          done();
-        });
-    });
-    it("should only sort by whitelisted fields", done => {
-      request(app)
-        .get("/experiments/search?sort=invalid.field")
-        .set("Authorization", `Bearer ${token}`)
-        .expect(httpStatus.OK)
-        .end((err, res) => {
-          expect(res.body.status).toEqual("success");
-          expect(res.body.data.results.length).toEqual(2);
-          done();
-        });
-    });
-    describe("when running bigsi searches", () => {
-      it("should return a search object for sequence search - threshold", done => {
-        request(app)
-          .get("/experiments/search?q=CAGTCCGTTTGTTCT")
-          .set("Authorization", `Bearer ${token}`)
-          .expect(httpStatus.OK)
-          .end((err, res) => {
-            expect(res.body.status).toEqual("success");
-            expect(res.body.data.type).toEqual("sequence");
-            expect(res.body.data).toHaveProperty("type", "sequence");
-
-            expect(res.body.data).toHaveProperty("bigsi");
-            const bigsi = res.body.data.bigsi;
-            expect(bigsi).toHaveProperty("type", "sequence");
-            expect(bigsi).toHaveProperty("query");
-            const query = bigsi.query;
-            expect(query.threshold).toEqual(40);
-            expect(res.body.data.id).toBeTruthy();
             done();
           });
-      });
-      it("should return a search object for sequence search - no threshold", done => {
-        request(app)
-          .get("/experiments/search?q=CAGTCCGTTTGTTCT&threshold=80")
-          .set("Authorization", `Bearer ${token}`)
-          .expect(httpStatus.OK)
-          .end((err, res) => {
-            expect(res.body.status).toEqual("success");
-            expect(res.body.data.type).toEqual("sequence");
-            expect(res.body.data).toHaveProperty("type", "sequence");
+        });
+        describe("when pagination has multiple pages", () => {
+          let status = null;
+          let data = null;
+          beforeEach(done => {
+            // mocks/atlas-experiment/_search/POST.5ad09260988ff3af158764814334dcad.mock
+            request(args.app)
+              .get("/experiments/search?metadata.patient.imprisoned=No&per=1&page=1")
+              .set("Authorization", `Bearer ${args.token}`)
+              .expect(httpStatus.OK)
+              .end((err, res) => {
+                status = res.body.status;
+                data = res.body.data;
 
-            expect(res.body.data).toHaveProperty("bigsi");
-            const bigsi = res.body.data.bigsi;
-            expect(bigsi).toHaveProperty("type", "sequence");
-            expect(bigsi).toHaveProperty("query");
-            const query = bigsi.query;
-            expect(query.threshold).toEqual(80);
-            expect(res.body.data.id).toBeTruthy();
+                done();
+              });
+          });
+          it("should return success", () => {
+            expect(status).toEqual("success");
+          });
+          it("should paginate", done => {
+            const pagination = data.pagination;
+            expect(pagination).toHaveProperty("per", 1);
+            expect(pagination).toHaveProperty("pages", 2);
+            expect(pagination).toHaveProperty("next", 2);
+            expect(pagination).toHaveProperty("page", 1);
+            expect(pagination).toHaveProperty("previous", 1);
+
             done();
           });
+        });
       });
-      it("should return a search_id for protein variant search", done => {
-        request(app)
-          .get("/experiments/search?q=rpoB_S450L")
-          .set("Authorization", `Bearer ${token}`)
-          .expect(httpStatus.OK)
-          .end((err, res) => {
-            expect(res.body.status).toEqual("success");
-            expect(res.body.data).toHaveProperty("type", "protein-variant");
+      describe("when sorting", () => {
+        describe("when the sort field is not whitelisted", () => {
+          it("should not apply a sort", done => {
+            request(args.app)
+              .get("/experiments/search?sort=invalid.field")
+              .set("Authorization", `Bearer ${args.token}`)
+              .expect(httpStatus.OK)
+              .end((err, res) => {
+                expect(res.body.status).toEqual("success");
+                expect(res.body.data.results.length).toEqual(2);
+                done();
+              });
+          });
+        });
+        describe("when the sort field is whitelisted", () => {});
+      });
+      describe("when searching using bigsi", () => {
+        describe("when using a sequence search", () => {
+          describe("when not setting a threshold", () => {
+            let status = null;
+            let data = null;
+            beforeEach(done => {
+              request(args.app)
+                .get("/experiments/search?q=CAGTCCGTTTGTTCT")
+                .set("Authorization", `Bearer ${args.token}`)
+                .expect(httpStatus.OK)
+                .end((err, res) => {
+                  status = res.body.status;
+                  data = res.body.data;
 
-            expect(res.body.data).toHaveProperty("bigsi");
-            const bigsi = res.body.data.bigsi;
+                  done();
+                });
+            });
+            it("should return success", () => {
+              expect(status).toEqual("success");
+            });
+            it("should return a search object", done => {
+              expect(data).toHaveProperty("type", "sequence");
+
+              expect(data).toHaveProperty("bigsi");
+              const bigsi = data.bigsi;
+              expect(bigsi).toHaveProperty("type", "sequence");
+              expect(bigsi).toHaveProperty("query");
+              const query = bigsi.query;
+
+              expect(data.id).toBeTruthy();
+              done();
+            });
+            it("should set a default threshold", done => {
+              const bigsi = data.bigsi;
+              const query = bigsi.query;
+              expect(query.threshold).toEqual(40);
+              done();
+            });
+            it("should store a search record in the database", async done => {
+              const searchId = data.id;
+
+              const search = await Search.get(searchId);
+              expect(search).toHaveProperty("type", "sequence");
+              const bigsi = search.get("bigsi");
+              const query = bigsi.query;
+              expect(query.threshold).toEqual(40);
+              done();
+            });
+            it("should add the user to the list of users to be notified", done => {
+              const user = data.users.shift();
+              expect(user.firstname).toEqual("David");
+              expect(user.lastname).toEqual("Robin");
+              expect(user.email).toEqual("admin@nhs.co.uk");
+              done();
+            });
+            it("should set the status to pending", done => {
+              expect(data.status).toEqual(Constants.SEARCH_PENDING);
+              done();
+            });
+          });
+          describe("when setting a threshold", () => {
+            it("should return a search object", done => {
+              request(args.app)
+                .get("/experiments/search?q=CAGTCCGTTTGTTCT&threshold=80")
+                .set("Authorization", `Bearer ${args.token}`)
+                .expect(httpStatus.OK)
+                .end((err, res) => {
+                  expect(res.body.status).toEqual("success");
+                  expect(res.body.data.type).toEqual("sequence");
+                  expect(res.body.data).toHaveProperty("type", "sequence");
+
+                  expect(res.body.data).toHaveProperty("bigsi");
+
+                  const bigsi = res.body.data.bigsi;
+                  expect(bigsi).toHaveProperty("type", "sequence");
+                  expect(bigsi).toHaveProperty("query");
+
+                  const query = bigsi.query;
+                  expect(query.threshold).toEqual(80);
+                  expect(res.body.data.id).toBeTruthy();
+                  done();
+                });
+            });
+          });
+        });
+        describe("when using a protein-variant search", () => {
+          let status = null;
+          let data = null;
+
+          beforeEach(async done => {
+            request(args.app)
+              .get("/experiments/search?q=rpoB_S450L")
+              .set("Authorization", `Bearer ${args.token}`)
+              .expect(httpStatus.OK)
+              .end((err, res) => {
+                status = res.body.status;
+                data = res.body.data;
+
+                done();
+              });
+          });
+          it("should return success", done => {
+            expect(status).toEqual("success");
+            done();
+          });
+          it("should return a search object", done => {
+            expect(data).toHaveProperty("type", "protein-variant");
+
+            expect(data).toHaveProperty("bigsi");
+            const bigsi = data.bigsi;
             expect(bigsi).toHaveProperty("type", "protein-variant");
             expect(bigsi).toHaveProperty("query");
             const query = bigsi.query;
@@ -753,72 +830,14 @@ describe("ExperimentController > Elasticsearch", () => {
             expect(query.pos).toEqual(450);
             expect(query.alt).toEqual("L");
 
-            expect(res.body.data.id).toBeTruthy();
+            expect(data.id).toBeTruthy();
             done();
           });
-      });
-      it("should save search in mongo", done => {
-        request(app)
-          .get("/experiments/search?q=CAGTCCGTTTGTTCT&threshold=80")
-          .set("Authorization", `Bearer ${token}`)
-          .expect(httpStatus.OK)
-          .end(async (err, res) => {
-            const searchId = res.body.data.id;
-            const search = await Search.get(searchId);
-            expect(search).toHaveProperty("type", "sequence");
-            const bigsi = search.get("bigsi");
-            const query = bigsi.query;
-            expect(query.threshold).toEqual(80);
-            done();
-          });
-      });
-      it("should add the user to the list of users to be notified", done => {
-        request(app)
-          .get("/experiments/search?q=CAGTCCGTTTGTTCT")
-          .set("Authorization", `Bearer ${token}`)
-          .expect(httpStatus.OK)
-          .end((err, res) => {
-            expect(res.body.status).toEqual("success");
-
-            expect(res.body.data).toHaveProperty("type", "sequence");
-
-            const user = res.body.data.users.shift();
-            expect(user.firstname).toEqual("David");
-            expect(user.lastname).toEqual("Robin");
-            expect(user.email).toEqual("admin@nhs.co.uk");
-            done();
-          });
-      });
-      it("should set the status to pending", done => {
-        request(app)
-          .get("/experiments/search?q=CAGTCCGTTTGTTCT")
-          .set("Authorization", `Bearer ${token}`)
-          .expect(httpStatus.OK)
-          .end((err, res) => {
-            expect(res.body.status).toEqual("success");
-            expect(res.body.data.status).toEqual(Constants.SEARCH_PENDING);
-            done();
-          });
-      });
-      it("should return carry on with normal search if invalid query", done => {
-        request(app)
-          .get("/experiments/search?q=insulin")
-          .set("Authorization", `Bearer ${token}`)
-          .expect(httpStatus.OK)
-          .end((err, res) => {
-            expect(res.body.status).toEqual("success");
-            const result = res.body.data.results[0];
-
-            expect(result.metadata.patient.diabetic).toEqual("Insulin");
-            expect(result.metadata.patient.age).toEqual(43);
-            expect(result.metadata.sample.labId).toEqual("d19637ed-e5b4-4ca7-8418-8713646a3359");
-
-            done();
-          });
+        });
       });
     });
   });
-  describe("# GET /experiments/search", () => {
+  describe("GET /experiments/search", () => {
     beforeEach(async done => {
       const sequenceSearchData = new Search(searches.searchOnly.sequence);
       const expires = moment();
@@ -833,6 +852,8 @@ describe("ExperimentController > Elasticsearch", () => {
           threshold: 80
         }
       };
+      const isolateId1 = args.isolateId1;
+      const isolateId2 = args.isolateId2;
       result.results.push({
         "metadata.sample.isolateId": isolateId1,
         percent_kmers_found: 100
@@ -842,105 +863,142 @@ describe("ExperimentController > Elasticsearch", () => {
         percent_kmers_found: 90
       });
 
-      sequenceSearchData.users.push(savedUser);
+      sequenceSearchData.users.push(args.user);
       sequenceSearchData.set("result", result);
       sequenceSearchData.status = Constants.SEARCH_COMPLETE;
 
       const sequenceSearch = await sequenceSearchData.save();
+
       done();
     });
     describe("when no additional criteria provided", () => {
-      it("should filter by experiments ids", done => {
-        request(app)
+      let status = null;
+      let data = null;
+      beforeEach(done => {
+        // mocks/atlas-experiment/_search/POST.f17040a0181759118ca7d33418965d7b.mock
+        request(args.app)
           .get("/experiments/search?q=GTCAGTCCGTTTGTTCTTGTGGCGAGTGTAGTA&threshold=90")
-          .set("Authorization", `Bearer ${token}`)
+          .set("Authorization", `Bearer ${args.token}`)
           .expect(httpStatus.OK)
           .end((err, res) => {
-            expect(res.body.status).toEqual("success");
-
-            const data = res.body.data;
-
-            expect(data.type).toEqual("sequence");
-            expect(data.bigsi).toBeTruthy();
-            expect(data.users).toBeTruthy();
-            expect(data.results).toBeTruthy();
-            expect(data.type).toEqual("sequence");
-
-            const results = data.results;
-            expect(results.length).toEqual(2);
-
-            const result1 = results[0];
-            const result2 = results[1];
-
-            expect(result1.id).toBeTruthy();
-            expect(result1.metadata).toBeTruthy();
-            expect(result1.percent_kmers_found).toBeTruthy();
-
-            expect(result2.id).toBeTruthy();
-            expect(result2.metadata).toBeTruthy();
-            expect(result2.percent_kmers_found).toBeTruthy();
+            status = res.body.status;
+            data = res.body.data;
 
             done();
           });
+      });
+      it("should return success", () => {
+        expect(status).toEqual("success");
+      });
+      it("should inflate results", () => {
+        const results = data.results;
+        expect(results.length).toEqual(2);
+
+        const result1 = results[0];
+        const result2 = results[1];
+
+        expect(result1.id).toBeTruthy();
+        expect(result1.metadata).toBeTruthy();
+        expect(result1.percent_kmers_found).toBeTruthy();
+
+        expect(result2.id).toBeTruthy();
+        expect(result2.metadata).toBeTruthy();
+        expect(result2.percent_kmers_found).toBeTruthy();
+      });
+      it("should run a sequence search", done => {
+        expect(data.type).toEqual("sequence");
+        expect(data.bigsi).toBeTruthy();
+        expect(data.users).toBeTruthy();
+        expect(data.results).toBeTruthy();
+        expect(data.type).toEqual("sequence");
+
+        done();
       });
     });
     describe("when additional criteria provided", () => {
-      it("should filter by experiments ids and search criteria", done => {
-        request(app)
+      let status = null;
+      let data = null;
+      beforeEach(done => {
+        // mocks/atlas-experiment/_search/POST.d19a299a334fca941c4bba0dcb615ff9.mock
+        request(args.app)
           .get(
             "/experiments/search?q=GTCAGTCCGTTTGTTCTTGTGGCGAGTGTAGTA&threshold=90&metadata.patient.smoker=No"
           )
-          .set("Authorization", `Bearer ${token}`)
+          .set("Authorization", `Bearer ${args.token}`)
           .expect(httpStatus.OK)
           .end((err, res) => {
-            expect(res.body.status).toEqual("success");
-
-            const data = res.body.data;
-
-            expect(data.type).toEqual("sequence");
-            expect(data.bigsi).toBeTruthy();
-            expect(data.users).toBeTruthy();
-            expect(data.results).toBeTruthy();
-            expect(data.type).toEqual("sequence");
-
-            const results = data.results;
-            expect(results.length).toEqual(1);
-
-            const result = results.shift();
-
-            expect(result.id).toBeTruthy();
-            expect(result.metadata).toBeTruthy();
-            expect(result.metadata.patient.smoker).toEqual("No");
-            expect(result.percent_kmers_found).toEqual(90);
+            status = res.body.status;
+            data = res.body.data;
 
             done();
           });
       });
+      it("should return success", done => {
+        expect(status).toEqual("success");
+
+        done();
+      });
+      it("should run a sequence search", done => {
+        expect(data.type).toEqual("sequence");
+        expect(data.bigsi).toBeTruthy();
+        expect(data.users).toBeTruthy();
+        expect(data.results).toBeTruthy();
+        expect(data.type).toEqual("sequence");
+
+        done();
+      });
+      it("should inflate search results", done => {
+        const results = data.results;
+        expect(results.length).toEqual(1);
+
+        const result = results[0];
+
+        expect(result.id).toBeTruthy();
+        expect(result.metadata).toBeTruthy();
+        expect(result.metadata.patient.smoker).toEqual("No");
+        expect(result.percent_kmers_found).toEqual(90);
+        done();
+      });
+      it("should filter search results", done => {
+        const result = data.results[0];
+
+        expect(result.metadata.patient.smoker).toEqual("No");
+        done();
+      });
     });
     describe("when no results", () => {
-      it("should return empty experiments", done => {
-        request(app)
+      let status = null;
+      let data = null;
+      beforeEach(done => {
+        // mocks/atlas-experiment/_search/POST.f7727e8fb312a5601d06ac318674b0f0.mock
+        request(args.app)
           .get(
             "/experiments/search?q=GTCAGTCCGTTTGTTCTTGTGGCGAGTGTAGTA&threshold=90&metadata.patient.smoker=Y"
           )
-          .set("Authorization", `Bearer ${token}`)
+          .set("Authorization", `Bearer ${args.token}`)
           .expect(httpStatus.OK)
           .end((err, res) => {
-            expect(res.body.status).toEqual("success");
-
-            const data = res.body.data;
-
-            expect(data.type).toEqual("sequence");
-            expect(data.bigsi).toBeTruthy();
-            expect(data.users).toBeTruthy();
-            expect(data.results).toBeTruthy();
-            expect(data.type).toEqual("sequence");
-
-            const results = data.results;
-            expect(results.length).toEqual(0);
+            status = res.body.status;
+            data = res.body.data;
 
             done();
           });
+      });
+      it("should return success", done => {
+        expect(status).toEqual("success");
+        done();
+      });
+      it("should return no results", done => {
+        expect(data.type).toEqual("sequence");
+        expect(data.bigsi).toBeTruthy();
+        expect(data.users).toBeTruthy();
+        expect(data.results).toBeTruthy();
+        expect(data.type).toEqual("sequence");
+
+        const results = data.results;
+        expect(results.length).toEqual(0);
+
+        done();
       });
     });
   });

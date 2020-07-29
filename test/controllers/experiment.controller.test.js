@@ -1,7 +1,6 @@
 import request from "supertest";
 import httpStatus from "http-status";
 import fs from "fs";
-import hash from "object-hash";
 import moment from "moment";
 
 import Constants from "../../src/server/Constants";
@@ -31,12 +30,7 @@ import experiments from "../fixtures/experiments";
 import trees from "../fixtures/trees";
 import searches from "../fixtures/searches";
 
-const app = createApp();
-
 const mongo = require("promised-mongo").compatible();
-
-let token = null;
-let id = null;
 
 const findJob = (jobs, id, name) =>
   jobs.findOne({ "data.experiment_id": id, name }, (err, data) => data);
@@ -49,21 +43,31 @@ const findJobByName = (jobs, name) => jobs.findOne({ name }, (err, data) => data
 const findJobBySearchId = (jobs, id, name) =>
   jobs.findOne({ "data.search.id": id, name }, (err, data) => data);
 
+const args = {
+  app: null,
+  token: null,
+  id: null
+};
+
+beforeAll(async () => {
+  args.app = await createApp();
+});
+
 beforeEach(async done => {
   const userData = new User(users.admin);
   const experimentData = new Experiment(experiments.tbUploadMetadata);
 
   const savedUser = await userData.save();
-  request(app)
+  request(args.app)
     .post("/auth/login")
     .send({ username: "admin@nhs.co.uk", password: "password" })
     .end(async (err, res) => {
-      token = res.body.data.access_token;
+      args.token = res.body.data.access_token;
 
       experimentData.owner = savedUser;
       const savedExperiment = await experimentData.save();
 
-      id = savedExperiment.id;
+      args.id = savedExperiment.id;
       done();
     });
 });
@@ -80,11 +84,11 @@ afterEach(async done => {
 });
 
 describe("ExperimentController", () => {
-  describe("# POST /experiments", () => {
+  describe("POST /experiments", () => {
     it("should create a new experiment", done => {
-      request(app)
+      request(args.app)
         .post("/experiments")
-        .set("Authorization", `Bearer ${token}`)
+        .set("Authorization", `Bearer ${args.token}`)
         .send(experiments.tbUploadMetadata)
         .expect(httpStatus.OK)
         .end((err, res) => {
@@ -103,9 +107,9 @@ describe("ExperimentController", () => {
     });
 
     it("should remove additional fields from the new experiment", done => {
-      request(app)
+      request(args.app)
         .post("/experiments")
-        .set("Authorization", `Bearer ${token}`)
+        .set("Authorization", `Bearer ${args.token}`)
         .send(experiments.tbUploadMetadataWithAdditional)
         .expect(httpStatus.OK)
         .end((err, res) => {
@@ -128,9 +132,9 @@ describe("ExperimentController", () => {
     });
 
     it("should set the owner to the current user", done => {
-      request(app)
+      request(args.app)
         .post("/experiments")
-        .set("Authorization", `Bearer ${token}`)
+        .set("Authorization", `Bearer ${args.token}`)
         .send(experiments.tbUploadMetadata)
         .expect(httpStatus.OK)
         .end((err, res) => {
@@ -142,12 +146,11 @@ describe("ExperimentController", () => {
         });
     });
   });
-
-  describe("# GET /experiments/:id", () => {
+  describe("GET /experiments/:id", () => {
     it("should get experiment details", done => {
-      request(app)
-        .get(`/experiments/${id}`)
-        .set("Authorization", `Bearer ${token}`)
+      request(args.app)
+        .get(`/experiments/${args.id}`)
+        .set("Authorization", `Bearer ${args.token}`)
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("success");
@@ -166,9 +169,9 @@ describe("ExperimentController", () => {
     });
 
     it("should populate the owner", done => {
-      request(app)
-        .get(`/experiments/${id}`)
-        .set("Authorization", `Bearer ${token}`)
+      request(args.app)
+        .get(`/experiments/${args.id}`)
+        .set("Authorization", `Bearer ${args.token}`)
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("success");
@@ -182,9 +185,9 @@ describe("ExperimentController", () => {
     });
 
     it("should report error with message - Not found, when experiment does not exists", done => {
-      request(app)
+      request(args.app)
         .get("/experiments/56c787ccc67fc16ccc1a5e92")
-        .set("Authorization", `Bearer ${token}`)
+        .set("Authorization", `Bearer ${args.token}`)
         .expect(httpStatus.NOT_FOUND)
         .end((err, res) => {
           expect(res.body.message).toEqual("Experiment not found with id 56c787ccc67fc16ccc1a5e92");
@@ -193,9 +196,9 @@ describe("ExperimentController", () => {
     });
 
     it("should remove unwanted fields", done => {
-      request(app)
-        .get(`/experiments/${id}`)
-        .set("Authorization", `Bearer ${token}`)
+      request(args.app)
+        .get(`/experiments/${args.id}`)
+        .set("Authorization", `Bearer ${args.token}`)
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.data._id).toBeUndefined();
@@ -205,12 +208,12 @@ describe("ExperimentController", () => {
     });
 
     it("should add virtual fields", done => {
-      request(app)
-        .get(`/experiments/${id}`)
-        .set("Authorization", `Bearer ${token}`)
+      request(args.app)
+        .get(`/experiments/${args.id}`)
+        .set("Authorization", `Bearer ${args.token}`)
         .expect(httpStatus.OK)
         .end((err, res) => {
-          expect(res.body.data.id).toEqual(id);
+          expect(res.body.data.id).toEqual(args.id);
           done();
         });
     });
@@ -218,7 +221,7 @@ describe("ExperimentController", () => {
     describe("when results are populated", () => {
       describe("when using one type", () => {
         beforeEach(async done => {
-          const experiment = await Experiment.get(id);
+          const experiment = await Experiment.get(args.id);
           const experimentResults = [];
           experimentResults.push(results.mdr);
           experiment.set("results", experimentResults);
@@ -227,9 +230,9 @@ describe("ExperimentController", () => {
           done();
         });
         it("should return the results per type", done => {
-          request(app)
-            .get(`/experiments/${id}`)
-            .set("Authorization", `Bearer ${token}`)
+          request(args.app)
+            .get(`/experiments/${args.id}`)
+            .set("Authorization", `Bearer ${args.token}`)
             .expect(httpStatus.OK)
             .end((err, res) => {
               expect(res.body.status).toEqual("success");
@@ -250,9 +253,9 @@ describe("ExperimentController", () => {
             });
         });
         it("should include calledBy", done => {
-          request(app)
-            .get(`/experiments/${id}`)
-            .set("Authorization", `Bearer ${token}`)
+          request(args.app)
+            .get(`/experiments/${args.id}`)
+            .set("Authorization", `Bearer ${args.token}`)
             .expect(httpStatus.OK)
             .end((err, res) => {
               expect(res.body.status).toEqual("success");
@@ -275,7 +278,7 @@ describe("ExperimentController", () => {
       });
       describe("when using multiple types", () => {
         beforeEach(async done => {
-          const experiment = await Experiment.get(id);
+          const experiment = await Experiment.get(args.id);
           const experimentResults = [];
           experimentResults.push(results.mdr);
           experimentResults.push(results.distance.nearestNeighbour);
@@ -285,9 +288,9 @@ describe("ExperimentController", () => {
           done();
         });
         it("should return the results per type", done => {
-          request(app)
-            .get(`/experiments/${id}`)
-            .set("Authorization", `Bearer ${token}`)
+          request(args.app)
+            .get(`/experiments/${args.id}`)
+            .set("Authorization", `Bearer ${args.token}`)
             .expect(httpStatus.OK)
             .end((err, res) => {
               expect(res.body.status).toEqual("success");
@@ -329,7 +332,7 @@ describe("ExperimentController", () => {
       });
       describe("when using duplicate types", () => {
         beforeEach(async done => {
-          const experiment = await Experiment.get(id);
+          const experiment = await Experiment.get(args.id);
           const experimentResults = [];
           experimentResults.push(results.mdr);
           experimentResults.push(results.distance.nearestNeighbour);
@@ -339,9 +342,9 @@ describe("ExperimentController", () => {
           done();
         });
         it("should return the results per latest type", done => {
-          request(app)
-            .get(`/experiments/${id}`)
-            .set("Authorization", `Bearer ${token}`)
+          request(args.app)
+            .get(`/experiments/${args.id}`)
+            .set("Authorization", `Bearer ${args.token}`)
             .expect(httpStatus.OK)
             .end((err, res) => {
               expect(res.body.status).toEqual("success");
@@ -377,7 +380,7 @@ describe("ExperimentController", () => {
           const savedExperimentWithMetadataResults = await experimentWithMetadataResults.save();
           const savedMetadata = savedExperimentWithMetadataResults.get("metadata");
 
-          const experiment = await Experiment.get(id);
+          const experiment = await Experiment.get(args.id);
           const experimentResults = [];
           experimentResults.push({
             type: "distance",
@@ -394,9 +397,9 @@ describe("ExperimentController", () => {
           done();
         });
         it("should inflate the nearest neighbours results", done => {
-          request(app)
-            .get(`/experiments/${id}`)
-            .set("Authorization", `Bearer ${token}`)
+          request(args.app)
+            .get(`/experiments/${args.id}`)
+            .set("Authorization", `Bearer ${args.token}`)
             .expect(httpStatus.OK)
             .end((err, res) => {
               expect(res.body.status).toEqual("success");
@@ -426,9 +429,9 @@ describe("ExperimentController", () => {
             });
         });
         it("should return a lighweight object when inflating", done => {
-          request(app)
-            .get(`/experiments/${id}`)
-            .set("Authorization", `Bearer ${token}`)
+          request(args.app)
+            .get(`/experiments/${args.id}`)
+            .set("Authorization", `Bearer ${args.token}`)
             .expect(httpStatus.OK)
             .end((err, res) => {
               expect(res.body.status).toEqual("success");
@@ -462,9 +465,9 @@ describe("ExperimentController", () => {
             });
         });
         it("should replace the experiments ids", done => {
-          request(app)
-            .get(`/experiments/${id}`)
-            .set("Authorization", `Bearer ${token}`)
+          request(args.app)
+            .get(`/experiments/${args.id}`)
+            .set("Authorization", `Bearer ${args.token}`)
             .expect(httpStatus.OK)
             .end(async (err, res) => {
               expect(res.body.status).toEqual("success");
@@ -495,8 +498,7 @@ describe("ExperimentController", () => {
       });
     });
   });
-
-  describe("# PUT /experiments/:id", () => {
+  describe("PUT /experiments/:id", () => {
     const data = {
       metadata: {
         patient: {
@@ -506,9 +508,9 @@ describe("ExperimentController", () => {
       }
     };
     it("should update experiment details", done => {
-      request(app)
-        .put(`/experiments/${id}`)
-        .set("Authorization", `Bearer ${token}`)
+      request(args.app)
+        .put(`/experiments/${args.id}`)
+        .set("Authorization", `Bearer ${args.token}`)
         .send(data)
         .expect(httpStatus.OK)
         .end((err, res) => {
@@ -520,7 +522,7 @@ describe("ExperimentController", () => {
     describe("when the owner is not the logged in user", () => {
       let thomasToken = null;
       beforeEach(async done => {
-        request(app)
+        request(args.app)
           .post("/auth/login")
           .send({ username: "thomas.carlos@nhs.net", password: "password" })
           .end(async (err, res) => {
@@ -529,8 +531,8 @@ describe("ExperimentController", () => {
           });
       });
       it("should return an permission error", done => {
-        request(app)
-          .put(`/experiments/${id}`)
+        request(args.app)
+          .put(`/experiments/${args.id}`)
           .set("Authorization", `Bearer ${thomasToken}`)
           .send(data)
           .expect(httpStatus.UNAUTHORIZED)
@@ -573,9 +575,9 @@ describe("ExperimentController", () => {
           }
         };
 
-        request(app)
-          .put(`/experiments/${id}`)
-          .set("Authorization", `Bearer ${token}`)
+        request(args.app)
+          .put(`/experiments/${args.id}`)
+          .set("Authorization", `Bearer ${args.token}`)
           .send(body)
           .expect(httpStatus.OK)
           .end((err, res) => {
@@ -619,9 +621,9 @@ describe("ExperimentController", () => {
             }
           }
         };
-        request(app)
-          .put(`/experiments/${id}`)
-          .set("Authorization", `Bearer ${token}`)
+        request(args.app)
+          .put(`/experiments/${args.id}`)
+          .set("Authorization", `Bearer ${args.token}`)
           .send(body)
           .expect(httpStatus.OK)
           .end((err, res) => {
@@ -638,12 +640,11 @@ describe("ExperimentController", () => {
       });
     });
   });
-
-  describe("# GET /experiments", () => {
+  describe("GET /experiments", () => {
     it("should get all experiments", done => {
-      request(app)
+      request(args.app)
         .get("/experiments")
-        .set("Authorization", `Bearer ${token}`)
+        .set("Authorization", `Bearer ${args.token}`)
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(Array.isArray(res.body.data)).toBe(true);
@@ -652,12 +653,11 @@ describe("ExperimentController", () => {
         });
     });
   });
-
-  describe("# DELETE /experiments/:id", () => {
+  describe("DELETE /experiments/:id", () => {
     it("should delete experiment", done => {
-      request(app)
-        .delete(`/experiments/${id}`)
-        .set("Authorization", `Bearer ${token}`)
+      request(args.app)
+        .delete(`/experiments/${args.id}`)
+        .set("Authorization", `Bearer ${args.token}`)
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("success");
@@ -667,9 +667,9 @@ describe("ExperimentController", () => {
     });
 
     it("should return an error if experiment not found", done => {
-      request(app)
+      request(args.app)
         .delete("/experiments/589dcdd38d71fee259dc4e00")
-        .set("Authorization", `Bearer ${token}`)
+        .set("Authorization", `Bearer ${args.token}`)
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
@@ -680,7 +680,7 @@ describe("ExperimentController", () => {
     describe("when the owner is not the logged in user", () => {
       let thomasToken = null;
       beforeEach(async done => {
-        request(app)
+        request(args.app)
           .post("/auth/login")
           .send({ username: "thomas.carlos@nhs.net", password: "password" })
           .end(async (err, res) => {
@@ -689,8 +689,8 @@ describe("ExperimentController", () => {
           });
       });
       it("should return an permission error", done => {
-        request(app)
-          .delete(`/experiments/${id}`)
+        request(args.app)
+          .delete(`/experiments/${args.id}`)
           .set("Authorization", `Bearer ${thomasToken}`)
           .expect(httpStatus.UNAUTHORIZED)
           .end((err, res) => {
@@ -701,7 +701,7 @@ describe("ExperimentController", () => {
       });
     });
   });
-  describe("# PUT /experiments/:id/metadata", () => {
+  describe("PUT /experiments/:id/metadata", () => {
     it("should update experiment metadata", done => {
       const updatedMetadata = JSON.parse(JSON.stringify(experiments.tbUploadMetadata.metadata));
       updatedMetadata.patient.patientId = "7e89a3b3-8d7e-4120-87c5-741fb4ddeb8c";
@@ -711,9 +711,9 @@ describe("ExperimentController", () => {
       updatedMetadata.genotyping.wgsPlatform = "HiSeq";
       updatedMetadata.phenotyping.phenotypeInformationOtherDrugs = "Yes";
 
-      request(app)
-        .put(`/experiments/${id}/metadata`)
-        .set("Authorization", `Bearer ${token}`)
+      request(args.app)
+        .put(`/experiments/${args.id}/metadata`)
+        .set("Authorization", `Bearer ${args.token}`)
         .send(updatedMetadata)
         .expect(httpStatus.OK)
         .end((err, res) => {
@@ -732,9 +732,9 @@ describe("ExperimentController", () => {
     });
 
     it("should return an error if experiment not found", done => {
-      request(app)
+      request(args.app)
         .put("/experiments/589dcdd38d71fee259dc4e00/metadata")
-        .set("Authorization", `Bearer ${token}`)
+        .set("Authorization", `Bearer ${args.token}`)
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
@@ -743,16 +743,16 @@ describe("ExperimentController", () => {
         });
     });
   });
-  describe("# PUT /experiments/:id/file", () => {
+  describe("PUT /experiments/:id/file", () => {
     it("should upload file using resumable", done => {
-      request(app)
-        .put(`/experiments/${id}/file`)
-        .set("Authorization", `Bearer ${token}`)
+      request(args.app)
+        .put(`/experiments/${args.id}/file`)
+        .set("Authorization", `Bearer ${args.token}`)
         .field("resumableChunkNumber", 1)
         .field("resumableChunkSize", 1048576)
         .field("resumableCurrentChunkSize", 251726)
         .field("resumableTotalSize", 251726)
-        .field("resumableType", "application/json")
+        .field("resumableType", "args.application/json")
         .field("resumableIdentifier", "251726-333-08json")
         .field("resumableFilename", "333-08.json")
         .field("resumableRelativePath", "333-08.json")
@@ -767,14 +767,14 @@ describe("ExperimentController", () => {
         });
     });
     it("should create the reassembled file in the system", done => {
-      request(app)
-        .put(`/experiments/${id}/file`)
-        .set("Authorization", `Bearer ${token}`)
+      request(args.app)
+        .put(`/experiments/${args.id}/file`)
+        .set("Authorization", `Bearer ${args.token}`)
         .field("resumableChunkNumber", 1)
         .field("resumableChunkSize", 1048576)
         .field("resumableCurrentChunkSize", 251726)
         .field("resumableTotalSize", 251726)
-        .field("resumableType", "application/json")
+        .field("resumableType", "args.application/json")
         .field("resumableIdentifier", "251726-333-08json")
         .field("resumableFilename", "333-08.json")
         .field("resumableRelativePath", "333-08.json")
@@ -783,7 +783,7 @@ describe("ExperimentController", () => {
         .attach("file", "test/fixtures/files/333-08.json")
         .expect(httpStatus.OK)
         .end((err, res) => {
-          const filePath = `${config.express.uploadDir}/experiments/${id}/file/333-08.json`;
+          const filePath = `${config.express.uploadDir}/experiments/${args.id}/file/333-08.json`;
           expect(res.body.status).toEqual("success");
           expect(res.body.data).toEqual("File uploaded and reassembled");
           expect(fs.existsSync(filePath)).toEqual(true);
@@ -793,14 +793,14 @@ describe("ExperimentController", () => {
     it("should emit upload-complete event to all the subscribers", done => {
       const mockCallback = jest.fn();
       experimentEventEmitter.on("upload-complete", mockCallback);
-      request(app)
-        .put(`/experiments/${id}/file`)
-        .set("Authorization", `Bearer ${token}`)
+      request(args.app)
+        .put(`/experiments/${args.id}/file`)
+        .set("Authorization", `Bearer ${args.token}`)
         .field("resumableChunkNumber", 1)
         .field("resumableChunkSize", 1048576)
         .field("resumableCurrentChunkSize", 251726)
         .field("resumableTotalSize", 251726)
-        .field("resumableType", "application/json")
+        .field("resumableType", "args.application/json")
         .field("resumableIdentifier", "251726-333-08json")
         .field("resumableFilename", "333-08.json")
         .field("resumableRelativePath", "333-08.json")
@@ -809,7 +809,7 @@ describe("ExperimentController", () => {
         .attach("file", "test/fixtures/files/333-08.json")
         .expect(httpStatus.OK)
         .end((err, res) => {
-          const filePath = `${config.express.uploadDir}/experiments/${id}/file/333-08.json`;
+          const filePath = `${config.express.uploadDir}/experiments/${args.id}/file/333-08.json`;
           expect(res.body.status).toEqual("success");
           expect(res.body.data).toEqual("File uploaded and reassembled");
           expect(fs.existsSync(filePath)).toEqual(true);
@@ -826,7 +826,7 @@ describe("ExperimentController", () => {
           const status = object.status;
           const experiment = object.experiment;
 
-          expect(experiment.id).toEqual(id);
+          expect(experiment.id).toEqual(args.id);
           expect(status.filename).toEqual("333-08.json");
           expect(status.complete).toEqual(true);
 
@@ -834,14 +834,14 @@ describe("ExperimentController", () => {
         });
     });
     it("should return an error if experiment not found", done => {
-      request(app)
+      request(args.app)
         .put("/experiments/589dcdd38d71fee259dc4e00/file")
-        .set("Authorization", `Bearer ${token}`)
+        .set("Authorization", `Bearer ${args.token}`)
         .field("resumableChunkNumber", 1)
         .field("resumableChunkSize", 1048576)
         .field("resumableCurrentChunkSize", 251726)
         .field("resumableTotalSize", 251726)
-        .field("resumableType", "application/json")
+        .field("resumableType", "args.application/json")
         .field("resumableIdentifier", "251726-333-08json")
         .field("resumableFilename", "333-08.json")
         .field("resumableRelativePath", "333-08.json")
@@ -857,14 +857,14 @@ describe("ExperimentController", () => {
         });
     });
     it("should return an error if no file attached", done => {
-      request(app)
-        .put(`/experiments/${id}/file`)
-        .set("Authorization", `Bearer ${token}`)
+      request(args.app)
+        .put(`/experiments/${args.id}/file`)
+        .set("Authorization", `Bearer ${args.token}`)
         .field("resumableChunkNumber", 1)
         .field("resumableChunkSize", 1048576)
         .field("resumableCurrentChunkSize", 251726)
         .field("resumableTotalSize", 251726)
-        .field("resumableType", "application/json")
+        .field("resumableType", "args.application/json")
         .field("resumableIdentifier", "251726-333-08json")
         .field("resumableFilename", "333-08.json")
         .field("resumableRelativePath", "333-08.json")
@@ -879,14 +879,14 @@ describe("ExperimentController", () => {
         });
     });
     it("should return an error if checksum is not valid", done => {
-      request(app)
-        .put(`/experiments/${id}/file`)
-        .set("Authorization", `Bearer ${token}`)
+      request(args.app)
+        .put(`/experiments/${args.id}/file`)
+        .set("Authorization", `Bearer ${args.token}`)
         .field("resumableChunkNumber", 1)
         .field("resumableChunkSize", 1048576)
         .field("resumableCurrentChunkSize", 251726)
         .field("resumableTotalSize", 251726)
-        .field("resumableType", "application/json")
+        .field("resumableType", "args.application/json")
         .field("resumableIdentifier", "251726-333-08json")
         .field("resumableFilename", "333-08.json")
         .field("resumableRelativePath", "333-08.json")
@@ -905,14 +905,14 @@ describe("ExperimentController", () => {
         });
     });
     it("should return an error if chunk size is not correct", done => {
-      request(app)
-        .put(`/experiments/${id}/file`)
-        .set("Authorization", `Bearer ${token}`)
+      request(args.app)
+        .put(`/experiments/${args.id}/file`)
+        .set("Authorization", `Bearer ${args.token}`)
         .field("resumableChunkNumber", 1)
         .field("resumableChunkSize", 1048576)
         .field("resumableCurrentChunkSize", 251726)
         .field("resumableTotalSize", 251700)
-        .field("resumableType", "application/json")
+        .field("resumableType", "args.application/json")
         .field("resumableIdentifier", "251726-333-08json")
         .field("resumableFilename", "333-08.json")
         .field("resumableRelativePath", "333-08.json")
@@ -931,9 +931,9 @@ describe("ExperimentController", () => {
     });
     describe("when provider and path are present", () => {
       it("should only allow valid providers", done => {
-        request(app)
-          .put(`/experiments/${id}/provider`)
-          .set("Authorization", `Bearer ${token}`)
+        request(args.app)
+          .put(`/experiments/${args.id}/provider`)
+          .set("Authorization", `Bearer ${args.token}`)
           .send({
             provider: "ftp",
             name: "fake.json",
@@ -951,8 +951,8 @@ describe("ExperimentController", () => {
           });
       });
       it("should be a protected route", done => {
-        request(app)
-          .put(`/experiments/${id}/provider`)
+        request(args.app)
+          .put(`/experiments/${args.id}/provider`)
           .set("Authorization", "Bearer INVALID_TOKEN")
           .send({
             provider: "dropbox",
@@ -967,9 +967,9 @@ describe("ExperimentController", () => {
           });
       });
       it("should download files from dropbox", done => {
-        request(app)
-          .put(`/experiments/${id}/provider`)
-          .set("Authorization", `Bearer ${token}`)
+        request(args.app)
+          .put(`/experiments/${args.id}/provider`)
+          .set("Authorization", `Bearer ${args.token}`)
           .send({
             provider: "dropbox",
             name: "fake.json",
@@ -983,9 +983,9 @@ describe("ExperimentController", () => {
           });
       });
       it("should save file attribute", done => {
-        request(app)
-          .put(`/experiments/${id}/provider`)
-          .set("Authorization", `Bearer ${token}`)
+        request(args.app)
+          .put(`/experiments/${args.id}/provider`)
+          .set("Authorization", `Bearer ${args.token}`)
           .send({
             provider: "dropbox",
             name: "MDR.fastq.gz",
@@ -996,20 +996,22 @@ describe("ExperimentController", () => {
             expect(res.body.status).toEqual("success");
             expect(res.body.data).toEqual("Download started from dropbox");
 
-            let updatedExperiment = await Experiment.get(id);
+            let updatedExperiment = await Experiment.get(args.id);
             while (!updatedExperiment.file) {
-              updatedExperiment = await Experiment.get(id);
+              updatedExperiment = await Experiment.get(args.id);
             }
             expect(updatedExperiment.file).toEqual("MDR.fastq.gz");
             done();
           });
       });
       it("should send the upload progress event to all subscribers", done => {
+        const id = args.id;
         const mockCallback = jest.fn();
+
         experimentEventEmitter.on("3rd-party-upload-progress", mockCallback);
-        request(app)
-          .put(`/experiments/${id}/provider`)
-          .set("Authorization", `Bearer ${token}`)
+        request(args.app)
+          .put(`/experiments/${args.id}/provider`)
+          .set("Authorization", `Bearer ${args.token}`)
           .send({
             provider: "dropbox",
             name: "MDR.fastq.gz",
@@ -1046,11 +1048,12 @@ describe("ExperimentController", () => {
           });
       });
       it("should send the upload complete event to all subscribers", done => {
+        const id = args.id;
         const mockCallback = jest.fn();
         experimentEventEmitter.on("3rd-party-upload-complete", mockCallback);
-        request(app)
-          .put(`/experiments/${id}/provider`)
-          .set("Authorization", `Bearer ${token}`)
+        request(args.app)
+          .put(`/experiments/${args.id}/provider`)
+          .set("Authorization", `Bearer ${args.token}`)
           .send({
             provider: "dropbox",
             name: "MDR.fastq.gz",
@@ -1090,9 +1093,9 @@ describe("ExperimentController", () => {
           });
       });
       it("should call the analysis api when download is done - dropbox", done => {
-        request(app)
-          .put(`/experiments/${id}/provider`)
-          .set("Authorization", `Bearer ${token}`)
+        request(args.app)
+          .put(`/experiments/${args.id}/provider`)
+          .set("Authorization", `Bearer ${args.token}`)
           .send({
             provider: "dropbox",
             name: "333-08.json",
@@ -1104,14 +1107,14 @@ describe("ExperimentController", () => {
             expect(res.body.status).toEqual("success");
             expect(res.body.data).toEqual("Download started from dropbox");
             try {
-              let job = await findJob(jobs, id, "call analysis api");
+              let job = await findJob(jobs, args.id, "call analysis api");
               while (!job) {
-                job = await findJob(jobs, id, "call analysis api");
+                job = await findJob(jobs, args.id, "call analysis api");
               }
               expect(job.data.file).toEqual(
-                `${config.express.uploadsLocation}/experiments/${id}/file/333-08.json`
+                `${config.express.uploadsLocation}/experiments/${args.id}/file/333-08.json`
               );
-              expect(job.data.experiment_id).toEqual(id);
+              expect(job.data.experiment_id).toEqual(args.id);
               expect(job.data.attempt).toEqual(0);
               done();
             } catch (e) {
@@ -1121,9 +1124,9 @@ describe("ExperimentController", () => {
           });
       });
       it("should save the dropbox file to the filesystem", done => {
-        request(app)
-          .put(`/experiments/${id}/provider`)
-          .set("Authorization", `Bearer ${token}`)
+        request(args.app)
+          .put(`/experiments/${args.id}/provider`)
+          .set("Authorization", `Bearer ${args.token}`)
           .send({
             provider: "dropbox",
             name: "fake.json",
@@ -1131,7 +1134,7 @@ describe("ExperimentController", () => {
           })
           .expect(httpStatus.OK)
           .end((err, res) => {
-            const filePath = `${config.express.uploadDir}/experiments/${id}/file/fake.json`;
+            const filePath = `${config.express.uploadDir}/experiments/${args.id}/file/fake.json`;
             expect(res.body.status).toEqual("success");
             expect(res.body.data).toEqual("Download started from dropbox");
             expect(fs.existsSync(filePath)).toEqual(true);
@@ -1139,9 +1142,9 @@ describe("ExperimentController", () => {
           });
       });
       it("should download files from box", done => {
-        request(app)
-          .put(`/experiments/${id}/provider`)
-          .set("Authorization", `Bearer ${token}`)
+        request(args.app)
+          .put(`/experiments/${args.id}/provider`)
+          .set("Authorization", `Bearer ${args.token}`)
           .send({
             provider: "box",
             name: "fake.json",
@@ -1155,9 +1158,9 @@ describe("ExperimentController", () => {
           });
       });
       it("should call the analysis api when download is done - box", done => {
-        request(app)
-          .put(`/experiments/${id}/provider`)
-          .set("Authorization", `Bearer ${token}`)
+        request(args.app)
+          .put(`/experiments/${args.id}/provider`)
+          .set("Authorization", `Bearer ${args.token}`)
           .send({
             provider: "box",
             name: "333-08.json",
@@ -1169,14 +1172,14 @@ describe("ExperimentController", () => {
             expect(res.body.status).toEqual("success");
             expect(res.body.data).toEqual("Download started from box");
             try {
-              let job = await findJob(jobs, id, "call analysis api");
+              let job = await findJob(jobs, args.id, "call analysis api");
               while (!job) {
-                job = await findJob(jobs, id, "call analysis api");
+                job = await findJob(jobs, args.id, "call analysis api");
               }
               expect(job.data.file).toEqual(
-                `${config.express.uploadsLocation}/experiments/${id}/file/333-08.json`
+                `${config.express.uploadsLocation}/experiments/${args.id}/file/333-08.json`
               );
-              expect(job.data.experiment_id).toEqual(id);
+              expect(job.data.experiment_id).toEqual(args.id);
               expect(job.data.attempt).toEqual(0);
               done();
             } catch (e) {
@@ -1186,9 +1189,9 @@ describe("ExperimentController", () => {
           });
       });
       it("should save the box file to the filesystem", done => {
-        request(app)
-          .put(`/experiments/${id}/provider`)
-          .set("Authorization", `Bearer ${token}`)
+        request(args.app)
+          .put(`/experiments/${args.id}/provider`)
+          .set("Authorization", `Bearer ${args.token}`)
           .send({
             provider: "box",
             name: "fake.json",
@@ -1196,7 +1199,7 @@ describe("ExperimentController", () => {
           })
           .expect(httpStatus.OK)
           .end((err, res) => {
-            const filePath = `${config.express.uploadDir}/experiments/${id}/file/fake.json`;
+            const filePath = `${config.express.uploadDir}/experiments/${args.id}/file/fake.json`;
             expect(res.body.status).toEqual("success");
             expect(res.body.data).toEqual("Download started from box");
             expect(fs.existsSync(filePath)).toEqual(true);
@@ -1204,14 +1207,14 @@ describe("ExperimentController", () => {
           });
       });
       it("should download files from google drive", done => {
-        request(app)
-          .put(`/experiments/${id}/provider`)
-          .set("Authorization", `Bearer ${token}`)
+        request(args.app)
+          .put(`/experiments/${args.id}/provider`)
+          .set("Authorization", `Bearer ${args.token}`)
           .send({
             provider: "googleDrive",
             name: "fake.json",
             path: "https://jsonplaceholder.typicode.com/posts/1",
-            accessToken: "dummy-token"
+            accessToken: "dummy-args.token"
           })
           .expect(httpStatus.OK)
           .end((err, res) => {
@@ -1221,14 +1224,14 @@ describe("ExperimentController", () => {
           });
       });
       it("should call the analysis api when download is done - googleDrive", done => {
-        request(app)
-          .put(`/experiments/${id}/provider`)
-          .set("Authorization", `Bearer ${token}`)
+        request(args.app)
+          .put(`/experiments/${args.id}/provider`)
+          .set("Authorization", `Bearer ${args.token}`)
           .send({
             provider: "googleDrive",
             name: "333-08.json",
             path: "https://jsonplaceholder.typicode.com/posts/1",
-            accessToken: "dummy-token"
+            accessToken: "dummy-args.token"
           })
           .expect(httpStatus.OK)
           .end(async (err, res) => {
@@ -1236,14 +1239,14 @@ describe("ExperimentController", () => {
             expect(res.body.status).toEqual("success");
             expect(res.body.data).toEqual("Download started from googleDrive");
             try {
-              let job = await findJob(jobs, id, "call analysis api");
+              let job = await findJob(jobs, args.id, "call analysis api");
               while (!job) {
-                job = await findJob(jobs, id, "call analysis api");
+                job = await findJob(jobs, args.id, "call analysis api");
               }
               expect(job.data.file).toEqual(
-                `${config.express.uploadsLocation}/experiments/${id}/file/333-08.json`
+                `${config.express.uploadsLocation}/experiments/${args.id}/file/333-08.json`
               );
-              expect(job.data.experiment_id).toEqual(id);
+              expect(job.data.experiment_id).toEqual(args.id);
               expect(job.data.attempt).toEqual(0);
               done();
             } catch (e) {
@@ -1253,9 +1256,9 @@ describe("ExperimentController", () => {
           });
       });
       it("should make accessToken mandatory for googleDrive", done => {
-        request(app)
-          .put(`/experiments/${id}/provider`)
-          .set("Authorization", `Bearer ${token}`)
+        request(args.app)
+          .put(`/experiments/${args.id}/provider`)
+          .set("Authorization", `Bearer ${args.token}`)
           .send({
             provider: "googleDrive",
             name: "fake.json",
@@ -1271,18 +1274,18 @@ describe("ExperimentController", () => {
           });
       });
       it("should save the google drive file to the filesystem", done => {
-        request(app)
-          .put(`/experiments/${id}/provider`)
-          .set("Authorization", `Bearer ${token}`)
+        request(args.app)
+          .put(`/experiments/${args.id}/provider`)
+          .set("Authorization", `Bearer ${args.token}`)
           .send({
             provider: "googleDrive",
             name: "fake.json",
             path: "https://jsonplaceholder.typicode.com/posts/1",
-            accessToken: "dummy-token"
+            accessToken: "dummy-args.token"
           })
           .expect(httpStatus.OK)
           .end((err, res) => {
-            const filePath = `${config.express.uploadDir}/experiments/${id}/file/fake.json`;
+            const filePath = `${config.express.uploadDir}/experiments/${args.id}/file/fake.json`;
             expect(res.body.status).toEqual("success");
             expect(res.body.data).toEqual("Download started from googleDrive");
             expect(fs.existsSync(filePath)).toEqual(true);
@@ -1290,9 +1293,9 @@ describe("ExperimentController", () => {
           });
       });
       it("should download files from one drive", done => {
-        request(app)
-          .put(`/experiments/${id}/provider`)
-          .set("Authorization", `Bearer ${token}`)
+        request(args.app)
+          .put(`/experiments/${args.id}/provider`)
+          .set("Authorization", `Bearer ${args.token}`)
           .send({
             provider: "oneDrive",
             name: "fake.json",
@@ -1306,9 +1309,9 @@ describe("ExperimentController", () => {
           });
       });
       it("should call the analysis api when download is done - oneDrive", done => {
-        request(app)
-          .put(`/experiments/${id}/provider`)
-          .set("Authorization", `Bearer ${token}`)
+        request(args.app)
+          .put(`/experiments/${args.id}/provider`)
+          .set("Authorization", `Bearer ${args.token}`)
           .send({
             provider: "oneDrive",
             name: "333-08.json",
@@ -1320,14 +1323,14 @@ describe("ExperimentController", () => {
             expect(res.body.status).toEqual("success");
             expect(res.body.data).toEqual("Download started from oneDrive");
             try {
-              let job = await findJob(jobs, id, "call analysis api");
+              let job = await findJob(jobs, args.id, "call analysis api");
               while (!job) {
-                job = await findJob(jobs, id, "call analysis api");
+                job = await findJob(jobs, args.id, "call analysis api");
               }
               expect(job.data.file).toEqual(
-                `${config.express.uploadsLocation}/experiments/${id}/file/333-08.json`
+                `${config.express.uploadsLocation}/experiments/${args.id}/file/333-08.json`
               );
-              expect(job.data.experiment_id).toEqual(id);
+              expect(job.data.experiment_id).toEqual(args.id);
               expect(job.data.attempt).toEqual(0);
               done();
             } catch (e) {
@@ -1337,9 +1340,9 @@ describe("ExperimentController", () => {
           });
       });
       it("should save the one drive file to the filesystem", done => {
-        request(app)
-          .put(`/experiments/${id}/provider`)
-          .set("Authorization", `Bearer ${token}`)
+        request(args.app)
+          .put(`/experiments/${args.id}/provider`)
+          .set("Authorization", `Bearer ${args.token}`)
           .send({
             provider: "oneDrive",
             name: "fake.json",
@@ -1347,7 +1350,7 @@ describe("ExperimentController", () => {
           })
           .expect(httpStatus.OK)
           .end((err, res) => {
-            const filePath = `${config.express.uploadDir}/experiments/${id}/file/fake.json`;
+            const filePath = `${config.express.uploadDir}/experiments/${args.id}/file/fake.json`;
             expect(res.body.status).toEqual("success");
             expect(res.body.data).toEqual("Download started from oneDrive");
             expect(fs.existsSync(filePath)).toEqual(true);
@@ -1357,14 +1360,14 @@ describe("ExperimentController", () => {
     });
     describe("when calling the analysis API", () => {
       it("should capture a payload including the sample id and file location", done => {
-        request(app)
-          .put(`/experiments/${id}/file`)
-          .set("Authorization", `Bearer ${token}`)
+        request(args.app)
+          .put(`/experiments/${args.id}/file`)
+          .set("Authorization", `Bearer ${args.token}`)
           .field("resumableChunkNumber", 1)
           .field("resumableChunkSize", 1048576)
           .field("resumableCurrentChunkSize", 251726)
           .field("resumableTotalSize", 251726)
-          .field("resumableType", "application/json")
+          .field("resumableType", "args.application/json")
           .field("resumableIdentifier", "251726-333-08json")
           .field("resumableFilename", "333-08.json")
           .field("resumableRelativePath", "333-08.json")
@@ -1377,14 +1380,14 @@ describe("ExperimentController", () => {
             expect(res.body.status).toEqual("success");
             expect(res.body.data).toEqual("File uploaded and reassembled");
             try {
-              let job = await findJob(jobs, id, "call analysis api");
+              let job = await findJob(jobs, args.id, "call analysis api");
               while (!job) {
-                job = await findJob(jobs, id, "call analysis api");
+                job = await findJob(jobs, args.id, "call analysis api");
               }
               expect(job.data.file).toEqual(
-                `${config.express.uploadsLocation}/experiments/${id}/file/333-08.json`
+                `${config.express.uploadsLocation}/experiments/${args.id}/file/333-08.json`
               );
-              expect(job.data.experiment_id).toEqual(id);
+              expect(job.data.experiment_id).toEqual(args.id);
               expect(job.data.attempt).toEqual(0);
               done();
             } catch (e) {
@@ -1394,14 +1397,14 @@ describe("ExperimentController", () => {
           });
       });
       it("should call the analysis api with payload", done => {
-        request(app)
-          .put(`/experiments/${id}/file`)
-          .set("Authorization", `Bearer ${token}`)
+        request(args.app)
+          .put(`/experiments/${args.id}/file`)
+          .set("Authorization", `Bearer ${args.token}`)
           .field("resumableChunkNumber", 1)
           .field("resumableChunkSize", 1048576)
           .field("resumableCurrentChunkSize", 251726)
           .field("resumableTotalSize", 251726)
-          .field("resumableType", "application/json")
+          .field("resumableType", "args.application/json")
           .field("resumableIdentifier", "251726-333-08json")
           .field("resumableFilename", "333-08.json")
           .field("resumableRelativePath", "333-08.json")
@@ -1413,27 +1416,27 @@ describe("ExperimentController", () => {
             const jobs = mongo(config.db.uri, []).agendaJobs;
             expect(res.body.status).toEqual("success");
             expect(res.body.data).toEqual("File uploaded and reassembled");
-            let job = await findJob(jobs, id, "call analysis api");
+            let job = await findJob(jobs, args.id, "call analysis api");
             while (!job) {
-              job = await findJob(jobs, id, "call analysis api");
+              job = await findJob(jobs, args.id, "call analysis api");
             }
             expect(job.name).toEqual("call analysis api");
             expect(job.data.file).toEqual(
-              `${config.express.uploadsLocation}/experiments/${id}/file/333-08.json`
+              `${config.express.uploadsLocation}/experiments/${args.id}/file/333-08.json`
             );
-            expect(job.data.experiment_id).toEqual(id);
+            expect(job.data.experiment_id).toEqual(args.id);
             done();
           });
       });
       it("should record taskId to the audit collection", done => {
-        request(app)
-          .put(`/experiments/${id}/file`)
-          .set("Authorization", `Bearer ${token}`)
+        request(args.app)
+          .put(`/experiments/${args.id}/file`)
+          .set("Authorization", `Bearer ${args.token}`)
           .field("resumableChunkNumber", 1)
           .field("resumableChunkSize", 1048576)
           .field("resumableCurrentChunkSize", 251726)
           .field("resumableTotalSize", 251726)
-          .field("resumableType", "application/json")
+          .field("resumableType", "args.application/json")
           .field("resumableIdentifier", "251726-333-08json")
           .field("resumableFilename", "333-08.json")
           .field("resumableRelativePath", "333-08.json")
@@ -1443,21 +1446,21 @@ describe("ExperimentController", () => {
           .expect(httpStatus.OK)
           .end(async (err, res) => {
             let audits = await Audit.find({
-              experimentId: id,
+              experimentId: args.id,
               type: "Predictor"
             });
             while (audits.length === 0) {
               audits = await Audit.find({
-                experimentId: id,
+                experimentId: args.id,
                 type: "Predictor"
               });
             }
             const audit = audits[0];
             expect(res.body.status).toEqual("success");
             expect(res.body.data).toEqual("File uploaded and reassembled");
-            expect(audit.experimentId).toEqual(id);
+            expect(audit.experimentId).toEqual(args.id);
             expect(audit.fileLocation).toEqual(
-              `${config.express.uploadsLocation}/experiments/${id}/file/333-08.json`
+              `${config.express.uploadsLocation}/experiments/${args.id}/file/333-08.json`
             );
             expect(audit.status).toEqual("Successful");
             expect(audit.attempt).toEqual(1);
@@ -1471,14 +1474,14 @@ describe("ExperimentController", () => {
         const mockDistanceCallback = jest.fn();
         experimentEventEmitter.on("analysis-started", mockAnalysisCallback);
         experimentEventEmitter.on("distance-search-started", mockDistanceCallback);
-        request(app)
-          .put(`/experiments/${id}/file`)
-          .set("Authorization", `Bearer ${token}`)
+        request(args.app)
+          .put(`/experiments/${args.id}/file`)
+          .set("Authorization", `Bearer ${args.token}`)
           .field("resumableChunkNumber", 1)
           .field("resumableChunkSize", 1048576)
           .field("resumableCurrentChunkSize", 251726)
           .field("resumableTotalSize", 251726)
-          .field("resumableType", "application/json")
+          .field("resumableType", "args.application/json")
           .field("resumableIdentifier", "251726-333-08json")
           .field("resumableFilename", "333-08.json")
           .field("resumableRelativePath", "333-08.json")
@@ -1487,14 +1490,14 @@ describe("ExperimentController", () => {
           .attach("file", "test/fixtures/files/333-08.json")
           .expect(httpStatus.OK)
           .end(async (err, res) => {
-            let audits = await Audit.find({ experimentId: id });
+            let audits = await Audit.find({ experimentId: args.id });
             while (audits.length === 0) {
-              audits = await Audit.find({ experimentId: id });
+              audits = await Audit.find({ experimentId: args.id });
             }
             const audit = audits[0];
             expect(res.body.status).toEqual("success");
             expect(res.body.data).toEqual("File uploaded and reassembled");
-            expect(audit.experimentId).toEqual(id);
+            expect(audit.experimentId).toEqual(args.id);
             expect(audit.status).toEqual("Successful");
             expect(audit.attempt).toEqual(1);
 
@@ -1511,21 +1514,21 @@ describe("ExperimentController", () => {
             const analysisExperiment = analysisArgs.experiment;
             const analysisAudit = analysisArgs.audit;
 
-            expect(analysisExperiment.id).toEqual(id);
+            expect(analysisExperiment.id).toEqual(args.id);
             expect(analysisAudit.taskId).toEqual("1447d80f-ca79-40ac-bc5d-8a02933323c3");
 
             done();
           });
       });
       it("should retry the analysis api call when failed", done => {
-        request(app)
-          .put(`/experiments/${id}/file`)
-          .set("Authorization", `Bearer ${token}`)
+        request(args.app)
+          .put(`/experiments/${args.id}/file`)
+          .set("Authorization", `Bearer ${args.token}`)
           .field("resumableChunkNumber", 1)
           .field("resumableChunkSize", 1048576)
           .field("resumableCurrentChunkSize", 251726)
           .field("resumableTotalSize", 251726)
-          .field("resumableType", "application/json")
+          .field("resumableType", "args.application/json")
           .field("resumableIdentifier", "251726-333-09json")
           .field("resumableFilename", "333-09.json")
           .field("resumableRelativePath", "333-09.json")
@@ -1538,43 +1541,43 @@ describe("ExperimentController", () => {
             expect(res.body.status).toEqual("success");
             expect(res.body.data).toEqual("File uploaded and reassembled");
             let audits = await Audit.find({
-              experimentId: id,
+              experimentId: args.id,
               type: "Predictor"
             });
             while (audits.length < 1) {
               audits = await Audit.find({
-                experimentId: id,
+                experimentId: args.id,
                 type: "Predictor"
               });
             }
             let foundJobs = await jobs.find({
-              "data.experiment_id": id,
+              "data.experiment_id": args.id,
               name: "call analysis api"
             });
             while (foundJobs.length < 2) {
               foundJobs = await jobs.find({
-                "data.experiment_id": id,
+                "data.experiment_id": args.id,
                 name: "call analysis api"
               });
             }
 
             expect(foundJobs.length).toEqual(2);
             expect(foundJobs[0].data.file).toEqual(
-              `${config.express.uploadsLocation}/experiments/${id}/file/333-09.json`
+              `${config.express.uploadsLocation}/experiments/${args.id}/file/333-09.json`
             );
-            expect(foundJobs[0].data.experiment_id).toEqual(id);
+            expect(foundJobs[0].data.experiment_id).toEqual(args.id);
             done();
           });
       });
       it("should record the audit when call failed", done => {
-        request(app)
-          .put(`/experiments/${id}/file`)
-          .set("Authorization", `Bearer ${token}`)
+        request(args.app)
+          .put(`/experiments/${args.id}/file`)
+          .set("Authorization", `Bearer ${args.token}`)
           .field("resumableChunkNumber", 1)
           .field("resumableChunkSize", 1048576)
           .field("resumableCurrentChunkSize", 251726)
           .field("resumableTotalSize", 251726)
-          .field("resumableType", "application/json")
+          .field("resumableType", "args.application/json")
           .field("resumableIdentifier", "251726-333-09json")
           .field("resumableFilename", "333-09.json")
           .field("resumableRelativePath", "333-09.json")
@@ -1587,21 +1590,21 @@ describe("ExperimentController", () => {
             expect(res.body.status).toEqual("success");
             expect(res.body.data).toEqual("File uploaded and reassembled");
             let audits = await Audit.find({
-              experimentId: id,
+              experimentId: args.id,
               type: "Predictor"
             });
             while (audits.length < 1) {
               audits = await Audit.find({
-                experimentId: id,
+                experimentId: args.id,
                 type: "Predictor"
               });
             }
             const audit = audits[0];
             expect(res.body.status).toEqual("success");
             expect(res.body.data).toEqual("File uploaded and reassembled");
-            expect(audit.experimentId).toEqual(id);
+            expect(audit.experimentId).toEqual(args.id);
             expect(audit.fileLocation).toEqual(
-              `${config.express.uploadsLocation}/experiments/${id}/file/333-09.json`
+              `${config.express.uploadsLocation}/experiments/${args.id}/file/333-09.json`
             );
             expect(audit.status).toEqual("Failed");
             expect(audit.attempt).toEqual(1);
@@ -1610,14 +1613,14 @@ describe("ExperimentController", () => {
           });
       });
       it("should save the taskId in the audit collection", done => {
-        request(app)
-          .put(`/experiments/${id}/file`)
-          .set("Authorization", `Bearer ${token}`)
+        request(args.app)
+          .put(`/experiments/${args.id}/file`)
+          .set("Authorization", `Bearer ${args.token}`)
           .field("resumableChunkNumber", 1)
           .field("resumableChunkSize", 1048576)
           .field("resumableCurrentChunkSize", 251726)
           .field("resumableTotalSize", 251726)
-          .field("resumableType", "application/json")
+          .field("resumableType", "args.application/json")
           .field("resumableIdentifier", "251726-333-08json")
           .field("resumableFilename", "333-08.json")
           .field("resumableRelativePath", "333-08.json")
@@ -1627,21 +1630,21 @@ describe("ExperimentController", () => {
           .expect(httpStatus.OK)
           .end(async (err, res) => {
             let audits = await Audit.find({
-              experimentId: id,
+              experimentId: args.id,
               type: "Predictor"
             });
             while (audits.length === 0) {
               audits = await Audit.find({
-                experimentId: id,
+                experimentId: args.id,
                 type: "Predictor"
               });
             }
             const audit = audits[0];
             expect(res.body.status).toEqual("success");
             expect(res.body.data).toEqual("File uploaded and reassembled");
-            expect(audit.experimentId).toEqual(id);
+            expect(audit.experimentId).toEqual(args.id);
             expect(audit.fileLocation).toEqual(
-              `${config.express.uploadsLocation}/experiments/${id}/file/333-08.json`
+              `${config.express.uploadsLocation}/experiments/${args.id}/file/333-08.json`
             );
             expect(audit.status).toEqual("Successful");
             expect(audit.attempt).toEqual(1);
@@ -1652,11 +1655,11 @@ describe("ExperimentController", () => {
       });
     });
   });
-  describe("# GET /experiments/:id/file", () => {
+  describe("GET /experiments/:id/file", () => {
     it("should return an error if no file found", done => {
-      request(app)
-        .get(`/experiments/${id}/file`)
-        .set("Authorization", `Bearer ${token}`)
+      request(args.app)
+        .get(`/experiments/${args.id}/file`)
+        .set("Authorization", `Bearer ${args.token}`)
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
@@ -1666,8 +1669,8 @@ describe("ExperimentController", () => {
         });
     });
     it("should be a protected route", done => {
-      request(app)
-        .get(`/experiments/${id}/file`)
+      request(args.app)
+        .get(`/experiments/${args.id}/file`)
         .set("Authorization", "Bearer INVALID_TOKEN")
         .expect(httpStatus.UNAUTHORIZED)
         .end((err, res) => {
@@ -1677,13 +1680,13 @@ describe("ExperimentController", () => {
         });
     });
   });
-  describe("# GET /experiments/:id/upload-status", () => {
+  describe("GET /experiments/:id/upload-status", () => {
     it("should return the resumable upload status", done => {
-      request(app)
+      request(args.app)
         .get(
-          `/experiments/${id}/upload-status?resumableChunkNumber=1&resumableChunkSize=1048576&resumableTotalSize=251726&resumableIdentifier=251726-333-08json&resumableFilename=333-08.json&checksum=4f36e4cbfc9dfc37559e13bd3a309d50`
+          `/experiments/${args.id}/upload-status?resumableChunkNumber=1&resumableChunkSize=1048576&resumableTotalSize=251726&resumableIdentifier=251726-333-08json&resumableFilename=333-08.json&checksum=4f36e4cbfc9dfc37559e13bd3a309d50`
         )
-        .set("Authorization", `Bearer ${token}`)
+        .set("Authorization", `Bearer ${args.token}`)
         .expect(httpStatus.NO_CONTENT)
         .end((err, res) => {
           expect(res.status).toEqual(204);
@@ -1691,14 +1694,14 @@ describe("ExperimentController", () => {
         });
     });
     it("should send no_content if upload in progress", done => {
-      request(app)
-        .put(`/experiments/${id}/file`)
-        .set("Authorization", `Bearer ${token}`)
+      request(args.app)
+        .put(`/experiments/${args.id}/file`)
+        .set("Authorization", `Bearer ${args.token}`)
         .field("resumableChunkNumber", 1)
         .field("resumableChunkSize", 1048576)
         .field("resumableCurrentChunkSize", 251726)
         .field("resumableTotalSize", 251726)
-        .field("resumableType", "application/json")
+        .field("resumableType", "args.application/json")
         .field("resumableIdentifier", "251726-333-08json")
         .field("resumableFilename", "333-08.json")
         .field("resumableRelativePath", "333-08.json")
@@ -1707,11 +1710,11 @@ describe("ExperimentController", () => {
         .attach("file", "test/fixtures/files/333-08.json")
         .expect(httpStatus.OK)
         .end(() => {
-          request(app)
+          request(args.app)
             .get(
-              `/experiments/${id}/upload-status?resumableChunkNumber=1&resumableChunkSize=1048576&resumableTotalSize=251726&resumableIdentifier=251726-333-08json&resumableFilename=333-08.json&checksum=4f36e4cbfc9dfc37559e13bd3a309d50`
+              `/experiments/${args.id}/upload-status?resumableChunkNumber=1&resumableChunkSize=1048576&resumableTotalSize=251726&resumableIdentifier=251726-333-08json&resumableFilename=333-08.json&checksum=4f36e4cbfc9dfc37559e13bd3a309d50`
             )
-            .set("Authorization", `Bearer ${token}`)
+            .set("Authorization", `Bearer ${args.token}`)
             .expect(httpStatus.NO_CONTENT)
             .end((err, res) => {
               expect(res.status).toEqual(204);
@@ -1720,9 +1723,9 @@ describe("ExperimentController", () => {
         });
     });
     it("should be a protected route", done => {
-      request(app)
+      request(args.app)
         .get(
-          `/experiments/${id}/upload-status?resumableChunkNumber=1&resumableChunkSize=1048576&resumableTotalSize=251726&resumableIdentifier=251726-333-08json&resumableFilename=333-08.json&checksum=4f36e4cbfc9dfc37559e13bd3a309d50`
+          `/experiments/${args.id}/upload-status?resumableChunkNumber=1&resumableChunkSize=1048576&resumableTotalSize=251726&resumableIdentifier=251726-333-08json&resumableFilename=333-08.json&checksum=4f36e4cbfc9dfc37559e13bd3a309d50`
         )
         .set("Authorization", "Bearer INVALID_TOKEN")
         .expect(httpStatus.UNAUTHORIZED)
@@ -1733,10 +1736,10 @@ describe("ExperimentController", () => {
         });
     });
   });
-  describe("# POST /experiments/:id/results", () => {
+  describe("POST /experiments/:id/results", () => {
     beforeEach(async done => {
       const auditData = {
-        experimentId: id,
+        experimentId: args.id,
         taskId: "111-222-333",
         requestMethod: "post",
         requestUri: "/experiments/1234/results"
@@ -1747,14 +1750,14 @@ describe("ExperimentController", () => {
       done();
     });
     afterEach(async done => {
-      const audit = await Audit.getByExperimentId(id);
+      const audit = await Audit.getByExperimentId(args.id);
       await audit.remove();
 
       done();
     });
     it("should be successful", done => {
-      request(app)
-        .post(`/experiments/${id}/results`)
+      request(args.app)
+        .post(`/experiments/${args.id}/results`)
         .send(MDR)
         .expect(httpStatus.OK)
         .end((err, res) => {
@@ -1774,8 +1777,8 @@ describe("ExperimentController", () => {
         });
     });
     it("should return r, mdr, xdr and tdr attributes", done => {
-      request(app)
-        .post(`/experiments/${id}/results`)
+      request(args.app)
+        .post(`/experiments/${args.id}/results`)
         .send(MDR)
         .expect(httpStatus.OK)
         .end((err, res) => {
@@ -1799,12 +1802,12 @@ describe("ExperimentController", () => {
         });
     });
     it("should save results against the experiment", done => {
-      request(app)
-        .post(`/experiments/${id}/results`)
+      request(args.app)
+        .post(`/experiments/${args.id}/results`)
         .send(MDR)
         .expect(httpStatus.OK)
         .end(async (err, res) => {
-          const experimentWithResults = await Experiment.get(id);
+          const experimentWithResults = await Experiment.get(args.id);
           const results = experimentWithResults.get("results");
 
           expect(results.length).toEqual(1);
@@ -1812,8 +1815,8 @@ describe("ExperimentController", () => {
         });
     });
     it("should create nearest neighbours results", done => {
-      request(app)
-        .post(`/experiments/${id}/results`)
+      request(args.app)
+        .post(`/experiments/${args.id}/results`)
         .send(NEAREST_NEIGHBOURS)
         .expect(httpStatus.OK)
         .end((err, res) => {
@@ -1835,8 +1838,8 @@ describe("ExperimentController", () => {
         });
     });
     it("should not handle invalid result type", done => {
-      request(app)
-        .post(`/experiments/${id}/results`)
+      request(args.app)
+        .post(`/experiments/${args.id}/results`)
         .send({ type: "invalid" })
         .expect(httpStatus.OK)
         .end((err, res) => {
@@ -1847,12 +1850,12 @@ describe("ExperimentController", () => {
         });
     });
     it("should save r, mdr, xdr and tdr against the experiment", done => {
-      request(app)
-        .post(`/experiments/${id}/results`)
+      request(args.app)
+        .post(`/experiments/${args.id}/results`)
         .send(MDR)
         .expect(httpStatus.OK)
         .end(async (err, res) => {
-          const experimentWithResults = await Experiment.get(id);
+          const experimentWithResults = await Experiment.get(args.id);
           const results = experimentWithResults.get("results");
 
           expect(results.length).toEqual(1);
@@ -1873,10 +1876,11 @@ describe("ExperimentController", () => {
         });
     });
     it("should emit analysis-complete event to all subscribers", done => {
+      const id = args.id;
       const mockCallback = jest.fn();
       experimentEventEmitter.on("analysis-complete", mockCallback);
-      request(app)
-        .post(`/experiments/${id}/results`)
+      request(args.app)
+        .post(`/experiments/${args.id}/results`)
         .send(MDR)
         .expect(httpStatus.OK)
         .end(async (err, res) => {
@@ -1931,8 +1935,8 @@ describe("ExperimentController", () => {
       it("should be successful", done => {
         const mockCallback = jest.fn();
         experimentEventEmitter.on("analysis-complete", mockCallback);
-        request(app)
-          .post(`/experiments/${id}/results`)
+        request(args.app)
+          .post(`/experiments/${args.id}/results`)
           .send(predictor784)
           .expect(httpStatus.OK)
           .end(async (err, res) => {
@@ -1956,12 +1960,12 @@ describe("ExperimentController", () => {
           });
       });
       it("should save results against the experiment", done => {
-        request(app)
-          .post(`/experiments/${id}/results`)
+        request(args.app)
+          .post(`/experiments/${args.id}/results`)
           .send(predictor784)
           .expect(httpStatus.OK)
           .end(async (err, res) => {
-            const experimentWithResults = await Experiment.get(id);
+            const experimentWithResults = await Experiment.get(args.id);
             const results = experimentWithResults.get("results");
 
             expect(results.length).toEqual(1);
@@ -1986,7 +1990,7 @@ describe("ExperimentController", () => {
         const savedExperiment = await experiment.save();
         const experimentId = savedExperiment._id;
 
-        request(app)
+        request(args.app)
           .post(`/experiments/${experimentId}/results`)
           .send(predictor787)
           .expect(httpStatus.OK)
@@ -2015,7 +2019,7 @@ describe("ExperimentController", () => {
         const savedExperiment = await experiment.save();
         const experimentId = savedExperiment._id;
 
-        request(app)
+        request(args.app)
           .post(`/experiments/${experimentId}/results`)
           .send(predictor788)
           .expect(httpStatus.OK)
@@ -2046,7 +2050,7 @@ describe("ExperimentController", () => {
         const savedExperiment = await experiment.save();
         const experimentId = savedExperiment._id;
 
-        request(app)
+        request(args.app)
           .post(`/experiments/${experimentId}/results`)
           .send(predictor789)
           .expect(httpStatus.OK)
@@ -2069,11 +2073,11 @@ describe("ExperimentController", () => {
       });
     });
   });
-  describe("# POST /experiments/reindex", () => {
+  describe("POST /experiments/reindex", () => {
     it("should reindex all experiments", done => {
-      request(app)
+      request(args.app)
         .post("/experiments/reindex")
-        .set("Authorization", `Bearer ${token}`)
+        .set("Authorization", `Bearer ${args.token}`)
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("success");
@@ -2082,7 +2086,7 @@ describe("ExperimentController", () => {
         });
     });
     it("should be a protected route", done => {
-      request(app)
+      request(args.app)
         .post("/experiments/reindex")
         .set("Authorization", "Bearer INVALID_TOKEN")
         .expect(httpStatus.UNAUTHORIZED)
@@ -2093,12 +2097,12 @@ describe("ExperimentController", () => {
         });
     });
   });
-  describe("# GET /experiments/:id/results", () => {
+  describe("GET /experiments/:id/results", () => {
     describe("when the results are empty", () => {
       it("should return empty results object", done => {
-        request(app)
-          .get(`/experiments/${id}/results`)
-          .set("Authorization", `Bearer ${token}`)
+        request(args.app)
+          .get(`/experiments/${args.id}/results`)
+          .set("Authorization", `Bearer ${args.token}`)
           .expect(httpStatus.OK)
           .end((err, res) => {
             expect(res.body.status).toEqual("success");
@@ -2109,7 +2113,7 @@ describe("ExperimentController", () => {
     });
     describe("when using one type", () => {
       beforeEach(async done => {
-        const experiment = await Experiment.get(id);
+        const experiment = await Experiment.get(args.id);
         const experimentResults = [];
         experimentResults.push(results.mdr);
         experiment.set("results", experimentResults);
@@ -2117,9 +2121,9 @@ describe("ExperimentController", () => {
         done();
       });
       it("should return the transformed results array", done => {
-        request(app)
-          .get(`/experiments/${id}/results`)
-          .set("Authorization", `Bearer ${token}`)
+        request(args.app)
+          .get(`/experiments/${args.id}/results`)
+          .set("Authorization", `Bearer ${args.token}`)
           .expect(httpStatus.OK)
           .end((err, res) => {
             expect(res.body.status).toEqual("success");
@@ -2136,8 +2140,8 @@ describe("ExperimentController", () => {
           });
       });
       it("should be a protected route", done => {
-        request(app)
-          .get(`/experiments/${id}/results`)
+        request(args.app)
+          .get(`/experiments/${args.id}/results`)
           .set("Authorization", "Bearer INVALID_TOKEN")
           .expect(httpStatus.UNAUTHORIZED)
           .end((err, res) => {
@@ -2149,7 +2153,7 @@ describe("ExperimentController", () => {
     });
     describe("when using multiple types", () => {
       beforeEach(async done => {
-        const experiment = await Experiment.get(id);
+        const experiment = await Experiment.get(args.id);
         const experimentResults = [];
         experimentResults.push(results.mdr);
         experimentResults.push(results.distance.nearestNeighbour);
@@ -2160,9 +2164,9 @@ describe("ExperimentController", () => {
         done();
       });
       it("should return all results", done => {
-        request(app)
-          .get(`/experiments/${id}/results`)
-          .set("Authorization", `Bearer ${token}`)
+        request(args.app)
+          .get(`/experiments/${args.id}/results`)
+          .set("Authorization", `Bearer ${args.token}`)
           .expect(httpStatus.OK)
           .end((err, res) => {
             expect(res.body.status).toEqual("success");
@@ -2203,7 +2207,7 @@ describe("ExperimentController", () => {
     });
     describe("when using duplicate types", () => {
       beforeEach(async done => {
-        const experiment = await Experiment.get(id);
+        const experiment = await Experiment.get(args.id);
         const experimentResults = [];
         experimentResults.push(results.mdr);
         experimentResults.push(results.distance);
@@ -2213,9 +2217,9 @@ describe("ExperimentController", () => {
         done();
       });
       it("should return all results", done => {
-        request(app)
-          .get(`/experiments/${id}/results`)
-          .set("Authorization", `Bearer ${token}`)
+        request(args.app)
+          .get(`/experiments/${args.id}/results`)
+          .set("Authorization", `Bearer ${args.token}`)
           .expect(httpStatus.OK)
           .end((err, res) => {
             expect(res.body.status).toEqual("success");
@@ -2226,16 +2230,15 @@ describe("ExperimentController", () => {
       });
     });
   });
-
-  describe("# GET /experiments/tree", () => {
+  describe("GET /experiments/tree", () => {
     describe("when there is no tree in the db", () => {
       it("should return the tree object and create one in mongo", done => {
         beforeEach(async () => {
           await Tree.remove({});
         });
-        request(app)
+        request(args.app)
           .get("/experiments/tree")
-          .set("Authorization", `Bearer ${token}`)
+          .set("Authorization", `Bearer ${args.token}`)
           .expect(httpStatus.OK)
           .end(async (err, res) => {
             expect(res.body.status).toEqual("success");
@@ -2255,9 +2258,9 @@ describe("ExperimentController", () => {
         await Tree.remove({});
       });
       it("should return the new tree object and update the cache", done => {
-        request(app)
+        request(args.app)
           .get("/experiments/tree")
-          .set("Authorization", `Bearer ${token}`)
+          .set("Authorization", `Bearer ${args.token}`)
           .expect(httpStatus.OK)
           .end(async (err, res) => {
             expect(res.body.status).toEqual("success");
@@ -2284,9 +2287,9 @@ describe("ExperimentController", () => {
         await Tree.remove({});
       });
       it("should the return tree object from cache", done => {
-        request(app)
+        request(args.app)
           .get("/experiments/tree")
-          .set("Authorization", `Bearer ${token}`)
+          .set("Authorization", `Bearer ${args.token}`)
           .expect(httpStatus.OK)
           .end((err, res) => {
             expect(res.body.status).toEqual("success");
@@ -2302,7 +2305,7 @@ describe("ExperimentController", () => {
       });
     });
     it("should be a protected route", done => {
-      request(app)
+      request(args.app)
         .get("/experiments/tree")
         .set("Authorization", "Bearer INVALID_TOKEN")
         .expect(httpStatus.UNAUTHORIZED)
@@ -2313,31 +2316,13 @@ describe("ExperimentController", () => {
         });
     });
   });
-
-  describe("#refresh isolateId", () => {
-    it("should schedule a daily job", async done => {
-      request(app)
-        .get("/experiments")
-        .set("Authorization", `Bearer ${token}`)
-        .expect(httpStatus.OK)
-        .end(async (err, res) => {
-          const jobs = mongo(config.db.uri, []).agendaJobs;
-          const job = await findJobByName(jobs, "refresh isolateId");
-          expect(job.name).toEqual("refresh isolateId");
-          expect(job.nextRunAt).toBeTruthy();
-          expect(job.repeatInterval).toEqual("0 0 * * *");
-          done();
-        });
-    });
-  });
-
-  describe("# GET /experiments/search", () => {
+  describe("GET /experiments/search", () => {
     describe("when calling a bigsi search", () => {
       describe("when no search found in the cache", () => {
         it("should create a new search with status pending", done => {
-          request(app)
+          request(args.app)
             .get("/experiments/search?q=rpoB_S450L")
-            .set("Authorization", `Bearer ${token}`)
+            .set("Authorization", `Bearer ${args.token}`)
             .expect(httpStatus.OK)
             .end(async (err, res) => {
               expect(res.body.status).toEqual("success");
@@ -2361,9 +2346,9 @@ describe("ExperimentController", () => {
             });
         });
         it("should add the user to the list of users", done => {
-          request(app)
+          request(args.app)
             .get("/experiments/search?q=rpoB_S450L")
-            .set("Authorization", `Bearer ${token}`)
+            .set("Authorization", `Bearer ${args.token}`)
             .expect(httpStatus.OK)
             .end(async (err, res) => {
               expect(res.body.status).toEqual("success");
@@ -2380,9 +2365,9 @@ describe("ExperimentController", () => {
             });
         });
         it("should trigger the bigsi search", done => {
-          request(app)
+          request(args.app)
             .get("/experiments/search?q=rpoB_S450L")
-            .set("Authorization", `Bearer ${token}`)
+            .set("Authorization", `Bearer ${args.token}`)
             .expect(httpStatus.OK)
             .end(async (err, res) => {
               const jobs = mongo(config.db.uri, []).agendaJobs;
@@ -2411,9 +2396,9 @@ describe("ExperimentController", () => {
             });
         });
         it("should create a valid hash", done => {
-          request(app)
+          request(args.app)
             .get("/experiments/search?q=rpoB_S450L")
-            .set("Authorization", `Bearer ${token}`)
+            .set("Authorization", `Bearer ${args.token}`)
             .expect(httpStatus.OK)
             .end(async (err, res) => {
               expect(res.body.status).toEqual("success");
@@ -2436,9 +2421,9 @@ describe("ExperimentController", () => {
         });
         describe("when using a dna variant querys", () => {
           it("should trigger dna variant search", done => {
-            request(app)
+            request(args.app)
               .get("/experiments/search?q=C32T")
-              .set("Authorization", `Bearer ${token}`)
+              .set("Authorization", `Bearer ${args.token}`)
               .expect(httpStatus.OK)
               .end(async (err, res) => {
                 const jobs = mongo(config.db.uri, []).agendaJobs;
@@ -2466,9 +2451,9 @@ describe("ExperimentController", () => {
               });
           });
           it("should create a valid hash", done => {
-            request(app)
+            request(args.app)
               .get("/experiments/search?q=C32T")
-              .set("Authorization", `Bearer ${token}`)
+              .set("Authorization", `Bearer ${args.token}`)
               .expect(httpStatus.OK)
               .end(async (err, res) => {
                 expect(res.body.data).toHaveProperty("hash");
@@ -2515,9 +2500,9 @@ describe("ExperimentController", () => {
           }
         });
         it("should add the user to the list of users to be notified", done => {
-          request(app)
+          request(args.app)
             .get("/experiments/search?q=rpoB_S450L")
-            .set("Authorization", `Bearer ${token}`)
+            .set("Authorization", `Bearer ${args.token}`)
             .expect(httpStatus.OK)
             .end(async (err, res) => {
               expect(res.body.status).toEqual("success");
@@ -2530,9 +2515,9 @@ describe("ExperimentController", () => {
         it("should notify the user", done => {
           const mockCallback = jest.fn();
           userEventEmitter.on("protein-variant-search-started", mockCallback);
-          request(app)
+          request(args.app)
             .get("/experiments/search?q=rpoB_S450L")
-            .set("Authorization", `Bearer ${token}`)
+            .set("Authorization", `Bearer ${args.token}`)
             .expect(httpStatus.OK)
             .end(async (err, res) => {
               expect(res.body.status).toEqual("success");
@@ -2574,9 +2559,10 @@ describe("ExperimentController", () => {
           done();
         });
         it("should not add the user to the list of users", done => {
-          request(app)
+          // mocks/atlas-experiment/_search/POST.20fbeb4fb3e9780df79d89e99ae08bfb.mock
+          request(args.app)
             .get("/experiments/search?q=rpoB_S450L")
-            .set("Authorization", `Bearer ${token}`)
+            .set("Authorization", `Bearer ${args.token}`)
             .expect(httpStatus.OK)
             .end(async (err, res) => {
               expect(res.body.status).toEqual("success");
@@ -2588,9 +2574,10 @@ describe("ExperimentController", () => {
         it("should not notify the user", done => {
           const mockCallback = jest.fn();
           userEventEmitter.on("protein-variant-search-started", mockCallback);
-          request(app)
+          // mocks/atlas-experiment/_search/POST.20fbeb4fb3e9780df79d89e99ae08bfb.mock
+          request(args.app)
             .get("/experiments/search?q=rpoB_S450L")
-            .set("Authorization", `Bearer ${token}`)
+            .set("Authorization", `Bearer ${args.token}`)
             .expect(httpStatus.OK)
             .end(async (err, res) => {
               expect(res.body.status).toEqual("success");
@@ -2617,22 +2604,23 @@ describe("ExperimentController", () => {
             });
             await proteinVariantAudit.save();
 
-            const experiment = await Experiment.get(id);
+            const experiment = await Experiment.get(args.id);
             const isolateId = experiment.get("metadata.sample.isolateId");
 
             const proteinVariant = Object.assign({}, searches.results.proteinVariant);
             proteinVariant.result.results[0].sample_name = isolateId;
 
             // store some results
-            request(app)
+            // mocks/atlas-experiment/_search/POST.818b0644922be906251ee4da3d386554.mock
+            request(args.app)
               .put(`/searches/${search.id}/results`)
               .send(proteinVariant)
               .expect(httpStatus.OK)
               .end(async (err, res) => {
                 // search for the results
-                request(app)
+                request(args.app)
                   .get("/experiments/search?q=rpoB_S450L")
-                  .set("Authorization", `Bearer ${token}`)
+                  .set("Authorization", `Bearer ${args.token}`)
                   .expect(httpStatus.OK)
                   .end(async (err, res) => {
                     expect(res.body).toHaveProperty("status", "success");
@@ -2671,7 +2659,7 @@ describe("ExperimentController", () => {
             });
             await proteinVariantAudit.save();
 
-            const experiment = await Experiment.get(id);
+            const experiment = await Experiment.get(args.id);
             const isolateId = experiment.get("metadata.sample.isolateId");
 
             const proteinVariantWith0Genotype = Object.assign(
@@ -2681,15 +2669,15 @@ describe("ExperimentController", () => {
             proteinVariantWith0Genotype.result.results[2].sample_name = isolateId;
 
             // store some results
-            request(app)
+            request(args.app)
               .put(`/searches/${search.id}/results`)
               .send(proteinVariantWith0Genotype)
               .expect(httpStatus.OK)
               .end(async (err, res) => {
                 // search for the results
-                request(app)
+                request(args.app)
                   .get("/experiments/search?q=rpoB_S450L")
-                  .set("Authorization", `Bearer ${token}`)
+                  .set("Authorization", `Bearer ${args.token}`)
                   .expect(httpStatus.OK)
                   .end(async (err, res) => {
                     expect(res.body).toHaveProperty("status", "success");
@@ -2737,9 +2725,9 @@ describe("ExperimentController", () => {
           done();
         });
         it("should add the user to the list of users to notify", done => {
-          request(app)
+          request(args.app)
             .get("/experiments/search?q=rpoB_S450L")
-            .set("Authorization", `Bearer ${token}`)
+            .set("Authorization", `Bearer ${args.token}`)
             .expect(httpStatus.OK)
             .end(async (err, res) => {
               expect(res.body.status).toEqual("success");
@@ -2751,9 +2739,9 @@ describe("ExperimentController", () => {
             });
         });
         it("should trigger the bigsi search", done => {
-          request(app)
+          request(args.app)
             .get("/experiments/search?q=rpoB_S450L")
-            .set("Authorization", `Bearer ${token}`)
+            .set("Authorization", `Bearer ${args.token}`)
             .expect(httpStatus.OK)
             .end(async (err, res) => {
               const jobs = mongo(config.db.uri, []).agendaJobs;
@@ -2786,13 +2774,12 @@ describe("ExperimentController", () => {
       });
     });
   });
-
-  describe("# POST /experiments/:id/refresh", () => {
+  describe("POST /experiments/:id/refresh", () => {
     describe("when provided data is correct", () => {
       it("should return a successful response", done => {
-        request(app)
-          .post(`/experiments/${id}/refresh`)
-          .set("Authorization", `Bearer ${token}`)
+        request(args.app)
+          .post(`/experiments/${args.id}/refresh`)
+          .set("Authorization", `Bearer ${args.token}`)
           .expect(httpStatus.OK)
           .end((err, res) => {
             expect(res.body.status).toEqual("success");
@@ -2801,9 +2788,9 @@ describe("ExperimentController", () => {
           });
       });
       it("should trigger the distance api with type nearest-neighbour", done => {
-        request(app)
-          .post(`/experiments/${id}/refresh`)
-          .set("Authorization", `Bearer ${token}`)
+        request(args.app)
+          .post(`/experiments/${args.id}/refresh`)
+          .set("Authorization", `Bearer ${args.token}`)
           .expect(httpStatus.OK)
           .end(async (err, res) => {
             const jobs = mongo(config.db.uri, []).agendaJobs;
@@ -2812,19 +2799,19 @@ describe("ExperimentController", () => {
             try {
               let job = await findJobByDistanceType(
                 jobs,
-                id,
+                args.id,
                 "nearest-neighbour",
                 "call distance api"
               );
               while (!job) {
                 job = await findJobByDistanceType(
                   jobs,
-                  id,
+                  args.id,
                   "nearest-neighbour",
                   "call distance api"
                 );
               }
-              expect(job.data.experiment_id).toEqual(id);
+              expect(job.data.experiment_id).toEqual(args.id);
               expect(job.data.distance_type).toEqual("nearest-neighbour");
               done();
             } catch (e) {
@@ -2834,20 +2821,30 @@ describe("ExperimentController", () => {
           });
       });
       it("should trigger the distance api with type tree-distance", done => {
-        request(app)
-          .post(`/experiments/${id}/refresh`)
-          .set("Authorization", `Bearer ${token}`)
+        request(args.app)
+          .post(`/experiments/${args.id}/refresh`)
+          .set("Authorization", `Bearer ${args.token}`)
           .expect(httpStatus.OK)
           .end(async (err, res) => {
             const jobs = mongo(config.db.uri, []).agendaJobs;
             expect(res.body.status).toEqual("success");
             expect(res.body.data).toEqual("Update of existing results triggered");
             try {
-              let job = await findJobByDistanceType(jobs, id, "tree-distance", "call distance api");
+              let job = await findJobByDistanceType(
+                jobs,
+                args.id,
+                "tree-distance",
+                "call distance api"
+              );
               while (!job) {
-                job = await findJobByDistanceType(jobs, id, "tree-distance", "call distance api");
+                job = await findJobByDistanceType(
+                  jobs,
+                  args.id,
+                  "tree-distance",
+                  "call distance api"
+                );
               }
-              expect(job.data.experiment_id).toEqual(id);
+              expect(job.data.experiment_id).toEqual(args.id);
               expect(job.data.distance_type).toEqual("tree-distance");
               done();
             } catch (e) {
@@ -2859,8 +2856,8 @@ describe("ExperimentController", () => {
     });
     describe("when provided data is incorrect", () => {
       it("should be a protected route", done => {
-        request(app)
-          .post(`/experiments/${id}/refresh`)
+        request(args.app)
+          .post(`/experiments/${args.id}/refresh`)
           .set("Authorization", "Bearer INVALID")
           .expect(httpStatus.UNAUTHORIZED)
           .end((err, res) => {
@@ -2870,9 +2867,9 @@ describe("ExperimentController", () => {
           });
       });
       it("should throw an error if experiment doesnt exist", done => {
-        request(app)
+        request(args.app)
           .post("/experiments/56c787ccc67fc16ccc1a5e92/refresh")
-          .set("Authorization", `Bearer ${token}`)
+          .set("Authorization", `Bearer ${args.token}`)
           .expect(httpStatus.OK)
           .end((err, res) => {
             expect(res.body.status).toEqual("error");
@@ -2884,16 +2881,15 @@ describe("ExperimentController", () => {
       });
     });
   });
-
-  describe("# GET /experiments/mappings", () => {
-    it("should get the experiments mappings with isolate ids", done => {
-      request(app)
+  describe("GET /experiments/mappings", () => {
+    it("should get the experiments margs.appings with isolate ids", done => {
+      request(args.app)
         .get("/experiments/mappings")
-        .set("Authorization", `Bearer ${token}`)
+        .set("Authorization", `Bearer ${args.token}`)
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("success");
-          expect(res.body.data["9c0c00f2-8cb1-4254-bf53-3271f35ce696"]).toEqual(id);
+          expect(res.body.data["9c0c00f2-8cb1-4254-bf53-3271f35ce696"]).toEqual(args.id);
           done();
         });
     });

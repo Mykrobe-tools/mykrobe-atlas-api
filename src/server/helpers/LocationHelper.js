@@ -1,6 +1,8 @@
 import { experiment as experimentJsonSchema } from "mykrobe-atlas-jsonschema";
 import SchemaExplorer from "makeandship-api-common/lib/modules/jsonschema/schema-explorer";
 
+import { geocode } from "../modules/geo/";
+
 // constants
 const explorer = new SchemaExplorer(experimentJsonSchema);
 
@@ -222,6 +224,18 @@ class LocationHelper {
     }
 
     return location;
+  }
+
+  /**
+   * Get coordinates
+   * @param {*} object - city, countryCode
+   */
+  static async getCoordinates(location) {
+    if (location) {
+      const coordinates = await geocode(location);
+      return coordinates;
+    }
+    return null;
   }
 
   /**

@@ -20,7 +20,8 @@ import ExperimentsResultJSONTransformer from "../transformers/es/ExperimentsResu
 import { userEventEmitter } from "../modules/events";
 import { schedule } from "../modules/agenda";
 import EventHelper from "./events/EventHelper";
-import logger from "../modules/winston";
+import logger from "../modules/logger";
+import experimentSearch from "mykrobe-atlas-jsonschema/lib/experimentSearch";
 
 const config = require("../../config/env");
 
@@ -42,7 +43,6 @@ class BigsiSearchHelper {
       type: bigsi.type,
       bigsi: bigsi
     };
-
     const searchHash = SearchHelper.generateHash(searchData);
     const search = await Search.findByHash(searchHash);
 
@@ -69,15 +69,11 @@ class BigsiSearchHelper {
 
       const result = search.get("result");
       const results = result.results;
-
       const filteredResults = this.filter(type, results);
-
       const experiments = await this.enhanceBigsiResultsWithExperiments(filteredResults, query);
       result.results = experiments;
-
       search.set("result", result);
     }
-
     return search;
   }
 
@@ -104,7 +100,6 @@ class BigsiSearchHelper {
           break;
       }
     }
-
     return results;
   }
 
@@ -188,8 +183,8 @@ class BigsiSearchHelper {
         ? Object.assign(isolateQuery, flatten(query))
         : isolateQuery;
 
-    const resp = await elasticService.search(new SearchQuery(elasticQuery), { type: "experiment" });
-
+    const searchQuery = new SearchQuery(elasticQuery, experimentSearch);
+    const resp = await elasticService.search(searchQuery, {});
     const experiments = new ExperimentsResultJSONTransformer().transform(resp, {});
 
     // merge results in order

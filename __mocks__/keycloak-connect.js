@@ -1,4 +1,3 @@
-import winston from "winston";
 import httpStatus from "http-status";
 
 import { APIError } from "makeandship-api-common/lib/modules/error";

@@ -83,8 +83,6 @@ router.route("/create").post(dataController.create);
  *         schema:
  *           $ref: '#/definitions/BasicResponse'
  */
-router
-  .route("/bulk")
-  .post(keycloak.connect.protect(), upload.single("file"), dataController.loadDemo);
+router.route("/bulk").post(keycloak.connect.protect(), upload.single("file"), dataController.bulk);
 
 export default router;

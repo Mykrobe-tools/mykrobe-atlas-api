@@ -1,5 +1,5 @@
 import Agenda from "agenda";
-import logger from "../winston";
+import logger from "../logger";
 import AgendaHelper from "../../helpers/AgendaHelper";
 import config from "../../../config/env";
 

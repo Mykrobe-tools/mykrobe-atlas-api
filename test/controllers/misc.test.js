@@ -9,7 +9,13 @@ import User from "../../src/server/models/user.model";
 
 import users from "../fixtures/users";
 
-const app = createApp();
+const args = {
+  app: null
+};
+
+beforeAll(async () => {
+  args.app = await createApp();
+});
 
 beforeEach(async () => {
   const userData = new User(users.admin);
@@ -23,7 +29,7 @@ afterEach(async () => {
 describe("Misc", () => {
   describe("# GET /health-check", () => {
     it("should return OK", done => {
-      request(app)
+      request(args.app)
         .get("/health-check")
         .expect(httpStatus.OK)
         .end((err, res) => {
@@ -36,7 +42,7 @@ describe("Misc", () => {
 
   describe("# GET /404", () => {
     it("should return 404 status", done => {
-      request(app)
+      request(args.app)
         .get("/404")
         .expect(httpStatus.NOT_FOUND)
         .end((err, res) => {
@@ -50,7 +56,7 @@ describe("Misc", () => {
 
   describe("# Error Handling", () => {
     it("should handle mongoose CastError - Cast to ObjectId failed", done => {
-      request(app)
+      request(args.app)
         .get("/users/56z787zzz67fc")
         .expect(httpStatus.INTERNAL_SERVER_ERROR)
         .end((err, res) => {
@@ -63,7 +69,7 @@ describe("Misc", () => {
     });
 
     it("should handle express validation error - email is required", done => {
-      request(app)
+      request(args.app)
         .post("/users")
         .send({
           firstname: "Yassire",
