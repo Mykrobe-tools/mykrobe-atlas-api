@@ -1,5 +1,6 @@
 import nodeGeocoder from "node-geocoder";
 
+import logger from "../logger";
 import GeoCache from "../cache/GeoCache";
 
 class Geocoder {
@@ -11,15 +12,21 @@ class Geocoder {
   }
 
   async geocode(address) {
+    logger.debug(`Geocoder#geocode: Address: ${JSON.stringify(address)}`);
     const coordinates = await GeoCache.getLocation(address);
 
     if (coordinates) {
+      logger.debug(`Geocoder#geocode: Using cached coordinates: ${JSON.stringify(coordinates)}`);
       return coordinates;
     } else {
+      logger.debug(`Geocoder#geocode: No cached coordinates`);
       const matches = await this.search(address);
       const coordinates = this.getCoordinates(address, matches);
       if (coordinates && Object.keys(coordinates).length) {
         GeoCache.setLocation(address, coordinates);
+        logger.debug(
+          `Geocoder#geocode: Coordinates found and added to cache: ${JSON.stringify(coordinates)}`
+        );
         return coordinates;
       }
     }
