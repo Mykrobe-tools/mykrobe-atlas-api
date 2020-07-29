@@ -10,8 +10,10 @@ class GoogleGeocoder extends Geocoder {
           ? [address.city, address.country || address.countryCode].filter(Boolean).join(", ")
           : address;
       const matches = await this.impl.geocode(query);
-      logger.debug(`Matches: ${JSON.stringify(matches)}`);
+      logger.debug(`GoogleGeocoder#search: matches: ${JSON.stringify(matches)}`);
       return matches;
+    } else {
+      logger.debug(`GoogleGeocoder#search: Address invalid, no search`);
     }
 
     return null;
