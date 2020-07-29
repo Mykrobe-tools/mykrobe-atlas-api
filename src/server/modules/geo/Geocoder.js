@@ -36,10 +36,18 @@ class Geocoder {
 
   isValidAddress(address) {
     if (typeof address === "object") {
-      return Object.keys(address).length;
+      const keys = Object.keys(address || {});
+      const numKeys = keys.length;
+      if (numKeys) {
+        if (address.city || address.countryCode || address.country) {
+          return true;
+        }
+      }
     } else if (typeof address === "string") {
       return address !== "" && address !== null;
     }
+
+    return false;
   }
 
   async search(address) {
