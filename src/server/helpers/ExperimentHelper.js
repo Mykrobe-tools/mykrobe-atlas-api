@@ -1,7 +1,23 @@
-import logger from "../modules/winston";
-import { geocode } from "../modules/geo";
+import logger from "../modules/logger";
+import { geocode } from "../modules/geo/";
+
+import config from "../../config/env";
 
 class ExperimentHelper {
+  static localiseFilepathForAnalysisApi(filepath) {
+    if (filepath) {
+      const atlasApiDir = config.express.uploadsLocation;
+      const analysisApiDir = config.express.analysisApiDir;
+
+      if (atlasApiDir && analysisApiDir) {
+        return filepath.replace(atlasApiDir, analysisApiDir);
+      }
+
+      return filepath;
+    }
+
+    return null;
+  }
   static async enhanceWithGeocode(experiment) {
     const o = typeof experiment.toObject === "function" ? experiment.toObject() : experiment;
     if (o.metadata && o.metadata.sample) {
@@ -19,29 +35,16 @@ class ExperimentHelper {
 
       if (address) {
         try {
-          const location = await geocode(address);
-          if (location && Array.isArray(location)) {
-            const geo = location.find(result => {
-              const bothMatch =
-                countryIsolate &&
-                cityIsolate &&
-                result.countryCode === countryIsolate &&
-                result.city === cityIsolate;
-              const countryOnlyMatch =
-                countryIsolate && !cityIsolate && result.countryCode === countryIsolate;
-              return bothMatch || countryOnlyMatch;
-            });
-
-            if (geo) {
-              if (!experiment.metadata) {
-                experiment.metadata = {};
-              }
-              if (!experiment.metadata.sample) {
-                experiment.metadata.sample = {};
-              }
-              experiment.metadata.sample.latitudeIsolate = geo.latitude;
-              experiment.metadata.sample.longitudeIsolate = geo.longitude;
+          const coordinates = await geocode(address);
+          if (coordinates && coordinates.longitude && coordinates.latitude) {
+            if (!experiment.metadata) {
+              experiment.metadata = {};
             }
+            if (!experiment.metadata.sample) {
+              experiment.metadata.sample = {};
+            }
+            experiment.metadata.sample.latitudeIsolate = coordinates.latitude;
+            experiment.metadata.sample.longitudeIsolate = coordinates.longitude;
           }
         } catch (e) {
           logger.debug(`Unable to fetch geocode for ${JSON.stringify(address)}.  Error: ${e}`);

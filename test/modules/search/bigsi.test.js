@@ -1,7 +1,8 @@
 import {
   isBigsiQuery,
   extractBigsiQuery,
-  callBigsiApi
+  callBigsiApi,
+  createQuery
 } from "../../../src/server/modules/search/bigsi";
 
 import setup from "../../setup";
@@ -226,6 +227,105 @@ describe("bigsi", () => {
 
         const result = isBigsiQuery(search);
         expect(result).toEqual(false);
+      });
+    });
+  });
+  describe("#createQuery", () => {
+    describe("when input is valid", () => {
+      describe("when a sequence query", () => {
+        it("should return a free-text query", done => {
+          const bigsi = {
+            type: "sequence",
+            query: {
+              seq: "TGTGGTGGCCGCGGCAACAGACCTGGCGGGGATCGGATCGGCGATCAGCG",
+              threshold: 40
+            }
+          };
+
+          const search = createQuery(bigsi);
+
+          expect(search).toHaveProperty("q");
+          expect(search.q).toEqual("TGTGGTGGCCGCGGCAACAGACCTGGCGGGGATCGGATCGGCGATCAGCG");
+
+          done();
+        });
+      });
+      describe("when a dna variant query", () => {
+        it("should return a free-text query", done => {
+          const bigsi = { type: "dna-variant", query: { ref: "G", pos: 3411528, alt: "A" } };
+          const search = createQuery(bigsi);
+
+          expect(search).toHaveProperty("q");
+          expect(search.q).toEqual("G3411528A");
+
+          done();
+        });
+      });
+      describe("when a protein variant query", () => {
+        it("should return a free-text query", done => {
+          const bigsi = {
+            type: "protein-variant",
+            query: {
+              gene: "rpoB",
+              ref: "S",
+              pos: 450,
+              alt: "L"
+            }
+          };
+          const search = createQuery(bigsi);
+
+          expect(search).toHaveProperty("q");
+          expect(search.q).toEqual("rpoB_S450L");
+
+          done();
+        });
+      });
+    });
+    describe("when input is not valid", () => {
+      describe("when type is empty", () => {
+        it("should return an empty object", done => {
+          const search = createQuery();
+          expect(Object.keys(search).length).toEqual(0);
+          done();
+        });
+      });
+      describe("when type is null", () => {
+        it("should return an empty object", done => {
+          const search = createQuery({
+            query: {
+              gene: "rpoB",
+              ref: "S",
+              pos: 450,
+              alt: "L"
+            }
+          });
+          expect(Object.keys(search).length).toEqual(0);
+          done();
+        });
+      });
+      describe("when type is not recognised", () => {
+        it("should return null", done => {
+          const search = createQuery({
+            type: "variant",
+            query: {
+              gene: "rpoB",
+              ref: "S",
+              pos: 450,
+              alt: "L"
+            }
+          });
+          expect(Object.keys(search).length).toEqual(0);
+          done();
+        });
+      });
+      describe("when query is missing", () => {
+        it("should return null", done => {
+          const search = createQuery({
+            type: "protein-variant"
+          });
+          expect(Object.keys(search).length).toEqual(0);
+          done();
+        });
       });
     });
   });

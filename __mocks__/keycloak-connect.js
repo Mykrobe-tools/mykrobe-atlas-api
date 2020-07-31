@@ -1,6 +1,8 @@
-import winston from "winston";
 import httpStatus from "http-status";
-import APIError from "../src/server/helpers/APIError";
+
+import { APIError } from "makeandship-api-common/lib/modules/error";
+
+import Constants from "../src/server/Constants";
 
 const setup = (request, response, next) => {
   request.kauth = {};
@@ -19,7 +21,9 @@ const verifyToken = (request, response, next) => {
 };
 
 const accessDenied = (req, res) =>
-  res.jerror(new APIError("Not Authorised", httpStatus.UNAUTHORIZED));
+  res.jerror(
+    new APIError(Constants.ERRORS.NOT_ALLOWED, "Not Authorised", null, httpStatus.UNAUTHORIZED)
+  );
 
 const validToken = (request, response, auth, next) => {
   const adminToken =

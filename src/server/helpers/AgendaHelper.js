@@ -1,16 +1,23 @@
 import axios from "axios";
 import uuid from "uuid";
-import { ElasticsearchHelper } from "makeandship-api-common/lib/modules/elasticsearch";
+import { ElasticService } from "makeandship-api-common/lib/modules/elasticsearch/";
+
+import { experiment as experimentSchema } from "mykrobe-atlas-jsonschema";
 
 import Audit from "../models/audit.model";
 import Experiment from "../models/experiment.model";
 
-import winston from "../modules/winston";
+import logger from "../modules/logger";
 import { userEventEmitter, experimentEventEmitter } from "../modules/events";
 
 import AuditJSONTransformer from "../transformers/AuditJSONTransformer";
 
+import ExperimentHelper from "./ExperimentHelper";
+
 import config from "../../config/env";
+
+const esConfig = { type: "experiment", ...config.elasticsearch };
+const elasticService = new ElasticService(esConfig, experimentSchema);
 
 class AgendaHelper {
   static async callAnalysisApi(job, done) {
@@ -21,11 +28,11 @@ class AgendaHelper {
     try {
       if (data.attempt < config.services.analysisApiMaxRetries) {
         const payload = {
-          file: data.file,
+          file: ExperimentHelper.localiseFilepathForAnalysisApi(data.file),
           experiment_id: data.experiment_id
         };
-        winston.info(`POST ${uri}`);
-        winston.info(payload);
+        logger.debug(`#callAnalysisApi: POST ${uri}`);
+        logger.debug(`#callAnalysisApi: payload: ${JSON.stringify(payload, null, 2)}`);
         const response = await axios.post(uri, payload);
         const audit = new Audit({
           experimentId: data.experiment_id,
@@ -72,8 +79,8 @@ class AgendaHelper {
         experiment_id: data.experiment_id,
         distance_type: data.distance_type
       };
-      winston.info(`POST ${uri}`);
-      winston.info(payload);
+      logger.debug(`#callDistanceApi: POST ${uri}`);
+      logger.debug(`#callDistanceApi: payload: ${JSON.stringify(payload, null, 2)}`);
       const response = await axios.post(uri, payload);
       const audit = new Audit({
         experimentId: experiment.id,
@@ -108,8 +115,8 @@ class AgendaHelper {
       const bigsi = search.bigsi;
       bigsi.search_id = search.id;
 
-      winston.info(`POST ${uri}`);
-      winston.info(bigsi);
+      logger.debug(`POST ${uri}`);
+      logger.debug(bigsi);
 
       const type = bigsi && bigsi.type ? bigsi.type : null;
 
@@ -173,7 +180,7 @@ class AgendaHelper {
       newMetadata.sample.isolateId = isolateId;
       experiment.set("metadata", newMetadata);
       const savedExperiment = await experiment.save();
-      await ElasticsearchHelper.updateDocument(config, savedExperiment, "experiment");
+      await elasticService.updateDocument(savedExperiment);
     });
     return done();
   }

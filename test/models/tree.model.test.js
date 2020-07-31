@@ -15,7 +15,7 @@ beforeEach(async () => {
 });
 
 afterEach(async () => {
-  await Tree.remove({});
+  await Tree.deleteMany({});
 });
 
 describe("Tree", () => {
@@ -84,7 +84,7 @@ describe("Tree", () => {
       });
       describe("when the tree has expired", () => {
         it("should mark the tree as expired", async done => {
-          await Tree.remove({});
+          await Tree.deleteMany({});
           const treeData = new Tree(trees.expiredResult);
           await treeData.save();
 
@@ -99,7 +99,7 @@ describe("Tree", () => {
     });
     describe("when no tree is stored", () => {
       it("should return null", async done => {
-        await Tree.remove({});
+        await Tree.deleteMany({});
         const foundTree = await Tree.get();
         expect(foundTree).toBe(null);
 

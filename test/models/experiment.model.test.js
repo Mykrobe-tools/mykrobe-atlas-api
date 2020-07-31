@@ -3,6 +3,7 @@ import setup from "../setup";
 import Experiment from "../../src/server/models/experiment.model";
 import Organisation from "../../src/server/models/organisation.model";
 import User from "../../src/server/models/user.model";
+import Constants from "../../src/server/Constants";
 
 const users = require("../fixtures/users");
 const experiments = require("../fixtures/experiments");
@@ -24,9 +25,9 @@ beforeEach(async done => {
 });
 
 afterEach(async done => {
-  await Experiment.remove({});
-  await Organisation.remove({});
-  await User.remove({});
+  await Experiment.deleteMany({});
+  await Organisation.deleteMany({});
+  await User.deleteMany({});
   done();
 });
 
@@ -58,10 +59,8 @@ describe("Experiment", () => {
         experiment.set("metadata.sample.cityIsolate", "Puebla");
 
         const updated = await experiment.save();
-        expect(updated.metadata.sample.latitudeIsolate).toBeGreaterThan(19.04);
-        expect(updated.metadata.sample.latitudeIsolate).toBeLessThan(19.044);
-        expect(updated.metadata.sample.longitudeIsolate).toBeGreaterThan(-98.21);
-        expect(updated.metadata.sample.longitudeIsolate).toBeLessThan(-98.19);
+        expect(updated.metadata.sample.latitudeIsolate).toBeCloseTo(19.04, 1);
+        expect(updated.metadata.sample.longitudeIsolate).toBeCloseTo(-98.2, 1);
 
         done();
       });
@@ -72,11 +71,9 @@ describe("Experiment", () => {
         experiment.set("metadata.sample.cityIsolate", "Chennai");
 
         const updated = await experiment.save();
-        expect(updated.metadata.sample.latitudeIsolate).toBeGreaterThan(13.08);
-        expect(updated.metadata.sample.latitudeIsolate).toBeLessThan(13.083);
 
-        expect(updated.metadata.sample.longitudeIsolate).toBeGreaterThan(80.27);
-        expect(updated.metadata.sample.longitudeIsolate).toBeLessThan(80.29);
+        expect(updated.metadata.sample.latitudeIsolate).toBeCloseTo(13.08, 1);
+        expect(updated.metadata.sample.longitudeIsolate).toBeCloseTo(80.28, 1);
 
         done();
       });
@@ -85,21 +82,15 @@ describe("Experiment", () => {
       it("should update location", async done => {
         const experiment = await Experiment.get(id);
 
-        expect(experiment.metadata.sample.latitudeIsolate).toBeGreaterThan(18.93);
-        expect(experiment.metadata.sample.latitudeIsolate).toBeLessThan(19.08);
-
-        expect(experiment.metadata.sample.longitudeIsolate).toBeGreaterThan(72.83);
-        expect(experiment.metadata.sample.longitudeIsolate).toBeLessThan(72.88);
+        expect(experiment.metadata.sample.latitudeIsolate).toBeCloseTo(18.98, 0);
+        expect(experiment.metadata.sample.longitudeIsolate).toBeCloseTo(72.85, 1);
 
         experiment.metadata.sample.sampleId = "13513871321";
         const updated = await experiment.save();
         expect(updated.metadata.sample.sampleId).toEqual("13513871321");
 
-        expect(updated.metadata.sample.latitudeIsolate).toBeGreaterThan(18.93);
-        expect(updated.metadata.sample.latitudeIsolate).toBeLessThan(19.08);
-
-        expect(updated.metadata.sample.longitudeIsolate).toBeGreaterThan(72.83);
-        expect(updated.metadata.sample.longitudeIsolate).toBeLessThan(72.88);
+        expect(updated.metadata.sample.latitudeIsolate).toBeCloseTo(18.98, 0);
+        expect(updated.metadata.sample.longitudeIsolate).toBeCloseTo(72.85, 1);
 
         done();
       });
@@ -131,7 +122,7 @@ describe("Experiment", () => {
           await Experiment.get("58d3f3795d34d121805fdc61");
           fail();
         } catch (e) {
-          expect(e.name).toEqual("ObjectNotFound");
+          expect(e.code).toEqual(Constants.ERRORS.GET_EXPERIMENT);
           expect(e.message).toEqual("Experiment not found with id 58d3f3795d34d121805fdc61");
           done();
         }
@@ -148,8 +139,8 @@ describe("Experiment", () => {
     });
     describe("when experiments do not exist", () => {
       beforeEach(async done => {
-        await Experiment.remove({});
-        await Organisation.remove({});
+        await Experiment.deleteMany({});
+        await Organisation.deleteMany({});
         done();
       });
       it("should return an empty array", async done => {

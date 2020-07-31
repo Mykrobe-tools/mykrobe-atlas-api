@@ -4,14 +4,10 @@ import { experiment as experimentJsonSchema } from "mykrobe-atlas-jsonschema";
 import SchemaExplorer from "makeandship-api-common/lib/modules/jsonschema/schema-explorer";
 import Experiment from "../models/experiment.model";
 import ExperimentJSONTransformer from "../transformers/ExperimentJSONTransformer";
-import { geocode } from "../modules/geo";
-import logger from "../modules/winston";
-
-// constants
-const explorer = new SchemaExplorer(experimentJsonSchema);
-
-const countryEnum = explorer.getAttributeBy("metadata.sample.countryIsolate", "enum");
-const countryEnumNames = explorer.getAttributeBy("metadata.sample.countryIsolate", "enumNames");
+import PredictorResultParser from "./results/PredictorResultParser";
+import logger from "../modules/logger";
+import LocationHelper from "./LocationHelper";
+import ExperimentHelper from "./ExperimentHelper";
 
 const geo = {
   cache: {},
@@ -19,176 +15,6 @@ const geo = {
 };
 
 const BULK_INSERT_LIMIT = 1000;
-const INVALID_COUNTRIES = [];
-
-// countries mapping
-const countriesMapping = {
-  USA: {
-    country: "United States"
-  },
-  "Cote d'Ivoire": {
-    country: "Ivory Coast (Cote D'Ivoire)"
-  },
-  "Viet Nam": {
-    country: "Vietnam"
-  },
-  Azerbaijan: {
-    country: "Azerbaidjan"
-  },
-  Moldova: {
-    country: "Moldavia"
-  },
-  Russia: {
-    country: "Russian Federation"
-  },
-  Tajikistan: {
-    country: "Tadjikistan"
-  },
-  Korea: {
-    country: "South Korea"
-  },
-  "Canada;Ontario": {
-    country: "Canada",
-    city: "Ontario"
-  },
-  "Democratic Republic of the Congo": {
-    country: "Congo"
-  },
-  "Canada;Toronto": {
-    country: "Canada",
-    city: "Toronto"
-  },
-  "Beijing, China": {
-    country: "China",
-    city: "Beijing"
-  },
-  PERU: {
-    country: "Peru"
-  },
-  UK: {
-    country: "United Kingdom"
-  },
-  "Côte d'Ivoire": {
-    country: "Ivory Coast (Cote D'Ivoire)"
-  },
-  "USA, San Francisco": {
-    country: "United States",
-    city: "San Francisco"
-  },
-  "New Guinea": {
-    country: "Papua New Guinea"
-  },
-  Valencia: {
-    country: "Spain",
-    city: "Valencia"
-  },
-  Lanzarote: {
-    country: "Spain",
-    city: "Lanzarote"
-  },
-  "Gran Canaria": {
-    country: "Spain",
-    city: "Gran Canaria"
-  },
-  Tenerife: {
-    country: "Spain",
-    city: "Tenerife"
-  },
-  Fuerteventura: {
-    country: "Spain",
-    city: "Fuerteventura"
-  },
-  Zaragoza: {
-    country: "Spain",
-    city: "Zaragoza"
-  }
-};
-
-const citiesMapping = {
-  "Osaka, Osaka": "Osaka",
-  "Hyogo, Kobe": "Hyogo",
-  Midlands: "Birmingham",
-  "Boston, MA": "Boston",
-  "Worchester, MA": "Worcester",
-  "MA, Worchester": "Worcester",
-  "King George V Hospital, Durban": "Durban",
-  "FOSA Hospital": "Pietermaritzburg",
-  "Northdale Hospital - Ward C": "Pietermaritzburg",
-  "Prince Msheyeni": "Umlazi",
-  "Charles Johnson Memorial": "Nqutu",
-  "Saint Margaret": "Cape Town",
-  "Point G Hospital": "Bamako",
-  Escourt: "Pretoria",
-  Ngwelezane: "uMhlathuze Local Municipality",
-  "Limpopo - Polokwane Hospital": "Polokwane",
-  "Free State - JS Moroka Hospital": "Free State",
-  "Eastern Cape - Alicedale Clinic": "Alicedale",
-  "Northen Cape - Progress Clinic": "Upington",
-  "Northen Cape - Keimoes Municipal Clinic": "Keimoes",
-  "Prince Cyril Zulu CDC": "Durban", // ZA
-  "Doris Goodwin Hospital - Parkhome Clinic": "Pietermaritzburg", // ZA
-  "Inanda CHC": "Inanda",
-  "Catherine Booth Hospital MDRTB Ward": "Amatikulu", // ZA
-  "KDH MDR TB Clinic": "Nairobi", // KE - review
-  "Thulasizwe Hopsital": "KwaZulu-Natal", // ZA
-  "IALCH - A3E Endo/Resp/GI/Metab Ward": "Durban", // ZA
-  "Umlazi U21 Clinic": "Umlazi", // ZA
-  "Mahatma Gandhi Hospital - Ward 1": "Sitapura", // IN - review
-  "Mahatma Gandhi Hospital - Ward 5": "Sitapura", // IN - review
-  "Mahatma Gandhi": "Sitapura", // IN - review
-  "Mahatma Gandhi Hospital - Casualty": "Sitapura", //IN - review,
-  Ceza: "KwaZulu-Natal", // ZA
-  "KDH MS1 Male TB Medical": "", // KE
-  "Manguzi Hospital - MDR TB Clinic": "Manguzi", // ZA
-  "Mosvold Hospital - isolation ward": "Ingwavuma", // ZA
-  "Thalusizwe Hospital Outreach Clinic": "KwaZulu-Natal", // ZA
-  "Manguzi Hospital - MDR TB Clinic": "Manguzi", // ZA
-  "Murchison Hospital - MDR TB OPD": "", //ZA
-  "Baltimore, MD": "Baltimore",
-  MA: "Boston",
-  "Baltimore, Maryland": "Baltimore",
-  "Buenaventura, Valle del Cauca": "Buenaventura",
-  "Durban Chest Clinic": "Durban",
-  "King Dinuzulu Hospital": "Durban",
-  Tiruvallur: "Thiruvallur",
-  "east of BEIJING": "Beijing",
-  "Mosvold Hospital - isolation ward": "Ingwavuma",
-  "Murchison Hospital - MDR TB OPD": "Port Shepstone",
-  "Umphumulo hospital": "KwaDukuza",
-  "Ntuze clinic": "Empangeni",
-  Ceza: "KwaZulu-Natal",
-  "Mosvold Hospital": "Ingwavuma",
-  "Murchison Hopsital": "Port Shepstone",
-  "Manguzi Hospital": "Manguzi",
-  "Untunjambili Hospital": "Kranskop",
-  "Sundumbili Clinic": "Mandini",
-  "Kwa-Mashu Poly Clinic": "KwaMashu",
-  "Thokozani Clinic": "Empangeni",
-  "Amakhabela Clinic": "Vukaphansi",
-  "King Edward VIII Hospital": "Durban",
-  "Edendale Hospital": "Pietermaritzburg",
-  "Mpu, Muza Clinic": "The Msunduzi Rural",
-  "Ngwelezana Hospital": "Empangeni",
-  "Shallcross Clinic": "Durban",
-  "Prince Mshiyeni Memorial Hospital": "Umlazi",
-  "Doris Goodwin Hospital": "Pietermaritzburg",
-  "Sihleza Clinic": "Ingwe Rural",
-  "Kwazulu-Natal": "Durban",
-  "Damien Foundation Project area": "", // BA,
-  "Chiribaya Alta": "Chiribaya", // PE,
-  Massachusetts: "Boston",
-  Bucuresti: "Bucharest",
-  "San Francisco, CA": "San Francisco",
-  "Torres Strait Protected Zone": "", // AU
-  MD: "Annapolis", // US
-  VA: "Richmond",
-  Supanburi: "Suphan Buri", // TH
-  Andaman: "", // IN
-  "The Sakha (Yakutia) Republic": "Yakutsk",
-  "Gran Canaria": "Las Palmas de Gran Canaria",
-  Tenerife: "Santa Cruz de Tenerife",
-  Lanzarote: "Arrecife"
-};
 
 class DataHelper {
   /**
@@ -200,57 +26,42 @@ class DataHelper {
   }
 
   /**
-   * Get the geo cache
-   */
-  static getCache() {
-    if (!geo.initialised) {
-      logger.info(`Loading geocache from ${process.env.PWD}/geoCache.json`);
-      const localGeoCache = JSON.parse(fs.readFileSync(`${process.env.PWD}/geoCache.json`));
-      Object.keys(localGeoCache).forEach(key => {
-        geo.cache[key] = localGeoCache[key];
-      });
-      geo.initialised = true;
-    }
-
-    return geo.cache;
-  }
-
-  /**
-   * Save the geo cache
-   */
-  static saveCache() {
-    fs.writeFileSync(`${process.env.PWD}/geoCache.json`, JSON.stringify(geo.cache, null, 2));
-  }
-
-  /**
-   * Load all files from a given path
+   * Load all files from a given directory
    * @param {*} path
    */
-  static async load(path) {
-    if (!fs.existsSync(path)) {
-      throw new Error(`Cannot find ${path} directory`);
+  static async load(directory) {
+    logger.debug("DataHelper#load: enter");
+    const metadataFiles = directory.files.filter(
+      d => d.path.startsWith("metadata/") && d.type === "File"
+    );
+    logger.debug(
+      `DataHelper#load: metadataFiles: ${JSON.stringify(metadataFiles.length, null, 2)}`
+    );
+
+    if (metadataFiles.length === 0) {
+      throw new Error("Cannot find metadata files");
     }
 
-    const files = fs.readdirSync(path);
-    for (let file of files) {
-      if (file.includes(".tsv") || file.includes(".csv")) {
-        await this.process(`${path}/${file}`);
+    for (const file of metadataFiles) {
+      if (file.path.includes(".tsv") || file.path.includes(".csv")) {
+        await this.process(file, directory);
       }
     }
+    logger.debug("DataHelper#load: exit");
   }
 
   /**
    * Load data set into memory
    * @param {*} filepath
    */
-  static loadDataSet(filepath) {
-    if (filepath) {
+  static loadDataSet(file) {
+    if (file) {
       const load = new Promise((resolve, reject) => {
-        const stream = fs.createReadStream(filepath);
+        const stream = file.stream();
         const rows = [];
 
         csv
-          .fromStream(stream, { headers: true, delimiter: "\t" })
+          .parseStream(stream, { headers: true, delimiter: "\t" })
           .on("data", async data => {
             rows.push(data);
           })
@@ -286,218 +97,70 @@ class DataHelper {
    * Create experiments from raw rows
    * @param {*} rows
    */
-  static transform(rows) {
+  static async buildExperimentObjectsFromCSVRows(rows, directory) {
     const experiments = [];
 
     if (rows) {
-      rows.forEach(row => {
+      for (const row of rows) {
         const isolateId = row.sample_name;
-        const country = row.geo_metadata;
 
-        const mappedCountry = this.transformCountry(country);
+        // city and country
+        const country = row.geo_metadata || row.geography_metadata;
+        const mappedCountry = LocationHelper.parseLocation(country);
 
-        const experiment = Object.assign({ isolateId }, mappedCountry);
+        logger.debug(
+          `DataHelper#buildExperimentObjectsFromCSVRows: ${JSON.stringify(mappedCountry, null, 2)}`
+        );
+
+        // create a location query - prefer country over countryCode
+        const location = {
+          city: mappedCountry.cityIsolate
+        };
+        if (mappedCountry.countryIsolate && mappedCountry.countryIsolateName) {
+          location.country = mappedCountry.countryIsolateName;
+        } else if (mappedCountry.countryIsolate) {
+          location.countryCode = mappedCountry.countryIsolate;
+        }
+
+        // geo coordinates
+        const coordinates = await LocationHelper.getCoordinates(location);
+
+        // predictor results
+        const results = await this.loadAndParsePredictorResults(row.predictor, directory);
+
+        // build an experiment
+        const experiment = Object.assign({ results, isolateId, coordinates }, mappedCountry);
 
         experiments.push(experiment);
-      });
-    }
-
-    return experiments;
-  }
-
-  static transformCountry(country) {
-    const location = {
-      countryIsolate: "",
-      cityIsolate: ""
-    };
-
-    if (country) {
-      if (country.includes(":")) {
-        const parts = country.split(":");
-        location.countryIsolate = parts[0].trim();
-        location.cityIsolate = parts[1].trim();
-      } else if (country.toLowerCase() === "unknown") {
-        // no change
-      } else {
-        location.countryIsolate = country.trim();
-      }
-    }
-
-    // re-map
-    if (location.countryIsolate || location.cityIsolate) {
-      // countries which may map to country or country + city
-      if (countriesMapping[location.countryIsolate]) {
-        location.cityIsolate =
-          countriesMapping[location.countryIsolate].city || location.cityIsolate;
-        location.countryIsolate = countriesMapping[location.countryIsolate].country;
-      }
-
-      // remap cities which also have issues
-      if (typeof citiesMapping[location.cityIsolate] !== "undefined") {
-        location.cityIsolate = citiesMapping[location.cityIsolate];
-      }
-    }
-
-    if (location.countryIsolate) {
-      location.countryIsolateName = location.countryIsolate;
-
-      const countryCode = this.getCountryCode(location.countryIsolate);
-      location.countryIsolate = countryCode ? countryCode : null;
-    }
-
-    return location;
-  }
-
-  /**
-   * Extract a central list of geo data from experiments
-   * @param {Array} experiments
-   * @return {Array} unique city and country
-   */
-  static getCitiesAndCountries(experiments) {
-    const unique = {};
-    if (experiments) {
-      experiments.forEach(experiment => {
-        const location = {
-          cityIsolate: experiment.cityIsolate,
-          countryIsolate: experiment.countryIsolate
-        };
-        const key = JSON.stringify(location);
-        unique[key] = key;
-      });
-    }
-
-    if (unique) {
-      const keys = Object.keys(unique);
-      keys.forEach(key => {
-        unique[key] = JSON.parse(key);
-      });
-      return unique;
-    }
-
-    return null;
-  }
-
-  /**
-   *
-   * @param {*} experiments
-   * @param {*} citiesAndCountries
-   */
-  static getCountryCode(country) {
-    if (country) {
-      const index = countryEnumNames.indexOf(country);
-      if (index > -1) {
-        return countryEnum[index];
-      }
-    }
-
-    return null;
-  }
-
-  /**
-   *
-   * @param {*} filepath
-   */
-  static async enhanceWithGeoData(experiments, citiesAndCountries) {
-    const cache = this.getCache();
-
-    for (let experiment of experiments) {
-      const location = {
-        cityIsolate: experiment.cityIsolate,
-        countryIsolate: experiment.countryIsolate
-      };
-
-      const cacheKey = JSON.stringify(location);
-
-      if (cache[cacheKey]) {
-        const match = cache[cacheKey];
-
-        experiment.latitudeIsolate = match.latitudeIsolate;
-        experiment.longitudeIsolate = match.longitudeIsolate;
-      } else {
-        const geo = await this.getGeocode(experiment);
-        if (geo) {
-          cache[cacheKey] = {
-            cityIsolate: experiment.cityIsolate,
-            countryIsolate: experiment.countryIsolate,
-            longitudeIsolate: geo.longitude,
-            latitudeIsolate: geo.latitude
-          };
-          experiment.latitudeIsolate = cache[cacheKey].latitudeIsolate;
-          experiment.longitudeIsolate = cache[cacheKey].longitudeIsolate;
-
-          this.saveCache();
-        }
       }
     }
 
     return experiments;
   }
 
-  static async getGeocode(experiment) {
-    if (experiment) {
-      const { countryIsolate, countryIsolateName, cityIsolate } = experiment;
-
-      const address = {
-        countryCode: countryIsolate,
-        city: cityIsolate
-      };
-
-      if (address.countryCode || address.city) {
-        try {
-          const matches = await geocode(address);
-
-          await this.sleep(1000);
-          if (matches && Array.isArray(matches)) {
-            const geo = matches.find(match => {
-              const bothMatch =
-                countryIsolate &&
-                cityIsolate &&
-                (match.countryCode === countryIsolate || match.country === countryIsolateName) &&
-                (match.city === cityIsolate || match.state.includes(cityIsolate));
-              const countryOnlyMatch =
-                countryIsolate &&
-                !cityIsolate &&
-                (match.countryCode === countryIsolate || match.country === countryIsolateName);
-              return bothMatch || countryOnlyMatch;
-            });
-            if (typeof geo === "undefined") {
-              logger.info(
-                `No match for ${cityIsolate} in ${countryIsolate} - ${matches.length} matches`
-              );
-              if (matches.length > 0) {
-                logger.info(
-                  `Possible match: ${matches[0].city} in ${matches[0].state}, ${matches[0].country}`
-                );
-              }
-            }
-
-            return geo;
-          }
-        } catch (e) {
-          logger.info(`Exception reading geocode for ${JSON.stringify(address)}`);
-        }
-      }
-    }
-    return null;
-  }
-
-  static getExperiments(rows) {
+  static buildMongooseReadyExperimentObjects(rows) {
     const experiments = [];
 
     if (rows) {
       rows.forEach(row => {
-        const { isolateId, countryIsolate, cityIsolate, longitudeIsolate, latitudeIsolate } = row;
+        const { isolateId, countryIsolate, cityIsolate, results, coordinates } = row;
+
         const experiment = {
+          results,
           metadata: {
             sample: {
               isolateId,
               countryIsolate,
-              cityIsolate,
-              longitudeIsolate,
-              latitudeIsolate
+              cityIsolate
             }
           }
         };
+
+        if (coordinates && coordinates.longitude && coordinates.latitude) {
+          experiment.metadata.sample.longitudeIsolate = coordinates.longitude;
+          experiment.metadata.sample.latitudeIsolate = coordinates.latitude;
+        }
+
         experiments.push(experiment);
       });
     }
@@ -508,32 +171,61 @@ class DataHelper {
   /**
    * Process a CSV file
    * Bulk insert chunks of 1000
-   * @param {*} filepath
+   * @param {*} file
    */
-  static async process(filepath) {
-    const rows = await this.loadDataSet(filepath);
-    logger.info(`${filepath} has ${rows.length} to process`);
-    const structuredRows = this.transform(rows);
+  static async process(file, directory) {
+    logger.debug(`DataHelper#process: enter`);
 
-    const citiesAndCountries = this.getCitiesAndCountries(structuredRows);
-    const structuredRowsWithGeoData = await this.enhanceWithGeoData(
-      structuredRows,
-      citiesAndCountries
+    const rows = await this.loadDataSet(file);
+    logger.debug(`DataHelper#process: rows: ${JSON.stringify(rows, null, 2)}`);
+    logger.debug(`${file.path} has ${rows.length} to process`);
+
+    // rows > objects
+    const experimentObjects = await this.buildExperimentObjectsFromCSVRows(rows, directory);
+
+    // objects > mongoose records
+    const experimentDatabaseReadyObjects = this.buildMongooseReadyExperimentObjects(
+      experimentObjects
     );
+    logger.debug(`${file.path} has ${experimentDatabaseReadyObjects.length} experiments to store`);
 
-    const experiments = this.getExperiments(structuredRowsWithGeoData);
-    logger.info(`${filepath} has ${experiments.length} experiments to store`);
-    const experimentChunks = this.chunk(experiments, BULK_INSERT_LIMIT);
+    // build blocks of experiments to write to the database
+    const experimentChunks = this.chunk(experimentDatabaseReadyObjects, BULK_INSERT_LIMIT);
 
-    for (let experimentChunk of experimentChunks) {
+    // write each block
+    for (const experimentChunk of experimentChunks) {
+      // geo coordinates will be added in ExperimentModel save
       await Experiment.insertMany(experimentChunk);
-      logger.info(`Stored ${experimentChunk.length} experiments of ${rows.length}`);
+      logger.debug(`Stored ${experimentChunk.length} experiments of ${rows.length}`);
     }
 
     return {
-      filepath,
-      count: experiments.length
+      filepath: file.path,
+      count: experimentDatabaseReadyObjects.length
     };
+  }
+
+  /**
+   * Loads and parses the results
+   * Only predictor results are processed for now
+   * @param {*} resultFileName
+   */
+  static async loadAndParsePredictorResults(resultFileName, directory) {
+    const results = [];
+
+    const resultsFile = directory.files.find(
+      d => d.path === `results/${resultFileName}` && d.type === "File"
+    );
+
+    if (!resultsFile) {
+      return results;
+    }
+
+    const content = await resultsFile.buffer();
+    const parser = new PredictorResultParser({ result: JSON.parse(content.toString()) });
+    results.push(parser.parse());
+
+    return results;
   }
 }
 

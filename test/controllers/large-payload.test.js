@@ -2,7 +2,7 @@ import request from "supertest";
 import httpStatus from "http-status";
 import { createApp, config } from "../setup";
 
-const large = require("../fixtures/large");
+import large from "../fixtures/large";
 
 const makeRequest = app =>
   request(app)
@@ -11,8 +11,8 @@ const makeRequest = app =>
 
 describe("Large payload", () => {
   describe("when sending body below the limit", () => {
-    const app = createApp();
     it("should return success response", async done => {
+      const app = await createApp();
       makeRequest(app)
         .expect(httpStatus.OK)
         .end((err, res) => {
@@ -22,8 +22,8 @@ describe("Large payload", () => {
     });
   });
   describe("when sending a body over the limit", () => {
-    const app = createApp({ limit: "1kb" });
     it("should return payload too large error", async done => {
+      const app = await createApp({ limit: "1kb" });
       makeRequest(app)
         .expect(httpStatus.REQUEST_TOO_LONG)
         .end((err, res) => {
@@ -33,6 +33,7 @@ describe("Large payload", () => {
         });
     });
     it("should set the cors headers", async done => {
+      const app = await createApp({ limit: "1kb" });
       makeRequest(app)
         .expect(httpStatus.REQUEST_TOO_LONG)
         .end((err, res) => {

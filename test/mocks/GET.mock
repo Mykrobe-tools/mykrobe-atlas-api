@@ -1,0 +1,18 @@
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=utf-8
+
+{
+  "name" : "FQMby4v",
+  "cluster_name" : "makeandship-cluster",
+  "cluster_uuid" : "jE8yJEQ9SNCl3uuQb6Tszw",
+  "version" : {
+    "number" : "6.2.4",
+    "build_hash" : "ccec39f",
+    "build_date" : "2018-04-12T20:37:28.497551Z",
+    "build_snapshot" : false,
+    "lucene_version" : "7.2.1",
+    "minimum_wire_compatibility_version" : "5.6.0",
+    "minimum_index_compatibility_version" : "5.0.0"
+  },
+  "tagline" : "You Know, for Search"
+}

@@ -1,7 +1,9 @@
 import flatten from "flat";
 import deepmerge from "deepmerge";
 
-import { ElasticsearchHelper } from "makeandship-api-common/lib/modules/elasticsearch/";
+import { ElasticService } from "makeandship-api-common/lib/modules/elasticsearch/";
+import { SearchQuery } from "makeandship-api-common/lib/modules/elasticsearch/";
+import { experimentSearch as experimentSearchSchema } from "mykrobe-atlas-jsonschema";
 
 import Constants from "../Constants";
 
@@ -17,8 +19,14 @@ import ExperimentsResultJSONTransformer from "../transformers/es/ExperimentsResu
 
 import { userEventEmitter } from "../modules/events";
 import { schedule } from "../modules/agenda";
+import EventHelper from "./events/EventHelper";
+import logger from "../modules/logger";
+import experimentSearch from "mykrobe-atlas-jsonschema/lib/experimentSearch";
 
 const config = require("../../config/env");
+
+const esConfig = { type: "experiment", ...config.elasticsearch };
+const elasticService = new ElasticService(esConfig, experimentSearchSchema);
 
 class BigsiSearchHelper {
   /**
@@ -35,7 +43,6 @@ class BigsiSearchHelper {
       type: bigsi.type,
       bigsi: bigsi
     };
-
     const searchHash = SearchHelper.generateHash(searchData);
     const search = await Search.findByHash(searchHash);
 
@@ -62,15 +69,11 @@ class BigsiSearchHelper {
 
       const result = search.get("result");
       const results = result.results;
-
       const filteredResults = this.filter(type, results);
-
       const experiments = await this.enhanceBigsiResultsWithExperiments(filteredResults, query);
       result.results = experiments;
-
       search.set("result", result);
     }
-
     return search;
   }
 
@@ -97,7 +100,6 @@ class BigsiSearchHelper {
           break;
       }
     }
-
     return results;
   }
 
@@ -124,6 +126,12 @@ class BigsiSearchHelper {
     }
     const searchJson = new SearchJSONTransformer().transform(savedSearch);
     const userJson = new UserJSONTransformer().transform(user);
+
+    try {
+      await EventHelper.updateSearchesState(userJson.id, searchJson);
+    } catch (e) {
+      logger.error(`Unable to save search state: ${e}`);
+    }
     // call bigsi via agenda to support retries
     await schedule("now", "call search api", {
       search: searchJson,
@@ -175,8 +183,8 @@ class BigsiSearchHelper {
         ? Object.assign(isolateQuery, flatten(query))
         : isolateQuery;
 
-    const resp = await ElasticsearchHelper.search(config, elasticQuery, "experiment");
-
+    const searchQuery = new SearchQuery(elasticQuery, experimentSearch);
+    const resp = await elasticService.search(searchQuery, {});
     const experiments = new ExperimentsResultJSONTransformer().transform(resp, {});
 
     // merge results in order

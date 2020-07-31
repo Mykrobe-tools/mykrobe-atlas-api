@@ -3,6 +3,7 @@ import path from "path";
 import crypto from "crypto";
 import mkdirp from "mkdirp-promise";
 import config from "../../../config/env";
+import logger from "../logger";
 
 const maxFileSize = config.express.uploadMaxFileSize;
 
@@ -15,6 +16,8 @@ const setUploadDirectory = uploadDir => {
 };
 
 const initialise = fields => {
+  logger.debug(`Util#initialise: enter`);
+  logger.debug(`Util#initialise: fields: ${JSON.stringify(fields)}`);
   const identifier = fields.resumableIdentifier ? cleanIdentifier(fields.resumableIdentifier) : "";
   const chunkNumber = fields.resumableChunkNumber || 0;
   const totalChunks = fields.resumableTotalChunks || 0;

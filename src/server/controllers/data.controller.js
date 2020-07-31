@@ -1,14 +1,24 @@
 import fs from "fs";
 import _ from "lodash";
 import faker from "faker";
+import unzipper from "unzipper";
+import httpStatus from "http-status";
+
 import * as schemas from "mykrobe-atlas-jsonschema";
+
 import Randomizer from "makeandship-api-common/lib/modules/schema-faker/Randomizer";
 import { getRandomPercentage } from "makeandship-api-common/lib/modules/schema-faker/utils";
+import { APIError, ErrorUtil } from "makeandship-api-common/lib/modules/error";
+
 import User from "../models/user.model";
 import Experiment from "../models/experiment.model";
+
+import logger from "../modules/logger";
+
 import phylogenetics from "../../config/faker/phylogenetics-choices";
 import config from "../../config/env";
 import DataHelper from "../helpers/DataHelper";
+import Constants from "../Constants";
 
 // randomizers
 const userRandomizer = new Randomizer(schemas.user, {
@@ -49,8 +59,8 @@ const experimentRandomizer = new Randomizer(schemas.experiment, {
  * @returns {*}
  */
 const clean = async (req, res) => {
-  await User.remove({});
-  await Experiment.remove({});
+  await User.deleteMany({});
+  await Experiment.deleteMany({});
   return res.jsend("data cleared successfully");
 };
 
@@ -124,21 +134,36 @@ const generatePhylogenetics = (
  * @param res
  * @returns {*}
  */
-const loadDemo = async (req, res) => {
-  const folder = req.params.folder;
-  const purge = req.body.purge;
-  if (purge === true) {
+const bulk = async (req, res) => {
+  logger.debug(`DataController#bulk: enter`);
+  if (!req.file) {
+    return res.jerror(new APIError(Constants.ERRORS.UPLOAD_FILE, "No files found to upload"));
+  }
+
+  const { file } = req;
+  const { purge } = req.body;
+
+  logger.debug(`DataController#bulk: file: ${JSON.stringify(file, null, 2)}`);
+  logger.debug(`DataController#bulk: purge: ${JSON.stringify(purge, null, 2)}`);
+
+  if (file.mimetype !== "application/zip") {
+    return res.jerror(new APIError(Constants.ERRORS.UPLOAD_FILE, "Input file must be a zip file"));
+  }
+
+  if (purge === "true" || purge === true) {
+    logger.debug(`DataController#bulk: deleteMany`);
     await Experiment.deleteMany({});
   }
 
+  const directory = await unzipper.Open.file(file.path);
+
   try {
-    await DataHelper.load(`${config.express.demoDataRootFolder}/${folder}`);
-    return res.jsend(
-      `Demo data upload started from ${config.express.demoDataRootFolder}/${folder}`
-    );
+    logger.debug(`DataController#bulk: load`);
+    await DataHelper.load(directory);
+    return res.jsend("Demo data upload started");
   } catch (e) {
     return res.jerror(e);
   }
 };
 
-export default { clean, create, loadDemo };
+export default { clean, create, bulk };

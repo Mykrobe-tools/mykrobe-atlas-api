@@ -1,5 +1,5 @@
 import Agenda from "agenda";
-import winston from "winston";
+import logger from "../logger";
 import AgendaHelper from "../../helpers/AgendaHelper";
 import config from "../../../config/env";
 
@@ -15,7 +15,7 @@ const schedule = (when, job, params) => {
   agendaInstance.define("refresh isolateId", AgendaHelper.refreshIsolateId.bind(agendaInstance));
 
   agendaInstance.on("ready", async () => {
-    winston.debug("mock agenda is ready and started.");
+    logger.debug("info", "mock agenda is ready and started.");
     await agendaInstance.start();
     await agendaInstance.every("0 0 * * *", "refresh isolateId");
     agendaInstance.schedule(when, job, params);
