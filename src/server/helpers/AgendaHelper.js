@@ -105,7 +105,9 @@ class AgendaHelper {
   }
 
   static async callSearchApi(job, done) {
+    logger.debug(`AgendaHelper#callSearchApi:enter`);
     const data = job.attrs.data;
+    logger.debug(`AgendaHelper#callSearchApi: data: ${JSON.stringify(data, null, 2)}`);
 
     const search = data.search;
     const user = data.user;
@@ -116,7 +118,7 @@ class AgendaHelper {
       bigsi.search_id = search.id;
 
       logger.debug(`POST ${uri}`);
-      logger.debug(bigsi);
+      logger.debug(`Search call: ${JSON.stringify(bigsi, null, 2)}`);
 
       const type = bigsi && bigsi.type ? bigsi.type : null;
 

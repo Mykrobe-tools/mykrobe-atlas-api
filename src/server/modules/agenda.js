@@ -7,6 +7,7 @@ import config from "../../config/env";
 
 // agenda config
 const agendaInstance = new Agenda({ db: { address: config.db.uri } });
+console.log(`agendaInstance: ${agendaInstance}`);
 
 agendaInstance.define("call analysis api", AgendaHelper.callAnalysisApi.bind(agendaInstance));
 

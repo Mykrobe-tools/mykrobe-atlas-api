@@ -6,6 +6,7 @@ import UserJSONTransformer from "./UserJSONTransformer";
 import SearchHelper from "../helpers/SearchHelper";
 
 import Constants from "../Constants";
+import BigsiSearchHelper from "../helpers/BigsiSearchHelper";
 
 const BLACKLIST = ["__v"];
 
@@ -23,10 +24,6 @@ class SearchJSONTransformer extends ModelJSONTransformer {
 
     if (res.user && options.includeUser) {
       res.user = new UserJSONTransformer().transform(res.user, options);
-    }
-
-    if (res.bigsi && res.bigsi.query) {
-      this.enrichSearchQuery(res);
     }
 
     const status = res.status;
@@ -75,13 +72,6 @@ class SearchJSONTransformer extends ModelJSONTransformer {
   }
 
   transformPending(res) {}
-
-  enrichSearchQuery(res) {
-    const { ref, pos, alt, gene } = res.bigsi.query;
-    const queryString = SearchHelper.getQueryString(ref, pos, alt, gene);
-
-    res.query = { q: queryString };
-  }
 }
 
 export default SearchJSONTransformer;

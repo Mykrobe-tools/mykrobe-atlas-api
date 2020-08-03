@@ -25,5 +25,6 @@ describe("SequenceSearchCompleteEventJSONTransformer", () => {
 
       done();
     });
+    it("should return a url to re-run a search", () => {});
   });
 });
