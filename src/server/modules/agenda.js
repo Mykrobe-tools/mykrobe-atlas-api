@@ -1,13 +1,11 @@
 import Agenda from "agenda";
 import logger from "./logger";
-import axios from "axios";
-import Audit from "../models/audit.model";
 import AgendaHelper from "../helpers/AgendaHelper";
 import config from "../../config/env";
 
 // agenda config
 const agendaInstance = new Agenda({ db: { address: config.db.uri } });
-console.log(`agendaInstance: ${agendaInstance}`);
+logger.debug(`agendaInstance: ${agendaInstance}`);
 
 agendaInstance.define("call analysis api", AgendaHelper.callAnalysisApi.bind(agendaInstance));
 
@@ -27,10 +25,10 @@ agendaInstance.on("error", () => {
   agendaInstance.stop();
 });
 
-const schedule = (when, job, params) => agendaInstance.schedule(when, job, params);
+const schedule = (when, job, params) => {
+  logger.debug(`#schedule`);
+  logger.debug(`#schedule: agendaInstance: ${agendaInstance}`);
+  agendaInstance.schedule(when, job, params);
+};
 
-const agenda = Object.freeze({
-  schedule
-});
-
-export default agenda;
+export { schedule };

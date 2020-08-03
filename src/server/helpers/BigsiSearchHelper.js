@@ -143,6 +143,7 @@ class BigsiSearchHelper {
       logger.error(`Unable to save search state: ${e}`);
     }
     logger.debug(`Schedule a search`);
+    logger.debug(`schedule: ${typeof schedule}`);
     // call bigsi via agenda to support retries
     await schedule("now", "call search api", {
       search: searchJson,
