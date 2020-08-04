@@ -53,7 +53,6 @@ class Scheduler {
         await that.binding.distance(job);
       });
       that.agenda.define("call search api", async job => {
-        logger.debug(`call search api: ${JSON.stringify(job, null, 2)}`);
         await that.binding.search(job);
       });
       that.agenda.define("refresh isolateId", async job => {

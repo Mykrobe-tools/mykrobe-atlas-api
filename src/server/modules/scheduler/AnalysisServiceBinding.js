@@ -4,6 +4,9 @@ import AnalysisService from "../analysis/AnalysisService";
 
 import { userEventEmitter, experimentEventEmitter } from "../events";
 
+import Audit from "../../models/audit.model";
+import AuditJSONTransformer from "../../transformers/AuditJSONTransformer";
+
 import config from "../../../config/env";
 
 class AnalysisServiceBinding {
@@ -24,8 +27,6 @@ class AnalysisServiceBinding {
   async predictor(job) {
     logger.debug(`AnalysisServiceBinding#predictor: enter`);
     logger.debug(`AnalysisServiceBinding#predictor: job: ${JSON.stringify(job)}`);
-    logger.debug(`this: ${this}`);
-    logger.debug(`this: ${this.constructor.name}`);
     const data = this.getData(job);
     logger.debug(`AnalysisServiceBinding#predictor: data: ${JSON.stringify(data)}`);
 
@@ -149,8 +150,6 @@ class AnalysisServiceBinding {
   async search(job) {
     logger.debug(`AnalysisServiceBinding#search: enter`);
     logger.debug(`AnalysisServiceBinding#search: job: ${JSON.stringify(job)}`);
-    logger.debug(`this: ${this}`);
-    logger.debug(`this: ${JSON.stringify(this)}`);
     const data = this.getData(job);
     logger.debug(`AnalysisServiceBinding#search: data: ${JSON.stringify(data)}`);
 
@@ -179,7 +178,7 @@ class AnalysisServiceBinding {
           const savedAudit = await audit.save();
           const auditJson = new AuditJSONTransformer().transform(savedAudit);
 
-          const event = `${type}-search-started`;
+          const event = `${search.type}-search-started`;
           userEventEmitter.emit(event, {
             audit: auditJson,
             user,

@@ -1,8 +1,12 @@
 import nock from "nock";
 import uuid from "uuid";
+
 import config from "../config/env";
 
-const stubAnalysisApi = () => {
+import logger from "../server/modules/logger";
+
+const enableMockAnalysisApi = () => {
+  logger.debug(`enableMockAnalysisApi: enter`);
   nock(config.services.analysisApiUrl)
     .persist()
     .post("/analyses", body => body.file.endsWith("333-08.json"))
@@ -15,9 +19,11 @@ const stubAnalysisApi = () => {
     .persist()
     .post("/analyses", body => body.file.endsWith("333-09.json"))
     .reply(500, { result: "error" });
+  logger.debug(`enableMockAnalysisApi: exit`);
 };
 
-const stubDistanceApi = () => {
+const enableMockDistanceApi = () => {
+  logger.debug(`enableMockDistanceApi: enter`);
   nock(config.services.analysisApiUrl)
     .persist()
     .post("/distance")
@@ -25,9 +31,11 @@ const stubDistanceApi = () => {
       result: "success",
       task_id: "3a9ba217-4ccb-4108-9c01-60525e2ca905"
     });
+  logger.debug(`enableMockDistanceApi: exit`);
 };
 
-const stubSearchApi = () => {
+const enableMockSearchApi = () => {
+  logger.debug(`enableMockSearchApi: enter`);
   nock(config.services.analysisApiUrl)
     .persist()
     .post("/search", body => body.search_id !== "56c787ccc67fc16ccc13246")
@@ -40,9 +48,11 @@ const stubSearchApi = () => {
     .persist()
     .post("/search", body => body.search_id === "56c787ccc67fc16ccc13246")
     .reply(500, { result: "error" });
+  logger.debug(`enableMockSearchApi: exit`);
 };
 
-const stubTreeApi = () => {
+const enableMockTreeApi = () => {
+  logger.debug(`enableMockTreeApi: enter`);
   nock(config.services.analysisApiUrl)
     .persist()
     .get("/tree/latest")
@@ -53,9 +63,11 @@ const stubTreeApi = () => {
       },
       type: "tree"
     });
+  logger.debug(`enableMockTreeApi: exit`);
 };
 
-const stubIsolateIdMapping = () => {
+const enableMockIsolateIdMapping = () => {
+  logger.debug(`enableMockIsolateIdMapping: enter`);
   nock(config.services.analysisApiUrl)
     .persist()
     .get("/mapping")
@@ -67,9 +79,11 @@ const stubIsolateIdMapping = () => {
         "5bab4fcdf892541000b41f0b": uuid.v1()
       }
     ]);
+  logger.debug(`enableMockIsolateIdMapping: enter`);
 };
 
-const stubDevApis = () => {
+const enableMockGenericAnalysisApi = () => {
+  logger.debug(`enableMockGenericAnalysisApi: enter`);
   nock(config.services.analysisApiUrl)
     .persist()
     .post(/\bsearch|\banalyses/g)
@@ -77,18 +91,18 @@ const stubDevApis = () => {
       result: "success",
       task_id: uuid.v1()
     });
-
-  stubTreeApi();
-  stubIsolateIdMapping();
+  logger.debug(`enableMockGenericAnalysisApi: exot`);
 };
 
-const stub = Object.freeze({
-  stubDevApis,
-  stubTreeApi,
-  stubIsolateIdMapping,
-  stubAnalysisApi,
-  stubDistanceApi,
-  stubSearchApi
-});
+const enableExternalMockServices = () => {
+  logger.debug(`enableExternalMockServices: enter`);
+  enableMockAnalysisApi();
+  enableMockDistanceApi();
+  enableMockSearchApi();
+  enableMockTreeApi();
+  enableMockIsolateIdMapping();
+  enableMockGenericAnalysisApi();
+  logger.debug(`enableExternalMockServices: exit`);
+};
 
-export default stub;
+export { enableExternalMockServices };

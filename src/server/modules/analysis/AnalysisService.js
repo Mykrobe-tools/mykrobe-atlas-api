@@ -1,4 +1,8 @@
+import axios from "axios";
+
 import logger from "../logger";
+
+import config from "../../../config/env";
 
 class AnalysisService {
   constructor() {}
@@ -56,10 +60,11 @@ class AnalysisService {
     }
 
     const uri = `${config.services.analysisApiUrl}/search`;
-    const bigsi = search.bigsi;
-    bigsi.search_id = search.id;
+    const payload = search.bigsi;
+    payload.search_id = search.id;
     logger.debug(`AnalysisService#search: POST ${uri}`);
-    logger.debug(`AnalysisService#search: payload: ${JSON.stringify(bigsi, null, 2)}`);
+    logger.debug(`AnalysisService#search: payload: ${JSON.stringify(payload, null, 2)}`);
+
     const response = await axios.post(uri, payload);
     if (response && response.data && response.data.task_id) {
       const taskId = response.data.task_id;

@@ -41,7 +41,27 @@ $ mongod
 $ yarn start
 ```
 
-### Tests
+To use logging
+
+```
+$ yarn start:debug
+```
+
+To log nock calls
+
+```
+DEBUG=nock.interceptor yarn start
+```
+
+To log agenda calls
+
+```
+DEBUG=agenda:job yarn start
+```
+
+To log both use a comma separated set of debug targets
+
+## Tests
 
 Run tests along with code coverage
 
