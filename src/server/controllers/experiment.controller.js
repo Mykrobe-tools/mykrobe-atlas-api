@@ -23,7 +23,7 @@ import SearchQueryDecorator from "../modules/search/search-query-decorator";
 import RequestSearchQueryParser from "../modules/search/request-search-query-parser";
 
 import resumable from "../modules/resumable";
-import { schedule } from "../modules/agenda";
+import Scheduler from "../modules/scheduler/Scheduler";
 import { experimentEventEmitter, userEventEmitter } from "../modules/events";
 import { parseQuery, callTreeApi } from "../modules/search";
 import logger from "../modules/logger";
@@ -254,7 +254,8 @@ const uploadFile = async (req, res) => {
           experiment.id,
           `${config.express.uploadsLocation}/experiments/${experiment.id}/file/${req.body.name}`
         );
-        await schedule("now", "call analysis api", {
+        const scheduler = await Scheduler.getInstance();
+        await scheduler.schedule("now", "call analysis api", {
           file: `${config.express.uploadsLocation}/experiments/${experiment.id}/file/${req.body.name}`,
           experiment_id: experiment.id,
           attempt: 0
@@ -316,7 +317,8 @@ const uploadFile = async (req, res) => {
       );
       logger.debug(`ExperimentsController#uploadFile: reassembleChunks ...`);
       return resumable.reassembleChunks(experimentJson.id, resumableFilename, async () => {
-        await schedule("now", "call analysis api", {
+        const scheduler = await Scheduler.getInstance();
+        await scheduler.schedule("now", "call analysis api", {
           file: `${config.express.uploadsLocation}/experiments/${experimentJson.id}/file/${resumableFilename}`,
           experiment_id: experimentJson.id,
           attempt: 0,
@@ -447,6 +449,7 @@ const search = async (req, res) => {
 
     if (bigsi) {
       const search = await BigsiSearchHelper.search(bigsi, query, req.dbUser);
+
       const searchJson = new SearchJSONTransformer().transform(search);
       searchJson.search = new SearchQueryJSONTransformer().transform(req.query, {});
 
@@ -552,12 +555,14 @@ const tree = async (req, res) => {
 const refreshResults = async (req, res) => {
   const experiment = req.experiment;
   const experimentJson = new ExperimentJSONTransformer().transform(experiment);
-  await schedule("now", "call distance api", {
+
+  const scheduler = await Scheduler.getInstance();
+  await scheduler.schedule("now", "call distance api", {
     experiment_id: experiment.id,
     distance_type: NEAREST_NEIGHBOUR,
     experiment: experimentJson
   });
-  await schedule("now", "call distance api", {
+  await scheduler.schedule("now", "call distance api", {
     experiment_id: experiment.id,
     distance_type: TREE_DISTANCE,
     experiment: experimentJson

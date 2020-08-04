@@ -3,10 +3,8 @@ import ModelJSONTransformer from "makeandship-api-common/lib/transformers/ModelJ
 import BlacklistTransformer from "makeandship-api-common/lib/transformers/BlacklistJSONTransformer";
 import SearchExperimentJSONTransformer from "./SearchExperimentJSONTransformer";
 import UserJSONTransformer from "./UserJSONTransformer";
-import SearchHelper from "../helpers/SearchHelper";
 
 import Constants from "../Constants";
-import BigsiSearchHelper from "../helpers/BigsiSearchHelper";
 
 const BLACKLIST = ["__v"];
 

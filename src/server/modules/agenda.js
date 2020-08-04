@@ -4,6 +4,7 @@ import AgendaHelper from "../helpers/AgendaHelper";
 import config from "../../config/env";
 
 // agenda config
+logger.debug(`Agenda: ${Agenda}`);
 const agendaInstance = new Agenda({ db: { address: config.db.uri } });
 logger.debug(`agendaInstance: ${agendaInstance}`);
 
@@ -28,6 +29,8 @@ agendaInstance.on("error", () => {
 const schedule = (when, job, params) => {
   logger.debug(`#schedule`);
   logger.debug(`#schedule: agendaInstance: ${agendaInstance}`);
+  logger.debug(`#schedule: job: ${JSON.stringify(job)}`);
+  logger.debug(`#schedule: params: ${JSON.stringify(params)}`);
   agendaInstance.schedule(when, job, params);
 };
 

@@ -18,7 +18,7 @@ import UserJSONTransformer from "../transformers/UserJSONTransformer";
 import ExperimentsResultJSONTransformer from "../transformers/es/ExperimentsResultJSONTransformer";
 
 import { userEventEmitter } from "../modules/events";
-import { schedule } from "../modules/agenda";
+import Scheduler from "../modules/scheduler/Scheduler";
 import { createQuery } from "../modules/search/bigsi";
 import EventHelper from "./events/EventHelper";
 import logger from "../modules/logger";
@@ -50,8 +50,10 @@ class BigsiSearchHelper {
     const search = await Search.findByHash(searchHash);
 
     if (search && (!search.isExpired() || search.isPending())) {
+      logger.debug(`Search exists and is waiting for results`);
       return this.returnCachedResults(search, query, user);
     } else {
+      logger.debug(`Search does not exist`);
       return this.triggerBigsiSearch(search, query, user, searchData);
     }
   }
@@ -73,7 +75,13 @@ class BigsiSearchHelper {
       const result = search.get("result");
       const results = result.results;
       const filteredResults = this.filter(type, results);
-      const experiments = await this.enhanceBigsiResultsWithExperiments(filteredResults, query);
+
+      // use incoming query if set or stored query in search
+      const experimentQuery = query ? query : search.get("query");
+      const experiments = await this.enhanceBigsiResultsWithExperiments(
+        filteredResults,
+        experimentQuery
+      );
       result.results = experiments;
       search.set("result", result);
     }
@@ -121,9 +129,6 @@ class BigsiSearchHelper {
     logger.debug(`triggerBigsiSearch: query: ${JSON.stringify(query)}`);
 
     const newSearch = search || new Search(searchData);
-    if (!newSearch.query && query) {
-      newSearch.set("query", query);
-    }
 
     // set status to pending and clear old result
     newSearch.status = Constants.SEARCH_PENDING;
@@ -143,12 +148,20 @@ class BigsiSearchHelper {
       logger.error(`Unable to save search state: ${e}`);
     }
     logger.debug(`Schedule a search`);
-    logger.debug(`schedule: ${typeof schedule}`);
-    // call bigsi via agenda to support retries
-    await schedule("now", "call search api", {
+    // call bigsi via scheduler to support retries
+    const scheduler = await Scheduler.getInstance();
+    await scheduler.schedule("now", "call search api", {
       search: searchJson,
       user: userJson
     });
+    logger.debug(`Search scheduled`);
+
+    // capture query attributes before returning
+    // save after scheduler as agenda has issues with dot notation in attributes
+    if (!savedSearch.query && query) {
+      savedSearch.set("query", query);
+      await savedSearch.save();
+    }
     return savedSearch;
   }
 
