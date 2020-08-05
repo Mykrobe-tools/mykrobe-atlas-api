@@ -1,3 +1,5 @@
+import querystring from "querystring";
+
 import CLIEventJSONTransformer from "./CLIEventJSONTransformer";
 import SearchJSONTransformer from "../SearchJSONTransformer";
 
@@ -19,6 +21,15 @@ class SearchEventJSONTransformer extends CLIEventJSONTransformer {
     if (search) {
       res.search = new SearchJSONTransformer().transform(search, {});
       res.id = search.id;
+
+      if (res.search && res.search.query) {
+        // bigsi query will have been reset into query
+        const qs = querystring.stringify(res.search.query);
+
+        if (qs) {
+          res.searchURL = `/experiments/search?${qs}`;
+        }
+      }
     }
 
     return res;

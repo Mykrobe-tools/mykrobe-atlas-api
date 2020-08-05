@@ -25,6 +25,17 @@ describe("SequenceSearchCompleteEventJSONTransformer", () => {
 
       done();
     });
-    it("should return a url to re-run a search", () => {});
+    it("should return a url to re-run a search", () => {
+      const dataWithQuery = JSON.parse(JSON.stringify(data));
+      dataWithQuery.search.query = {
+        q: "GTCAGTCCGTTTGTTCTTGTGGCGAGTGT"
+      };
+
+      const json = new SequenceSearchCompleteEventJSONTransformer().transform(dataWithQuery, {});
+      expect(json).toHaveProperty(
+        "searchURL",
+        "/experiments/search?q=GTCAGTCCGTTTGTTCTTGTGGCGAGTGT"
+      );
+    });
   });
 });

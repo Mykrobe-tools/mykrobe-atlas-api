@@ -105,7 +105,6 @@ describe("ExperimentController", () => {
           done();
         });
     });
-
     it("should remove additional fields from the new experiment", done => {
       request(args.app)
         .post("/experiments")
@@ -130,7 +129,6 @@ describe("ExperimentController", () => {
           done();
         });
     });
-
     it("should set the owner to the current user", done => {
       request(args.app)
         .post("/experiments")
@@ -167,7 +165,6 @@ describe("ExperimentController", () => {
           done();
         });
     });
-
     it("should populate the owner", done => {
       request(args.app)
         .get(`/experiments/${args.id}`)
@@ -183,7 +180,6 @@ describe("ExperimentController", () => {
           done();
         });
     });
-
     it("should report error with message - Not found, when experiment does not exists", done => {
       request(args.app)
         .get("/experiments/56c787ccc67fc16ccc1a5e92")
@@ -194,7 +190,6 @@ describe("ExperimentController", () => {
           done();
         });
     });
-
     it("should remove unwanted fields", done => {
       request(args.app)
         .get(`/experiments/${args.id}`)
@@ -206,7 +201,6 @@ describe("ExperimentController", () => {
           done();
         });
     });
-
     it("should add virtual fields", done => {
       request(args.app)
         .get(`/experiments/${args.id}`)
@@ -217,7 +211,6 @@ describe("ExperimentController", () => {
           done();
         });
     });
-
     describe("when results are populated", () => {
       describe("when using one type", () => {
         beforeEach(async done => {
@@ -730,7 +723,6 @@ describe("ExperimentController", () => {
           done();
         });
     });
-
     it("should return an error if experiment not found", done => {
       request(args.app)
         .put("/experiments/589dcdd38d71fee259dc4e00/metadata")

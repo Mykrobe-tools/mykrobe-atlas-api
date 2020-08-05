@@ -166,7 +166,7 @@ userEventEmitter.on(Constants.EVENTS.SEQUENCE_SEARCH_COMPLETE.EVENT, async paylo
         },
         {}
       );
-
+      logger.debug(`Sequence search complete: data: ${JSON.stringify(data)}`);
       const userId = user.id;
       logger.debug(`Sequence search complete: Send event`);
       sendUserEvent(userId, data);
