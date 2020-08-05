@@ -1,6 +1,8 @@
 import logger from "../modules/logger";
 import { geocode } from "../modules/geo/";
 
+import LocationHelper from "../helpers/LocationHelper";
+
 import config from "../../config/env";
 
 class ExperimentHelper {
@@ -27,7 +29,13 @@ class ExperimentHelper {
       const cityIsolate = o.metadata.sample.cityIsolate;
 
       if (countryIsolate) {
-        address.countryCode = countryIsolate;
+        const name = LocationHelper.getCountry(countryIsolate);
+
+        if (name) {
+          address.country = name;
+        } else {
+          address.countryCode = countryIsolate;
+        }
       }
       if (cityIsolate) {
         address.city = cityIsolate;

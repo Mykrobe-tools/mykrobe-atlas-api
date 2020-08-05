@@ -2537,11 +2537,12 @@ describe("ExperimentController", () => {
         it("should reconstruct the free-text query", done => {
           const mockCallback = jest.fn();
           userEventEmitter.on("protein-variant-search-started", mockCallback);
-          request(app)
+          request(args.app)
             .get("/experiments/search?q=rpoB_S450L")
-            .set("Authorization", `Bearer ${token}`)
+            .set("Authorization", `Bearer ${args.token}`)
             .expect(httpStatus.OK)
             .end(async (err, res) => {
+              console.log(`res.body: ${JSON.stringify(res.body)}`);
               expect(res.body.status).toEqual("success");
               expect(res.body.data.id).toEqual(searchId);
               expect(mockCallback.mock.calls.length).toEqual(1);
@@ -2549,7 +2550,6 @@ describe("ExperimentController", () => {
 
               expect(mockCallback.mock.calls[0].length).toEqual(1);
               const object = mockCallback.mock.calls[0][0];
-
               expect(object.search.query.q).toEqual("rpoB_S450L");
 
               done();

@@ -227,6 +227,21 @@ class LocationHelper {
   }
 
   /**
+   * Get country from code
+   * @param {*} code
+   * @return String country
+   */
+  static getCountry(code) {
+    if (code) {
+      const index = countryEnum.indexOf(code);
+      if (index > -1) {
+        return countryEnumNames[index];
+      }
+    }
+    return null;
+  }
+
+  /**
    * Get coordinates
    * @param {*} object - city, countryCode
    */

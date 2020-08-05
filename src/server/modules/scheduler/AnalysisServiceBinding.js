@@ -41,24 +41,29 @@ class AnalysisServiceBinding {
         }
         if (data.attempt < config.services.analysisApiMaxRetries) {
           const taskId = await this.service.predictor(experiment, file);
-
+          logger.debug(`AnalysisServiceBinding#predictor: taskId: ${JSON.stringify(taskId)}`);
           // create an audit trail of the successful action
           const audit = new Audit({
             experimentId: experiment.id,
             fileLocation: file,
             status: "Successful",
             taskId,
-            type: "predictor",
+            type: "Predictor",
             attempt: data.attempt + 1
           });
-          const savedAudit = await audit.save();
+          logger.debug(`AnalysisServiceBinding#predictor: audit: ${JSON.stringify(audit)}`);
 
+          const savedAudit = await audit.save();
+          logger.debug(
+            `AnalysisServiceBinding#predictor: savedAudit: ${JSON.stringify(savedAudit)}`
+          );
           // emit an analysis started event
           const auditJson = new AuditJSONTransformer().transform(savedAudit);
           experimentEventEmitter.emit("analysis-started", {
             audit: auditJson,
             experiment
           });
+          logger.debug(`AnalysisServiceBinding#predictor: send analysis started event`);
         }
       } catch (e) {
         logger.debug(`AnalysisServiceBinding#predictor: exception: ${e}`);
@@ -67,7 +72,7 @@ class AnalysisServiceBinding {
           experimentId: experiment.id,
           fileLocation: file,
           status: "Failed",
-          type: "predictor",
+          type: "Predictor",
           attempt: data.attempt + 1
         });
         await audit.save();
@@ -109,7 +114,7 @@ class AnalysisServiceBinding {
             fileLocation: file,
             status: "Successful",
             taskId,
-            type: "distance",
+            type: "Distance",
             attempt: data.attempt + 1
           });
           const savedAudit = await audit.save();
@@ -128,7 +133,7 @@ class AnalysisServiceBinding {
           experimentId: experiment.id,
           fileLocation: file,
           status: "Failed",
-          type: "distance",
+          type: "Distance",
           attempt: data.attempt + 1
         });
         await audit.save();

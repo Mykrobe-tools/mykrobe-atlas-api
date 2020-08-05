@@ -320,6 +320,7 @@ describe("DataController", () => {
               expect(experiment.metadata.sample.latitudeIsolate).toBeCloseTo(-34.61, 1);
               expect(experiment.metadata.sample.longitudeIsolate).toBeCloseTo(-58.38, 1);
             } else if (countryIsolate === "UK" && cityIsolate === "") {
+              console.log(`Experiment: ${JSON.stringify(experiment)}`);
               expect(experiment.metadata.sample.latitudeIsolate).toBeCloseTo(55.37, 1);
               expect(experiment.metadata.sample.longitudeIsolate).toBeCloseTo(-3.43, 1);
             }

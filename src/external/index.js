@@ -94,15 +94,25 @@ const enableMockGenericAnalysisApi = () => {
   logger.debug(`enableMockGenericAnalysisApi: exot`);
 };
 
-const enableExternalMockServices = () => {
-  logger.debug(`enableExternalMockServices: enter`);
+const enableExternalThirdPartyMockServices = () => {
+  logger.debug(`enableExternalThirdPartyMockServices: enter`);
+  nock("https://dl.dropboxusercontent.com")
+    .persist()
+    .replyContentLength()
+    .get("/1/view/1234")
+    .reply(200, { chunk: "lorem ipsum" });
+  logger.debug(`enableExternalThirdPartyMockServices: exit`);
+};
+
+const enableExternalAtlasMockServices = () => {
+  logger.debug(`enableExternalAtlasMockServices: enter`);
   enableMockAnalysisApi();
   enableMockDistanceApi();
   enableMockSearchApi();
   enableMockTreeApi();
   enableMockIsolateIdMapping();
   enableMockGenericAnalysisApi();
-  logger.debug(`enableExternalMockServices: exit`);
+  logger.debug(`enableExternalAtlasMockServices: exit`);
 };
 
-export { enableExternalMockServices };
+export { enableExternalAtlasMockServices, enableExternalThirdPartyMockServices };

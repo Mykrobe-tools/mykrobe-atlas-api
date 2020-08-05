@@ -23,7 +23,7 @@ import routes from "./routes/index.route";
 import config from "../config/env";
 
 import AccountsHelper from "./helpers/AccountsHelper";
-import { enableExternalMockServices } from "../external";
+import { enableExternalAtlasMockServices } from "../external";
 
 const keycloak = AccountsHelper.keycloakInstance();
 
@@ -35,7 +35,7 @@ const createApp = async options => {
 
   if (config.env === "development") {
     // enable analysis API services
-    enableExternalMockServices();
+    enableExternalAtlasMockServices();
   }
 
   // parse body params and attache them to req.body

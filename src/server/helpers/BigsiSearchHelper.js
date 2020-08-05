@@ -19,7 +19,6 @@ import ExperimentsResultJSONTransformer from "../transformers/es/ExperimentsResu
 
 import { userEventEmitter } from "../modules/events";
 import Scheduler from "../modules/scheduler/Scheduler";
-import { createQuery } from "../modules/search/bigsi";
 import EventHelper from "./events/EventHelper";
 import logger from "../modules/logger";
 
@@ -47,7 +46,9 @@ class BigsiSearchHelper {
     logger.debug(`BigsiSearchHelper#search: query: ${JSON.stringify(query, null, 2)}`);
 
     const searchHash = SearchHelper.generateHash(searchData);
+    logger.debug(`BigsiSearchHelper#search: hash: ${JSON.stringify(searchHash, null, 2)}`);
     const search = await Search.findByHash(searchHash);
+    logger.debug(`BigsiSearchHelper#search: search: ${JSON.stringify(search, null, 2)}`);
 
     if (search && (!search.isExpired() || search.isPending())) {
       logger.debug(`Search exists and is waiting for results`);
@@ -68,19 +69,31 @@ class BigsiSearchHelper {
    */
   static async returnCachedResults(search, query, user) {
     if (search.isPending() && !search.userExists(user)) {
+      logger.debug(`BigsiSearchHelper#returnCachedResults: Pending and user doesn't exist`);
       await this.addAndNotifyUser(search, user);
     } else if (!search.isPending()) {
+      logger.debug(`BigsiSearchHelper#returnCachedResults: Search ready`);
       const type = search.type;
 
       const result = search.get("result");
       const results = result.results;
       const filteredResults = this.filter(type, results);
+      logger.debug(
+        `BigsiSearchHelper#returnCachedResults: filteredResult: ${
+          filteredResults ? filteredResults.length : 0
+        }`
+      );
 
       // use incoming query if set or stored query in search
       const experimentQuery = query ? query : search.get("query");
       const experiments = await this.enhanceBigsiResultsWithExperiments(
         filteredResults,
         experimentQuery
+      );
+      logger.debug(
+        `BigsiSearchHelper#returnCachedResults: experiments: ${
+          experiments ? experiments.length : 0
+        }`
       );
       result.results = experiments;
       search.set("result", result);
@@ -172,18 +185,30 @@ class BigsiSearchHelper {
    * @param {*} user
    */
   static async addAndNotifyUser(search, user) {
-    await search.addUser(user);
-    const audit = await Audit.getBySearchId(search.id);
-    const searchJson = new SearchJSONTransformer().transform(search);
-    const userJson = new UserJSONTransformer().transform(user);
-    if (audit) {
-      const auditJson = new AuditJSONTransformer().transform(audit);
-      const event = `${search.type}-search-started`;
-      userEventEmitter.emit(event, {
-        audit: auditJson,
-        user: userJson,
-        search: searchJson
-      });
+    logger.debug(`BigsiSearchHelper#addAndNotifyUser: search: ${search}`);
+    logger.debug(`BigsiSearchHelper#addAndNotifyUser: user: ${user}`);
+    if (search && user) {
+      await search.addUser(user);
+      logger.debug(`BigsiSearchHelper#addAndNotifyUser: user added`);
+      const audit = await Audit.getBySearchId(search.id);
+      logger.debug(`BigsiSearchHelper#addAndNotifyUser: audit: ${JSON.stringify(audit)}`);
+      if (audit) {
+        const searchJson = new SearchJSONTransformer().transform(search);
+        const userJson = new UserJSONTransformer().transform(user);
+        const auditJson = new AuditJSONTransformer().transform(audit);
+
+        const event = `${search.type}-search-started`;
+        logger.debug(
+          `BigsiSearchHelper#addAndNotifyUser: userEventEmitter: ${JSON.stringify(
+            userEventEmitter
+          )}`
+        );
+        userEventEmitter.emit(event, {
+          audit: auditJson,
+          user: userJson,
+          search: searchJson
+        });
+      }
     }
   }
 
@@ -236,17 +261,6 @@ class BigsiSearchHelper {
     });
 
     return hits;
-  }
-
-  static getQueryString(bigsi) {
-    if (bigsi) {
-      const search = createQuery(bigsi);
-      if (search && search.q) {
-        return search.q;
-      }
-    }
-
-    return null;
   }
 }
 

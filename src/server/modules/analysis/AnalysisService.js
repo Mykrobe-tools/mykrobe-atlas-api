@@ -2,6 +2,8 @@ import axios from "axios";
 
 import logger from "../logger";
 
+import ExperimentHelper from "../../helpers/ExperimentHelper";
+
 import config from "../../../config/env";
 
 class AnalysisService {
@@ -9,10 +11,10 @@ class AnalysisService {
 
   async predictor(experiment, file) {
     if (!experiment) {
-      throw new Exception(`Call to predictor service failed.  Missing experiment`);
+      throw new Error(`Call to predictor service failed.  Missing experiment`);
     }
     if (!file) {
-      throw new Exception(`Call to predictor service failed.  Missing file`);
+      throw new Error(`Call to predictor service failed.  Missing file`);
     }
 
     const uri = `${config.services.analysisApiUrl}/analyses`;
@@ -29,15 +31,15 @@ class AnalysisService {
       return taskId;
     }
 
-    throw new Exception(`Call to predictor service failed.  Missing response`);
+    throw new Error(`Call to predictor service failed.  Missing response`);
   }
 
   async distance(experiment, type) {
     if (!experiment) {
-      throw new Exception(`Call to distance service failed.  Missing experiment`);
+      throw new Error(`Call to distance service failed.  Missing experiment`);
     }
     if (!type) {
-      throw new Exception(`Call to distance service failed.  Missing type`);
+      throw new Error(`Call to distance service failed.  Missing type`);
     }
 
     const uri = `${config.services.analysisApiUrl}/distance`;
@@ -56,7 +58,7 @@ class AnalysisService {
   }
   async search(search) {
     if (!search) {
-      throw new Exception(`Call to search service failed.  Missing search`);
+      throw new Error(`Call to search service failed.  Missing search`);
     }
 
     const uri = `${config.services.analysisApiUrl}/search`;
