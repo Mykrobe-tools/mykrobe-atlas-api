@@ -1,6 +1,5 @@
 var GoogleGeocoder = function() {};
 GoogleGeocoder.prototype.geocode = function(location) {
-  console.log(`GoogleGeocoder: ${location}`);
   switch (location) {
     case "Birmingham, UK":
       return [
@@ -194,7 +193,6 @@ GoogleGeocoder.prototype.geocode = function(location) {
 
 var LocationIQGeocoder = function() {};
 LocationIQGeocoder.prototype.geocode = function(location) {
-  console.log(`LocationIQGeocoder`);
   if (location) {
     if (location.city === "Birmingham" && location.country === "UK") {
       return [
