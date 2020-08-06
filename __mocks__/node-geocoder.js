@@ -4,7 +4,7 @@ GoogleGeocoder.prototype.geocode = function(location) {
     case "Birmingham, UK":
       return [
         {
-          formattedAddress: "Birmingham, UK",
+          formattedAddress: "Birmingham, United Kingdom",
           latitude: 52.48624299999999,
           longitude: -1.890401,
           extra: {
@@ -27,7 +27,7 @@ GoogleGeocoder.prototype.geocode = function(location) {
           provider: "google"
         }
       ];
-    case "Puebla, MX":
+    case "Puebla, Mexico":
       return [
         {
           formattedAddress: "Puebla, Mexico",
@@ -48,7 +48,7 @@ GoogleGeocoder.prototype.geocode = function(location) {
           provider: "google"
         }
       ];
-    case "Chennai, IN":
+    case "Chennai, India":
       return [
         {
           formattedAddress: "Chennai, Tamil Nadu, India",
@@ -74,7 +74,7 @@ GoogleGeocoder.prototype.geocode = function(location) {
           provider: "google"
         }
       ];
-    case "Mumbai, IN":
+    case "Mumbai, India":
       return [
         {
           formattedAddress: "Mumbai, Maharashtra, India",
@@ -100,7 +100,7 @@ GoogleGeocoder.prototype.geocode = function(location) {
           provider: "google"
         }
       ];
-    case "Chongqing, CN":
+    case "Chongqing, China":
       return [
         {
           formattedAddress: "Chongqing, China",
@@ -121,7 +121,7 @@ GoogleGeocoder.prototype.geocode = function(location) {
           provider: "google"
         }
       ];
-    case "Buenos Aires, AR":
+    case "Buenos Aires, Argentina":
       return [
         {
           formattedAddress: "Buenos Aires, Argentina",
@@ -142,7 +142,7 @@ GoogleGeocoder.prototype.geocode = function(location) {
           provider: "google"
         }
       ];
-    case "Rosario, AR":
+    case "Rosario, Argentina":
       return [
         {
           formattedAddress: "Rosario, Santa Fe Province, Argentina",
@@ -168,7 +168,7 @@ GoogleGeocoder.prototype.geocode = function(location) {
           provider: "google"
         }
       ];
-    case "UK":
+    case "United Kingdom":
       return [
         {
           formattedAddress: "United Kingdom",

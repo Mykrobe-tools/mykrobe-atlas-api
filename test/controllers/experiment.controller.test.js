@@ -105,7 +105,6 @@ describe("ExperimentController", () => {
           done();
         });
     });
-
     it("should remove additional fields from the new experiment", done => {
       request(args.app)
         .post("/experiments")
@@ -130,7 +129,6 @@ describe("ExperimentController", () => {
           done();
         });
     });
-
     it("should set the owner to the current user", done => {
       request(args.app)
         .post("/experiments")
@@ -167,7 +165,6 @@ describe("ExperimentController", () => {
           done();
         });
     });
-
     it("should populate the owner", done => {
       request(args.app)
         .get(`/experiments/${args.id}`)
@@ -183,7 +180,6 @@ describe("ExperimentController", () => {
           done();
         });
     });
-
     it("should report error with message - Not found, when experiment does not exists", done => {
       request(args.app)
         .get("/experiments/56c787ccc67fc16ccc1a5e92")
@@ -194,7 +190,6 @@ describe("ExperimentController", () => {
           done();
         });
     });
-
     it("should remove unwanted fields", done => {
       request(args.app)
         .get(`/experiments/${args.id}`)
@@ -206,7 +201,6 @@ describe("ExperimentController", () => {
           done();
         });
     });
-
     it("should add virtual fields", done => {
       request(args.app)
         .get(`/experiments/${args.id}`)
@@ -217,7 +211,6 @@ describe("ExperimentController", () => {
           done();
         });
     });
-
     describe("when results are populated", () => {
       describe("when using one type", () => {
         beforeEach(async done => {
@@ -730,7 +723,6 @@ describe("ExperimentController", () => {
           done();
         });
     });
-
     it("should return an error if experiment not found", done => {
       request(args.app)
         .put("/experiments/589dcdd38d71fee259dc4e00/metadata")
@@ -2534,6 +2526,26 @@ describe("ExperimentController", () => {
               done();
             });
         });
+        it("should reconstruct the free-text query", done => {
+          const mockCallback = jest.fn();
+          userEventEmitter.on("protein-variant-search-started", mockCallback);
+          request(args.app)
+            .get("/experiments/search?q=rpoB_S450L")
+            .set("Authorization", `Bearer ${args.token}`)
+            .expect(httpStatus.OK)
+            .end(async (err, res) => {
+              expect(res.body.status).toEqual("success");
+              expect(res.body.data.id).toEqual(searchId);
+              expect(mockCallback.mock.calls.length).toEqual(1);
+              const calls = mockCallback.mock.calls;
+
+              expect(mockCallback.mock.calls[0].length).toEqual(1);
+              const object = mockCallback.mock.calls[0][0];
+              expect(object.search.query.q).toEqual("rpoB_S450L");
+
+              done();
+            });
+        });
       });
       describe("when a results are available and not expired", () => {
         let searchId = null;
@@ -2882,7 +2894,7 @@ describe("ExperimentController", () => {
     });
   });
   describe("GET /experiments/mappings", () => {
-    it("should get the experiments margs.appings with isolate ids", done => {
+    it("should get the experiments mappings with isolate ids", done => {
       request(args.app)
         .get("/experiments/mappings")
         .set("Authorization", `Bearer ${args.token}`)

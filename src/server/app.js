@@ -23,7 +23,7 @@ import routes from "./routes/index.route";
 import config from "../config/env";
 
 import AccountsHelper from "./helpers/AccountsHelper";
-import { stubDevApis } from "../external";
+import { enableExternalAtlasMockServices } from "../external";
 
 const keycloak = AccountsHelper.keycloakInstance();
 
@@ -33,9 +33,9 @@ const createApp = async options => {
 
   const app = express();
 
-  // TODO move mocking out
   if (config.env === "development") {
-    stubDevApis();
+    // enable analysis API services
+    enableExternalAtlasMockServices();
   }
 
   // parse body params and attache them to req.body

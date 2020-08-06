@@ -18,10 +18,9 @@ import UserJSONTransformer from "../transformers/UserJSONTransformer";
 import ExperimentsResultJSONTransformer from "../transformers/es/ExperimentsResultJSONTransformer";
 
 import { userEventEmitter } from "../modules/events";
-import { schedule } from "../modules/agenda";
+import Scheduler from "../modules/scheduler/Scheduler";
 import EventHelper from "./events/EventHelper";
 import logger from "../modules/logger";
-import experimentSearch from "mykrobe-atlas-jsonschema/lib/experimentSearch";
 
 const config = require("../../config/env");
 
@@ -43,13 +42,20 @@ class BigsiSearchHelper {
       type: bigsi.type,
       bigsi: bigsi
     };
+    logger.debug(`BigsiSearchHelper#search: bigsi: ${JSON.stringify(bigsi, null, 2)}`);
+    logger.debug(`BigsiSearchHelper#search: query: ${JSON.stringify(query, null, 2)}`);
+
     const searchHash = SearchHelper.generateHash(searchData);
+    logger.debug(`BigsiSearchHelper#search: hash: ${JSON.stringify(searchHash, null, 2)}`);
     const search = await Search.findByHash(searchHash);
+    logger.debug(`BigsiSearchHelper#search: search: ${JSON.stringify(search, null, 2)}`);
 
     if (search && (!search.isExpired() || search.isPending())) {
+      logger.debug(`Search exists and is waiting for results`);
       return this.returnCachedResults(search, query, user);
     } else {
-      return this.triggerBigsiSearch(search, user, searchData);
+      logger.debug(`Search does not exist`);
+      return this.triggerBigsiSearch(search, query, user, searchData);
     }
   }
 
@@ -63,14 +69,32 @@ class BigsiSearchHelper {
    */
   static async returnCachedResults(search, query, user) {
     if (search.isPending() && !search.userExists(user)) {
+      logger.debug(`BigsiSearchHelper#returnCachedResults: Pending and user doesn't exist`);
       await this.addAndNotifyUser(search, user);
     } else if (!search.isPending()) {
+      logger.debug(`BigsiSearchHelper#returnCachedResults: Search ready`);
       const type = search.type;
 
       const result = search.get("result");
       const results = result.results;
       const filteredResults = this.filter(type, results);
-      const experiments = await this.enhanceBigsiResultsWithExperiments(filteredResults, query);
+      logger.debug(
+        `BigsiSearchHelper#returnCachedResults: filteredResult: ${
+          filteredResults ? filteredResults.length : 0
+        }`
+      );
+
+      // use incoming query if set or stored query in search
+      const experimentQuery = query ? query : search.get("query");
+      const experiments = await this.enhanceBigsiResultsWithExperiments(
+        filteredResults,
+        experimentQuery
+      );
+      logger.debug(
+        `BigsiSearchHelper#returnCachedResults: experiments: ${
+          experiments ? experiments.length : 0
+        }`
+      );
       result.results = experiments;
       search.set("result", result);
     }
@@ -109,11 +133,14 @@ class BigsiSearchHelper {
    * Set the status to pending and clear the search result (if exists)
    * Schedule the agenda job to call the bigsi service
    * @param {*} search
+   * @param {*} query
    * @param {*} user
-   * @param {*} searchHash
    * @param {*} searchData
    */
-  static async triggerBigsiSearch(search, user, searchData) {
+  static async triggerBigsiSearch(search, query, user, searchData) {
+    logger.debug(`triggerBigsiSearch: searchData: ${JSON.stringify(searchData)}`);
+    logger.debug(`triggerBigsiSearch: query: ${JSON.stringify(query)}`);
+
     const newSearch = search || new Search(searchData);
 
     // set status to pending and clear old result
@@ -121,6 +148,7 @@ class BigsiSearchHelper {
     newSearch.set("result", {});
 
     const savedSearch = await newSearch.save();
+
     if (!savedSearch.userExists(user)) {
       await savedSearch.addUser(user);
     }
@@ -132,11 +160,21 @@ class BigsiSearchHelper {
     } catch (e) {
       logger.error(`Unable to save search state: ${e}`);
     }
-    // call bigsi via agenda to support retries
-    await schedule("now", "call search api", {
+    logger.debug(`Schedule a search`);
+    // call bigsi via scheduler to support retries
+    const scheduler = await Scheduler.getInstance();
+    await scheduler.schedule("now", "call search api", {
       search: searchJson,
       user: userJson
     });
+    logger.debug(`Search scheduled`);
+
+    // capture query attributes before returning
+    // save after scheduler as agenda has issues with dot notation in attributes
+    if (!savedSearch.query && query) {
+      savedSearch.set("query", query);
+      await savedSearch.save();
+    }
     return savedSearch;
   }
 
@@ -147,18 +185,30 @@ class BigsiSearchHelper {
    * @param {*} user
    */
   static async addAndNotifyUser(search, user) {
-    await search.addUser(user);
-    const audit = await Audit.getBySearchId(search.id);
-    const searchJson = new SearchJSONTransformer().transform(search);
-    const userJson = new UserJSONTransformer().transform(user);
-    if (audit) {
-      const auditJson = new AuditJSONTransformer().transform(audit);
-      const event = `${search.type}-search-started`;
-      userEventEmitter.emit(event, {
-        audit: auditJson,
-        user: userJson,
-        search: searchJson
-      });
+    logger.debug(`BigsiSearchHelper#addAndNotifyUser: search: ${search}`);
+    logger.debug(`BigsiSearchHelper#addAndNotifyUser: user: ${user}`);
+    if (search && user) {
+      await search.addUser(user);
+      logger.debug(`BigsiSearchHelper#addAndNotifyUser: user added`);
+      const audit = await Audit.getBySearchId(search.id);
+      logger.debug(`BigsiSearchHelper#addAndNotifyUser: audit: ${JSON.stringify(audit)}`);
+      if (audit) {
+        const searchJson = new SearchJSONTransformer().transform(search);
+        const userJson = new UserJSONTransformer().transform(user);
+        const auditJson = new AuditJSONTransformer().transform(audit);
+
+        const event = `${search.type}-search-started`;
+        logger.debug(
+          `BigsiSearchHelper#addAndNotifyUser: userEventEmitter: ${JSON.stringify(
+            userEventEmitter
+          )}`
+        );
+        userEventEmitter.emit(event, {
+          audit: auditJson,
+          user: userJson,
+          search: searchJson
+        });
+      }
     }
   }
 
@@ -183,7 +233,7 @@ class BigsiSearchHelper {
         ? Object.assign(isolateQuery, flatten(query))
         : isolateQuery;
 
-    const searchQuery = new SearchQuery(elasticQuery, experimentSearch);
+    const searchQuery = new SearchQuery(elasticQuery, experimentSearchSchema);
     const resp = await elasticService.search(searchQuery, {});
     const experiments = new ExperimentsResultJSONTransformer().transform(resp, {});
 
