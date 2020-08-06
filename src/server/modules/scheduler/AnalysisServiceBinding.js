@@ -216,15 +216,6 @@ class AnalysisServiceBinding {
 
     logger.debug(`AnalysisServiceBinding#search: exit`);
   }
-
-  async refresh(job) {
-    logger.debug(`AnalysisServiceBinding#refresh: enter`);
-
-    const data = this.getData(job);
-    logger.debug(`AnalysisServiceBinding#refresh: data: ${JSON.stringify(data)}`);
-
-    logger.debug(`AnalysisServiceBinding#refresh: exit`);
-  }
 }
 
 export default AnalysisServiceBinding;

@@ -55,9 +55,6 @@ class Scheduler {
       that.agenda.define("call search api", async job => {
         await that.binding.search(job);
       });
-      that.agenda.define("refresh isolateId", async job => {
-        await that.binding.refresh(job);
-      });
 
       // initialise services when ready
       that.agenda.on("ready", async () => {
@@ -65,7 +62,6 @@ class Scheduler {
         logger.debug("Agenda is ready ...");
 
         await that.agenda.start();
-        await that.agenda.every("0 0 * * *", "refresh isolateId");
 
         that.initialized = true;
         logger.debug("Agenda has initialized ...");
