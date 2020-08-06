@@ -9,7 +9,6 @@ import {
   enableExternalThirdPartyMockServices
 } from "../src/external";
 
-jest.mock("../src/server/modules/agenda");
 const createApp = require("../src/server/app");
 
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 60000;

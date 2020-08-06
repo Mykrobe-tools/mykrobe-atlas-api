@@ -2894,7 +2894,7 @@ describe("ExperimentController", () => {
     });
   });
   describe("GET /experiments/mappings", () => {
-    it("should get the experiments margs.appings with isolate ids", done => {
+    it("should get the experiments mappings with isolate ids", done => {
       request(args.app)
         .get("/experiments/mappings")
         .set("Authorization", `Bearer ${args.token}`)
