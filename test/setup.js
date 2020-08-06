@@ -4,16 +4,11 @@ import MongodbMemoryServer from "mongodb-memory-server";
 import http from "http";
 import mockserver from "mockserver";
 import config from "../src/config/env";
-import { mockThirdPartyCalls } from "./mocks";
 import {
-  stubTreeApi,
-  stubIsolateIdMapping,
-  stubAnalysisApi,
-  stubDistanceApi,
-  stubSearchApi
+  enableExternalAtlasMockServices,
+  enableExternalThirdPartyMockServices
 } from "../src/external";
 
-jest.mock("../src/server/modules/agenda");
 const createApp = require("../src/server/app");
 
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 60000;
@@ -51,14 +46,10 @@ afterAll(async done => {
   done();
 });
 
-// stubs
-stubTreeApi();
-stubIsolateIdMapping();
-stubAnalysisApi();
-stubDistanceApi();
-stubSearchApi();
+// Mock calls to Atlas Services
+enableExternalAtlasMockServices();
 
-// mocks
-mockThirdPartyCalls();
+// Mock calls to External Services (e.g. Dropbox)
+enableExternalThirdPartyMockServices();
 
 export default { config, createApp };

@@ -33,7 +33,7 @@ const sendUserEvent = (userId, data) => {
 
 const sendExperimentOwnerEvent = (experiment, data, type) => {
   const owner = experiment.owner;
-  logger.debug(`sendExperimentOwnerEvent: owner: ${owner}`);
+  logger.debug(`sendExperimentOwnerEvent: owner: ${JSON.stringify(owner, null, 2)}`);
   if (owner) {
     const ownerId = owner.id || owner;
     if (ownerId) {
@@ -166,7 +166,7 @@ userEventEmitter.on(Constants.EVENTS.SEQUENCE_SEARCH_COMPLETE.EVENT, async paylo
         },
         {}
       );
-
+      logger.debug(`Sequence search complete: data: ${JSON.stringify(data)}`);
       const userId = user.id;
       logger.debug(`Sequence search complete: Send event`);
       sendUserEvent(userId, data);
@@ -275,9 +275,5 @@ userEventEmitter.on(Constants.EVENTS.DNA_VARIANT_SEARCH_COMPLETE.EVENT, async pa
   } catch (e) {}
 });
 
-const events = Object.freeze({
-  experimentEventEmitter,
-  userEventEmitter
-});
-
-export default events;
+export { experimentEventEmitter };
+export { userEventEmitter };

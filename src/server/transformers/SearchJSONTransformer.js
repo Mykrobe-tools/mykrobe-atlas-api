@@ -1,8 +1,11 @@
 import ArrayJSONTransformer from "makeandship-api-common/lib/transformers/ArrayJSONTransformer";
 import ModelJSONTransformer from "makeandship-api-common/lib/transformers/ModelJSONTransformer";
 import BlacklistTransformer from "makeandship-api-common/lib/transformers/BlacklistJSONTransformer";
+
 import SearchExperimentJSONTransformer from "./SearchExperimentJSONTransformer";
 import UserJSONTransformer from "./UserJSONTransformer";
+
+import { createQuery } from "../modules/search/bigsi";
 
 import Constants from "../Constants";
 
@@ -22,6 +25,20 @@ class SearchJSONTransformer extends ModelJSONTransformer {
 
     if (res.user && options.includeUser) {
       res.user = new UserJSONTransformer().transform(res.user, options);
+    }
+
+    if (res.bigsi) {
+      const query = createQuery(res.bigsi);
+      if (query && query.q) {
+        const { q } = query;
+        if (q) {
+          if (res.query) {
+            res.query.q = q;
+          } else {
+            res.query = { q };
+          }
+        }
+      }
     }
 
     const status = res.status;
