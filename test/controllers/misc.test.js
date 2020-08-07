@@ -14,7 +14,7 @@ const args = {
 };
 
 beforeAll(async () => {
-  args.app = await createApp();
+  args.app = await createApp({ corsOptions: { origin: "example.com" } });
 });
 
 beforeEach(async () => {
@@ -35,6 +35,16 @@ describe("Misc", () => {
         .end((err, res) => {
           expect(res.body.status).toEqual("success");
           expect(res.body.data).toEqual("OK");
+          done();
+        });
+    });
+    it("should set the cors headers", done => {
+      request(args.app)
+        .get("/health-check")
+        .expect(httpStatus.OK)
+        .end((err, res) => {
+          expect(res.body.status).toEqual("success");
+          expect(res.headers["access-control-allow-origin"]).toEqual("example.com");
           done();
         });
     });
