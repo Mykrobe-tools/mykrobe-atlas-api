@@ -9,7 +9,11 @@ export default {
     uploadsTempLocation: process.env.UPLOADS_TEMP_LOCATION,
     demoDataRootFolder: process.env.DEMO_DATA_ROOT_FOLDER,
     rateLimitReset: 1 * 60 * 1000,
-    swaggerApis: process.env.SWAGGER_API_FILES
+    swaggerApis: process.env.SWAGGER_API_FILES,
+    corsOptions: {
+      origin: process.env.CORS_ORIGIN,
+      optionsSuccessStatus: 200
+    }
   },
   accounts: {
     keycloak: {
