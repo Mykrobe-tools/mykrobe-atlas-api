@@ -11,7 +11,7 @@ export default {
     rateLimitReset: 1 * 60 * 1000,
     swaggerApis: process.env.SWAGGER_API_FILES,
     corsOptions: {
-      origin: /\.mykro\.be$/,
+      origin: process.env.CORS_ORIGIN,
       optionsSuccessStatus: 200
     }
   },
