@@ -503,18 +503,17 @@ const listResults = async (req, res) => {
 
 const inflateResult = async (result, projection = null) => {
   const enhancedExperiments = [];
-  if (result.experiments && Array.isArray(result.experiments)) {
-    const ids = result.experiments.map(experiment => experiment.id);
-    const experiments = await Experiment.findByIsolateIds(ids, projection);
-    result.experiments.forEach(experiment => {
+  if (result.result && Array.isArray(result.result)) {
+    const ids = result.result.map(experiment => experiment.sampleId);
+    const experiments = await Experiment.findBySampleIds(ids, projection);
+    result.result.forEach(experiment => {
       try {
         const exp = experiments.filter(item => {
-          const metadata = item.get("metadata");
-          return metadata.sample.isolateId === experiment.id;
+          return item.sampleId === experiment.sampleId;
         });
         experiment.results = exp[0].get("results");
         experiment.metadata = exp[0].get("metadata");
-        experiment.id = exp[0].id;
+        experiment.sampleId = exp[0].sampleId;
       } catch (e) {}
       enhancedExperiments.push(experiment);
     });

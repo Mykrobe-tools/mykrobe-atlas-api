@@ -340,4 +340,41 @@ describe("Experiment", () => {
       });
     });
   });
+  describe("#findBySampleIds", () => {
+    describe("when there are matching experiments", () => {
+      it("should return matching experiments", async done => {
+        const sampleIds = [savedExperiment.sampleId];
+
+        const experiments = await Experiment.findBySampleIds(sampleIds);
+
+        const experiment = experiments[0];
+
+        const metadata = experiment.get("metadata");
+        expect(metadata).toHaveProperty("patient");
+        expect(metadata).toHaveProperty("sample");
+        expect(metadata).toHaveProperty("genotyping");
+        expect(metadata).toHaveProperty("phenotyping");
+
+        const patient = metadata.patient;
+        expect(patient.patientId).toEqual("eff2fa6a-9d79-41ab-a307-b620cedf7293");
+        expect(patient.siteId).toEqual("a2a910e3-25ef-475c-bdf9-f6fe215d949f");
+        expect(patient.genderAtBirth).toEqual("Male");
+        expect(patient.countryOfBirth).toEqual("IN");
+
+        done();
+      });
+    });
+    describe("when there are no matching experiments", () => {
+      it("should return an empty array", async done => {
+        const sampleIds = ["non-existant-sample-id"];
+
+        const experiments = await Experiment.findBySampleIds(sampleIds);
+
+        expect(experiments.length).toEqual(0);
+        expect(experiments).toEqual([]);
+
+        done();
+      });
+    });
+  });
 });

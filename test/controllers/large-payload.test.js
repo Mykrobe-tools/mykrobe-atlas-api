@@ -33,7 +33,7 @@ describe("Large payload", () => {
         });
     });
     it("should set the cors headers", async done => {
-      const app = await createApp({ limit: "1kb", corsOptions: {origin: "example.com"} });
+      const app = await createApp({ limit: "1kb", corsOptions: { origin: "example.com" } });
       makeRequest(app)
         .expect(httpStatus.REQUEST_TOO_LONG)
         .end((err, res) => {
