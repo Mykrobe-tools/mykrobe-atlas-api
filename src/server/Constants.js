@@ -5,6 +5,7 @@ export default {
   DEFAULT_SEARCH_EXPIRY_DAYS: 3,
   DISTANCE_PROJECTION: {
     _id: 1,
+    sampleId: 1,
     "metadata.sample.isolateId": 1,
     "metadata.sample.longitudeIsolate": 1,
     "metadata.sample.latitudeIsolate": 1
