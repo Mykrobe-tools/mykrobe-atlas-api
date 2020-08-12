@@ -20,7 +20,7 @@ class AnalysisService {
     const uri = `${config.services.analysisApiUrl}/analyses`;
     const payload = {
       file: ExperimentHelper.localiseFilepathForAnalysisApi(file),
-      experiment_id: experiment.id
+      sampleId: experiment.sampleId
     };
     logger.debug(`AnalysisService#predictor: POST ${uri}`);
     logger.debug(`AnalysisService#predictor: payload: ${JSON.stringify(payload, null, 2)}`);
@@ -44,7 +44,7 @@ class AnalysisService {
 
     const uri = `${config.services.analysisApiUrl}/distance`;
     const payload = {
-      experiment_id: experiment.id,
+      sampleId: experiment.sampleId,
       distance_type: type
     };
     logger.debug(`AnalysisService#distance: POST ${uri}`);
