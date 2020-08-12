@@ -143,6 +143,18 @@ describe("ExperimentController", () => {
           done();
         });
     });
+    it("should populate the sampleId", done => {
+      request(args.app)
+        .post("/experiments")
+        .set("Authorization", `Bearer ${args.token}`)
+        .send(experiments.tbUploadMetadata)
+        .expect(httpStatus.OK)
+        .end((err, res) => {
+          expect(res.body.status).toEqual("success");
+          expect(res.body.data.sampleId).toBeTruthy();
+          done();
+        });
+    });
   });
   describe("GET /experiments/:id", () => {
     it("should get experiment details", done => {
@@ -1821,9 +1833,10 @@ describe("ExperimentController", () => {
 
           expect(nearestNeighbour.type).toEqual("distance");
           expect(nearestNeighbour.subType).toEqual("nearest-neighbour");
-          expect(nearestNeighbour.experiments.length).toEqual(9);
+          expect(nearestNeighbour.experiments.length).toEqual(2);
           nearestNeighbour.experiments.forEach(experiment => {
-            expect(experiment).toHaveProperty("id");
+            expect(experiment).toHaveProperty("sampleId");
+            expect(experiment).toHaveProperty("leafId");
             expect(experiment).toHaveProperty("distance");
           });
 

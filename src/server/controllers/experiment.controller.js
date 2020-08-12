@@ -1,6 +1,7 @@
 import httpStatus from "http-status";
 import mkdirp from "mkdirp-promise";
 import Promise from "bluebird";
+import uuid from "uuid";
 
 import { ValidationError, ErrorUtil, APIError } from "makeandship-api-common/lib/modules/error";
 import { ElasticService } from "makeandship-api-common/lib/modules/elasticsearch/";
@@ -96,6 +97,11 @@ const get = async (req, res) => {
 const create = async (req, res) => {
   const experiment = new Experiment(req.body);
   experiment.owner = req.dbUser;
+  if (Constants.AUTOGENERATE_SAMPLE_ID === "yes") {
+    experiment.sampleId = uuid.v1();
+  } else {
+    // call tracking api
+  }
 
   try {
     const savedExperiment = await experiment.save();
