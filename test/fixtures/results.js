@@ -185,16 +185,13 @@ export default {
     nearestNeighbour: {
       type: "distance",
       subType: "nearest-neighbour",
-      experiments: {
-        "0": 10122,
-        "1": 10752,
-        "2": 7926,
-        "3": 6876,
-        "4": 12553,
-        "5": 5941,
-        "6": 12575,
-        "7": 8103,
-        "8": 7584
+      result: {
+        type: "distance",
+        leafId: "225",
+        experiments: [
+          { sampleId: "8bc98496-9bf8-4111-a40f-5c99ac28e690", leafId: "123", distance: 23 },
+          { sampleId: "087efc5c-cffa-41dc-b671-5854861af144", leafId: "334", distance: 12 }
+        ]
       },
       received: "2018-09-10T11:23:20.964Z",
       analysed: "2018-09-10T11:23:20.964Z"
@@ -202,16 +199,14 @@ export default {
     treeDistance: {
       type: "distance",
       subType: "tree-distance",
-      experiments: {
-        "0": 10122,
-        "1": 10752,
-        "2": 7926,
-        "3": 6876,
-        "4": 12553,
-        "5": 5941,
-        "6": 12575,
-        "7": 8103,
-        "8": 7584
+      result: {
+        type: "distance",
+        leafId: "334",
+        experiments: [
+          { sampleId: "8bc98496-9bf8-4111-a40f-5c99ac28e690", leafId: "123", distance: 23 },
+          { sampleId: "087efc5c-cffa-41dc-b671-5854861af144", leafId: "334", distance: 12 },
+          { sampleId: "087efc5c-cffa-41dc-b671-5854861asse4", leafId: "455", distance: 5 }
+        ]
       },
       received: "2018-09-11T11:23:20.964Z",
       analysed: "2018-09-11T11:23:20.964Z"

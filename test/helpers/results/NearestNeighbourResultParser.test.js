@@ -12,7 +12,7 @@ describe("NearestNeighbourResultParser", () => {
       expect(result).toHaveProperty("received");
       expect(result).toHaveProperty("experiments");
 
-      expect(result.experiments.length).toEqual(9);
+      expect(result.experiments.length).toEqual(2);
 
       done();
     });
@@ -22,9 +22,10 @@ describe("NearestNeighbourResultParser", () => {
       const result = parser.parse();
       const nearestNeighbours = result.experiments;
 
-      expect(nearestNeighbours.length).toEqual(9);
+      expect(nearestNeighbours.length).toEqual(2);
       nearestNeighbours.forEach(nearestNeighbour => {
-        expect(nearestNeighbour).toHaveProperty("id");
+        expect(nearestNeighbour).toHaveProperty("sampleId");
+        expect(nearestNeighbour).toHaveProperty("leafId");
         expect(nearestNeighbour).toHaveProperty("distance");
       });
 
