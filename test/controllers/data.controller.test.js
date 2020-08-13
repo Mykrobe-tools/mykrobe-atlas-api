@@ -344,6 +344,17 @@ describe("DataController", () => {
 
           done();
         });
+
+        it("should store the sampleId", async done => {
+          const experiments = await Experiment.find({});
+
+          for (const experiment of experiments) {
+            expect(experiment).toHaveProperty("sampleId");
+            expect(["SAMN09100439", "SAMEA3231775", "SAMEA3281359"]).toContain(experiment.sampleId);
+          }
+
+          done();
+        });
       });
       describe("when purge is false", () => {
         beforeEach(async done => {
