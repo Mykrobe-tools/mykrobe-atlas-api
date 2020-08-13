@@ -195,6 +195,19 @@ export default {
         }
       }
     },
+    emptySequence: {
+      type: "sequence",
+      result: {},
+      bigsi: {
+        type: "sequence",
+        query: {
+          query: {
+            seq: "CAGATC",
+            threshold: 0.9
+          }
+        }
+      }
+    },
     dnaVariant: {
       type: "dna-variant",
       result: {
