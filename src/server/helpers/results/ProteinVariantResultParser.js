@@ -23,14 +23,17 @@ class ProteinVariantResultParser extends ResultParser {
 
       delete container.query;
 
-      const hits = container.results.map(hit => {
-        return {
-          "metadata.sample.isolateId": hit.sample_name,
-          genotype: hit.genotype
-        };
-      });
-
-      result.results = hits;
+      if (container.results) {
+        const hits = container.results.map(hit => {
+          return {
+            "metadata.sample.isolateId": hit.sample_name,
+            genotype: hit.genotype
+          };
+        });
+        result.results = hits;
+      } else {
+        result.results = [];
+      }
     }
 
     return result;
