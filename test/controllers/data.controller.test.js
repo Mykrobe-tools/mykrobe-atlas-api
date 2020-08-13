@@ -297,8 +297,8 @@ describe("DataController", () => {
             expect(experiment.metadata.sample).toHaveProperty("countryIsolate");
             expect(experiment.metadata.sample).toHaveProperty("cityIsolate");
 
-            expect(["UK", "AR"]).toContain(experiment.metadata.sample.countryIsolate);
-            expect(["", "Buenos Aires", "Rosario"]).toContain(
+            expect(["UK", "AR", "ZA"]).toContain(experiment.metadata.sample.countryIsolate);
+            expect(["Durban", "", "Buenos Aires"]).toContain(
               experiment.metadata.sample.cityIsolate
             );
           }
@@ -316,9 +316,9 @@ describe("DataController", () => {
             if (countryIsolate === "AR" && cityIsolate === "Rosario") {
               expect(experiment.metadata.sample.latitudeIsolate).toBeCloseTo(-32.96, 1);
               expect(experiment.metadata.sample.longitudeIsolate).toBeCloseTo(-60.69, 1);
-            } else if (countryIsolate === "AR" && cityIsolate === "Buenos Aires") {
-              expect(experiment.metadata.sample.latitudeIsolate).toBeCloseTo(-34.61, 1);
-              expect(experiment.metadata.sample.longitudeIsolate).toBeCloseTo(-58.38, 1);
+            } else if (countryIsolate === "ZA" && cityIsolate === "Durban") {
+              expect(experiment.metadata.sample.latitudeIsolate).toBeCloseTo(-123.95, 1);
+              expect(experiment.metadata.sample.longitudeIsolate).toBeCloseTo(-5.69, 1);
             } else if (countryIsolate === "UK" && cityIsolate === "") {
               expect(experiment.metadata.sample.latitudeIsolate).toBeCloseTo(55.37, 1);
               expect(experiment.metadata.sample.longitudeIsolate).toBeCloseTo(-3.43, 1);
