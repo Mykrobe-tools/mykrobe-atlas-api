@@ -10,6 +10,7 @@ class SequenceResultParser extends ResultParser {
       type: "sequence",
       received: new Date()
     };
+
     if (this.namedResult && this.namedResult.result) {
       const container = this.namedResult.result;
       result.seq = container.seq;
@@ -19,14 +20,17 @@ class SequenceResultParser extends ResultParser {
 
       delete container.query;
 
-      const hits = container.results.map(hit => {
-        return {
-          "metadata.sample.isolateId": hit.sample_name,
-          percentKmersFound: hit.percent_kmers_found
-        };
-      });
-
-      result.results = hits;
+      if (container.results) {
+        const hits = container.results.map(hit => {
+          return {
+            "metadata.sample.isolateId": hit.sample_name,
+            percentKmersFound: hit.percent_kmers_found
+          };
+        });
+        result.results = hits;
+      } else {
+        result.results = [];
+      }
     }
 
     return result;
