@@ -1002,4 +1002,65 @@ describe("ExperimentController > Elasticsearch", () => {
       });
     });
   });
+  describe("GET /experiments/summary", () => {
+    describe("when not valid", () => {
+      describe("when using an invalid token", () => {
+        it("should return an error", done => {
+          request(args.app)
+            .get("/experiments/summary")
+            .set("Authorization", "Bearer INVALID_TOKEN")
+            .expect(httpStatus.UNAUTHORIZED)
+            .end((err, res) => {
+              expect(res.body.status).toEqual("error");
+              expect(res.body.message).toEqual("Not Authorised");
+              done();
+            });
+        });
+      });
+    });
+    describe("when valid", () => {
+      let status = null;
+      let data = null;
+      beforeEach(async done => {
+        // mocks/atlas-experiment/_search/POST.5d7cacdb16a8232999007cd5bae31a3c.mock
+        request(args.app)
+          .get("/experiments/summary")
+          .set("Authorization", `Bearer ${args.token}`)
+          .expect(httpStatus.OK)
+          .end((err, res) => {
+            status = res.body.status;
+            data = res.body.data;
+
+            done();
+          });
+      });
+      it("should return success", done => {
+        expect(status).toEqual("success");
+        expect(data.length).toEqual(2);
+        done();
+      });
+      it("should return the whitelisted fields", () => {
+        data.forEach(result => {
+          expect(result).toHaveProperty("id");
+          expect(result).toHaveProperty("sampleId");
+          expect(result).toHaveProperty("metadata.sample.isolateId");
+          expect(result).toHaveProperty("metadata.sample.latitudeIsolate");
+          expect(result).toHaveProperty("metadata.sample.cityIsolate");
+          expect(result).toHaveProperty("metadata.sample.longitudeIsolate");
+          expect(result).toHaveProperty("metadata.sample.countryIsolate");
+        });
+      });
+      it("should not return the blacklisted fields", () => {
+        data.forEach(result => {
+          expect(result.metadata.patient).toBeUndefined();
+          expect(result.metadata.sample.labId).toBeUndefined();
+          expect(result.metadata.genotyping).toBeUndefined();
+          expect(result.metadata.phenotyping).toBeUndefined();
+          expect(result.results).toBeUndefined();
+          expect(result.created).toBeUndefined();
+          expect(result.modified).toBeUndefined();
+        });
+      });
+    });
+  });
 });

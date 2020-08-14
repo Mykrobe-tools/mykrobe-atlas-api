@@ -2443,6 +2443,66 @@ const keycloak = AccountsHelper.keycloakInstance();
 /**
  * @swagger
  * definitions:
+ *   SearchLightExperimentsResponse:
+ *     properties:
+ *       status:
+ *         type: string
+ *       data:
+ *         type: object
+ *         properties:
+ *           results:
+ *             type: array
+ *             items:
+ *               type: object
+ *               properties:
+ *                 relevance:
+ *                   type: integer
+ *                 id:
+ *                   type: string
+ *                 sampleId:
+ *                   type: string
+ *                 leafId:
+ *                   type: string
+ *                 metadata:
+ *                   type: object
+ *                   properties:
+ *                     sample:
+ *                       type: object
+ *                       properties:
+ *                         countryIsolate:
+ *                           type: string
+ *                         cityIsolate:
+ *                           type: string
+ *                         latitudeIsolate:
+ *                           type: number
+ *                         longitudeIsolate:
+ *                           type: number
+ *                         isolateId:
+ *                           type: string
+ *           total:
+ *             type: integer
+ *     example:
+ *       status: success
+ *       data:
+ *         metadata:
+ *           speed: 0
+ *           maxRelevance: 1
+ *         total: 47
+ *         results:
+ *           - id: 588624076182796462cb133e
+ *             sampleId: SEAM13245GGH
+ *             leafId: 3536477
+ *             metadata:
+ *               sample:
+ *                 isolateId: 9c0c00f2-8cb1-4254-bf53-3271f35ce696
+ *                 countryIsolate: India
+ *                 cityIsolate: Mumbai
+ *                 longitudeIsolate: -35.575
+ *                 latitudeIsolate: 44.464
+ */
+/**
+ * @swagger
+ * definitions:
  *   ChoicesResponse:
  *     properties:
  *       status:
@@ -3777,6 +3837,30 @@ router
    *         description: Failed authentication
    */
   .get(keycloak.connect.protect(), userController.loadCurrentUser, experimentController.search);
+
+router
+  .route("/summary")
+  /**
+   * @swagger
+   * /experiments/summary:
+   *   get:
+   *     tags:
+   *       - Experiments
+   *     description: Experiments summary
+   *     operationId: experimentsSummary
+   *     produces:
+   *       - application/json
+   *     security:
+   *       - Bearer: []
+   *     responses:
+   *       200:
+   *         description: Experiments search
+   *         schema:
+   *           $ref: '#/definitions/SearchLightExperimentsResponse'
+   *       401:
+   *         description: Failed authentication
+   */
+  .get(keycloak.connect.protect(), experimentController.summary);
 
 router
   .route("/tree")

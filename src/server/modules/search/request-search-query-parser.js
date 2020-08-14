@@ -24,7 +24,8 @@ class RequestSearchQueryParser {
       return new AggregationSearchQuery(filters, experimentSearchSchema, Constants.INDEX_TYPE);
     } else if (
       this.pathname.endsWith(Constants.SEARCH_URL_SUFFIX) ||
-      this.pathname.endsWith(Constants.EXPERIMENTS_URL_SUFFIX)
+      this.pathname.endsWith(Constants.EXPERIMENTS_URL_SUFFIX) ||
+      this.pathname.endsWith(Constants.SUMMARY_URL_SUFFIX)
     ) {
       return new SearchQuery(filters, experimentSearchSchema, Constants.INDEX_TYPE);
     }
