@@ -585,6 +585,34 @@ const mappings = async (req, res) => {
   return res.jsend(result);
 };
 
+/**
+ * Get experiments summary.
+ * @returns {Experiment[]}
+ */
+const summary = async (req, res) => {
+  try {
+    const size = await elasticService.count();
+
+    // parse the query
+    const parsedQuery = new RequestSearchQueryParser(req.originalUrl).parse({
+      per: size,
+      source: Constants.LIGHT_EXPERIMENT_FIELDS
+    });
+
+    // prepare the search queru
+    const searchQuery = new SearchQueryDecorator(req.originalUrl).decorate(parsedQuery);
+    // call elasticsearch
+    const elasticsearchResults = await elasticService.search(searchQuery, {});
+
+    // transform the results
+    const results = new ExperimentsResultJSONTransformer().transform(elasticsearchResults, {});
+
+    return res.jsend(results);
+  } catch (e) {
+    return res.jerror(ErrorUtil.convert(e, Constants.ERRORS.SEARCH_EXPERIMENTS_SUMMARY));
+  }
+};
+
 export default {
   load,
   get,
@@ -603,5 +631,6 @@ export default {
   listResults,
   tree,
   refreshResults,
-  mappings
+  mappings,
+  summary
 };

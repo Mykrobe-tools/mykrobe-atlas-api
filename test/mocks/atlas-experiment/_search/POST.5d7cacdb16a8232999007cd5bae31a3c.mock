@@ -1,0 +1,60 @@
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=utf-8
+
+{
+    "took": 6,
+    "timed_out": false,
+    "_shards": {
+        "total": 1,
+        "successful": 1,
+        "skipped": 0,
+        "failed": 0
+    },
+    "hits": {
+        "total": {
+            "value": 1042,
+            "relation": "eq"
+        },
+        "max_score": 1,
+        "hits": [
+            {
+                "_index": "mykrobe-dev-experiment",
+                "_type": "_doc",
+                "_id": "5f219fc40a96ed0013c6a34e",
+                "_score": 1,
+                "_source": {
+                    "metadata": {
+                        "sample": {
+                            "isolateId": "SAMN04396856",
+                            "latitudeIsolate": 27.1766701,
+                            "cityIsolate": "Agra",
+                            "longitudeIsolate": 78.00807449999999,
+                            "countryIsolate": "India"
+                        }
+                    },
+                    "sampleId": "SAMN04396856",
+                    "id": "5f219fc40a96ed0013c6a34e"
+                }
+            },
+            {
+                "_index": "mykrobe-dev-experiment",
+                "_type": "_doc",
+                "_id": "5f219fc40a96ed0013c6a491",
+                "_score": 1,
+                "_source": {
+                    "metadata": {
+                        "sample": {
+                            "isolateId": "SAMN09402657",
+                            "latitudeIsolate": 44.3301785,
+                            "cityIsolate": "Craiova",
+                            "longitudeIsolate": 23.7948807,
+                            "countryIsolate": "Romania"
+                        }
+                    },
+                    "sampleId": "SAMN09402657",
+                    "id": "5f219fc40a96ed0013c6a491"
+                }
+            }
+        ]
+    }
+}
