@@ -8,6 +8,7 @@ import PredictorResultParser from "./results/PredictorResultParser";
 import logger from "../modules/logger";
 import LocationHelper from "./LocationHelper";
 import ExperimentHelper from "./ExperimentHelper";
+import Constants from "../Constants";
 
 const geo = {
   cache: {},
@@ -145,7 +146,13 @@ class DataHelper {
       rows.forEach(row => {
         const { isolateId, countryIsolate, cityIsolate, results, coordinates } = row;
 
+        const sampleId =
+          Constants.AUTOGENERATE_SAMPLE_ID === "yes"
+            ? isolateId
+            : this.readSampleIdFromTrackingApi();
+
         const experiment = {
+          sampleId,
           results,
           metadata: {
             sample: {
@@ -226,6 +233,11 @@ class DataHelper {
     results.push(parser.parse());
 
     return results;
+  }
+
+  // to be implemented
+  static readSampleIdFromTrackingApi() {
+    return null;
   }
 }
 

@@ -190,8 +190,7 @@ class LocationHelper {
         const parts = country.split(":");
         location.countryIsolate = parts[0].trim();
         location.cityIsolate = parts[1].trim();
-      }
-      if (country.includes(",")) {
+      } else if (country.includes(",")) {
         const parts = country.split(",");
         location.countryIsolate = parts[1].trim();
         location.cityIsolate = parts[0].trim();

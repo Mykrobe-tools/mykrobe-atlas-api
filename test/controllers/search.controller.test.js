@@ -99,159 +99,210 @@ describe("SearchController", () => {
     });
     describe("when the search id is valid", () => {
       describe("when searching by sequence", () => {
-        let body = null;
-        let calls = null;
-        let notification = null;
+        describe("when results are returned", () => {
+          let body = null;
+          let calls = null;
+          let notification = null;
 
-        beforeEach(done => {
-          const mockCallback = jest.fn();
-          userEventEmitter.on("sequence-search-complete", mockCallback);
-          request(args.app)
-            .put(`/searches/${args.sequenceSearchId}/results`)
-            .send(searches.results.sequence)
-            .expect(httpStatus.OK)
-            .end((err, res) => {
-              expect(res.body).toHaveProperty("status", "success");
-              expect(res.body).toHaveProperty("data");
+          beforeEach(done => {
+            const mockCallback = jest.fn();
+            userEventEmitter.on("sequence-search-complete", mockCallback);
+            request(args.app)
+              .put(`/searches/${args.sequenceSearchId}/results`)
+              .send(searches.results.sequence)
+              .expect(httpStatus.OK)
+              .end((err, res) => {
+                expect(res.body).toHaveProperty("status", "success");
+                expect(res.body).toHaveProperty("data");
 
-              body = res.body;
+                body = res.body;
 
-              expect(mockCallback.mock.calls.length).toEqual(1);
-              calls = mockCallback.mock.calls;
+                expect(mockCallback.mock.calls.length).toEqual(1);
+                calls = mockCallback.mock.calls;
 
-              expect(mockCallback.mock.calls[0].length).toEqual(1);
-              notification = mockCallback.mock.calls[0][0];
+                expect(mockCallback.mock.calls[0].length).toEqual(1);
+                notification = mockCallback.mock.calls[0][0];
 
-              done();
-            });
-        });
-
-        afterEach(done => {
-          userEventEmitter.removeAllListeners(["sequence-search-complete"]);
-          done();
-        });
-
-        it("should be successful", done => {
-          expect(body).toHaveProperty("status", "success");
-          done();
-        });
-        it("should return a bigsi search", done => {
-          expect(body).toHaveProperty("data");
-
-          const data = body.data;
-
-          expect(data).toHaveProperty("type", "sequence");
-          expect(data).toHaveProperty("bigsi");
-
-          const bigsi = data.bigsi;
-          expect(bigsi).toHaveProperty("type", "sequence");
-          expect(bigsi).toHaveProperty("query");
-
-          const query = bigsi.query;
-          expect(query).toHaveProperty("seq", "GTCAGTCCGTTTGTTCTTGTGGCGAGTGTAGTA");
-          expect(query).toHaveProperty("threshold", 90);
-
-          done();
-        });
-        it("should return a freetext search query", done => {
-          expect(body).toHaveProperty("data");
-
-          const data = body.data;
-
-          expect(data).toHaveProperty("bigsi");
-          const bigsi = data.bigsi;
-          expect(bigsi).toHaveProperty("search");
-
-          const search = bigsi.search;
-          expect(search).toHaveProperty("q", "GTCAGTCCGTTTGTTCTTGTGGCGAGTGTAGTA");
-
-          done();
-        });
-        it("should clear waiting users", done => {
-          const data = body.data;
-
-          expect(data).toHaveProperty("users");
-          expect(data.users.length).toEqual(0);
-          done();
-        });
-        it("should return results", done => {
-          const data = body.data;
-
-          expect(data).toHaveProperty("results");
-          expect(data.results.length).toEqual(3);
-
-          done();
-        });
-        it("should return result isolate ids", done => {
-          const data = body.data;
-          data.results.forEach(result => {
-            const isolateId = result["metadata.sample.isolateId"];
-            const kmers = result.percentKmersFound;
-
-            switch (isolateId) {
-              case "ERR017683":
-                expect(kmers).toEqual(100);
-                break;
-              case "ERR1149371":
-                expect(kmers).toEqual(90);
-                break;
-              case "ERR1163331":
-                expect(kmers).toEqual(100);
-                break;
-            }
+                done();
+              });
           });
-          done();
+          afterEach(done => {
+            userEventEmitter.removeAllListeners(["sequence-search-complete"]);
+            done();
+          });
+          it("should be successful", done => {
+            expect(body).toHaveProperty("status", "success");
+            done();
+          });
+          it("should return a bigsi search", done => {
+            expect(body).toHaveProperty("data");
+
+            const data = body.data;
+
+            expect(data).toHaveProperty("type", "sequence");
+            expect(data).toHaveProperty("bigsi");
+
+            const bigsi = data.bigsi;
+            expect(bigsi).toHaveProperty("type", "sequence");
+            expect(bigsi).toHaveProperty("query");
+
+            const query = bigsi.query;
+            expect(query).toHaveProperty("seq", "GTCAGTCCGTTTGTTCTTGTGGCGAGTGTAGTA");
+            expect(query).toHaveProperty("threshold", 90);
+
+            done();
+          });
+          it("should return a freetext search query", done => {
+            expect(body).toHaveProperty("data");
+
+            const data = body.data;
+
+            expect(data).toHaveProperty("bigsi");
+            const bigsi = data.bigsi;
+            expect(bigsi).toHaveProperty("search");
+
+            const search = bigsi.search;
+            expect(search).toHaveProperty("q", "GTCAGTCCGTTTGTTCTTGTGGCGAGTGTAGTA");
+
+            done();
+          });
+          it("should clear waiting users", done => {
+            const data = body.data;
+
+            expect(data).toHaveProperty("users");
+            expect(data.users.length).toEqual(0);
+            done();
+          });
+          it("should return results", done => {
+            const data = body.data;
+
+            expect(data).toHaveProperty("results");
+            expect(data.results.length).toEqual(3);
+
+            done();
+          });
+          it("should return result isolate ids", done => {
+            const data = body.data;
+            data.results.forEach(result => {
+              const isolateId = result["metadata.sample.isolateId"];
+              const kmers = result.percentKmersFound;
+
+              switch (isolateId) {
+                case "ERR017683":
+                  expect(kmers).toEqual(100);
+                  break;
+                case "ERR1149371":
+                  expect(kmers).toEqual(90);
+                  break;
+                case "ERR1163331":
+                  expect(kmers).toEqual(100);
+                  break;
+              }
+            });
+            done();
+          });
+          it("should save search result", async done => {
+            const search = await Search.get(args.sequenceSearchId);
+            const searchObject = search.toObject();
+
+            expect(searchObject).toHaveProperty("result");
+            expect(searchObject.result).toHaveProperty("type", "sequence");
+            expect(searchObject.result).toHaveProperty("results");
+            expect(searchObject.result.results.length).toEqual(3);
+
+            done();
+          });
+          it("should set the status to complete", done => {
+            const data = body.data;
+
+            expect(data).toHaveProperty("status", Constants.SEARCH_COMPLETE);
+
+            done();
+          });
+          it("should update the expiration date", async done => {
+            const data = body.data;
+
+            expect(data).toHaveProperty("status", Constants.SEARCH_COMPLETE);
+
+            const foundSearch = await Search.get(args.sequenceSearchId);
+
+            const newExpirationDate = moment();
+            newExpirationDate.add(7, "days");
+
+            const expires = moment(foundSearch.expires);
+            expect(expires.date()).toEqual(newExpirationDate.date());
+            expect(expires.month()).toEqual(newExpirationDate.month());
+            expect(expires.year()).toEqual(newExpirationDate.year());
+
+            done();
+          });
+          it("should notify all the users", done => {
+            expect(notification.search.id).toEqual(args.sequenceSearchId);
+            expect(notification.user.firstname).toEqual("David");
+
+            done();
+          });
+          it("should show the query in each notification", done => {
+            // regenerated bigsi search query
+            expect(notification.search.bigsi).toHaveProperty("search");
+            expect(notification.search.bigsi.search).toHaveProperty(
+              "q",
+              "GTCAGTCCGTTTGTTCTTGTGGCGAGTGTAGTA"
+            );
+
+            done();
+          });
         });
-        it("should save search result", async done => {
-          const search = await Search.get(args.sequenceSearchId);
-          const searchObject = search.toObject();
+        describe("when empty results are returned", () => {
+          let body = null;
+          let calls = null;
+          let notification = null;
 
-          expect(searchObject).toHaveProperty("result");
-          expect(searchObject.result).toHaveProperty("type", "sequence");
-          expect(searchObject.result).toHaveProperty("results");
-          expect(searchObject.result.results.length).toEqual(3);
+          beforeEach(done => {
+            const mockCallback = jest.fn();
+            userEventEmitter.on("sequence-search-complete", mockCallback);
+            request(args.app)
+              .put(`/searches/${args.sequenceSearchId}/results`)
+              .send(searches.results.emptySequence)
+              .expect(httpStatus.OK)
+              .end((err, res) => {
+                expect(res.body).toHaveProperty("status", "success");
+                expect(res.body).toHaveProperty("data");
 
-          done();
-        });
-        it("should set the status to complete", done => {
-          const data = body.data;
+                body = res.body;
 
-          expect(data).toHaveProperty("status", Constants.SEARCH_COMPLETE);
+                expect(mockCallback.mock.calls.length).toEqual(1);
+                calls = mockCallback.mock.calls;
 
-          done();
-        });
-        it("should update the expiration date", async done => {
-          const data = body.data;
+                expect(mockCallback.mock.calls[0].length).toEqual(1);
+                notification = mockCallback.mock.calls[0][0];
 
-          expect(data).toHaveProperty("status", Constants.SEARCH_COMPLETE);
+                done();
+              });
+          });
+          afterEach(done => {
+            userEventEmitter.removeAllListeners(["sequence-search-complete"]);
+            done();
+          });
+          it("should be successful", done => {
+            expect(body).toHaveProperty("status", "success");
+            done();
+          });
+          it("should return 0 results", done => {
+            const data = body.data;
 
-          const foundSearch = await Search.get(args.sequenceSearchId);
+            expect(data).toHaveProperty("results");
+            expect(data.results.length).toEqual(0);
 
-          const newExpirationDate = moment();
-          newExpirationDate.add(7, "days");
+            done();
+          });
+          it("should set the status to complete", done => {
+            const data = body.data;
 
-          const expires = moment(foundSearch.expires);
-          expect(expires.date()).toEqual(newExpirationDate.date());
-          expect(expires.month()).toEqual(newExpirationDate.month());
-          expect(expires.year()).toEqual(newExpirationDate.year());
+            expect(data).toHaveProperty("status", Constants.SEARCH_COMPLETE);
 
-          done();
-        });
-        it("should notify all the users", done => {
-          expect(notification.search.id).toEqual(args.sequenceSearchId);
-          expect(notification.user.firstname).toEqual("David");
-
-          done();
-        });
-        it("should show the query in each notification", done => {
-          // regenerated bigsi search query
-          expect(notification.search.bigsi).toHaveProperty("search");
-          expect(notification.search.bigsi.search).toHaveProperty(
-            "q",
-            "GTCAGTCCGTTTGTTCTTGTGGCGAGTGTAGTA"
-          );
-
-          done();
+            done();
+          });
         });
       });
       describe("when searching by protein variant", () => {

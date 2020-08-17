@@ -1,6 +1,7 @@
 import httpStatus from "http-status";
 import mkdirp from "mkdirp-promise";
 import Promise from "bluebird";
+import uuid from "uuid";
 
 import { ValidationError, ErrorUtil, APIError } from "makeandship-api-common/lib/modules/error";
 import { ElasticService } from "makeandship-api-common/lib/modules/elasticsearch/";
@@ -96,6 +97,11 @@ const get = async (req, res) => {
 const create = async (req, res) => {
   const experiment = new Experiment(req.body);
   experiment.owner = req.dbUser;
+  if (Constants.AUTOGENERATE_SAMPLE_ID === "yes") {
+    experiment.sampleId = uuid.v1();
+  } else {
+    // call tracking api
+  }
 
   try {
     const savedExperiment = await experiment.save();
@@ -503,18 +509,17 @@ const listResults = async (req, res) => {
 
 const inflateResult = async (result, projection = null) => {
   const enhancedExperiments = [];
-  if (result.experiments && Array.isArray(result.experiments)) {
-    const ids = result.experiments.map(experiment => experiment.id);
-    const experiments = await Experiment.findByIsolateIds(ids, projection);
-    result.experiments.forEach(experiment => {
+  if (result.result && Array.isArray(result.result)) {
+    const ids = result.result.map(experiment => experiment.sampleId);
+    const experiments = await Experiment.findBySampleIds(ids, projection);
+    result.result.forEach(experiment => {
       try {
         const exp = experiments.filter(item => {
-          const metadata = item.get("metadata");
-          return metadata.sample.isolateId === experiment.id;
+          return item.sampleId === experiment.sampleId;
         });
         experiment.results = exp[0].get("results");
         experiment.metadata = exp[0].get("metadata");
-        experiment.id = exp[0].id;
+        experiment.sampleId = exp[0].sampleId;
       } catch (e) {}
       enhancedExperiments.push(experiment);
     });
@@ -580,6 +585,34 @@ const mappings = async (req, res) => {
   return res.jsend(result);
 };
 
+/**
+ * Get experiments summary.
+ * @returns {Experiment[]}
+ */
+const summary = async (req, res) => {
+  try {
+    const size = await elasticService.count();
+
+    // parse the query
+    const parsedQuery = new RequestSearchQueryParser(req.originalUrl).parse({
+      per: size,
+      source: Constants.LIGHT_EXPERIMENT_FIELDS
+    });
+
+    // prepare the search queru
+    const searchQuery = new SearchQueryDecorator(req.originalUrl).decorate(parsedQuery);
+    // call elasticsearch
+    const elasticsearchResults = await elasticService.search(searchQuery, {});
+
+    // transform the results
+    const results = new ExperimentsResultJSONTransformer().transform(elasticsearchResults, {});
+
+    return res.jsend(results);
+  } catch (e) {
+    return res.jerror(ErrorUtil.convert(e, Constants.ERRORS.SEARCH_EXPERIMENTS_SUMMARY));
+  }
+};
+
 export default {
   load,
   get,
@@ -598,5 +631,6 @@ export default {
   listResults,
   tree,
   refreshResults,
-  mappings
+  mappings,
+  summary
 };

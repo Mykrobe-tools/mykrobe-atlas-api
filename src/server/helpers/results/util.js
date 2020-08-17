@@ -191,14 +191,10 @@ const calculateResistanceAttributes = susceptibility => {
 };
 
 const parseDistance = result => {
-  const nearest = [];
-  Object.keys(result).forEach(key => {
-    nearest.push({
-      id: key,
-      distance: result[key]
-    });
-  });
-  return nearest;
+  if (result && Array.isArray(result.result)) {
+    return result.result;
+  }
+  return [];
 };
 
 const buildRandomDistanceResult = async () => {

@@ -188,6 +188,32 @@ GoogleGeocoder.prototype.geocode = function(location) {
           provider: "google"
         }
       ];
+    case "Durban, South Africa":
+      return [
+        {
+          formattedAddress: "South Africa: King George V Hospital, Durban",
+          latitude: -123.9587022,
+          longitude: -5.69304159999999,
+          extra: {
+            googlePlaceId: "ChIJW9fXNZNTtpUde45Se4r",
+            confidence: 0.5,
+            premise: null,
+            subpremise: null,
+            neighborhood: "Durban",
+            establishment: null
+          },
+          administrativeLevels: {
+            level2long: "Durban Department",
+            level2short: "Durban Department",
+            level1long: "King George V Hospital",
+            level1short: "King George V Hospital"
+          },
+          city: "Durban",
+          country: "South Africa",
+          countryCode: "ZA",
+          provider: "google"
+        }
+      ];
   }
 };
 

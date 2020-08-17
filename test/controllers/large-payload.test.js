@@ -33,14 +33,13 @@ describe("Large payload", () => {
         });
     });
     it("should set the cors headers", async done => {
-      const app = await createApp({ limit: "1kb" });
+      const app = await createApp({ limit: "1kb", corsOptions: { origin: "example.com" } });
       makeRequest(app)
         .expect(httpStatus.REQUEST_TOO_LONG)
         .end((err, res) => {
           expect(res.body.status).toEqual("error");
-          expect(res.body.message).toEqual("request entity too large");
           expect(res.headers["access-control-allow-headers"]).toBeTruthy();
-          expect(res.headers["access-control-allow-origin"]).toBeTruthy();
+          expect(res.headers["access-control-allow-origin"]).toEqual("example.com");
           done();
         });
     });

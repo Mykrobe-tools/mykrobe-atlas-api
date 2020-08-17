@@ -5,6 +5,7 @@ export default {
   DEFAULT_SEARCH_EXPIRY_DAYS: 3,
   DISTANCE_PROJECTION: {
     _id: 1,
+    sampleId: 1,
     "metadata.sample.isolateId": 1,
     "metadata.sample.longitudeIsolate": 1,
     "metadata.sample.latitudeIsolate": 1
@@ -16,6 +17,7 @@ export default {
   SEARCH_URL_SUFFIX: "/search",
   EXPERIMENTS_URL_SUFFIX: "/experiments",
   CHOICES_URL_SUFFIX: "/choices",
+  SUMMARY_URL_SUFFIX: "/summary",
 
   INDEX_TYPE: "experiment",
 
@@ -57,7 +59,8 @@ export default {
     REMOVE_MEMBER: 10032,
     PROMOTE_MEMBER: 10033,
     DEMOTE_MEMBER: 10034,
-    UPLOAD_FILE: 10035
+    UPLOAD_FILE: 10035,
+    SEARCH_EXPERIMENTS_SUMMARY: 10036
   },
 
   EVENTS: {
@@ -122,5 +125,18 @@ export default {
   ORGANISATION_WHITELIST_FIELDS: ["name"],
 
   RESPONSE_CACHE_IN_SECONDS: 3600, // 1 hr
-  GEO_CACHE_IN_SECONDS: 3600 * 24 // 1 day
+  GEO_CACHE_IN_SECONDS: 3600 * 24, // 1 day
+
+  AUTOGENERATE_SAMPLE_ID: process.env.AUTOGENERATE_SAMPLE_ID || "yes",
+
+  LIGHT_EXPERIMENT_FIELDS: [
+    "id",
+    "metadata.sample.isolateId",
+    "metadata.sample.cityIsolate",
+    "metadata.sample.countryIsolate",
+    "metadata.sample.latitudeIsolate",
+    "metadata.sample.longitudeIsolate",
+    "sampleId",
+    "leafId"
+  ]
 };
