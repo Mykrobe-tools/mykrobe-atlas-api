@@ -243,6 +243,7 @@ const results = async (req, res) => {
  */
 const uploadFile = async (req, res) => {
   const experiment = req.experiment;
+  const experimentJson = new ExperimentJSONTransformer().transform(req.experiment);
 
   // from 3rd party provider
   if (req.body.provider && req.body.path) {
@@ -264,7 +265,8 @@ const uploadFile = async (req, res) => {
         await scheduler.schedule("now", "call analysis api", {
           file: `${config.express.uploadsLocation}/experiments/${experiment.id}/file/${req.body.name}`,
           experiment_id: experiment.id,
-          attempt: 0
+          attempt: 0,
+          experiment: experimentJson
         });
       });
       // save file attribute
@@ -284,7 +286,6 @@ const uploadFile = async (req, res) => {
 
   // from local file
   try {
-    const experimentJson = new ExperimentJSONTransformer().transform(req.experiment);
     const resumableFilename = req.body.resumableFilename;
     const uploadDirectory = `${config.express.uploadDir}/experiments/${experiment.id}/file`;
     logger.debug(`ExperimentsController#uploadFile: uploadDirectory: ${uploadDirectory}`);
