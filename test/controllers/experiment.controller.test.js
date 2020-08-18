@@ -374,7 +374,7 @@ describe("ExperimentController", () => {
           experimentResults.push({
             type: "distance",
             leafId: "fa808a8d-ba39-4464-8704-c9fc68b1f79b",
-            result: [
+            experiments: [
               {
                 sampleId: savedExperimentWithMetadataResults.sampleId,
                 leafId: "4437d2dc-12b9-4639-aab3-94e8583ee427",

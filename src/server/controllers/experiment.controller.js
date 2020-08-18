@@ -506,10 +506,10 @@ const listResults = async (req, res) => {
 
 const inflateResult = async (result, projection = null) => {
   const enhancedExperiments = [];
-  if (result.result && Array.isArray(result.result)) {
-    const ids = result.result.map(experiment => experiment.sampleId);
+  if (result.experiments && Array.isArray(result.experiments)) {
+    const ids = result.experiments.map(experiment => experiment.sampleId);
     const experiments = await Experiment.findBySampleIds(ids, projection);
-    result.result.forEach(experiment => {
+    result.experiments.forEach(experiment => {
       try {
         const exp = experiments.filter(item => {
           return item.sampleId === experiment.sampleId;
