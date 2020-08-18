@@ -1,7 +1,7 @@
 import ResultParser from "./ResultParser";
 import { parseDistance } from "./util";
 
-class NearestNeighbourResultParser extends ResultParser {
+class DistanceResultParser extends ResultParser {
   constructor(namedResult) {
     super(namedResult);
   }
@@ -9,7 +9,6 @@ class NearestNeighbourResultParser extends ResultParser {
   parse() {
     const result = {
       type: "distance",
-      subType: "nearest-neighbour",
       received: new Date()
     };
 
@@ -24,4 +23,4 @@ class NearestNeighbourResultParser extends ResultParser {
   }
 }
 
-export default NearestNeighbourResultParser;
+export default DistanceResultParser;

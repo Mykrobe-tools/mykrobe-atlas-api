@@ -1,6 +1,5 @@
 import PredictorResultParser from "./PredictorResultParser";
-import TreeDistanceResultParser from "./TreeDistanceResultParser";
-import NearestNeighbourResultParser from "./NearestNeighbourResultParser";
+import DistanceResultParser from "./DistanceResultParser";
 import ProteinVariantResultParser from "./ProteinVariantResultParser";
 import DnaVariantResultParser from "./DnaVariantResultParser";
 import SequenceResultParser from "./SequenceResultParser";
@@ -16,15 +15,7 @@ class ResultsParserFactory {
         return new PredictorResultParser(result);
 
       case "distance":
-        const subType = result.subType;
-        switch (subType) {
-          case "nearest-neighbour":
-            return new NearestNeighbourResultParser(result);
-            break;
-          case "tree-distance":
-            return new TreeDistanceResultParser(result);
-            break;
-        }
+        return new DistanceResultParser(result);
 
       case "sequence":
         return new SequenceResultParser(result);
