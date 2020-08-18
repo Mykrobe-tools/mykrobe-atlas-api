@@ -78,7 +78,7 @@ afterAll(async done => {
   done();
 });
 
-describe("ExperimentController > Elasticsearch", () => {
+describe.skip("ExperimentController > Elasticsearch", () => {
   describe("GET /experiments/choices", () => {
     describe("when invalid", () => {
       describe("when token is invalid", () => {

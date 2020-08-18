@@ -47,10 +47,6 @@ import SearchJSONTransformer from "../transformers/SearchJSONTransformer";
 const esConfig = { type: "experiment", ...config.elasticsearch };
 const elasticService = new ElasticService(esConfig, experimentSearchSchema);
 
-// distance types
-const NEAREST_NEIGHBOUR = "nearest-neighbour";
-const TREE_DISTANCE = "tree-distance";
-
 /**
  * Load experiment and append to req.
  */
@@ -565,12 +561,6 @@ const refreshResults = async (req, res) => {
   const scheduler = await Scheduler.getInstance();
   await scheduler.schedule("now", "call distance api", {
     experiment_id: experiment.id,
-    distance_type: NEAREST_NEIGHBOUR,
-    experiment: experimentJson
-  });
-  await scheduler.schedule("now", "call distance api", {
-    experiment_id: experiment.id,
-    distance_type: TREE_DISTANCE,
     experiment: experimentJson
   });
   return res.jsend("Update of existing results triggered");

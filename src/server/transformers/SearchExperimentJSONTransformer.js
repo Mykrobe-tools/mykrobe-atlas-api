@@ -29,11 +29,8 @@ class ExperimentJSONTransformer extends ModelJSONTransformer {
     }
 
     if (res.results) {
-      if (res.results["distance-tree-distance"]) {
-        delete res.results["distance-tree-distance"];
-      }
-      if (res.results["distance-nearest-neighbour"]) {
-        delete res.results["distance-nearest-neighbour"];
+      if (res.results["distance"]) {
+        delete res.results["distance"];
       }
     }
 

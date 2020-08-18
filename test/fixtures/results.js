@@ -182,35 +182,18 @@ export default {
     }
   },
   distance: {
-    nearestNeighbour: {
+    type: "distance",
+    leafId: "leaf_1208",
+    result: {
       type: "distance",
-      subType: "nearest-neighbour",
-      result: {
-        type: "distance",
-        leafId: "225",
-        experiments: [
-          { sampleId: "8bc98496-9bf8-4111-a40f-5c99ac28e690", leafId: "123", distance: 23 },
-          { sampleId: "087efc5c-cffa-41dc-b671-5854861af144", leafId: "334", distance: 12 }
-        ]
-      },
-      received: "2018-09-10T11:23:20.964Z",
-      analysed: "2018-09-10T11:23:20.964Z"
+      leafId: "225",
+      experiments: [
+        { sampleId: "8bc98496-9bf8-4111-a40f-5c99ac28e690", leafId: "leaf_1208", distance: 23 },
+        { sampleId: "087efc5c-cffa-41dc-b671-5854861af144", leafId: "leaf_1208", distance: 12 }
+      ]
     },
-    treeDistance: {
-      type: "distance",
-      subType: "tree-distance",
-      result: {
-        type: "distance",
-        leafId: "334",
-        experiments: [
-          { sampleId: "8bc98496-9bf8-4111-a40f-5c99ac28e690", leafId: "123", distance: 23 },
-          { sampleId: "087efc5c-cffa-41dc-b671-5854861af144", leafId: "334", distance: 12 },
-          { sampleId: "087efc5c-cffa-41dc-b671-5854861asse4", leafId: "455", distance: 5 }
-        ]
-      },
-      received: "2018-09-11T11:23:20.964Z",
-      analysed: "2018-09-11T11:23:20.964Z"
-    }
+    received: "2018-09-10T11:23:20.964Z",
+    analysed: "2018-09-10T11:23:20.964Z"
   },
   predictor: {
     probeSets: [
