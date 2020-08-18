@@ -22,7 +22,7 @@ import predictor784 from "../fixtures/files/784.predictor.json";
 import predictor787 from "../fixtures/files/787.predictor.json";
 import predictor788 from "../fixtures/files/788.predictor.json";
 import predictor789 from "../fixtures/files/789.predictor.json";
-import NEAREST_NEIGHBOURS from "../fixtures/files/NEAREST_NEIGHBOURS_Results.json";
+import DISTANCE from "../fixtures/files/Distance_Results.json";
 
 import results from "../fixtures/results";
 import users from "../fixtures/users";
@@ -34,9 +34,6 @@ const mongo = require("promised-mongo").compatible();
 
 const findJob = (jobs, id, name) =>
   jobs.findOne({ "data.experiment_id": id, name }, (err, data) => data);
-
-const findJobByDistanceType = (jobs, id, type, name) =>
-  jobs.findOne({ "data.experiment_id": id, "data.distance_type": type, name }, (err, data) => data);
 
 const findJobByName = (jobs, name) => jobs.findOne({ name }, (err, data) => data);
 
@@ -286,8 +283,7 @@ describe("ExperimentController", () => {
           const experiment = await Experiment.get(args.id);
           const experimentResults = [];
           experimentResults.push(results.mdr);
-          experimentResults.push(results.distance.nearestNeighbour);
-          experimentResults.push(results.distance.treeDistance);
+          experimentResults.push(results.distance);
           experiment.set("results", experimentResults);
           await experiment.save();
           done();
@@ -311,25 +307,14 @@ describe("ExperimentController", () => {
               expect(predictor.analysed).toEqual("2018-07-12T11:23:20.964Z");
               expect(predictor.type).toEqual("predictor");
 
-              expect(results).toHaveProperty("distance-nearest-neighbour");
-              const nearestNeighbour = results["distance-nearest-neighbour"];
+              expect(results).toHaveProperty("distance");
+              const distance = results["distance"];
 
-              expect(nearestNeighbour.susceptibility).toBeUndefined();
-              expect(nearestNeighbour.phylogenetics).toBeUndefined();
-              expect(nearestNeighbour.analysed).toEqual("2018-09-10T11:23:20.964Z");
-              expect(nearestNeighbour.received).toEqual("2018-09-10T11:23:20.964Z");
-              expect(nearestNeighbour.type).toEqual("distance");
-              expect(nearestNeighbour.subType).toEqual("nearest-neighbour");
-
-              expect(results).toHaveProperty("distance-tree-distance");
-              const treeDistance = results["distance-tree-distance"];
-
-              expect(treeDistance.susceptibility).toBeUndefined();
-              expect(treeDistance.phylogenetics).toBeUndefined();
-              expect(treeDistance.analysed).toEqual("2018-09-11T11:23:20.964Z");
-              expect(treeDistance.received).toEqual("2018-09-11T11:23:20.964Z");
-              expect(treeDistance.type).toEqual("distance");
-              expect(treeDistance.subType).toEqual("tree-distance");
+              expect(distance.susceptibility).toBeUndefined();
+              expect(distance.phylogenetics).toBeUndefined();
+              expect(distance.analysed).toEqual("2018-09-10T11:23:20.964Z");
+              expect(distance.received).toEqual("2018-09-10T11:23:20.964Z");
+              expect(distance.type).toEqual("distance");
 
               done();
             });
@@ -340,7 +325,7 @@ describe("ExperimentController", () => {
           const experiment = await Experiment.get(args.id);
           const experimentResults = [];
           experimentResults.push(results.mdr);
-          experimentResults.push(results.distance.nearestNeighbour);
+          experimentResults.push(results.distance);
           experimentResults.push(results.predictor);
           experiment.set("results", experimentResults);
           await experiment.save();
@@ -365,21 +350,20 @@ describe("ExperimentController", () => {
               expect(predictor.analysed).toEqual("2018-09-12T11:23:20.964Z");
               expect(predictor.type).toEqual("predictor");
 
-              expect(results).toHaveProperty("distance-nearest-neighbour");
-              const nearestNeighbour = results["distance-nearest-neighbour"];
+              expect(results).toHaveProperty("distance");
+              const distance = results["distance"];
 
-              expect(nearestNeighbour.susceptibility).toBeUndefined();
-              expect(nearestNeighbour.phylogenetics).toBeUndefined();
-              expect(nearestNeighbour.analysed).toEqual("2018-09-10T11:23:20.964Z");
-              expect(nearestNeighbour.received).toEqual("2018-09-10T11:23:20.964Z");
-              expect(nearestNeighbour.type).toEqual("distance");
-              expect(nearestNeighbour.subType).toEqual("nearest-neighbour");
-              expect(nearestNeighbour.experiments).toBeTruthy();
+              expect(distance.susceptibility).toBeUndefined();
+              expect(distance.phylogenetics).toBeUndefined();
+              expect(distance.analysed).toEqual("2018-09-10T11:23:20.964Z");
+              expect(distance.received).toEqual("2018-09-10T11:23:20.964Z");
+              expect(distance.type).toEqual("distance");
+              expect(distance.experiments).toBeTruthy();
               done();
             });
         });
       });
-      describe("when using nearest neighbours results", () => {
+      describe("when using distance results", () => {
         beforeEach(async done => {
           const experimentWithMetadataResults = new Experiment(experiments.tbUploadMetadataResults);
           const savedExperimentWithMetadataResults = await experimentWithMetadataResults.save();
@@ -389,7 +373,6 @@ describe("ExperimentController", () => {
           const experimentResults = [];
           experimentResults.push({
             type: "distance",
-            subType: "nearest-neighbour",
             leafId: "fa808a8d-ba39-4464-8704-c9fc68b1f79b",
             result: [
               {
@@ -403,7 +386,7 @@ describe("ExperimentController", () => {
           await experiment.save();
           done();
         });
-        it("should inflate the nearest neighbours results", done => {
+        it("should inflate the distance results", done => {
           request(args.app)
             .get(`/experiments/${args.id}`)
             .set("Authorization", `Bearer ${args.token}`)
@@ -414,16 +397,15 @@ describe("ExperimentController", () => {
               expect(res.body.data).toHaveProperty("results");
               const results = res.body.data.results;
 
-              expect(results).toHaveProperty("distance-nearest-neighbour");
-              const nearestNeighbour = results["distance-nearest-neighbour"];
+              expect(results).toHaveProperty("distance");
+              const distance = results["distance"];
 
-              expect(nearestNeighbour.type).toEqual("distance");
-              expect(nearestNeighbour.subType).toEqual("nearest-neighbour");
+              expect(distance.type).toEqual("distance");
 
-              expect(nearestNeighbour).toHaveProperty("experiments");
-              expect(nearestNeighbour.experiments.length).toEqual(1);
+              expect(distance).toHaveProperty("experiments");
+              expect(distance.experiments.length).toEqual(1);
 
-              const first = nearestNeighbour.experiments.shift();
+              const first = distance.experiments.shift();
               expect(first.sampleId).toBeTruthy();
               expect(first.metadata.sample.isolateId).toBeTruthy();
               expect(first.metadata.sample.longitudeIsolate).toBeTruthy();
@@ -445,16 +427,15 @@ describe("ExperimentController", () => {
               expect(res.body.data).toHaveProperty("results");
               const results = res.body.data.results;
 
-              expect(results).toHaveProperty("distance-nearest-neighbour");
-              const nearestNeighbour = results["distance-nearest-neighbour"];
+              expect(results).toHaveProperty("distance");
+              const distance = results["distance"];
 
-              expect(nearestNeighbour.type).toEqual("distance");
-              expect(nearestNeighbour.subType).toEqual("nearest-neighbour");
+              expect(distance.type).toEqual("distance");
 
-              expect(nearestNeighbour).toHaveProperty("experiments");
-              expect(nearestNeighbour.experiments.length).toEqual(1);
+              expect(distance).toHaveProperty("experiments");
+              expect(distance.experiments.length).toEqual(1);
 
-              const first = nearestNeighbour.experiments.shift();
+              const first = distance.experiments.shift();
 
               expect(first.sampleId).toBeTruthy();
               expect(first.metadata.sample.isolateId).toBeTruthy();
@@ -481,16 +462,15 @@ describe("ExperimentController", () => {
               expect(res.body.data).toHaveProperty("results");
               const results = res.body.data.results;
 
-              expect(results).toHaveProperty("distance-nearest-neighbour");
-              const nearestNeighbour = results["distance-nearest-neighbour"];
+              expect(results).toHaveProperty("distance");
+              const distance = results["distance"];
 
-              expect(nearestNeighbour.type).toEqual("distance");
-              expect(nearestNeighbour.subType).toEqual("nearest-neighbour");
+              expect(distance.type).toEqual("distance");
 
-              expect(nearestNeighbour).toHaveProperty("experiments");
-              expect(nearestNeighbour.experiments.length).toEqual(1);
+              expect(distance).toHaveProperty("experiments");
+              expect(distance.experiments.length).toEqual(1);
 
-              const first = nearestNeighbour.experiments.shift();
+              const first = distance.experiments.shift();
 
               const targetExperiment = await Experiment.findBySampleIds([
                 "49f90e7b-9827-43c1-bfa3-0feac8d02f96"
@@ -1819,22 +1799,21 @@ describe("ExperimentController", () => {
           done();
         });
     });
-    it("should create nearest neighbours results", done => {
+    it("should create distance results", done => {
       request(args.app)
         .post(`/experiments/${args.id}/results`)
-        .send(NEAREST_NEIGHBOURS)
+        .send(DISTANCE)
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(res.body.status).toEqual("success");
           expect(res.body.data).toHaveProperty("results");
           expect(Object.keys(res.body.data.results).length).toEqual(1);
 
-          const nearestNeighbour = res.body.data.results["distance-nearest-neighbour"];
+          const distance = res.body.data.results["distance"];
 
-          expect(nearestNeighbour.type).toEqual("distance");
-          expect(nearestNeighbour.subType).toEqual("nearest-neighbour");
-          expect(nearestNeighbour.experiments.length).toEqual(2);
-          nearestNeighbour.experiments.forEach(experiment => {
+          expect(distance.type).toEqual("distance");
+          expect(distance.experiments.length).toEqual(2);
+          distance.experiments.forEach(experiment => {
             expect(experiment).toHaveProperty("sampleId");
             expect(experiment).toHaveProperty("leafId");
             expect(experiment).toHaveProperty("distance");
@@ -2162,8 +2141,7 @@ describe("ExperimentController", () => {
         const experiment = await Experiment.get(args.id);
         const experimentResults = [];
         experimentResults.push(results.mdr);
-        experimentResults.push(results.distance.nearestNeighbour);
-        experimentResults.push(results.distance.treeDistance);
+        experimentResults.push(results.distance);
 
         experiment.set("results", experimentResults);
         await experiment.save();
@@ -2176,7 +2154,7 @@ describe("ExperimentController", () => {
           .expect(httpStatus.OK)
           .end((err, res) => {
             expect(res.body.status).toEqual("success");
-            expect(res.body.data.length).toEqual(3);
+            expect(res.body.data.length).toEqual(2);
 
             const results = {};
             res.body.data.forEach(result => {
@@ -2191,21 +2169,12 @@ describe("ExperimentController", () => {
             expect(predictor.analysed).toEqual("2018-07-12T11:23:20.964Z");
             expect(predictor.type).toEqual("predictor");
 
-            const nearestNeighbour = results["distance-nearest-neighbour"];
+            const distance = results["distance"];
 
-            expect(nearestNeighbour.received).toEqual("2018-09-10T11:23:20.964Z");
-            expect(nearestNeighbour.analysed).toEqual("2018-09-10T11:23:20.964Z");
-            expect(nearestNeighbour.type).toEqual("distance");
-            expect(nearestNeighbour.subType).toEqual("nearest-neighbour");
-            expect(nearestNeighbour.result.experiments.length).toEqual(2);
-
-            const treeDistance = results["distance-tree-distance"];
-
-            expect(treeDistance.received).toEqual("2018-09-11T11:23:20.964Z");
-            expect(treeDistance.analysed).toEqual("2018-09-11T11:23:20.964Z");
-            expect(treeDistance.type).toEqual("distance");
-            expect(treeDistance.subType).toEqual("tree-distance");
-            expect(treeDistance.result.experiments.length).toEqual(3);
+            expect(distance.received).toEqual("2018-09-10T11:23:20.964Z");
+            expect(distance.analysed).toEqual("2018-09-10T11:23:20.964Z");
+            expect(distance.type).toEqual("distance");
+            expect(distance.result.experiments.length).toEqual(2);
 
             done();
           });
@@ -2813,7 +2782,7 @@ describe("ExperimentController", () => {
             done();
           });
       });
-      it("should trigger the distance api with type nearest-neighbour", done => {
+      it("should trigger the distance api", done => {
         request(args.app)
           .post(`/experiments/${args.id}/refresh`)
           .set("Authorization", `Bearer ${args.token}`)
@@ -2823,55 +2792,12 @@ describe("ExperimentController", () => {
             expect(res.body.status).toEqual("success");
             expect(res.body.data).toEqual("Update of existing results triggered");
             try {
-              let job = await findJobByDistanceType(
-                jobs,
-                args.id,
-                "nearest-neighbour",
-                "call distance api"
-              );
+              let job = await findJob(jobs, args.id, "call distance api");
               while (!job) {
-                job = await findJobByDistanceType(
-                  jobs,
-                  args.id,
-                  "nearest-neighbour",
-                  "call distance api"
-                );
+                job = await findJob(jobs, args.id, "call distance api");
               }
               expect(job.data.experiment_id).toEqual(args.id);
-              expect(job.data.distance_type).toEqual("nearest-neighbour");
-              done();
-            } catch (e) {
-              fail(e.message);
-              done();
-            }
-          });
-      });
-      it("should trigger the distance api with type tree-distance", done => {
-        request(args.app)
-          .post(`/experiments/${args.id}/refresh`)
-          .set("Authorization", `Bearer ${args.token}`)
-          .expect(httpStatus.OK)
-          .end(async (err, res) => {
-            const jobs = mongo(config.db.uri, []).agendaJobs;
-            expect(res.body.status).toEqual("success");
-            expect(res.body.data).toEqual("Update of existing results triggered");
-            try {
-              let job = await findJobByDistanceType(
-                jobs,
-                args.id,
-                "tree-distance",
-                "call distance api"
-              );
-              while (!job) {
-                job = await findJobByDistanceType(
-                  jobs,
-                  args.id,
-                  "tree-distance",
-                  "call distance api"
-                );
-              }
-              expect(job.data.experiment_id).toEqual(args.id);
-              expect(job.data.distance_type).toEqual("tree-distance");
+              expect(job.data.experiment.sampleId).toEqual("9a981339-d0b4-4dcb-ba0d-efe8ed37b9d6");
               done();
             } catch (e) {
               fail(e.message);

@@ -74,7 +74,7 @@ export default {
       genotyping: metadata.uploadedMetadata.genotyping,
       phenotyping: metadata.uploadedMetadata.phenotyping
     },
-    results: [results.distance.nearestNeighbour, results.distance.treeDistance]
+    results: [results.distance]
   },
   tbUploadMetadataPredictorResults: {
     sampleId: "f194df25-2a8b-4f4d-8594-e013ac58223a",

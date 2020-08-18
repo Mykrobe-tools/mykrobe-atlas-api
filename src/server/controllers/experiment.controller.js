@@ -47,10 +47,6 @@ import SearchJSONTransformer from "../transformers/SearchJSONTransformer";
 const esConfig = { type: "experiment", ...config.elasticsearch };
 const elasticService = new ElasticService(esConfig, experimentSearchSchema);
 
-// distance types
-const NEAREST_NEIGHBOUR = "nearest-neighbour";
-const TREE_DISTANCE = "tree-distance";
-
 /**
  * Load experiment and append to req.
  */
@@ -243,6 +239,7 @@ const results = async (req, res) => {
  */
 const uploadFile = async (req, res) => {
   const experiment = req.experiment;
+  const experimentJson = new ExperimentJSONTransformer().transform(req.experiment);
 
   // from 3rd party provider
   if (req.body.provider && req.body.path) {
@@ -264,7 +261,8 @@ const uploadFile = async (req, res) => {
         await scheduler.schedule("now", "call analysis api", {
           file: `${config.express.uploadsLocation}/experiments/${experiment.id}/file/${req.body.name}`,
           experiment_id: experiment.id,
-          attempt: 0
+          attempt: 0,
+          experiment: experimentJson
         });
       });
       // save file attribute
@@ -284,7 +282,6 @@ const uploadFile = async (req, res) => {
 
   // from local file
   try {
-    const experimentJson = new ExperimentJSONTransformer().transform(req.experiment);
     const resumableFilename = req.body.resumableFilename;
     const uploadDirectory = `${config.express.uploadDir}/experiments/${experiment.id}/file`;
     logger.debug(`ExperimentsController#uploadFile: uploadDirectory: ${uploadDirectory}`);
@@ -564,12 +561,6 @@ const refreshResults = async (req, res) => {
   const scheduler = await Scheduler.getInstance();
   await scheduler.schedule("now", "call distance api", {
     experiment_id: experiment.id,
-    distance_type: NEAREST_NEIGHBOUR,
-    experiment: experimentJson
-  });
-  await scheduler.schedule("now", "call distance api", {
-    experiment_id: experiment.id,
-    distance_type: TREE_DISTANCE,
     experiment: experimentJson
   });
   return res.jsend("Update of existing results triggered");

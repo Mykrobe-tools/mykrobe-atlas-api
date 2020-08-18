@@ -100,7 +100,7 @@ describe("ExperimentController > Elasticsearch", () => {
         let status = null;
         let data = null;
         beforeEach(done => {
-          // mocks/atlas-experiment/_search/POST.4688717e47a0f229dbc00b3bc4956838.mock
+          // mocks/atlas-experiment/_search/POST.e127c8a2bb0839cdf956eced461fe08a.mock
           request(args.app)
             .get("/experiments/choices")
             .set("Authorization", `Bearer ${args.token}`)
@@ -251,10 +251,10 @@ describe("ExperimentController > Elasticsearch", () => {
         let data = null;
         beforeEach(done => {
           // choices will remove filter attribute (when removed)
-          // mocks/atlas-experiment/_search/POST.4688717e47a0f229dbc00b3bc4956838.mock
+          // mocks/atlas-experiment/_search/POST.e127c8a2bb0839cdf956eced461fe08a.mock
 
           // choices will remove filter attribute (when set)
-          // mocks/atlas-experiment/_search/POST.3c6669e507bacd6b7850cde557e17323.mock
+          // mocks/atlas-experiment/_search/POST.f3e7ad82e01f336797b28bba6a8b1140.mock
           request(args.app)
             .get(
               "/experiments/choices?metadata.patient.patientId=9bd049c5-7407-4129-a973-17291ccdd2cc"
@@ -294,7 +294,7 @@ describe("ExperimentController > Elasticsearch", () => {
           let status = null;
           let data = null;
           beforeEach(done => {
-            // mocks/atlas-experiment/_search/POST.50fb69570ac3d0df7537032c720f8ed3.mock
+            // mocks/atlas-experiment/_search/POST.46b03a1e1fd6a2eee06f313b335a6914.mock
             request(args.app)
               .get("/experiments/choices?q=Male")
               .set("Authorization", `Bearer ${args.token}`)
@@ -333,7 +333,7 @@ describe("ExperimentController > Elasticsearch", () => {
           let status = null;
           let data = null;
           beforeEach(done => {
-            // mocks/atlas-experiment/_search/POST.ffe491199a2823aacb1c9a20822eeca3.mock
+            // mocks/atlas-experiment/_search/POST.f9b1219b8db8371815d79d5e69c3401f.mock
             request(args.app)
               .get("/experiments/choices?q=Female")
               .set("Authorization", `Bearer ${args.token}`)
@@ -373,10 +373,10 @@ describe("ExperimentController > Elasticsearch", () => {
         let data = null;
         beforeEach(done => {
           // choices will remove filter attribute (when removed)
-          // mocks/atlas-experiment/_search/POST.4688717e47a0f229dbc00b3bc4956838.mock
+          // mocks/atlas-experiment/_search/POST.e127c8a2bb0839cdf956eced461fe08a.mock
 
           // choices will remove filter attribute (when set)
-          // mocks/atlas-experiment/_search/POST.3c6669e507bacd6b7850cde557e17323.mock
+          // mocks/atlas-experiment/_search/POST.f3e7ad82e01f336797b28bba6a8b1140.mock
           request(args.app)
             .get(
               "/experiments/choices?q=CAGTCCGTTTGTTCT&metadata.patient.patientId=9bd049c5-7407-4129-a973-17291ccdd2cc"

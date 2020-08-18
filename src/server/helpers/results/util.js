@@ -191,8 +191,8 @@ const calculateResistanceAttributes = susceptibility => {
 };
 
 const parseDistance = result => {
-  if (result && Array.isArray(result.result)) {
-    return result.result;
+  if (result && Array.isArray(result)) {
+    return result;
   }
   return [];
 };

@@ -257,10 +257,8 @@ describe("Experiment", () => {
 
         expect(json.results).toBeTruthy();
         const results = json.results;
-        expect(results).toHaveProperty("distance-nearest-neighbour");
-        expect(results["distance-nearest-neighbour"]).toBeTruthy();
-        expect(results).toHaveProperty("distance-tree-distance");
-        expect(results["distance-tree-distance"]).toBeTruthy();
+        expect(results).toHaveProperty("distance");
+        expect(results["distance"]).toBeTruthy();
 
         done();
       });
