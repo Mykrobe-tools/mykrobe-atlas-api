@@ -197,6 +197,11 @@ const results = async (req, res) => {
   }
 
   const result = parser.parse(req.body);
+
+  if (result.type === Constants.RESULT_TYPE_DISTANCE) {
+    experiment.leafId = result.leafId;
+  }
+
   const results = experiment.get("results");
 
   const updatedResults = [];
@@ -511,12 +516,13 @@ const inflateResult = async (result, projection = null) => {
     const experiments = await Experiment.findBySampleIds(ids, projection);
     result.experiments.forEach(experiment => {
       try {
-        const exp = experiments.filter(item => {
+        const exp = experiments.find(item => {
           return item.sampleId === experiment.sampleId;
         });
-        experiment.results = exp[0].get("results");
-        experiment.metadata = exp[0].get("metadata");
-        experiment.sampleId = exp[0].sampleId;
+        experiment.results = exp.get("results");
+        experiment.metadata = exp.get("metadata");
+        experiment.sampleId = exp.sampleId;
+        experiment.id = exp.id;
       } catch (e) {}
       enhancedExperiments.push(experiment);
     });
