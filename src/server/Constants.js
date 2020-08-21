@@ -138,5 +138,7 @@ export default {
     "metadata.sample.longitudeIsolate",
     "sampleId",
     "leafId"
-  ]
+  ],
+
+  RESULT_TYPE_DISTANCE: "distance"
 };
