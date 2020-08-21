@@ -410,6 +410,7 @@ describe("ExperimentController", () => {
               expect(first.metadata.sample.isolateId).toBeTruthy();
               expect(first.metadata.sample.longitudeIsolate).toBeTruthy();
               expect(first.metadata.sample.latitudeIsolate).toBeTruthy();
+              expect(first.id).toBeTruthy();
 
               expect(Object.keys(first.metadata).length).toEqual(1);
 
@@ -1857,6 +1858,20 @@ describe("ExperimentController", () => {
           expect(result.xdr).toBe(false);
           expect(result.tdr).toBe(false);
 
+          done();
+        });
+    });
+    it("should update the experiment leafId", done => {
+      request(args.app)
+        .post(`/experiments/${args.id}/results`)
+        .send(DISTANCE)
+        .set("Authorization", `Bearer ${args.token}`)
+        .expect(httpStatus.OK)
+        .end(async (err, res) => {
+          expect(res.body.status).toEqual("success");
+
+          const experimentWithResults = await Experiment.get(args.id);
+          expect(experimentWithResults).toHaveProperty("leafId", "leaf_1208");
           done();
         });
     });

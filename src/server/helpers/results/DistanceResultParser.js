@@ -13,6 +13,7 @@ class DistanceResultParser extends ResultParser {
     };
 
     result.analysed = this.namedResult.analysed ? this.namedResult.analysed : result.received;
+    result.leafId = this.namedResult.leafId;
 
     if (this.namedResult.result) {
       const distanceResult = this.namedResult.result;
