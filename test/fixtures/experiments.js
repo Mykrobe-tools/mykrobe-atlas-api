@@ -85,5 +85,14 @@ export default {
       phenotyping: metadata.uploadedMetadata.phenotyping
     },
     results: [results.predictor]
+  },
+  tbUploadMetadataNullCountryIsolate: {
+    sampleId: "2f612c94-e6ea-11ea-adc1-0242ac120002",
+    metadata: {
+      patient: metadata.uploadedMetadataNullCountry.patient,
+      sample: metadata.uploadedMetadataNullCountry.sample,
+      genotyping: metadata.uploadedMetadataNullCountry.genotyping,
+      phenotyping: metadata.uploadedMetadataNullCountry.phenotyping
+    }
   }
 };
