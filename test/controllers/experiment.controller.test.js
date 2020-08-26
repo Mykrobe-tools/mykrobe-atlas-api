@@ -102,6 +102,25 @@ describe("ExperimentController", () => {
           done();
         });
     });
+    it("should create a new experiment with null countryIsolate", done => {
+      request(args.app)
+        .post("/experiments")
+        .set("Authorization", `Bearer ${args.token}`)
+        .send(experiments.tbUploadMetadataNullCountryIsolate)
+        .expect(httpStatus.OK)
+        .end((err, res) => {
+          expect(res.body.status).toEqual("success");
+          expect(res.body.data).toHaveProperty("metadata");
+
+          const metadata = res.body.data.metadata;
+          expect(metadata).toHaveProperty("sample");
+
+          const sample = metadata.sample;
+          expect(sample).toHaveProperty("countryIsolate", null);
+          expect(sample).toHaveProperty("cityIsolate", null);
+          done();
+        });
+    });
     it("should remove additional fields from the new experiment", done => {
       request(args.app)
         .post("/experiments")
