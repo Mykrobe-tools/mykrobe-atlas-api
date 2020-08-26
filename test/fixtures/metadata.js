@@ -51,6 +51,17 @@ const samples = {
     dateArrived: moment.utc([2017, 10, 5]).toDate(),
     anatomicalOrigin: "Respiratory",
     smear: "Not known"
+  },
+  nullCountry: {
+    labId: "d19637ed-e5b4-4ca7-8418-8713646a3359",
+    isolateId: "9c0c00f2-8cb1-4254-bf53-3271f35ce696",
+    collectionDate: moment.utc([2018, 9, 19]).toDate(),
+    prospectiveIsolate: "Yes",
+    countryIsolate: null,
+    cityIsolate: null,
+    dateArrived: moment.utc([2018, 8, 1]).toDate(),
+    anatomicalOrigin: "Respiratory",
+    smear: "Not known"
   }
 };
 const genotypings = {
@@ -230,6 +241,12 @@ export default {
   uploadedMetadata: {
     patient: patients.normal,
     sample: samples.normal,
+    genotyping: genotypings.normal,
+    phenotyping: phenotypings.normal
+  },
+  uploadedMetadataNullCountry: {
+    patient: patients.normal,
+    sample: samples.nullCountry,
     genotyping: genotypings.normal,
     phenotyping: phenotypings.normal
   },
