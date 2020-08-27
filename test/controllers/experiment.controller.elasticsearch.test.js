@@ -45,13 +45,11 @@ const experimentWithChineseMetadata = new Experiment(experiments.tbUploadMetadat
 beforeEach(async done => {
   const userData = new User(users.admin);
   args.user = await userData.save();
-  console.log(`login`);
   request(args.app)
     .post("/auth/login")
     .send({ username: "admin@nhs.co.uk", password: "password" })
     .end((err, res) => {
       args.token = res.body.data.access_token;
-      console.log(`logged in`);
       done();
     });
 });
