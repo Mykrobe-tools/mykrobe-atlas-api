@@ -431,6 +431,9 @@ const choices = async (req, res) => {
 
     // apply status and organisation filters
     const searchQuery = new SearchQueryDecorator(req.originalUrl, req.user).decorate(parsedQuery);
+    logger.debug(
+      `ExperimentsController#choices: searchQuery: ${JSON.stringify(searchQuery, null, 2)}`
+    );
     const elasticsearchResults = await elasticService.search(searchQuery, {});
 
     const titles = jsonschemaUtil.schemaTitles(experimentSearchSchema);
@@ -468,6 +471,9 @@ const search = async (req, res) => {
 
       // apply status and organisation filters
       const searchQuery = new SearchQueryDecorator(req.originalUrl, req.user).decorate(parsedQuery);
+      logger.debug(
+        `ExperimentsController#search: searchQuery: ${JSON.stringify(searchQuery, null, 2)}`
+      );
       const elasticsearchResults = await elasticService.search(searchQuery, {});
 
       // generate the core elastic search structure
