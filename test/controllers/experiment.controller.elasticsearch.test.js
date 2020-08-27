@@ -45,11 +45,13 @@ const experimentWithChineseMetadata = new Experiment(experiments.tbUploadMetadat
 beforeEach(async done => {
   const userData = new User(users.admin);
   args.user = await userData.save();
+  console.log(`login`);
   request(args.app)
     .post("/auth/login")
     .send({ username: "admin@nhs.co.uk", password: "password" })
     .end((err, res) => {
       args.token = res.body.data.access_token;
+      console.log(`logged in`);
       done();
     });
 });
@@ -96,16 +98,18 @@ describe("ExperimentController > Elasticsearch", () => {
       });
     });
     describe("when valid", () => {
-      describe("when not filtered", () => {
+      describe.only("when not filtered", () => {
         let status = null;
         let data = null;
         beforeEach(done => {
-          // mocks/atlas-experiment/_search/POST.e127c8a2bb0839cdf956eced461fe08a.mock
+          console.log(`before choices call`);
+          // mocks/atlas-experiment/_search/POST.adc7765226e91eff245a0d1a23225c46.mock
           request(args.app)
             .get("/experiments/choices")
             .set("Authorization", `Bearer ${args.token}`)
             .expect(httpStatus.OK)
             .end((err, res) => {
+              //console.log(`res.body: ${JSON.stringify(res.body)}`);
               status = res.body.status;
               data = res.body.data;
 
@@ -141,6 +145,7 @@ describe("ExperimentController > Elasticsearch", () => {
           done();
         });
         it("should return choices for susceptibility and resistance", done => {
+          console.log(`should return choices for susceptibility and resistance`);
           // use Rifampicin as a sample enum
           expect(data["results.predictor.susceptibility.Rifampicin.prediction"]).toBeTruthy();
           const susceptibility = data["results.predictor.susceptibility.Rifampicin.prediction"];

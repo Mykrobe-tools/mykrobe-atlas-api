@@ -422,26 +422,32 @@ const reindex = async (req, res) => {
  */
 const choices = async (req, res) => {
   try {
+    console.log(`a`);
     const clone = Object.assign({}, req.query);
+    console.log(`b`);
     const container = parseQuery(clone);
+    console.log(`c`);
     const query = container.query;
+    console.log(`d`);
 
     // parse the query
     const parsedQuery = new RequestSearchQueryParser(req.originalUrl).parse(query);
-
+    console.log(`e`);
     // apply status and organisation filters
     const searchQuery = new SearchQueryDecorator(req.originalUrl, req.user).decorate(parsedQuery);
     logger.debug(
       `ExperimentsController#choices: searchQuery: ${JSON.stringify(searchQuery, null, 2)}`
     );
+    console.log(`f`);
     const elasticsearchResults = await elasticService.search(searchQuery, {});
-
+    console.log(`g`);
     const titles = jsonschemaUtil.schemaTitles(experimentSearchSchema);
-
+    console.log(`h`);
     const choices = await new ChoicesJSONTransformer().transform(elasticsearchResults, { titles });
-
+    console.log(`i`);
     return res.jsend(choices);
   } catch (e) {
+    console.log(`Error: ${JSON.stringify(e)}`);
     return res.jerror(ErrorUtil.convert(e, Constants.ERRORS.SEARCH_METADATA_VALUES));
   }
 };
