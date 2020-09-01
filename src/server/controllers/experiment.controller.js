@@ -390,9 +390,12 @@ const reindex = async (req, res) => {
   try {
     const { indexSizeLimit } = config.elasticsearch;
     const size = req.body.size || req.query.size || indexSizeLimit;
+    logger.debug(`ExperimentController#reindex: size: ${size}`);
 
-    await elasticService.deleteIndex();
+    const deleteResult = await elasticService.deleteIndex();
+    logger.debug(`ExperimentController#reindex: Index deleted: ${deleteResult}`);
     await elasticService.createIndex();
+    logger.debug(`ExperimentController#reindex: Index created: ${createResult}`);
     // index in batches
     const pagination = {
       count: 0,
@@ -401,15 +404,23 @@ const reindex = async (req, res) => {
     };
     while (pagination.more) {
       const data = await Experiment.since(pagination.id, parseInt(size));
+      logger.debug(
+        `ExperimentController#reindex: Collected data to index: ${data ? data.length : 0}`
+      );
       const result = await elasticService.indexDocuments(data);
+      logger.debug(`ExperimentController#reindex: Indexed documents: ${result}`);
 
       if (data.length === parseInt(size)) {
         pagination.more = true;
         pagination.id = data[data.length - 1]._id;
+
+        logger.debug(`ExperimentController#reindex: More to index from: ${pagination.id}`);
       } else {
         pagination.more = false;
+        logger.debug(`ExperimentController#reindex: Indexing complete: ${pagination.id}`);
       }
       pagination.count = pagination.count + data.length;
+      logger.debug(`ExperimentController#reindex: Current count: ${pagination.count}`);
     }
     return res.jsend(`All ${pagination.count} experiment(s) have been indexed.`);
   } catch (e) {
