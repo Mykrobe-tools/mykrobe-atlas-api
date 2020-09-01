@@ -1,6 +1,5 @@
 module.exports = {
-  testRegex: "(/test/(controllers|helpers)/.*?test).[jt]sx?$",
-  testPathIgnorePatterns: ["test/helpers/AgendaHelper.test.js", "test/controllers/experiment.controller.elasticsearch.test.js"],
+  testRegex: "(/test/(controllers|helpers)/.*?elasticsearch.test).[jt]sx?$",
   collectCoverage: false,
   testEnvironment: "node",
   reporters: [
