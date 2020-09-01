@@ -428,7 +428,6 @@ const choices = async (req, res) => {
 
     // parse the query
     const parsedQuery = new RequestSearchQueryParser(req.originalUrl).parse(query);
-
     // apply status and organisation filters
     const searchQuery = new SearchQueryDecorator(req.originalUrl, req.user).decorate(parsedQuery);
     logger.debug(
@@ -437,9 +436,7 @@ const choices = async (req, res) => {
     const elasticsearchResults = await elasticService.search(searchQuery, {});
 
     const titles = jsonschemaUtil.schemaTitles(experimentSearchSchema);
-
     const choices = await new ChoicesJSONTransformer().transform(elasticsearchResults, { titles });
-
     return res.jsend(choices);
   } catch (e) {
     return res.jerror(ErrorUtil.convert(e, Constants.ERRORS.SEARCH_METADATA_VALUES));

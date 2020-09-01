@@ -37,6 +37,8 @@ const samples = {
     prospectiveIsolate: "Yes",
     countryIsolate: "IN",
     cityIsolate: "Mumbai",
+    longitudeIsolate: -1.2577263,
+    latitudeIsolate: 51.7520209,
     dateArrived: moment.utc([2018, 8, 1]).toDate(),
     anatomicalOrigin: "Respiratory",
     smear: "Not known"
@@ -48,6 +50,8 @@ const samples = {
     prospectiveIsolate: "Yes",
     countryIsolate: "CH",
     cityIsolate: "Chongqing",
+    longitudeIsolate: -9.345667,
+    latitudeIsolate: 56.565478,
     dateArrived: moment.utc([2017, 10, 5]).toDate(),
     anatomicalOrigin: "Respiratory",
     smear: "Not known"
