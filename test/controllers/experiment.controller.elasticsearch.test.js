@@ -68,6 +68,12 @@ beforeAll(async done => {
   await elasticService.createIndex();
   await elasticService.indexDocuments([experiment1, experiment2]);
 
+  let total = await elasticService.count();
+
+  while (total < 2) {
+    total = await elasticService.count();
+  }
+
   const metadata1 = experiment1.get("metadata");
   const metadata2 = experiment2.get("metadata");
 
@@ -1029,46 +1035,126 @@ describe("ExperimentController > Elasticsearch", () => {
       });
     });
     describe("when valid", () => {
-      let status = null;
-      let data = null;
-      beforeEach(async done => {
-        // mocks/atlas-experiment/_search/POST.5d7cacdb16a8232999007cd5bae31a3c.mock
-        request(args.app)
-          .get("/experiments/summary")
-          .set("Authorization", `Bearer ${args.token}`)
-          .expect(httpStatus.OK)
-          .end((err, res) => {
-            status = res.body.status;
-            data = res.body.data;
+      describe("when no filters are provided", () => {
+        let status = null;
+        let data = null;
+        beforeEach(async done => {
+          // mocks/atlas-experiment/_search/POST.5d7cacdb16a8232999007cd5bae31a3c.mock
+          request(args.app)
+            .get("/experiments/summary")
+            .set("Authorization", `Bearer ${args.token}`)
+            .expect(httpStatus.OK)
+            .end((err, res) => {
+              status = res.body.status;
+              data = res.body.data;
 
-            done();
+              done();
+            });
+        });
+        it("should return success", done => {
+          expect(status).toEqual("success");
+          expect(data.length).toEqual(2);
+          done();
+        });
+        it("should return the whitelisted fields", () => {
+          data.forEach(result => {
+            expect(result).toHaveProperty("id");
+            expect(result).toHaveProperty("sampleId");
+            expect(result).toHaveProperty("metadata.sample.isolateId");
+            expect(result).toHaveProperty("metadata.sample.latitudeIsolate");
+            expect(result).toHaveProperty("metadata.sample.cityIsolate");
+            expect(result).toHaveProperty("metadata.sample.longitudeIsolate");
+            expect(result).toHaveProperty("metadata.sample.countryIsolate");
           });
-      });
-      it("should return success", done => {
-        expect(status).toEqual("success");
-        expect(data.length).toEqual(2);
-        done();
-      });
-      it("should return the whitelisted fields", () => {
-        data.forEach(result => {
-          expect(result).toHaveProperty("id");
-          expect(result).toHaveProperty("sampleId");
-          expect(result).toHaveProperty("metadata.sample.isolateId");
-          expect(result).toHaveProperty("metadata.sample.latitudeIsolate");
-          expect(result).toHaveProperty("metadata.sample.cityIsolate");
-          expect(result).toHaveProperty("metadata.sample.longitudeIsolate");
-          expect(result).toHaveProperty("metadata.sample.countryIsolate");
+        });
+        it("should not return the blacklisted fields", () => {
+          data.forEach(result => {
+            expect(result.metadata.patient).toBeUndefined();
+            expect(result.metadata.sample.labId).toBeUndefined();
+            expect(result.metadata.genotyping).toBeUndefined();
+            expect(result.metadata.phenotyping).toBeUndefined();
+            expect(result.results).toBeUndefined();
+            expect(result.created).toBeUndefined();
+            expect(result.modified).toBeUndefined();
+          });
         });
       });
-      it("should not return the blacklisted fields", () => {
-        data.forEach(result => {
-          expect(result.metadata.patient).toBeUndefined();
-          expect(result.metadata.sample.labId).toBeUndefined();
-          expect(result.metadata.genotyping).toBeUndefined();
-          expect(result.metadata.phenotyping).toBeUndefined();
-          expect(result.results).toBeUndefined();
-          expect(result.created).toBeUndefined();
-          expect(result.modified).toBeUndefined();
+      describe("when using filters", () => {
+        let status = null;
+        let data = null;
+        beforeEach(async done => {
+          request(args.app)
+            .get("/experiments/summary?metadata.sample.countryIsolate=IN")
+            .set("Authorization", `Bearer ${args.token}`)
+            .expect(httpStatus.OK)
+            .end((err, res) => {
+              status = res.body.status;
+              data = res.body.data;
+
+              done();
+            });
+        });
+        it("should return success", done => {
+          expect(status).toEqual("success");
+          expect(data.length).toEqual(1);
+          done();
+        });
+        it("should return filtered results", () => {
+          const result = data[0];
+          expect(result).toHaveProperty("id");
+          expect(result).toHaveProperty("sampleId", "f194df25-2a8b-4f4d-8594-e013ac58223a");
+          expect(result).toHaveProperty(
+            "metadata.sample.isolateId",
+            "9c0c00f2-8cb1-4254-bf53-3271f35ce696"
+          );
+          expect(result).toHaveProperty("metadata.sample.latitudeIsolate");
+          expect(result).toHaveProperty("metadata.sample.cityIsolate", "Mumbai");
+          expect(result).toHaveProperty("metadata.sample.longitudeIsolate");
+          expect(result).toHaveProperty("metadata.sample.countryIsolate", "IN");
+        });
+      });
+      describe("when sorting", () => {
+        let status = null;
+        let data = null;
+        beforeEach(async done => {
+          request(args.app)
+            .get("/experiments/summary?sort=metadata.sample.countryIsolate&order=asc")
+            .set("Authorization", `Bearer ${args.token}`)
+            .expect(httpStatus.OK)
+            .end((err, res) => {
+              status = res.body.status;
+              data = res.body.data;
+
+              done();
+            });
+        });
+        it("should return success", done => {
+          expect(status).toEqual("success");
+          expect(data.length).toEqual(2);
+          done();
+        });
+        it("should return sorted results", () => {
+          expect(data[0]).toHaveProperty("id");
+          expect(data[0]).toHaveProperty("sampleId", "44bcd581-cf41-4c81-accd-47f46ce38118");
+          expect(data[0]).toHaveProperty(
+            "metadata.sample.isolateId",
+            "820a78d6-b5b9-45c4-95d1-9463e6bdb14a"
+          );
+          expect(data[0]).toHaveProperty("metadata.sample.latitudeIsolate");
+          expect(data[0]).toHaveProperty("metadata.sample.cityIsolate", "Chongqing");
+          expect(data[0]).toHaveProperty("metadata.sample.longitudeIsolate");
+          expect(data[0]).toHaveProperty("metadata.sample.countryIsolate", "CH");
+
+          expect(data[1]).toHaveProperty("id");
+          expect(data[1]).toHaveProperty("sampleId", "f194df25-2a8b-4f4d-8594-e013ac58223a");
+          expect(data[1]).toHaveProperty(
+            "metadata.sample.isolateId",
+            "9c0c00f2-8cb1-4254-bf53-3271f35ce696"
+          );
+          expect(data[1]).toHaveProperty("metadata.sample.latitudeIsolate");
+          expect(data[1]).toHaveProperty("metadata.sample.cityIsolate", "Mumbai");
+          expect(data[1]).toHaveProperty("metadata.sample.longitudeIsolate");
+          expect(data[1]).toHaveProperty("metadata.sample.countryIsolate", "IN");
         });
       });
     });

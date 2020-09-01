@@ -3852,6 +3852,158 @@ router
    *       - application/json
    *     security:
    *       - Bearer: []
+   *     parameters:
+   *       - in: query
+   *         name: q
+   *         type: string
+   *         description: A free text query
+   *       - in: query
+   *         name: metadata.genotyping.wgsPlatform
+   *         type: string
+   *         description: The sample sequencing platform
+   *       - in: query
+   *         name: metadata.outcome.whoOutcomeCategory
+   *         type: string
+   *         description: The WHO outcome category
+   *       - in: query
+   *         name: metadata.patient.countryOfBirth
+   *         type: string
+   *         description: The country the patient was born in
+   *       - in: query
+   *         name: metadata.patient.diabetic
+   *         type: string
+   *         enum: [Diet alone,Tablets,Insulin,Insulin+tablets,Not known]
+   *         description: Whether the patient is diabetic
+   *       - in: query
+   *         name: metadata.patient.genderAtBirth
+   *         type: string
+   *         enum: [Male,Female,Other or Intersex,Not known / unavailable]
+   *         description: The patient's gender when born
+   *       - in: query
+   *         name: metadata.patient.hivStatus
+   *         type: string
+   *         enum: ["Tested, negative", "Tested, positive", "Not tested", "Not known"]
+   *         description: The patient's HIV status
+   *       - in: query
+   *         name: metadata.patient.homeless
+   *         type: string
+   *         enum: [Yes, No]
+   *         description: Whether the patient is homeless
+   *       - in: query
+   *         name: metadata.patient.imprisoned
+   *         type: string
+   *         enum: [Yes, No]
+   *         description: Whether the patient is in prison
+   *       - in: query
+   *         name: metadata.patient.injectingDrugUse
+   *         type: string
+   *         enum: [Yes, No]
+   *         description: Whether the patient injects drugs
+   *       - in: query
+   *         name: metadata.patient.smoker
+   *         type: string
+   *         enum: [Yes, No]
+   *         description: Whether the patient smokes
+   *       - in: query
+   *         name: metadata.sample.anatomicalOrigin
+   *         type: string
+   *         description: Where the sample was taken from
+   *       - in: query
+   *         name: metadata.sample.countryIsolate
+   *         type: string
+   *         description: Which country the sample was collected in
+   *       - in: query
+   *         name: results.predictor.susceptibility.Ofloxacin.prediction
+   *         type: string
+   *         description: Ofloxacin susceptibility
+   *         enum: [R, S]
+   *       - in: query
+   *         name: results.predictor.susceptibility.Moxifloxacin.prediction
+   *         type: string
+   *         description: Moxifloxacin susceptibility
+   *         enum: [R, S]
+   *       - in: query
+   *         name: results.predictor.susceptibility.Isoniazid.prediction
+   *         type: string
+   *         description: Isoniazid susceptibility
+   *         enum: [R, S]
+   *       - in: query
+   *         name: results.predictor.susceptibility.Kanamycin.prediction
+   *         type: string
+   *         description: Kanamycin susceptibility
+   *         enum: [R, S]
+   *       - in: query
+   *         name: results.predictor.susceptibility.Ethambutol.prediction
+   *         type: string
+   *         description: Ethambutol susceptibility
+   *         enum: [R, S]
+   *       - in: query
+   *         name: results.predictor.susceptibility.Streptomycin.prediction
+   *         type: string
+   *         description: Streptomycin susceptibility
+   *         enum: [R, S]
+   *       - in: query
+   *         name: results.predictor.susceptibility.Ciprofloxacin.prediction
+   *         type: string
+   *         description: Ciprofloxacin susceptibility
+   *         enum: [R, S]
+   *       - in: query
+   *         name: results.predictor.susceptibility.Pyrazinamide.prediction
+   *         type: string
+   *         description: Pyrazinamide susceptibility
+   *         enum: [R, S]
+   *       - in: query
+   *         name: results.predictor.susceptibility.Rifampicin.prediction
+   *         type: string
+   *         description: Rifampicin susceptibility
+   *         enum: [R, S]
+   *       - in: query
+   *         name: results.predictor.susceptibility.Amikacin.prediction
+   *         type: string
+   *         description: Amikacin susceptibility
+   *         enum: [R, S]
+   *       - in: query
+   *         name: results.predictor.susceptibility.Capreomycin.prediction
+   *         type: string
+   *         description: Capreomycin susceptibility
+   *         enum: [R, S]
+   *       - in: query
+   *         name: results.predictor.r
+   *         type: boolean
+   *         description: Resistant
+   *         enum: [true, false]
+   *       - in: query
+   *         name: results.predictor.mdr
+   *         type: boolean
+   *         description: Multi drug resistant
+   *         enum: [true, false]
+   *       - in: query
+   *         name: results.predictor.xdr
+   *         type: boolean
+   *         description: Extensively drug resistant
+   *         enum: [true, false]
+   *       - in: query
+   *         name: results.predictor.tdr
+   *         type: boolean
+   *         description: Totally drug resistant
+   *         enum: [true, false]
+   *       - in: query
+   *         name: page
+   *         type: number
+   *         description: The page to return
+   *       - in: query
+   *         name: per
+   *         type: number
+   *         description: The total results per page
+   *       - in: query
+   *         name: sort
+   *         type: string
+   *         description: The field to sort by
+   *       - in: query
+   *         name: order
+   *         type: string
+   *         enum: [asc, desc]
+   *         description: The ordering type
    *     responses:
    *       200:
    *         description: Experiments search

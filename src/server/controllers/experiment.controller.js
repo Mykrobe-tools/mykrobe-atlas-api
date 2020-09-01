@@ -593,11 +593,13 @@ const summary = async (req, res) => {
   try {
     const size = await elasticService.count();
 
-    // parse the query
-    const parsedQuery = new RequestSearchQueryParser(req.originalUrl).parse({
+    const clone = Object.assign(req.query, {
       per: size,
       source: Constants.LIGHT_EXPERIMENT_FIELDS
     });
+
+    // parse the query
+    const parsedQuery = new RequestSearchQueryParser(req.originalUrl).parse(clone);
 
     // prepare the search queru
     const searchQuery = new SearchQueryDecorator(req.originalUrl).decorate(parsedQuery);
