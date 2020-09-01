@@ -393,9 +393,9 @@ const reindex = async (req, res) => {
     logger.debug(`ExperimentController#reindex: size: ${size}`);
 
     const deleteResult = await elasticService.deleteIndex();
-    logger.debug(`ExperimentController#reindex: Index deleted: ${deleteResult}`);
-    await elasticService.createIndex();
-    logger.debug(`ExperimentController#reindex: Index created: ${createResult}`);
+    logger.debug(`ExperimentController#reindex: Index deleted: ${JSON.stringify(deleteResult)}`);
+    const createResult = await elasticService.createIndex();
+    logger.debug(`ExperimentController#reindex: Index created: ${JSON.stringify(createResult)}`);
     // index in batches
     const pagination = {
       count: 0,
@@ -408,7 +408,7 @@ const reindex = async (req, res) => {
         `ExperimentController#reindex: Collected data to index: ${data ? data.length : 0}`
       );
       const result = await elasticService.indexDocuments(data);
-      logger.debug(`ExperimentController#reindex: Indexed documents: ${result}`);
+      logger.debug(`ExperimentController#reindex: Indexed documents: ${JSON.stringify(result)}`);
 
       if (data.length === parseInt(size)) {
         pagination.more = true;
