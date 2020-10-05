@@ -1002,10 +1002,10 @@ describe("ExperimentController", () => {
             expect(res.body.data).toEqual("Download started from dropbox");
 
             let updatedExperiment = await Experiment.get(args.id);
-            while (!updatedExperiment.file) {
+            while (updatedExperiment.files.length === 0) {
               updatedExperiment = await Experiment.get(args.id);
             }
-            expect(updatedExperiment.file).toEqual("MDR.fastq.gz");
+            expect(updatedExperiment.files[0].name).toEqual("MDR.fastq.gz");
             done();
           });
       });
@@ -1028,7 +1028,7 @@ describe("ExperimentController", () => {
             expect(res.body.data).toEqual("Download started from dropbox");
 
             let updatedExperiment = await Experiment.get(id);
-            while (!updatedExperiment.file) {
+            while (updatedExperiment.files.length === 0) {
               updatedExperiment = await Experiment.get(id);
             }
 
@@ -1070,7 +1070,7 @@ describe("ExperimentController", () => {
             expect(res.body.data).toEqual("Download started from dropbox");
 
             let updatedExperiment = await Experiment.get(id);
-            while (!updatedExperiment.file) {
+            while (updatedExperiment.files.length === 0) {
               updatedExperiment = await Experiment.get(id);
             }
             /**

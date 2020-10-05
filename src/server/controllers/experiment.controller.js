@@ -271,7 +271,10 @@ const uploadFile = async (req, res) => {
         });
       });
       // save file attribute
-      experiment.file = req.body.name;
+      experiment.files.push({
+        name: req.body.name,
+        uploaded: true
+      });
       await experiment.save();
 
       return res.jsend(`Download started from ${req.body.provider}`);
