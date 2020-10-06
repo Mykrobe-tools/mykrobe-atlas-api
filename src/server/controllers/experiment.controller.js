@@ -322,7 +322,7 @@ const uploadFile = async (req, res) => {
       logger.debug(`ExperimentsController#uploadFile: complete`);
 
       // check pending uploads
-      const pending = await ExperimentHelper.isUploadPending(experiment.id, resumableFilename);
+      const pending = await ExperimentHelper.isUploadInProgress(experiment.id, resumableFilename);
 
       await EventHelper.clearUploadsState(req.dbUser.id, experiment.id);
       experimentEventEmitter.emit("upload-complete", {

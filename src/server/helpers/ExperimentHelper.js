@@ -75,7 +75,7 @@ class ExperimentHelper {
     }
   }
 
-  static async isUploadPending(id, filename) {
+  static async isUploadInProgress(id, filename) {
     const experiment = await Experiment.get(id);
     const files = experiment.get("files");
     experiment.files = files.map(file => {
