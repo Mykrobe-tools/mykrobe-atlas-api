@@ -2,6 +2,7 @@ import logger from "../modules/logger";
 import { geocode } from "../modules/geo/";
 
 import LocationHelper from "../helpers/LocationHelper";
+import Experiment from "../models/experiment.model";
 
 import config from "../../config/env";
 
@@ -59,6 +60,36 @@ class ExperimentHelper {
         }
       }
     }
+  }
+
+  static async initUploadState(experiment, filename) {
+    const files = experiment.get("files");
+    const exists = files.find(file => file.name === filename);
+    if (!exists) {
+      files.push({
+        name: filename,
+        uploaded: false
+      });
+      experiment.set("files", files);
+      await experiment.save();
+    }
+  }
+
+  static async isUploadPending(id, filename) {
+    const experiment = await Experiment.get(id);
+    const files = experiment.get("files");
+    experiment.files = files.map(file => {
+      if (file.name === filename) {
+        return {
+          name: filename,
+          completed: true
+        };
+
+        return file;
+      }
+    });
+    await experiment.save();
+    return experiment.files.find(file => file.completed === false);
   }
 }
 

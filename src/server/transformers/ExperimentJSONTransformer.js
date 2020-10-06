@@ -5,6 +5,7 @@ import UserJSONTransformer from "./UserJSONTransformer";
 import OrganisationJSONTransformer from "./OrganisationJSONTransformer";
 import ResultsJSONTransformer from "./ResultsJSONTransformer";
 import MetadataJSONTransformer from "./MetadataJSONTransformer";
+import FileJSONTransformer from "./FileJSONTransformer";
 import ExperimentResultsPerTypeJSONTransformer from "./ExperimentResultsPerTypeJSONTransformer";
 
 const BLACKLIST = ["__v"];
@@ -30,6 +31,12 @@ class ExperimentJSONTransformer extends ModelJSONTransformer {
 
     if (res.results) {
       res.results = new ExperimentResultsPerTypeJSONTransformer().transform(res.results, options);
+    }
+
+    if (res.files) {
+      res.files = res.files.map(file =>
+        new FileJSONTransformer().transform(file, { blacklist: BLACKLIST })
+      );
     }
 
     return res;

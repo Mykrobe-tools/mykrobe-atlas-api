@@ -2,6 +2,7 @@ import request from "supertest";
 import httpStatus from "http-status";
 import fs from "fs";
 import moment from "moment";
+import async from "async";
 
 import Constants from "../../src/server/Constants";
 
@@ -749,76 +750,55 @@ describe("ExperimentController", () => {
     });
   });
   describe("PUT /experiments/:id/file", () => {
-    it("should upload file using resumable", done => {
-      request(args.app)
-        .put(`/experiments/${args.id}/file`)
-        .set("Authorization", `Bearer ${args.token}`)
-        .field("resumableChunkNumber", 1)
-        .field("resumableChunkSize", 1048576)
-        .field("resumableCurrentChunkSize", 251726)
-        .field("resumableTotalSize", 251726)
-        .field("resumableType", "args.application/json")
-        .field("resumableIdentifier", "251726-333-08json")
-        .field("resumableFilename", "333-08.json")
-        .field("resumableRelativePath", "333-08.json")
-        .field("resumableTotalChunks", 1)
-        .field("checksum", "4f36e4cbfc9dfc37559e13bd3a309d50")
-        .attach("file", "test/fixtures/files/333-08.json")
-        .expect(httpStatus.OK)
-        .end((err, res) => {
-          expect(res.body.status).toEqual("success");
-          expect(res.body.data).toEqual("File uploaded and reassembled");
+    describe("when uploading multiple files", () => {
+      const asyncTasks = [];
+      beforeEach(async () => {
+        asyncTasks.push(done => {
+          request(args.app)
+            .put(`/experiments/${args.id}/file`)
+            .set("Authorization", `Bearer ${args.token}`)
+            .field("resumableChunkNumber", 1)
+            .field("resumableChunkSize", 1048576)
+            .field("resumableCurrentChunkSize", 251726)
+            .field("resumableTotalSize", 251726)
+            .field("resumableType", "application/json")
+            .field("resumableIdentifier", "251726-333-08json")
+            .field("resumableFilename", "333-08.json")
+            .field("resumableRelativePath", "333-08.json")
+            .field("resumableTotalChunks", 1)
+            .field("checksum", "4f36e4cbfc9dfc37559e13bd3a309d50")
+            .attach("file", "test/fixtures/files/333-08.json")
+            .expect(httpStatus.OK, done);
+        });
+        asyncTasks.push(done => {
+          request(args.app)
+            .put(`/experiments/${args.id}/file`)
+            .set("Authorization", `Bearer ${args.token}`)
+            .field("resumableChunkNumber", 1)
+            .field("resumableChunkSize", 1048576)
+            .field("resumableCurrentChunkSize", 251726)
+            .field("resumableTotalSize", 251726)
+            .field("resumableType", "application/json")
+            .field("resumableIdentifier", "251726-333-09json")
+            .field("resumableFilename", "333-09.json")
+            .field("resumableRelativePath", "333-09.json")
+            .field("resumableTotalChunks", 1)
+            .field("checksum", "ab4ce6e475db2145cf60ce97de77a98478a7058c")
+            .attach("file", "test/fixtures/files/333-09.json")
+            .expect(httpStatus.OK, done);
+        });
+      });
+      it("should upload the files file using resumable", done => {
+        async.series(asyncTasks, async () => {
+          const experimentWithFiles = await Experiment.get(args.id);
+          expect(experimentWithFiles.files.length).toEqual(2);
           done();
         });
-    });
-    it("should create the reassembled file in the system", done => {
-      request(args.app)
-        .put(`/experiments/${args.id}/file`)
-        .set("Authorization", `Bearer ${args.token}`)
-        .field("resumableChunkNumber", 1)
-        .field("resumableChunkSize", 1048576)
-        .field("resumableCurrentChunkSize", 251726)
-        .field("resumableTotalSize", 251726)
-        .field("resumableType", "args.application/json")
-        .field("resumableIdentifier", "251726-333-08json")
-        .field("resumableFilename", "333-08.json")
-        .field("resumableRelativePath", "333-08.json")
-        .field("resumableTotalChunks", 1)
-        .field("checksum", "4f36e4cbfc9dfc37559e13bd3a309d50")
-        .attach("file", "test/fixtures/files/333-08.json")
-        .expect(httpStatus.OK)
-        .end((err, res) => {
-          const filePath = `${config.express.uploadDir}/experiments/${args.id}/file/333-08.json`;
-          expect(res.body.status).toEqual("success");
-          expect(res.body.data).toEqual("File uploaded and reassembled");
-          expect(fs.existsSync(filePath)).toEqual(true);
-          done();
-        });
-    });
-    it("should emit upload-complete event to all the subscribers", done => {
-      const mockCallback = jest.fn();
-      experimentEventEmitter.on("upload-complete", mockCallback);
-      request(args.app)
-        .put(`/experiments/${args.id}/file`)
-        .set("Authorization", `Bearer ${args.token}`)
-        .field("resumableChunkNumber", 1)
-        .field("resumableChunkSize", 1048576)
-        .field("resumableCurrentChunkSize", 251726)
-        .field("resumableTotalSize", 251726)
-        .field("resumableType", "args.application/json")
-        .field("resumableIdentifier", "251726-333-08json")
-        .field("resumableFilename", "333-08.json")
-        .field("resumableRelativePath", "333-08.json")
-        .field("resumableTotalChunks", 1)
-        .field("checksum", "4f36e4cbfc9dfc37559e13bd3a309d50")
-        .attach("file", "test/fixtures/files/333-08.json")
-        .expect(httpStatus.OK)
-        .end((err, res) => {
-          const filePath = `${config.express.uploadDir}/experiments/${args.id}/file/333-08.json`;
-          expect(res.body.status).toEqual("success");
-          expect(res.body.data).toEqual("File uploaded and reassembled");
-          expect(fs.existsSync(filePath)).toEqual(true);
-
+      });
+      it("should emit upload-complete event to all the subscribers", done => {
+        const mockCallback = jest.fn();
+        experimentEventEmitter.on("upload-complete", mockCallback);
+        async.series(asyncTasks, async () => {
           expect(mockCallback.mock.calls.length).toEqual(1);
           const calls = mockCallback.mock.calls;
 
@@ -834,572 +814,23 @@ describe("ExperimentController", () => {
           expect(experiment.id).toEqual(args.id);
           expect(status.filename).toEqual("333-08.json");
           expect(status.complete).toEqual(true);
-
           done();
         });
-    });
-    it("should return an error if experiment not found", done => {
-      request(args.app)
-        .put("/experiments/589dcdd38d71fee259dc4e00/file")
-        .set("Authorization", `Bearer ${args.token}`)
-        .field("resumableChunkNumber", 1)
-        .field("resumableChunkSize", 1048576)
-        .field("resumableCurrentChunkSize", 251726)
-        .field("resumableTotalSize", 251726)
-        .field("resumableType", "args.application/json")
-        .field("resumableIdentifier", "251726-333-08json")
-        .field("resumableFilename", "333-08.json")
-        .field("resumableRelativePath", "333-08.json")
-        .field("resumableTotalChunks", 1)
-        .field("checksum", "4f36e4cbfc9dfc37559e13bd3a309d50")
-        .attach("file", "test/fixtures/files/333-08.json")
-        .expect(httpStatus.OK)
-        .end((err, res) => {
-          expect(res.body.status).toEqual("error");
-          expect(res.body.code).toEqual(Constants.ERRORS.GET_EXPERIMENT);
-          expect(res.body.message).toEqual("Experiment not found with id 589dcdd38d71fee259dc4e00");
-          done();
-        });
-    });
-    it("should return an error if no file attached", done => {
-      request(args.app)
-        .put(`/experiments/${args.id}/file`)
-        .set("Authorization", `Bearer ${args.token}`)
-        .field("resumableChunkNumber", 1)
-        .field("resumableChunkSize", 1048576)
-        .field("resumableCurrentChunkSize", 251726)
-        .field("resumableTotalSize", 251726)
-        .field("resumableType", "args.application/json")
-        .field("resumableIdentifier", "251726-333-08json")
-        .field("resumableFilename", "333-08.json")
-        .field("resumableRelativePath", "333-08.json")
-        .field("resumableTotalChunks", 1)
-        .field("checksum", "4f36e4cbfc9dfc37559e13bd3a309d50")
-        .expect(httpStatus.OK)
-        .end((err, res) => {
-          expect(res.body.status).toEqual("error");
-          expect(res.body.code).toEqual(Constants.ERRORS.UPLOAD_FILE);
-          expect(res.body.message).toEqual("No files found to upload");
-          done();
-        });
-    });
-    it("should return an error if checksum is not valid", done => {
-      request(args.app)
-        .put(`/experiments/${args.id}/file`)
-        .set("Authorization", `Bearer ${args.token}`)
-        .field("resumableChunkNumber", 1)
-        .field("resumableChunkSize", 1048576)
-        .field("resumableCurrentChunkSize", 251726)
-        .field("resumableTotalSize", 251726)
-        .field("resumableType", "args.application/json")
-        .field("resumableIdentifier", "251726-333-08json")
-        .field("resumableFilename", "333-08.json")
-        .field("resumableRelativePath", "333-08.json")
-        .field("resumableTotalChunks", 1)
-        .field("checksum", "4f36e4cbfc9dfc37559e13bd3a309d55")
-        .attach("file", "test/fixtures/files/333-08.json")
-        .expect(httpStatus.OK)
-        .end((err, res) => {
-          expect(res.body.status).toEqual("error");
-          expect(res.body.code).toEqual(Constants.ERRORS.UPLOAD_FILE);
-          expect(res.body.data.complete).toEqual(false);
-          expect(res.body.data.message).toEqual(
-            "Uploaded file checksum doesn't match original checksum"
+      });
+      it("should call the analysis api with payload", done => {
+        async.series(asyncTasks, async () => {
+          const jobs = mongo(config.db.uri, []).agendaJobs;
+          let job = await findJob(jobs, args.id, "call analysis api");
+          while (!job) {
+            job = await findJob(jobs, args.id, "call analysis api");
+          }
+          expect(job.name).toEqual("call analysis api");
+          expect(job.data.file).toEqual(
+            `${config.express.uploadsLocation}/experiments/${args.id}/file/333-08.json`
           );
+          expect(job.data.experiment_id).toEqual(args.id);
           done();
         });
-    });
-    it("should return an error if chunk size is not correct", done => {
-      request(args.app)
-        .put(`/experiments/${args.id}/file`)
-        .set("Authorization", `Bearer ${args.token}`)
-        .field("resumableChunkNumber", 1)
-        .field("resumableChunkSize", 1048576)
-        .field("resumableCurrentChunkSize", 251726)
-        .field("resumableTotalSize", 251700)
-        .field("resumableType", "args.application/json")
-        .field("resumableIdentifier", "251726-333-08json")
-        .field("resumableFilename", "333-08.json")
-        .field("resumableRelativePath", "333-08.json")
-        .field("resumableTotalChunks", 1)
-        .field("checksum", "4f36e4cbfc9dfc37559e13bd3a309d50")
-        .attach("file", "test/fixtures/files/333-08.json")
-        .expect(httpStatus.OK)
-        .end((err, res) => {
-          expect(res.body.status).toEqual("error");
-          expect(res.body.code).toEqual(Constants.ERRORS.UPLOAD_FILE);
-          expect(res.body.message).toEqual("Error uploading file");
-          expect(res.body.data.complete).toEqual(false);
-          expect(res.body.data.message).toEqual("Incorrect individual chunk size");
-          done();
-        });
-    });
-    describe("when provider and path are present", () => {
-      it("should only allow valid providers", done => {
-        request(args.app)
-          .put(`/experiments/${args.id}/provider`)
-          .set("Authorization", `Bearer ${args.token}`)
-          .send({
-            provider: "ftp",
-            name: "fake.json",
-            path: "https://jsonplaceholder.typicode.com/posts/1"
-          })
-          .expect(httpStatus.OK)
-          .end((err, res) => {
-            expect(res.body.status).toEqual("error");
-            expect(res.body.code).toEqual(Constants.ERRORS.VALIDATION_ERROR);
-            expect(res.body.message).toEqual("Unable to upload experiment");
-            expect(res.body.data.errors.provider.message).toEqual(
-              "should be equal to one of the allowed values"
-            );
-            done();
-          });
-      });
-      it("should be a protected route", done => {
-        request(args.app)
-          .put(`/experiments/${args.id}/provider`)
-          .set("Authorization", "Bearer INVALID_TOKEN")
-          .send({
-            provider: "dropbox",
-            name: "fake.json",
-            path: "https://jsonplaceholder.typicode.com/posts/1"
-          })
-          .expect(httpStatus.OK)
-          .end((err, res) => {
-            expect(res.body.status).toEqual("error");
-            expect(res.body.message).toEqual("Not Authorised");
-            done();
-          });
-      });
-      it("should download files from dropbox", done => {
-        request(args.app)
-          .put(`/experiments/${args.id}/provider`)
-          .set("Authorization", `Bearer ${args.token}`)
-          .send({
-            provider: "dropbox",
-            name: "fake.json",
-            path: "https://jsonplaceholder.typicode.com/posts/1"
-          })
-          .expect(httpStatus.OK)
-          .end((err, res) => {
-            expect(res.body.status).toEqual("success");
-            expect(res.body.data).toEqual("Download started from dropbox");
-            done();
-          });
-      });
-      it("should save file attribute", done => {
-        request(args.app)
-          .put(`/experiments/${args.id}/provider`)
-          .set("Authorization", `Bearer ${args.token}`)
-          .send({
-            provider: "dropbox",
-            name: "MDR.fastq.gz",
-            path: "https://jsonplaceholder.typicode.com/posts/1"
-          })
-          .expect(httpStatus.OK)
-          .end(async (err, res) => {
-            expect(res.body.status).toEqual("success");
-            expect(res.body.data).toEqual("Download started from dropbox");
-
-            let updatedExperiment = await Experiment.get(args.id);
-            while (updatedExperiment.files.length === 0) {
-              updatedExperiment = await Experiment.get(args.id);
-            }
-            expect(updatedExperiment.files[0].name).toEqual("MDR.fastq.gz");
-            done();
-          });
-      });
-      it("should send the upload progress event to all subscribers", done => {
-        const id = args.id;
-        const mockCallback = jest.fn();
-
-        experimentEventEmitter.on("3rd-party-upload-progress", mockCallback);
-        request(args.app)
-          .put(`/experiments/${args.id}/provider`)
-          .set("Authorization", `Bearer ${args.token}`)
-          .send({
-            provider: "dropbox",
-            name: "MDR.fastq.gz",
-            path: "https://dl.dropboxusercontent.com/1/view/1234"
-          })
-          .expect(httpStatus.OK)
-          .end(async (err, res) => {
-            expect(res.body.status).toEqual("success");
-            expect(res.body.data).toEqual("Download started from dropbox");
-
-            let updatedExperiment = await Experiment.get(id);
-            while (updatedExperiment.files.length === 0) {
-              updatedExperiment = await Experiment.get(id);
-            }
-
-            expect(mockCallback.mock.calls.length).toBeTruthy();
-            const args = mockCallback.mock.calls[0];
-
-            expect(args.length).toEqual(1);
-            const object = args[0];
-
-            expect(object).toHaveProperty("status");
-            expect(object).toHaveProperty("experiment");
-
-            const status = object.status;
-            const experiment = object.experiment;
-
-            expect(experiment.id).toBeTruthy();
-            expect(status.provider).toEqual("dropbox");
-            expect(status.totalSize).toBeTruthy();
-            expect(status.fileLocation).toBeTruthy();
-
-            done();
-          });
-      });
-      it("should send the upload complete event to all subscribers", done => {
-        const id = args.id;
-        const mockCallback = jest.fn();
-        experimentEventEmitter.on("3rd-party-upload-complete", mockCallback);
-        request(args.app)
-          .put(`/experiments/${args.id}/provider`)
-          .set("Authorization", `Bearer ${args.token}`)
-          .send({
-            provider: "dropbox",
-            name: "MDR.fastq.gz",
-            path: "https://dl.dropboxusercontent.com/1/view/1234"
-          })
-          .expect(httpStatus.OK)
-          .end(async (err, res) => {
-            expect(res.body.status).toEqual("success");
-            expect(res.body.data).toEqual("Download started from dropbox");
-
-            let updatedExperiment = await Experiment.get(id);
-            while (updatedExperiment.files.length === 0) {
-              updatedExperiment = await Experiment.get(id);
-            }
-            /**
-             * The event should be called at least one time, because of the parallel tests it may get called twice
-             * This should be changed to expect(mockCallback.mock.calls.length).toBe(1); when running with runInBand
-             */
-            expect(mockCallback.mock.calls.length).toBeGreaterThanOrEqual(1);
-            const args = mockCallback.mock.calls[0];
-
-            expect(args.length).toEqual(1);
-            const object = args[0];
-
-            expect(object).toHaveProperty("status");
-            expect(object).toHaveProperty("experiment");
-
-            const status = object.status;
-            const experiment = object.experiment;
-
-            expect(experiment.id).toBeTruthy();
-            expect(status.provider).toEqual("dropbox");
-            expect(status.size).toBeTruthy();
-            expect(status.totalSize).toBeTruthy();
-            expect(status.fileLocation).toBeTruthy();
-            done();
-          });
-      });
-      it("should call the analysis api when download is done - dropbox", done => {
-        request(args.app)
-          .put(`/experiments/${args.id}/provider`)
-          .set("Authorization", `Bearer ${args.token}`)
-          .send({
-            provider: "dropbox",
-            name: "333-08.json",
-            path: "https://jsonplaceholder.typicode.com/posts/1"
-          })
-          .expect(httpStatus.OK)
-          .end(async (err, res) => {
-            const jobs = mongo(config.db.uri, []).agendaJobs;
-            expect(res.body.status).toEqual("success");
-            expect(res.body.data).toEqual("Download started from dropbox");
-            try {
-              let job = await findJob(jobs, args.id, "call analysis api");
-              while (!job) {
-                job = await findJob(jobs, args.id, "call analysis api");
-              }
-              expect(job.data.file).toEqual(
-                `${config.express.uploadsLocation}/experiments/${args.id}/file/333-08.json`
-              );
-              expect(job.data.experiment_id).toEqual(args.id);
-              expect(job.data.attempt).toEqual(0);
-              done();
-            } catch (e) {
-              fail(e.message);
-              done();
-            }
-          });
-      });
-      it("should save the dropbox file to the filesystem", done => {
-        request(args.app)
-          .put(`/experiments/${args.id}/provider`)
-          .set("Authorization", `Bearer ${args.token}`)
-          .send({
-            provider: "dropbox",
-            name: "fake.json",
-            path: "https://jsonplaceholder.typicode.com/posts/1"
-          })
-          .expect(httpStatus.OK)
-          .end((err, res) => {
-            const filePath = `${config.express.uploadDir}/experiments/${args.id}/file/fake.json`;
-            expect(res.body.status).toEqual("success");
-            expect(res.body.data).toEqual("Download started from dropbox");
-            expect(fs.existsSync(filePath)).toEqual(true);
-            done();
-          });
-      });
-      it("should download files from box", done => {
-        request(args.app)
-          .put(`/experiments/${args.id}/provider`)
-          .set("Authorization", `Bearer ${args.token}`)
-          .send({
-            provider: "box",
-            name: "fake.json",
-            path: "https://jsonplaceholder.typicode.com/posts/1"
-          })
-          .expect(httpStatus.OK)
-          .end((err, res) => {
-            expect(res.body.status).toEqual("success");
-            expect(res.body.data).toEqual("Download started from box");
-            done();
-          });
-      });
-      it("should call the analysis api when download is done - box", done => {
-        request(args.app)
-          .put(`/experiments/${args.id}/provider`)
-          .set("Authorization", `Bearer ${args.token}`)
-          .send({
-            provider: "box",
-            name: "333-08.json",
-            path: "https://jsonplaceholder.typicode.com/posts/1"
-          })
-          .expect(httpStatus.OK)
-          .end(async (err, res) => {
-            const jobs = mongo(config.db.uri, []).agendaJobs;
-            expect(res.body.status).toEqual("success");
-            expect(res.body.data).toEqual("Download started from box");
-            try {
-              let job = await findJob(jobs, args.id, "call analysis api");
-              while (!job) {
-                job = await findJob(jobs, args.id, "call analysis api");
-              }
-              expect(job.data.file).toEqual(
-                `${config.express.uploadsLocation}/experiments/${args.id}/file/333-08.json`
-              );
-              expect(job.data.experiment_id).toEqual(args.id);
-              expect(job.data.attempt).toEqual(0);
-              done();
-            } catch (e) {
-              fail(e.message);
-              done();
-            }
-          });
-      });
-      it("should save the box file to the filesystem", done => {
-        request(args.app)
-          .put(`/experiments/${args.id}/provider`)
-          .set("Authorization", `Bearer ${args.token}`)
-          .send({
-            provider: "box",
-            name: "fake.json",
-            path: "https://jsonplaceholder.typicode.com/posts/1"
-          })
-          .expect(httpStatus.OK)
-          .end((err, res) => {
-            const filePath = `${config.express.uploadDir}/experiments/${args.id}/file/fake.json`;
-            expect(res.body.status).toEqual("success");
-            expect(res.body.data).toEqual("Download started from box");
-            expect(fs.existsSync(filePath)).toEqual(true);
-            done();
-          });
-      });
-      it("should download files from google drive", done => {
-        request(args.app)
-          .put(`/experiments/${args.id}/provider`)
-          .set("Authorization", `Bearer ${args.token}`)
-          .send({
-            provider: "googleDrive",
-            name: "fake.json",
-            path: "https://jsonplaceholder.typicode.com/posts/1",
-            accessToken: "dummy-args.token"
-          })
-          .expect(httpStatus.OK)
-          .end((err, res) => {
-            expect(res.body.status).toEqual("success");
-            expect(res.body.data).toEqual("Download started from googleDrive");
-            done();
-          });
-      });
-      it("should call the analysis api when download is done - googleDrive", done => {
-        request(args.app)
-          .put(`/experiments/${args.id}/provider`)
-          .set("Authorization", `Bearer ${args.token}`)
-          .send({
-            provider: "googleDrive",
-            name: "333-08.json",
-            path: "https://jsonplaceholder.typicode.com/posts/1",
-            accessToken: "dummy-args.token"
-          })
-          .expect(httpStatus.OK)
-          .end(async (err, res) => {
-            const jobs = mongo(config.db.uri, []).agendaJobs;
-            expect(res.body.status).toEqual("success");
-            expect(res.body.data).toEqual("Download started from googleDrive");
-            try {
-              let job = await findJob(jobs, args.id, "call analysis api");
-              while (!job) {
-                job = await findJob(jobs, args.id, "call analysis api");
-              }
-              expect(job.data.file).toEqual(
-                `${config.express.uploadsLocation}/experiments/${args.id}/file/333-08.json`
-              );
-              expect(job.data.experiment_id).toEqual(args.id);
-              expect(job.data.attempt).toEqual(0);
-              done();
-            } catch (e) {
-              fail(e.message);
-              done();
-            }
-          });
-      });
-      it("should make accessToken mandatory for googleDrive", done => {
-        request(args.app)
-          .put(`/experiments/${args.id}/provider`)
-          .set("Authorization", `Bearer ${args.token}`)
-          .send({
-            provider: "googleDrive",
-            name: "fake.json",
-            path: "https://jsonplaceholder.typicode.com/posts/1"
-          })
-          .expect(httpStatus.OK)
-          .end((err, res) => {
-            expect(res.body.status).toEqual("error");
-            expect(res.body.data.errors.accessToken.message).toEqual(
-              "should have required property 'accessToken'"
-            );
-            done();
-          });
-      });
-      it("should save the google drive file to the filesystem", done => {
-        request(args.app)
-          .put(`/experiments/${args.id}/provider`)
-          .set("Authorization", `Bearer ${args.token}`)
-          .send({
-            provider: "googleDrive",
-            name: "fake.json",
-            path: "https://jsonplaceholder.typicode.com/posts/1",
-            accessToken: "dummy-args.token"
-          })
-          .expect(httpStatus.OK)
-          .end((err, res) => {
-            const filePath = `${config.express.uploadDir}/experiments/${args.id}/file/fake.json`;
-            expect(res.body.status).toEqual("success");
-            expect(res.body.data).toEqual("Download started from googleDrive");
-            expect(fs.existsSync(filePath)).toEqual(true);
-            done();
-          });
-      });
-      it("should download files from one drive", done => {
-        request(args.app)
-          .put(`/experiments/${args.id}/provider`)
-          .set("Authorization", `Bearer ${args.token}`)
-          .send({
-            provider: "oneDrive",
-            name: "fake.json",
-            path: "https://jsonplaceholder.typicode.com/posts/1"
-          })
-          .expect(httpStatus.OK)
-          .end((err, res) => {
-            expect(res.body.status).toEqual("success");
-            expect(res.body.data).toEqual("Download started from oneDrive");
-            done();
-          });
-      });
-      it("should call the analysis api when download is done - oneDrive", done => {
-        request(args.app)
-          .put(`/experiments/${args.id}/provider`)
-          .set("Authorization", `Bearer ${args.token}`)
-          .send({
-            provider: "oneDrive",
-            name: "333-08.json",
-            path: "https://jsonplaceholder.typicode.com/posts/1"
-          })
-          .expect(httpStatus.OK)
-          .end(async (err, res) => {
-            const jobs = mongo(config.db.uri, []).agendaJobs;
-            expect(res.body.status).toEqual("success");
-            expect(res.body.data).toEqual("Download started from oneDrive");
-            try {
-              let job = await findJob(jobs, args.id, "call analysis api");
-              while (!job) {
-                job = await findJob(jobs, args.id, "call analysis api");
-              }
-              expect(job.data.file).toEqual(
-                `${config.express.uploadsLocation}/experiments/${args.id}/file/333-08.json`
-              );
-              expect(job.data.experiment_id).toEqual(args.id);
-              expect(job.data.attempt).toEqual(0);
-              done();
-            } catch (e) {
-              fail(e.message);
-              done();
-            }
-          });
-      });
-      it("should save the one drive file to the filesystem", done => {
-        request(args.app)
-          .put(`/experiments/${args.id}/provider`)
-          .set("Authorization", `Bearer ${args.token}`)
-          .send({
-            provider: "oneDrive",
-            name: "fake.json",
-            path: "https://jsonplaceholder.typicode.com/posts/1"
-          })
-          .expect(httpStatus.OK)
-          .end((err, res) => {
-            const filePath = `${config.express.uploadDir}/experiments/${args.id}/file/fake.json`;
-            expect(res.body.status).toEqual("success");
-            expect(res.body.data).toEqual("Download started from oneDrive");
-            expect(fs.existsSync(filePath)).toEqual(true);
-            done();
-          });
-      });
-    });
-    describe("when calling the analysis API", () => {
-      it("should capture a payload including the sample id and file location", done => {
-        request(args.app)
-          .put(`/experiments/${args.id}/file`)
-          .set("Authorization", `Bearer ${args.token}`)
-          .field("resumableChunkNumber", 1)
-          .field("resumableChunkSize", 1048576)
-          .field("resumableCurrentChunkSize", 251726)
-          .field("resumableTotalSize", 251726)
-          .field("resumableType", "args.application/json")
-          .field("resumableIdentifier", "251726-333-08json")
-          .field("resumableFilename", "333-08.json")
-          .field("resumableRelativePath", "333-08.json")
-          .field("resumableTotalChunks", 1)
-          .field("checksum", "4f36e4cbfc9dfc37559e13bd3a309d50")
-          .attach("file", "test/fixtures/files/333-08.json")
-          .expect(httpStatus.OK)
-          .end(async (err, res) => {
-            const jobs = mongo(config.db.uri, []).agendaJobs;
-            expect(res.body.status).toEqual("success");
-            expect(res.body.data).toEqual("File uploaded and reassembled");
-            try {
-              let job = await findJob(jobs, args.id, "call analysis api");
-              while (!job) {
-                job = await findJob(jobs, args.id, "call analysis api");
-              }
-              expect(job.data.file).toEqual(
-                `${config.express.uploadsLocation}/experiments/${args.id}/file/333-08.json`
-              );
-              expect(job.data.experiment_id).toEqual(args.id);
-              expect(job.data.attempt).toEqual(0);
-              done();
-            } catch (e) {
-              fail(e.message);
-              done();
-            }
-          });
       });
       it("should call the analysis api with payload", done => {
         request(args.app)
@@ -1433,7 +864,9 @@ describe("ExperimentController", () => {
             done();
           });
       });
-      it("should record taskId to the audit collection", done => {
+    });
+    describe("when uploading a single file", () => {
+      it("should upload file using resumable", done => {
         request(args.app)
           .put(`/experiments/${args.id}/file`)
           .set("Authorization", `Bearer ${args.token}`)
@@ -1449,36 +882,105 @@ describe("ExperimentController", () => {
           .field("checksum", "4f36e4cbfc9dfc37559e13bd3a309d50")
           .attach("file", "test/fixtures/files/333-08.json")
           .expect(httpStatus.OK)
-          .end(async (err, res) => {
-            let audits = await Audit.find({
-              experimentId: args.id,
-              type: "Predictor"
-            });
-            while (audits.length === 0) {
-              audits = await Audit.find({
-                experimentId: args.id,
-                type: "Predictor"
-              });
-            }
-            const audit = audits[0];
+          .end((err, res) => {
             expect(res.body.status).toEqual("success");
             expect(res.body.data).toEqual("File uploaded and reassembled");
-            expect(audit.experimentId).toEqual(args.id);
-            expect(audit.fileLocation).toEqual(
-              `${config.express.uploadsLocation}/experiments/${args.id}/file/333-08.json`
+            done();
+          });
+      });
+      it("should create the reassembled file in the system", done => {
+        request(args.app)
+          .put(`/experiments/${args.id}/file`)
+          .set("Authorization", `Bearer ${args.token}`)
+          .field("resumableChunkNumber", 1)
+          .field("resumableChunkSize", 1048576)
+          .field("resumableCurrentChunkSize", 251726)
+          .field("resumableTotalSize", 251726)
+          .field("resumableType", "args.application/json")
+          .field("resumableIdentifier", "251726-333-08json")
+          .field("resumableFilename", "333-08.json")
+          .field("resumableRelativePath", "333-08.json")
+          .field("resumableTotalChunks", 1)
+          .field("checksum", "4f36e4cbfc9dfc37559e13bd3a309d50")
+          .attach("file", "test/fixtures/files/333-08.json")
+          .expect(httpStatus.OK)
+          .end((err, res) => {
+            const filePath = `${config.express.uploadDir}/experiments/${args.id}/file/333-08.json`;
+            expect(res.body.status).toEqual("success");
+            expect(res.body.data).toEqual("File uploaded and reassembled");
+            expect(fs.existsSync(filePath)).toEqual(true);
+            done();
+          });
+      });
+      it("should emit upload-complete event to all the subscribers", done => {
+        const mockCallback = jest.fn();
+        experimentEventEmitter.on("upload-complete", mockCallback);
+        request(args.app)
+          .put(`/experiments/${args.id}/file`)
+          .set("Authorization", `Bearer ${args.token}`)
+          .field("resumableChunkNumber", 1)
+          .field("resumableChunkSize", 1048576)
+          .field("resumableCurrentChunkSize", 251726)
+          .field("resumableTotalSize", 251726)
+          .field("resumableType", "args.application/json")
+          .field("resumableIdentifier", "251726-333-08json")
+          .field("resumableFilename", "333-08.json")
+          .field("resumableRelativePath", "333-08.json")
+          .field("resumableTotalChunks", 1)
+          .field("checksum", "4f36e4cbfc9dfc37559e13bd3a309d50")
+          .attach("file", "test/fixtures/files/333-08.json")
+          .expect(httpStatus.OK)
+          .end((err, res) => {
+            const filePath = `${config.express.uploadDir}/experiments/${args.id}/file/333-08.json`;
+            expect(res.body.status).toEqual("success");
+            expect(res.body.data).toEqual("File uploaded and reassembled");
+            expect(fs.existsSync(filePath)).toEqual(true);
+
+            expect(mockCallback.mock.calls.length).toEqual(1);
+            const calls = mockCallback.mock.calls;
+
+            expect(mockCallback.mock.calls[0].length).toEqual(1);
+            const object = mockCallback.mock.calls[0][0];
+
+            expect(object).toHaveProperty("status");
+            expect(object).toHaveProperty("experiment");
+
+            const status = object.status;
+            const experiment = object.experiment;
+
+            expect(experiment.id).toEqual(args.id);
+            expect(status.filename).toEqual("333-08.json");
+            expect(status.complete).toEqual(true);
+
+            done();
+          });
+      });
+      it("should return an error if experiment not found", done => {
+        request(args.app)
+          .put("/experiments/589dcdd38d71fee259dc4e00/file")
+          .set("Authorization", `Bearer ${args.token}`)
+          .field("resumableChunkNumber", 1)
+          .field("resumableChunkSize", 1048576)
+          .field("resumableCurrentChunkSize", 251726)
+          .field("resumableTotalSize", 251726)
+          .field("resumableType", "args.application/json")
+          .field("resumableIdentifier", "251726-333-08json")
+          .field("resumableFilename", "333-08.json")
+          .field("resumableRelativePath", "333-08.json")
+          .field("resumableTotalChunks", 1)
+          .field("checksum", "4f36e4cbfc9dfc37559e13bd3a309d50")
+          .attach("file", "test/fixtures/files/333-08.json")
+          .expect(httpStatus.OK)
+          .end((err, res) => {
+            expect(res.body.status).toEqual("error");
+            expect(res.body.code).toEqual(Constants.ERRORS.GET_EXPERIMENT);
+            expect(res.body.message).toEqual(
+              "Experiment not found with id 589dcdd38d71fee259dc4e00"
             );
-            expect(audit.status).toEqual("Successful");
-            expect(audit.attempt).toEqual(1);
-            expect(audit.taskId).toEqual("1447d80f-ca79-40ac-bc5d-8a02933323c3");
-            expect(audit.type).toEqual("Predictor");
             done();
           });
       });
-      it("should emit the events to all subscribers", done => {
-        const mockAnalysisCallback = jest.fn();
-        const mockDistanceCallback = jest.fn();
-        experimentEventEmitter.on("analysis-started", mockAnalysisCallback);
-        experimentEventEmitter.on("distance-search-started", mockDistanceCallback);
+      it("should return an error if no file attached", done => {
         request(args.app)
           .put(`/experiments/${args.id}/file`)
           .set("Authorization", `Bearer ${args.token}`)
@@ -1492,40 +994,15 @@ describe("ExperimentController", () => {
           .field("resumableRelativePath", "333-08.json")
           .field("resumableTotalChunks", 1)
           .field("checksum", "4f36e4cbfc9dfc37559e13bd3a309d50")
-          .attach("file", "test/fixtures/files/333-08.json")
           .expect(httpStatus.OK)
-          .end(async (err, res) => {
-            let audits = await Audit.find({ experimentId: args.id });
-            while (audits.length === 0) {
-              audits = await Audit.find({ experimentId: args.id });
-            }
-            const audit = audits[0];
-            expect(res.body.status).toEqual("success");
-            expect(res.body.data).toEqual("File uploaded and reassembled");
-            expect(audit.experimentId).toEqual(args.id);
-            expect(audit.status).toEqual("Successful");
-            expect(audit.attempt).toEqual(1);
-
-            // Predictor
-            expect(mockAnalysisCallback.mock.calls.length).toBeTruthy();
-            const analysisCalls = mockAnalysisCallback.mock.calls[0];
-
-            expect(analysisCalls.length).toEqual(1);
-            const analysisArgs = analysisCalls[0];
-
-            expect(analysisArgs).toHaveProperty("experiment");
-            expect(analysisArgs).toHaveProperty("audit");
-
-            const analysisExperiment = analysisArgs.experiment;
-            const analysisAudit = analysisArgs.audit;
-
-            expect(analysisExperiment.id).toEqual(args.id);
-            expect(analysisAudit.taskId).toEqual("1447d80f-ca79-40ac-bc5d-8a02933323c3");
-
+          .end((err, res) => {
+            expect(res.body.status).toEqual("error");
+            expect(res.body.code).toEqual(Constants.ERRORS.UPLOAD_FILE);
+            expect(res.body.message).toEqual("No files found to upload");
             done();
           });
       });
-      it("should retry the analysis api call when failed", done => {
+      it("should return an error if checksum is not valid", done => {
         request(args.app)
           .put(`/experiments/${args.id}/file`)
           .set("Authorization", `Bearer ${args.token}`)
@@ -1534,129 +1011,772 @@ describe("ExperimentController", () => {
           .field("resumableCurrentChunkSize", 251726)
           .field("resumableTotalSize", 251726)
           .field("resumableType", "args.application/json")
-          .field("resumableIdentifier", "251726-333-09json")
-          .field("resumableFilename", "333-09.json")
-          .field("resumableRelativePath", "333-09.json")
+          .field("resumableIdentifier", "251726-333-08json")
+          .field("resumableFilename", "333-08.json")
+          .field("resumableRelativePath", "333-08.json")
+          .field("resumableTotalChunks", 1)
+          .field("checksum", "4f36e4cbfc9dfc37559e13bd3a309d55")
+          .attach("file", "test/fixtures/files/333-08.json")
+          .expect(httpStatus.OK)
+          .end((err, res) => {
+            expect(res.body.status).toEqual("error");
+            expect(res.body.code).toEqual(Constants.ERRORS.UPLOAD_FILE);
+            expect(res.body.data.complete).toEqual(false);
+            expect(res.body.data.message).toEqual(
+              "Uploaded file checksum doesn't match original checksum"
+            );
+            done();
+          });
+      });
+      it("should return an error if chunk size is not correct", done => {
+        request(args.app)
+          .put(`/experiments/${args.id}/file`)
+          .set("Authorization", `Bearer ${args.token}`)
+          .field("resumableChunkNumber", 1)
+          .field("resumableChunkSize", 1048576)
+          .field("resumableCurrentChunkSize", 251726)
+          .field("resumableTotalSize", 251700)
+          .field("resumableType", "args.application/json")
+          .field("resumableIdentifier", "251726-333-08json")
+          .field("resumableFilename", "333-08.json")
+          .field("resumableRelativePath", "333-08.json")
           .field("resumableTotalChunks", 1)
           .field("checksum", "4f36e4cbfc9dfc37559e13bd3a309d50")
-          .attach("file", "test/fixtures/files/333-09.json")
+          .attach("file", "test/fixtures/files/333-08.json")
           .expect(httpStatus.OK)
-          .end(async (err, res) => {
-            const jobs = mongo(config.db.uri, []).agendaJobs;
-            expect(res.body.status).toEqual("success");
-            expect(res.body.data).toEqual("File uploaded and reassembled");
-            let audits = await Audit.find({
-              experimentId: args.id,
-              type: "Predictor"
+          .end((err, res) => {
+            expect(res.body.status).toEqual("error");
+            expect(res.body.code).toEqual(Constants.ERRORS.UPLOAD_FILE);
+            expect(res.body.message).toEqual("Error uploading file");
+            expect(res.body.data.complete).toEqual(false);
+            expect(res.body.data.message).toEqual("Incorrect individual chunk size");
+            done();
+          });
+      });
+      describe("when provider and path are present", () => {
+        it("should only allow valid providers", done => {
+          request(args.app)
+            .put(`/experiments/${args.id}/provider`)
+            .set("Authorization", `Bearer ${args.token}`)
+            .send({
+              provider: "ftp",
+              name: "fake.json",
+              path: "https://jsonplaceholder.typicode.com/posts/1"
+            })
+            .expect(httpStatus.OK)
+            .end((err, res) => {
+              expect(res.body.status).toEqual("error");
+              expect(res.body.code).toEqual(Constants.ERRORS.VALIDATION_ERROR);
+              expect(res.body.message).toEqual("Unable to upload experiment");
+              expect(res.body.data.errors.provider.message).toEqual(
+                "should be equal to one of the allowed values"
+              );
+              done();
             });
-            while (audits.length < 1) {
-              audits = await Audit.find({
+        });
+        it("should be a protected route", done => {
+          request(args.app)
+            .put(`/experiments/${args.id}/provider`)
+            .set("Authorization", "Bearer INVALID_TOKEN")
+            .send({
+              provider: "dropbox",
+              name: "fake.json",
+              path: "https://jsonplaceholder.typicode.com/posts/1"
+            })
+            .expect(httpStatus.OK)
+            .end((err, res) => {
+              expect(res.body.status).toEqual("error");
+              expect(res.body.message).toEqual("Not Authorised");
+              done();
+            });
+        });
+        it("should download files from dropbox", done => {
+          request(args.app)
+            .put(`/experiments/${args.id}/provider`)
+            .set("Authorization", `Bearer ${args.token}`)
+            .send({
+              provider: "dropbox",
+              name: "fake.json",
+              path: "https://jsonplaceholder.typicode.com/posts/1"
+            })
+            .expect(httpStatus.OK)
+            .end((err, res) => {
+              expect(res.body.status).toEqual("success");
+              expect(res.body.data).toEqual("Download started from dropbox");
+              done();
+            });
+        });
+        it("should save file attribute", done => {
+          request(args.app)
+            .put(`/experiments/${args.id}/provider`)
+            .set("Authorization", `Bearer ${args.token}`)
+            .send({
+              provider: "dropbox",
+              name: "MDR.fastq.gz",
+              path: "https://jsonplaceholder.typicode.com/posts/1"
+            })
+            .expect(httpStatus.OK)
+            .end(async (err, res) => {
+              expect(res.body.status).toEqual("success");
+              expect(res.body.data).toEqual("Download started from dropbox");
+
+              let updatedExperiment = await Experiment.get(args.id);
+              while (updatedExperiment.files.length === 0) {
+                updatedExperiment = await Experiment.get(args.id);
+              }
+              expect(updatedExperiment.files[0].name).toEqual("MDR.fastq.gz");
+              done();
+            });
+        });
+        it("should send the upload progress event to all subscribers", done => {
+          const id = args.id;
+          const mockCallback = jest.fn();
+
+          experimentEventEmitter.on("3rd-party-upload-progress", mockCallback);
+          request(args.app)
+            .put(`/experiments/${args.id}/provider`)
+            .set("Authorization", `Bearer ${args.token}`)
+            .send({
+              provider: "dropbox",
+              name: "MDR.fastq.gz",
+              path: "https://dl.dropboxusercontent.com/1/view/1234"
+            })
+            .expect(httpStatus.OK)
+            .end(async (err, res) => {
+              expect(res.body.status).toEqual("success");
+              expect(res.body.data).toEqual("Download started from dropbox");
+
+              let updatedExperiment = await Experiment.get(id);
+              while (updatedExperiment.files.length === 0) {
+                updatedExperiment = await Experiment.get(id);
+              }
+
+              expect(mockCallback.mock.calls.length).toBeTruthy();
+              const args = mockCallback.mock.calls[0];
+
+              expect(args.length).toEqual(1);
+              const object = args[0];
+
+              expect(object).toHaveProperty("status");
+              expect(object).toHaveProperty("experiment");
+
+              const status = object.status;
+              const experiment = object.experiment;
+
+              expect(experiment.id).toBeTruthy();
+              expect(status.provider).toEqual("dropbox");
+              expect(status.totalSize).toBeTruthy();
+              expect(status.fileLocation).toBeTruthy();
+
+              done();
+            });
+        });
+        it("should send the upload complete event to all subscribers", done => {
+          const id = args.id;
+          const mockCallback = jest.fn();
+          experimentEventEmitter.on("3rd-party-upload-complete", mockCallback);
+          request(args.app)
+            .put(`/experiments/${args.id}/provider`)
+            .set("Authorization", `Bearer ${args.token}`)
+            .send({
+              provider: "dropbox",
+              name: "MDR.fastq.gz",
+              path: "https://dl.dropboxusercontent.com/1/view/1234"
+            })
+            .expect(httpStatus.OK)
+            .end(async (err, res) => {
+              expect(res.body.status).toEqual("success");
+              expect(res.body.data).toEqual("Download started from dropbox");
+
+              let updatedExperiment = await Experiment.get(id);
+              while (updatedExperiment.files.length === 0) {
+                updatedExperiment = await Experiment.get(id);
+              }
+              /**
+               * The event should be called at least one time, because of the parallel tests it may get called twice
+               * This should be changed to expect(mockCallback.mock.calls.length).toBe(1); when running with runInBand
+               */
+              expect(mockCallback.mock.calls.length).toBeGreaterThanOrEqual(1);
+              const args = mockCallback.mock.calls[0];
+
+              expect(args.length).toEqual(1);
+              const object = args[0];
+
+              expect(object).toHaveProperty("status");
+              expect(object).toHaveProperty("experiment");
+
+              const status = object.status;
+              const experiment = object.experiment;
+
+              expect(experiment.id).toBeTruthy();
+              expect(status.provider).toEqual("dropbox");
+              expect(status.size).toBeTruthy();
+              expect(status.totalSize).toBeTruthy();
+              expect(status.fileLocation).toBeTruthy();
+              done();
+            });
+        });
+        it("should call the analysis api when download is done - dropbox", done => {
+          request(args.app)
+            .put(`/experiments/${args.id}/provider`)
+            .set("Authorization", `Bearer ${args.token}`)
+            .send({
+              provider: "dropbox",
+              name: "333-08.json",
+              path: "https://jsonplaceholder.typicode.com/posts/1"
+            })
+            .expect(httpStatus.OK)
+            .end(async (err, res) => {
+              const jobs = mongo(config.db.uri, []).agendaJobs;
+              expect(res.body.status).toEqual("success");
+              expect(res.body.data).toEqual("Download started from dropbox");
+              try {
+                let job = await findJob(jobs, args.id, "call analysis api");
+                while (!job) {
+                  job = await findJob(jobs, args.id, "call analysis api");
+                }
+                expect(job.data.file).toEqual(
+                  `${config.express.uploadsLocation}/experiments/${args.id}/file/333-08.json`
+                );
+                expect(job.data.experiment_id).toEqual(args.id);
+                expect(job.data.attempt).toEqual(0);
+                done();
+              } catch (e) {
+                fail(e.message);
+                done();
+              }
+            });
+        });
+        it("should save the dropbox file to the filesystem", done => {
+          request(args.app)
+            .put(`/experiments/${args.id}/provider`)
+            .set("Authorization", `Bearer ${args.token}`)
+            .send({
+              provider: "dropbox",
+              name: "fake.json",
+              path: "https://jsonplaceholder.typicode.com/posts/1"
+            })
+            .expect(httpStatus.OK)
+            .end((err, res) => {
+              const filePath = `${config.express.uploadDir}/experiments/${args.id}/file/fake.json`;
+              expect(res.body.status).toEqual("success");
+              expect(res.body.data).toEqual("Download started from dropbox");
+              expect(fs.existsSync(filePath)).toEqual(true);
+              done();
+            });
+        });
+        it("should download files from box", done => {
+          request(args.app)
+            .put(`/experiments/${args.id}/provider`)
+            .set("Authorization", `Bearer ${args.token}`)
+            .send({
+              provider: "box",
+              name: "fake.json",
+              path: "https://jsonplaceholder.typicode.com/posts/1"
+            })
+            .expect(httpStatus.OK)
+            .end((err, res) => {
+              expect(res.body.status).toEqual("success");
+              expect(res.body.data).toEqual("Download started from box");
+              done();
+            });
+        });
+        it("should call the analysis api when download is done - box", done => {
+          request(args.app)
+            .put(`/experiments/${args.id}/provider`)
+            .set("Authorization", `Bearer ${args.token}`)
+            .send({
+              provider: "box",
+              name: "333-08.json",
+              path: "https://jsonplaceholder.typicode.com/posts/1"
+            })
+            .expect(httpStatus.OK)
+            .end(async (err, res) => {
+              const jobs = mongo(config.db.uri, []).agendaJobs;
+              expect(res.body.status).toEqual("success");
+              expect(res.body.data).toEqual("Download started from box");
+              try {
+                let job = await findJob(jobs, args.id, "call analysis api");
+                while (!job) {
+                  job = await findJob(jobs, args.id, "call analysis api");
+                }
+                expect(job.data.file).toEqual(
+                  `${config.express.uploadsLocation}/experiments/${args.id}/file/333-08.json`
+                );
+                expect(job.data.experiment_id).toEqual(args.id);
+                expect(job.data.attempt).toEqual(0);
+                done();
+              } catch (e) {
+                fail(e.message);
+                done();
+              }
+            });
+        });
+        it("should save the box file to the filesystem", done => {
+          request(args.app)
+            .put(`/experiments/${args.id}/provider`)
+            .set("Authorization", `Bearer ${args.token}`)
+            .send({
+              provider: "box",
+              name: "fake.json",
+              path: "https://jsonplaceholder.typicode.com/posts/1"
+            })
+            .expect(httpStatus.OK)
+            .end((err, res) => {
+              const filePath = `${config.express.uploadDir}/experiments/${args.id}/file/fake.json`;
+              expect(res.body.status).toEqual("success");
+              expect(res.body.data).toEqual("Download started from box");
+              expect(fs.existsSync(filePath)).toEqual(true);
+              done();
+            });
+        });
+        it("should download files from google drive", done => {
+          request(args.app)
+            .put(`/experiments/${args.id}/provider`)
+            .set("Authorization", `Bearer ${args.token}`)
+            .send({
+              provider: "googleDrive",
+              name: "fake.json",
+              path: "https://jsonplaceholder.typicode.com/posts/1",
+              accessToken: "dummy-args.token"
+            })
+            .expect(httpStatus.OK)
+            .end((err, res) => {
+              expect(res.body.status).toEqual("success");
+              expect(res.body.data).toEqual("Download started from googleDrive");
+              done();
+            });
+        });
+        it("should call the analysis api when download is done - googleDrive", done => {
+          request(args.app)
+            .put(`/experiments/${args.id}/provider`)
+            .set("Authorization", `Bearer ${args.token}`)
+            .send({
+              provider: "googleDrive",
+              name: "333-08.json",
+              path: "https://jsonplaceholder.typicode.com/posts/1",
+              accessToken: "dummy-args.token"
+            })
+            .expect(httpStatus.OK)
+            .end(async (err, res) => {
+              const jobs = mongo(config.db.uri, []).agendaJobs;
+              expect(res.body.status).toEqual("success");
+              expect(res.body.data).toEqual("Download started from googleDrive");
+              try {
+                let job = await findJob(jobs, args.id, "call analysis api");
+                while (!job) {
+                  job = await findJob(jobs, args.id, "call analysis api");
+                }
+                expect(job.data.file).toEqual(
+                  `${config.express.uploadsLocation}/experiments/${args.id}/file/333-08.json`
+                );
+                expect(job.data.experiment_id).toEqual(args.id);
+                expect(job.data.attempt).toEqual(0);
+                done();
+              } catch (e) {
+                fail(e.message);
+                done();
+              }
+            });
+        });
+        it("should make accessToken mandatory for googleDrive", done => {
+          request(args.app)
+            .put(`/experiments/${args.id}/provider`)
+            .set("Authorization", `Bearer ${args.token}`)
+            .send({
+              provider: "googleDrive",
+              name: "fake.json",
+              path: "https://jsonplaceholder.typicode.com/posts/1"
+            })
+            .expect(httpStatus.OK)
+            .end((err, res) => {
+              expect(res.body.status).toEqual("error");
+              expect(res.body.data.errors.accessToken.message).toEqual(
+                "should have required property 'accessToken'"
+              );
+              done();
+            });
+        });
+        it("should save the google drive file to the filesystem", done => {
+          request(args.app)
+            .put(`/experiments/${args.id}/provider`)
+            .set("Authorization", `Bearer ${args.token}`)
+            .send({
+              provider: "googleDrive",
+              name: "fake.json",
+              path: "https://jsonplaceholder.typicode.com/posts/1",
+              accessToken: "dummy-args.token"
+            })
+            .expect(httpStatus.OK)
+            .end((err, res) => {
+              const filePath = `${config.express.uploadDir}/experiments/${args.id}/file/fake.json`;
+              expect(res.body.status).toEqual("success");
+              expect(res.body.data).toEqual("Download started from googleDrive");
+              expect(fs.existsSync(filePath)).toEqual(true);
+              done();
+            });
+        });
+        it("should download files from one drive", done => {
+          request(args.app)
+            .put(`/experiments/${args.id}/provider`)
+            .set("Authorization", `Bearer ${args.token}`)
+            .send({
+              provider: "oneDrive",
+              name: "fake.json",
+              path: "https://jsonplaceholder.typicode.com/posts/1"
+            })
+            .expect(httpStatus.OK)
+            .end((err, res) => {
+              expect(res.body.status).toEqual("success");
+              expect(res.body.data).toEqual("Download started from oneDrive");
+              done();
+            });
+        });
+        it("should call the analysis api when download is done - oneDrive", done => {
+          request(args.app)
+            .put(`/experiments/${args.id}/provider`)
+            .set("Authorization", `Bearer ${args.token}`)
+            .send({
+              provider: "oneDrive",
+              name: "333-08.json",
+              path: "https://jsonplaceholder.typicode.com/posts/1"
+            })
+            .expect(httpStatus.OK)
+            .end(async (err, res) => {
+              const jobs = mongo(config.db.uri, []).agendaJobs;
+              expect(res.body.status).toEqual("success");
+              expect(res.body.data).toEqual("Download started from oneDrive");
+              try {
+                let job = await findJob(jobs, args.id, "call analysis api");
+                while (!job) {
+                  job = await findJob(jobs, args.id, "call analysis api");
+                }
+                expect(job.data.file).toEqual(
+                  `${config.express.uploadsLocation}/experiments/${args.id}/file/333-08.json`
+                );
+                expect(job.data.experiment_id).toEqual(args.id);
+                expect(job.data.attempt).toEqual(0);
+                done();
+              } catch (e) {
+                fail(e.message);
+                done();
+              }
+            });
+        });
+        it("should save the one drive file to the filesystem", done => {
+          request(args.app)
+            .put(`/experiments/${args.id}/provider`)
+            .set("Authorization", `Bearer ${args.token}`)
+            .send({
+              provider: "oneDrive",
+              name: "fake.json",
+              path: "https://jsonplaceholder.typicode.com/posts/1"
+            })
+            .expect(httpStatus.OK)
+            .end((err, res) => {
+              const filePath = `${config.express.uploadDir}/experiments/${args.id}/file/fake.json`;
+              expect(res.body.status).toEqual("success");
+              expect(res.body.data).toEqual("Download started from oneDrive");
+              expect(fs.existsSync(filePath)).toEqual(true);
+              done();
+            });
+        });
+      });
+      describe("when calling the analysis API", () => {
+        it("should capture a payload including the sample id and file location", done => {
+          request(args.app)
+            .put(`/experiments/${args.id}/file`)
+            .set("Authorization", `Bearer ${args.token}`)
+            .field("resumableChunkNumber", 1)
+            .field("resumableChunkSize", 1048576)
+            .field("resumableCurrentChunkSize", 251726)
+            .field("resumableTotalSize", 251726)
+            .field("resumableType", "args.application/json")
+            .field("resumableIdentifier", "251726-333-08json")
+            .field("resumableFilename", "333-08.json")
+            .field("resumableRelativePath", "333-08.json")
+            .field("resumableTotalChunks", 1)
+            .field("checksum", "4f36e4cbfc9dfc37559e13bd3a309d50")
+            .attach("file", "test/fixtures/files/333-08.json")
+            .expect(httpStatus.OK)
+            .end(async (err, res) => {
+              const jobs = mongo(config.db.uri, []).agendaJobs;
+              expect(res.body.status).toEqual("success");
+              expect(res.body.data).toEqual("File uploaded and reassembled");
+              try {
+                let job = await findJob(jobs, args.id, "call analysis api");
+                while (!job) {
+                  job = await findJob(jobs, args.id, "call analysis api");
+                }
+                expect(job.data.file).toEqual(
+                  `${config.express.uploadsLocation}/experiments/${args.id}/file/333-08.json`
+                );
+                expect(job.data.experiment_id).toEqual(args.id);
+                expect(job.data.attempt).toEqual(0);
+                done();
+              } catch (e) {
+                fail(e.message);
+                done();
+              }
+            });
+        });
+        it("should call the analysis api with payload", done => {
+          request(args.app)
+            .put(`/experiments/${args.id}/file`)
+            .set("Authorization", `Bearer ${args.token}`)
+            .field("resumableChunkNumber", 1)
+            .field("resumableChunkSize", 1048576)
+            .field("resumableCurrentChunkSize", 251726)
+            .field("resumableTotalSize", 251726)
+            .field("resumableType", "args.application/json")
+            .field("resumableIdentifier", "251726-333-08json")
+            .field("resumableFilename", "333-08.json")
+            .field("resumableRelativePath", "333-08.json")
+            .field("resumableTotalChunks", 1)
+            .field("checksum", "4f36e4cbfc9dfc37559e13bd3a309d50")
+            .attach("file", "test/fixtures/files/333-08.json")
+            .expect(httpStatus.OK)
+            .end(async (err, res) => {
+              const jobs = mongo(config.db.uri, []).agendaJobs;
+              expect(res.body.status).toEqual("success");
+              expect(res.body.data).toEqual("File uploaded and reassembled");
+              let job = await findJob(jobs, args.id, "call analysis api");
+              while (!job) {
+                job = await findJob(jobs, args.id, "call analysis api");
+              }
+              expect(job.name).toEqual("call analysis api");
+              expect(job.data.file).toEqual(
+                `${config.express.uploadsLocation}/experiments/${args.id}/file/333-08.json`
+              );
+              expect(job.data.experiment_id).toEqual(args.id);
+              done();
+            });
+        });
+        it("should record taskId to the audit collection", done => {
+          request(args.app)
+            .put(`/experiments/${args.id}/file`)
+            .set("Authorization", `Bearer ${args.token}`)
+            .field("resumableChunkNumber", 1)
+            .field("resumableChunkSize", 1048576)
+            .field("resumableCurrentChunkSize", 251726)
+            .field("resumableTotalSize", 251726)
+            .field("resumableType", "args.application/json")
+            .field("resumableIdentifier", "251726-333-08json")
+            .field("resumableFilename", "333-08.json")
+            .field("resumableRelativePath", "333-08.json")
+            .field("resumableTotalChunks", 1)
+            .field("checksum", "4f36e4cbfc9dfc37559e13bd3a309d50")
+            .attach("file", "test/fixtures/files/333-08.json")
+            .expect(httpStatus.OK)
+            .end(async (err, res) => {
+              let audits = await Audit.find({
                 experimentId: args.id,
                 type: "Predictor"
               });
-            }
-            let foundJobs = await jobs.find({
-              "data.experiment_id": args.id,
-              name: "call analysis api"
+              while (audits.length === 0) {
+                audits = await Audit.find({
+                  experimentId: args.id,
+                  type: "Predictor"
+                });
+              }
+              const audit = audits[0];
+              expect(res.body.status).toEqual("success");
+              expect(res.body.data).toEqual("File uploaded and reassembled");
+              expect(audit.experimentId).toEqual(args.id);
+              expect(audit.fileLocation).toEqual(
+                `${config.express.uploadsLocation}/experiments/${args.id}/file/333-08.json`
+              );
+              expect(audit.status).toEqual("Successful");
+              expect(audit.attempt).toEqual(1);
+              expect(audit.taskId).toEqual("1447d80f-ca79-40ac-bc5d-8a02933323c3");
+              expect(audit.type).toEqual("Predictor");
+              done();
             });
-            while (foundJobs.length < 2) {
-              foundJobs = await jobs.find({
+        });
+        it("should emit the events to all subscribers", done => {
+          const mockAnalysisCallback = jest.fn();
+          const mockDistanceCallback = jest.fn();
+          experimentEventEmitter.on("analysis-started", mockAnalysisCallback);
+          experimentEventEmitter.on("distance-search-started", mockDistanceCallback);
+          request(args.app)
+            .put(`/experiments/${args.id}/file`)
+            .set("Authorization", `Bearer ${args.token}`)
+            .field("resumableChunkNumber", 1)
+            .field("resumableChunkSize", 1048576)
+            .field("resumableCurrentChunkSize", 251726)
+            .field("resumableTotalSize", 251726)
+            .field("resumableType", "args.application/json")
+            .field("resumableIdentifier", "251726-333-08json")
+            .field("resumableFilename", "333-08.json")
+            .field("resumableRelativePath", "333-08.json")
+            .field("resumableTotalChunks", 1)
+            .field("checksum", "4f36e4cbfc9dfc37559e13bd3a309d50")
+            .attach("file", "test/fixtures/files/333-08.json")
+            .expect(httpStatus.OK)
+            .end(async (err, res) => {
+              let audits = await Audit.find({ experimentId: args.id });
+              while (audits.length === 0) {
+                audits = await Audit.find({ experimentId: args.id });
+              }
+              const audit = audits[0];
+              expect(res.body.status).toEqual("success");
+              expect(res.body.data).toEqual("File uploaded and reassembled");
+              expect(audit.experimentId).toEqual(args.id);
+              expect(audit.status).toEqual("Successful");
+              expect(audit.attempt).toEqual(1);
+
+              // Predictor
+              expect(mockAnalysisCallback.mock.calls.length).toBeTruthy();
+              const analysisCalls = mockAnalysisCallback.mock.calls[0];
+
+              expect(analysisCalls.length).toEqual(1);
+              const analysisArgs = analysisCalls[0];
+
+              expect(analysisArgs).toHaveProperty("experiment");
+              expect(analysisArgs).toHaveProperty("audit");
+
+              const analysisExperiment = analysisArgs.experiment;
+              const analysisAudit = analysisArgs.audit;
+
+              expect(analysisExperiment.id).toEqual(args.id);
+              expect(analysisAudit.taskId).toEqual("1447d80f-ca79-40ac-bc5d-8a02933323c3");
+
+              done();
+            });
+        });
+        it("should retry the analysis api call when failed", done => {
+          request(args.app)
+            .put(`/experiments/${args.id}/file`)
+            .set("Authorization", `Bearer ${args.token}`)
+            .field("resumableChunkNumber", 1)
+            .field("resumableChunkSize", 1048576)
+            .field("resumableCurrentChunkSize", 251727)
+            .field("resumableTotalSize", 251727)
+            .field("resumableType", "args.application/json")
+            .field("resumableIdentifier", "251727-333-09json")
+            .field("resumableFilename", "333-09.json")
+            .field("resumableRelativePath", "333-09.json")
+            .field("resumableTotalChunks", 1)
+            .field("checksum", "69b62d0e2dc3d53e76835054a9722be6")
+            .attach("file", "test/fixtures/files/333-09.json")
+            .expect(httpStatus.OK)
+            .end(async (err, res) => {
+              const jobs = mongo(config.db.uri, []).agendaJobs;
+              expect(res.body.status).toEqual("success");
+              expect(res.body.data).toEqual("File uploaded and reassembled");
+              let audits = await Audit.find({
+                experimentId: args.id,
+                type: "Predictor"
+              });
+              while (audits.length < 1) {
+                audits = await Audit.find({
+                  experimentId: args.id,
+                  type: "Predictor"
+                });
+              }
+              let foundJobs = await jobs.find({
                 "data.experiment_id": args.id,
                 name: "call analysis api"
               });
-            }
+              while (foundJobs.length < 2) {
+                foundJobs = await jobs.find({
+                  "data.experiment_id": args.id,
+                  name: "call analysis api"
+                });
+              }
 
-            expect(foundJobs.length).toEqual(2);
-            expect(foundJobs[0].data.file).toEqual(
-              `${config.express.uploadsLocation}/experiments/${args.id}/file/333-09.json`
-            );
-            expect(foundJobs[0].data.experiment_id).toEqual(args.id);
-            done();
-          });
-      });
-      it("should record the audit when call failed", done => {
-        request(args.app)
-          .put(`/experiments/${args.id}/file`)
-          .set("Authorization", `Bearer ${args.token}`)
-          .field("resumableChunkNumber", 1)
-          .field("resumableChunkSize", 1048576)
-          .field("resumableCurrentChunkSize", 251726)
-          .field("resumableTotalSize", 251726)
-          .field("resumableType", "args.application/json")
-          .field("resumableIdentifier", "251726-333-09json")
-          .field("resumableFilename", "333-09.json")
-          .field("resumableRelativePath", "333-09.json")
-          .field("resumableTotalChunks", 1)
-          .field("checksum", "4f36e4cbfc9dfc37559e13bd3a309d50")
-          .attach("file", "test/fixtures/files/333-09.json")
-          .expect(httpStatus.OK)
-          .end(async (err, res) => {
-            const jobs = mongo(config.db.uri, []).agendaJobs;
-            expect(res.body.status).toEqual("success");
-            expect(res.body.data).toEqual("File uploaded and reassembled");
-            let audits = await Audit.find({
-              experimentId: args.id,
-              type: "Predictor"
+              expect(foundJobs.length).toEqual(2);
+              expect(foundJobs[0].data.file).toEqual(
+                `${config.express.uploadsLocation}/experiments/${args.id}/file/333-09.json`
+              );
+              expect(foundJobs[0].data.experiment_id).toEqual(args.id);
+              done();
             });
-            while (audits.length < 1) {
-              audits = await Audit.find({
+        });
+        it("should record the audit when call failed", done => {
+          request(args.app)
+            .put(`/experiments/${args.id}/file`)
+            .set("Authorization", `Bearer ${args.token}`)
+            .field("resumableChunkNumber", 1)
+            .field("resumableChunkSize", 1048576)
+            .field("resumableCurrentChunkSize", 251727)
+            .field("resumableTotalSize", 251727)
+            .field("resumableType", "application/json")
+            .field("resumableIdentifier", "251727-333-09json")
+            .field("resumableFilename", "333-09.json")
+            .field("resumableRelativePath", "333-09.json")
+            .field("resumableTotalChunks", 1)
+            .field("checksum", "69b62d0e2dc3d53e76835054a9722be6")
+            .attach("file", "test/fixtures/files/333-09.json")
+            .expect(httpStatus.OK)
+            .end(async (err, res) => {
+              const jobs = mongo(config.db.uri, []).agendaJobs;
+              expect(res.body.status).toEqual("success");
+              expect(res.body.data).toEqual("File uploaded and reassembled");
+              let audits = await Audit.find({
                 experimentId: args.id,
                 type: "Predictor"
               });
-            }
-            const audit = audits[0];
-            expect(res.body.status).toEqual("success");
-            expect(res.body.data).toEqual("File uploaded and reassembled");
-            expect(audit.experimentId).toEqual(args.id);
-            expect(audit.fileLocation).toEqual(
-              `${config.express.uploadsLocation}/experiments/${args.id}/file/333-09.json`
-            );
-            expect(audit.status).toEqual("Failed");
-            expect(audit.attempt).toEqual(1);
-            expect(audit.type).toEqual("Predictor");
-            done();
-          });
-      });
-      it("should save the taskId in the audit collection", done => {
-        request(args.app)
-          .put(`/experiments/${args.id}/file`)
-          .set("Authorization", `Bearer ${args.token}`)
-          .field("resumableChunkNumber", 1)
-          .field("resumableChunkSize", 1048576)
-          .field("resumableCurrentChunkSize", 251726)
-          .field("resumableTotalSize", 251726)
-          .field("resumableType", "args.application/json")
-          .field("resumableIdentifier", "251726-333-08json")
-          .field("resumableFilename", "333-08.json")
-          .field("resumableRelativePath", "333-08.json")
-          .field("resumableTotalChunks", 1)
-          .field("checksum", "4f36e4cbfc9dfc37559e13bd3a309d50")
-          .attach("file", "test/fixtures/files/333-08.json")
-          .expect(httpStatus.OK)
-          .end(async (err, res) => {
-            let audits = await Audit.find({
-              experimentId: args.id,
-              type: "Predictor"
+              while (audits.length < 1) {
+                audits = await Audit.find({
+                  experimentId: args.id,
+                  type: "Predictor"
+                });
+              }
+              const audit = audits[0];
+              expect(res.body.status).toEqual("success");
+              expect(res.body.data).toEqual("File uploaded and reassembled");
+              expect(audit.experimentId).toEqual(args.id);
+              expect(audit.fileLocation).toEqual(
+                `${config.express.uploadsLocation}/experiments/${args.id}/file/333-09.json`
+              );
+              expect(audit.status).toEqual("Failed");
+              expect(audit.attempt).toEqual(1);
+              expect(audit.type).toEqual("Predictor");
+              done();
             });
-            while (audits.length === 0) {
-              audits = await Audit.find({
+        });
+        it("should save the taskId in the audit collection", done => {
+          request(args.app)
+            .put(`/experiments/${args.id}/file`)
+            .set("Authorization", `Bearer ${args.token}`)
+            .field("resumableChunkNumber", 1)
+            .field("resumableChunkSize", 1048576)
+            .field("resumableCurrentChunkSize", 251726)
+            .field("resumableTotalSize", 251726)
+            .field("resumableType", "args.application/json")
+            .field("resumableIdentifier", "251726-333-08json")
+            .field("resumableFilename", "333-08.json")
+            .field("resumableRelativePath", "333-08.json")
+            .field("resumableTotalChunks", 1)
+            .field("checksum", "4f36e4cbfc9dfc37559e13bd3a309d50")
+            .attach("file", "test/fixtures/files/333-08.json")
+            .expect(httpStatus.OK)
+            .end(async (err, res) => {
+              let audits = await Audit.find({
                 experimentId: args.id,
                 type: "Predictor"
               });
-            }
-            const audit = audits[0];
-            expect(res.body.status).toEqual("success");
-            expect(res.body.data).toEqual("File uploaded and reassembled");
-            expect(audit.experimentId).toEqual(args.id);
-            expect(audit.fileLocation).toEqual(
-              `${config.express.uploadsLocation}/experiments/${args.id}/file/333-08.json`
-            );
-            expect(audit.status).toEqual("Successful");
-            expect(audit.attempt).toEqual(1);
-            expect(audit.taskId).toEqual("1447d80f-ca79-40ac-bc5d-8a02933323c3");
-            expect(audit.type).toEqual("Predictor");
-            done();
-          });
+              while (audits.length === 0) {
+                audits = await Audit.find({
+                  experimentId: args.id,
+                  type: "Predictor"
+                });
+              }
+              const audit = audits[0];
+              expect(res.body.status).toEqual("success");
+              expect(res.body.data).toEqual("File uploaded and reassembled");
+              expect(audit.experimentId).toEqual(args.id);
+              expect(audit.fileLocation).toEqual(
+                `${config.express.uploadsLocation}/experiments/${args.id}/file/333-08.json`
+              );
+              expect(audit.status).toEqual("Successful");
+              expect(audit.attempt).toEqual(1);
+              expect(audit.taskId).toEqual("1447d80f-ca79-40ac-bc5d-8a02933323c3");
+              expect(audit.type).toEqual("Predictor");
+              done();
+            });
+        });
       });
     });
   });
