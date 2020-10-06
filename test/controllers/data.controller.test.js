@@ -78,14 +78,14 @@ describe("DataController", () => {
           done();
         });
     });
-    it("should populate the experiment file", done => {
+    it("should populate the experiment files", done => {
       request(args.app)
         .post("/data/create")
         .send({ total: 1 })
         .expect(httpStatus.OK)
         .end(async (err, res) => {
           expect(res.body.status).toEqual("success");
-          expect(res.body.data[0].file).toBeTruthy();
+          expect(res.body.data[0].files.length).toBeTruthy();
           done();
         });
     });

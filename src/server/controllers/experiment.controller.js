@@ -34,6 +34,7 @@ import BigsiSearchHelper from "../helpers/BigsiSearchHelper";
 import ResultsParserFactory from "../helpers/results/ResultsParserFactory";
 import EventHelper from "../helpers/events/EventHelper";
 import EventProgress from "../helpers/events/EventProgress";
+import ExperimentHelper from "../helpers/ExperimentHelper";
 
 import AuditJSONTransformer from "../transformers/AuditJSONTransformer";
 import ExperimentJSONTransformer from "../transformers/ExperimentJSONTransformer";
@@ -271,7 +272,10 @@ const uploadFile = async (req, res) => {
         });
       });
       // save file attribute
-      experiment.file = req.body.name;
+      experiment.files.push({
+        name: req.body.name,
+        uploaded: true
+      });
       await experiment.save();
 
       return res.jsend(`Download started from ${req.body.provider}`);
@@ -288,6 +292,10 @@ const uploadFile = async (req, res) => {
   // from local file
   try {
     const resumableFilename = req.body.resumableFilename;
+
+    // init the upload state
+    await ExperimentHelper.initUploadState(experiment, resumableFilename);
+
     const uploadDirectory = `${config.express.uploadDir}/experiments/${experiment.id}/file`;
     logger.debug(`ExperimentsController#uploadFile: uploadDirectory: ${uploadDirectory}`);
     await resumable.setUploadDirectory(uploadDirectory);
@@ -312,6 +320,10 @@ const uploadFile = async (req, res) => {
       }
     } else {
       logger.debug(`ExperimentsController#uploadFile: complete`);
+
+      // check pending uploads
+      const pending = await ExperimentHelper.isUploadInProgress(experiment.id, resumableFilename);
+
       await EventHelper.clearUploadsState(req.dbUser.id, experiment.id);
       experimentEventEmitter.emit("upload-complete", {
         experiment: experimentJson,
@@ -325,13 +337,15 @@ const uploadFile = async (req, res) => {
       );
       logger.debug(`ExperimentsController#uploadFile: reassembleChunks ...`);
       return resumable.reassembleChunks(experimentJson.id, resumableFilename, async () => {
-        const scheduler = await Scheduler.getInstance();
-        await scheduler.schedule("now", "call analysis api", {
-          file: `${config.express.uploadsLocation}/experiments/${experimentJson.id}/file/${resumableFilename}`,
-          experiment_id: experimentJson.id,
-          attempt: 0,
-          experiment: experimentJson
-        });
+        if (!pending) {
+          const scheduler = await Scheduler.getInstance();
+          await scheduler.schedule("now", "call analysis api", {
+            file: `${config.express.uploadsLocation}/experiments/${experimentJson.id}/file/${resumableFilename}`,
+            experiment_id: experimentJson.id,
+            attempt: 0,
+            experiment: experimentJson
+          });
+        }
         return res.jsend("File uploaded and reassembled");
       });
     }
