@@ -295,8 +295,13 @@ const uploadFile = async (req, res) => {
   // from local file
   try {
     const resumableFilename = req.body.resumableFilename;
-    logger.debug(`ExperimentsController#uploadFile: files state: ${JSON.stringify(experiment.get("files"), null, 2)}`);
-
+    logger.debug(
+      `ExperimentsController#uploadFile: files state: ${JSON.stringify(
+        experiment.get("files"),
+        null,
+        2
+      )}`
+    );
 
     const uploadDirectory = `${config.express.uploadDir}/experiments/${experiment.id}/file`;
     logger.debug(`ExperimentsController#uploadFile: uploadDirectory: ${uploadDirectory}`);

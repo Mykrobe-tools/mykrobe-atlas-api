@@ -22,41 +22,44 @@ class ExperimentHelper {
     return null;
   }
   static async enhanceWithGeocode(experiment) {
-    const o = typeof experiment.toObject === "function" ? experiment.toObject() : experiment;
-    if (o.metadata && o.metadata.sample) {
-      const address = {};
+    logger.debug(`enhanceWithGeocode experiment: ${experiment}`);
+    if (experiment) {
+      const o = typeof experiment.toObject === "function" ? experiment.toObject() : experiment;
+      if (o.metadata && o.metadata.sample) {
+        const address = {};
 
-      const countryIsolate = o.metadata.sample.countryIsolate;
-      const cityIsolate = o.metadata.sample.cityIsolate;
+        const countryIsolate = o.metadata.sample.countryIsolate;
+        const cityIsolate = o.metadata.sample.cityIsolate;
 
-      if (countryIsolate) {
-        const name = LocationHelper.getCountry(countryIsolate);
+        if (countryIsolate) {
+          const name = LocationHelper.getCountry(countryIsolate);
 
-        if (name) {
-          address.country = name;
-        } else {
-          address.countryCode = countryIsolate;
-        }
-      }
-      if (cityIsolate) {
-        address.city = cityIsolate;
-      }
-
-      if (address) {
-        try {
-          const coordinates = await geocode(address);
-          if (coordinates && coordinates.longitude && coordinates.latitude) {
-            if (!experiment.metadata) {
-              experiment.metadata = {};
-            }
-            if (!experiment.metadata.sample) {
-              experiment.metadata.sample = {};
-            }
-            experiment.metadata.sample.latitudeIsolate = coordinates.latitude;
-            experiment.metadata.sample.longitudeIsolate = coordinates.longitude;
+          if (name) {
+            address.country = name;
+          } else {
+            address.countryCode = countryIsolate;
           }
-        } catch (e) {
-          logger.debug(`Unable to fetch geocode for ${JSON.stringify(address)}.  Error: ${e}`);
+        }
+        if (cityIsolate) {
+          address.city = cityIsolate;
+        }
+
+        if (address) {
+          try {
+            const coordinates = await geocode(address);
+            if (coordinates && coordinates.longitude && coordinates.latitude) {
+              if (!experiment.metadata) {
+                experiment.metadata = {};
+              }
+              if (!experiment.metadata.sample) {
+                experiment.metadata.sample = {};
+              }
+              experiment.metadata.sample.latitudeIsolate = coordinates.latitude;
+              experiment.metadata.sample.longitudeIsolate = coordinates.longitude;
+            }
+          } catch (e) {
+            logger.debug(`Unable to fetch geocode for ${JSON.stringify(address)}.  Error: ${e}`);
+          }
         }
       }
     }
@@ -64,14 +67,18 @@ class ExperimentHelper {
 
   static async initUploadState(experiment, body) {
     logger.debug(`isUploadInProgress experiment: ${experiment}`);
-    const { metadata: { sample: { isolateId } } } = body;
+    const {
+      metadata: {
+        sample: { isolateId }
+      }
+    } = body;
 
     logger.debug(`isUploadInProgress isolateId: ${isolateId}`);
-    const files = isolateId.split(',').map(name => {
-      return ({
+    const files = isolateId.split(",").map(name => {
+      return {
         name,
         uploaded: false
-      })
+      };
     });
     logger.debug(`isUploadInProgress files: ${files}`);
     experiment.set("files", files);
@@ -79,7 +86,7 @@ class ExperimentHelper {
     try {
       logger.debug(`saving init ...`);
       await experiment.save();
-    } catch(e) {
+    } catch (e) {
       logger.debug(`error init ...${e}`);
     }
   }
@@ -115,10 +122,9 @@ class ExperimentHelper {
     try {
       logger.debug(`saving ...`);
       await experiment.save();
-    } catch(e) {
+    } catch (e) {
       logger.debug(`error ...${e}`);
     }
-    
   }
 }
 
