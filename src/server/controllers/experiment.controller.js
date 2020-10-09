@@ -308,7 +308,7 @@ const uploadFile = async (req, res) => {
     await resumable.setUploadDirectory(uploadDirectory);
     const postUpload = await resumable.post(req);
 
-    logger.debug(`ExperimentsController#postUpload: resumableFilename:`${resumableFilename}` postUpload: ${JSON.stringify(postUpload)}`);
+    logger.debug(`ExperimentsController#postUpload: resumableFilename:${resumableFilename} postUpload: ${JSON.stringify(postUpload)}`);
     if (!postUpload.complete) {
       logger.debug(`ExperimentsController#uploadFile: more`);
       const currentProgress = EventProgress.get(postUpload);
