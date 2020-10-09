@@ -130,22 +130,15 @@ const filenameSort = (first, second) => {
 };
 
 const reassembleChunksToFile = (directory, targetPath, filename, remove = true) => {
-  logger.debug(`resumable#reassembleChunksToFile: #enter`);
   const files = fs.readdirSync(directory);
-
-  logger.debug(`resumable#reassembleChunksToFile: #readdir`);
 
   // remove hidden / unwanted files
   const key = filename.split(".").join("");
   const regex = new RegExp(`.*?(${key}).*?`);
   const filteredFiles = files.filter(item => !/(^|\/)\.[^\/\.]/g.test(item) && regex.test(item));
 
-  logger.debug(`resumable#reassembleChunksToFile: #filteredFiles ${filteredFiles}`);
-
   // sort into a natural order i.e. file.9, file.10, file.11
   const sortedFiles = filteredFiles.sort(filenameSort);
-
-  logger.debug(`resumable#reassembleChunksToFile: #sortedFiles`);
 
   const parts = [];
 
@@ -154,37 +147,28 @@ const reassembleChunksToFile = (directory, targetPath, filename, remove = true) 
     parts.push(partPath);
   });
 
-  logger.debug(`resumable#reassembleChunksToFile: #parts`);
-
-  logger.debug(`resumable#reassembleChunksToFile: remove flag ${remove}`);
-
   if (remove) {
-    logger.debug(`resumable#reassembleChunksToFile: start merge`);
     return splitFile.mergeFiles(parts, targetPath).then(savedPath => {
       parts.forEach(part => {
         fs.unlinkSync(part);
       });
 
-      logger.debug(`resumable#reassembleChunksToFile: merge done savedPath ${savedPath}`);
-
       return savedPath;
     });
   } else {
-    logger.debug(`resumable#reassembleChunksToFile: start merge`);
     return splitFile.mergeFiles(parts, targetPath);
-    logger.debug(`resumable#reassembleChunksToFile: merge done targetPath ${targetPath}`);
   }
 };
 
 const reassembleChunks = async (id, name, cb) => {
-  logger.debug(`resumable#reassembleChunks: reassembleChunks #enter`);
   const directory = `${config.express.uploadDir}/experiments/${id}/file`;
   const targetPath = `${config.express.uploadDir}/experiments/${id}/file/${name}`;
 
-  logger.debug(`resumable#reassembleChunks: directory ${directory}`);
-  logger.debug(`resumable#reassembleChunks: targetPath ${targetPath}`);
   reassembleChunksToFile(directory, targetPath, name, true);
-  logger.debug(`resumable#reassembleChunks: reassembleChunksToFile done`);
+
+  const foundExperiment = await Experiment.get(id);
+  foundExperiment.file = name;
+  await foundExperiment.save();
   cb();
 };
 

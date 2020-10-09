@@ -295,20 +295,11 @@ const uploadFile = async (req, res) => {
   // from local file
   try {
     const resumableFilename = req.body.resumableFilename;
-    logger.debug(
-      `ExperimentsController#uploadFile: files state: ${JSON.stringify(
-        experiment.get("files"),
-        null,
-        2
-      )}`
-    );
 
     const uploadDirectory = `${config.express.uploadDir}/experiments/${experiment.id}/file`;
     logger.debug(`ExperimentsController#uploadFile: uploadDirectory: ${uploadDirectory}`);
     await resumable.setUploadDirectory(uploadDirectory);
     const postUpload = await resumable.post(req);
-
-    logger.debug(`ExperimentsController#postUpload: resumableFilename:${resumableFilename} postUpload: ${JSON.stringify(postUpload)}`);
     if (!postUpload.complete) {
       logger.debug(`ExperimentsController#uploadFile: more`);
       const currentProgress = EventProgress.get(postUpload);
@@ -333,8 +324,6 @@ const uploadFile = async (req, res) => {
       // check pending uploads
       await ExperimentHelper.markFileAsComplete(experiment.id, resumableFilename);
       const pending = await ExperimentHelper.isUploadInProgress(experiment.id);
-
-      logger.debug(`ExperimentsController#uploadFile: pending: ${pending}`);
 
       await EventHelper.clearUploadsState(req.dbUser.id, experiment.id);
       experimentEventEmitter.emit("upload-complete", {
