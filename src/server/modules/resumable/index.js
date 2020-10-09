@@ -136,7 +136,7 @@ const reassembleChunksToFile = (directory, targetPath, filename, remove = true) 
   logger.debug(`resumable#reassembleChunksToFile: #readdir`);
 
   // remove hidden / unwanted files
-  const key = filename.replaceAll(".","");
+  const key = filename.split(".").join("");
   const regex = new RegExp(`.*?(${key}).*?`);
   const filteredFiles = files.filter(item => !/(^|\/)\.[^\/\.]/g.test(item) && regex.test(item));
 
