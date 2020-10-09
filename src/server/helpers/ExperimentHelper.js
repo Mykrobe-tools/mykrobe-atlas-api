@@ -112,7 +112,7 @@ class ExperimentHelper {
       return file;
     });
     logger.debug(`markFileAsComplete experimentFiles: ${experimentFiles}`);
-    experiment.set("experimentFiles");
+    experiment.set("files", experimentFiles);
     logger.debug(`markFileAsComplete experiment.files: ${experiment.files}`);
     try {
       logger.debug(`saving ...`);
