@@ -129,16 +129,16 @@ const filenameSort = (first, second) => {
   return first.localeCompare(second);
 };
 
-const reassembleChunksToFile = (directory, targetPath, remove = true) => {
+const reassembleChunksToFile = (directory, targetPath, filename, remove = true) => {
   logger.debug(`resumable#reassembleChunksToFile: #enter`);
   const files = fs.readdirSync(directory);
 
   logger.debug(`resumable#reassembleChunksToFile: #readdir`);
 
   // remove hidden / unwanted files
-  const filteredFiles = files.filter(item => !/(^|\/)\.[^\/\.]/g.test(item));
+  const filteredFiles = files.filter(item => !/(^|\/)\.[^\/\.]/g.test(item) && item.contains(filename));
 
-  logger.debug(`resumable#reassembleChunksToFile: #filteredFiles`);
+  logger.debug(`resumable#reassembleChunksToFile: #filteredFiles ${filteredFiles}`);
 
   // sort into a natural order i.e. file.9, file.10, file.11
   const sortedFiles = filteredFiles.sort(filenameSort);
@@ -181,7 +181,7 @@ const reassembleChunks = async (id, name, cb) => {
 
   logger.debug(`resumable#reassembleChunks: directory ${directory}`);
   logger.debug(`resumable#reassembleChunks: targetPath ${targetPath}`);
-  reassembleChunksToFile(directory, targetPath, true);
+  reassembleChunksToFile(directory, targetPath, name, true);
   logger.debug(`resumable#reassembleChunks: reassembleChunksToFile done`);
   cb();
 };
