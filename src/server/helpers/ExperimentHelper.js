@@ -82,13 +82,6 @@ class ExperimentHelper {
     });
     logger.debug(`isUploadInProgress files: ${files}`);
     experiment.set("files", files);
-
-    try {
-      logger.debug(`saving init ...`);
-      await experiment.save();
-    } catch (e) {
-      logger.debug(`error init ...${e}`);
-    }
   }
 
   static async isUploadInProgress(id) {
@@ -108,7 +101,7 @@ class ExperimentHelper {
     logger.debug(`markFileAsComplete experiment: ${experiment}`);
     const files = experiment.get("files");
     logger.debug(`markFileAsComplete files: ${files}`);
-    experiment.files = files.map(file => {
+    const experimentFiles = files.map(file => {
       if (file.name === filename) {
         return {
           name: filename,
@@ -118,6 +111,8 @@ class ExperimentHelper {
         return file;
       }
     });
+    logger.debug(`markFileAsComplete experimentFiles: ${experimentFiles}`);
+    experiment.set("experimentFiles");
     logger.debug(`markFileAsComplete experiment.files: ${experiment.files}`);
     try {
       logger.debug(`saving ...`);
