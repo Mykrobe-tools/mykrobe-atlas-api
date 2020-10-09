@@ -76,7 +76,7 @@ class ExperimentHelper {
     logger.debug(`isUploadInProgress isolateId: ${isolateId}`);
     const files = isolateId.split(",").map(name => {
       return {
-        name: name.trim(),
+        name: `${name.trim()}.gz`,
         uploaded: false
       };
     });
