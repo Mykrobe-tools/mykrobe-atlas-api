@@ -62,22 +62,45 @@ class ExperimentHelper {
     }
   }
 
-  static async initUploadState(experiment, filename) {
-    const files = experiment.get("files");
-    const exists = files.find(file => file.name === filename);
-    if (!exists) {
-      files.push({
-        name: filename,
+  static async initUploadState(experiment, body) {
+    logger.debug(`isUploadInProgress experiment: ${experiment}`);
+    const { metadata: { sample: { isolateId } } } = body;
+
+    logger.debug(`isUploadInProgress isolateId: ${isolateId}`);
+    const files = isolateId.split(',').map(name => {
+      return ({
+        name,
         uploaded: false
-      });
-      experiment.set("files", files);
+      })
+    });
+    logger.debug(`isUploadInProgress files: ${files}`);
+    experiment.set("files", files);
+
+    try {
+      logger.debug(`saving init ...`);
       await experiment.save();
+    } catch(e) {
+      logger.debug(`error init ...${e}`);
     }
   }
 
-  static async isUploadInProgress(id, filename) {
+  static async isUploadInProgress(id) {
+    logger.debug(`isUploadInProgress id: ${id}`);
     const experiment = await Experiment.get(id);
+    logger.debug(`isUploadInProgress experiment id: ${experiment}`);
     const files = experiment.get("files");
+    logger.debug(`isUploadInProgress files: ${files}`);
+    const pendingFile = files.find(file => file.uploaded === false);
+    logger.debug(`isUploadInProgress pendingFile: ${pendingFile}`);
+    return pendingFile;
+  }
+
+  static async markFileAsComplete(id, filename) {
+    logger.debug(`markFileAsComplete id: ${id} filename: ${filename}`);
+    const experiment = await Experiment.get(id);
+    logger.debug(`markFileAsComplete experiment: ${experiment}`);
+    const files = experiment.get("files");
+    logger.debug(`markFileAsComplete files: ${files}`);
     experiment.files = files.map(file => {
       if (file.name === filename) {
         return {
@@ -88,8 +111,14 @@ class ExperimentHelper {
         return file;
       }
     });
-    await experiment.save();
-    return experiment.files.find(file => file.uploaded === false);
+    logger.debug(`markFileAsComplete experiment.files: ${experiment.files}`);
+    try {
+      logger.debug(`saving ...`);
+      await experiment.save();
+    } catch(e) {
+      logger.debug(`error ...${e}`);
+    }
+    
   }
 }
 

@@ -100,6 +100,9 @@ const create = async (req, res) => {
     // call tracking api
   }
 
+  // init upload state
+  await ExperimentHelper.initUploadState(experiment, req.body);
+
   try {
     const savedExperiment = await experiment.save();
     await elasticService.indexDocument(savedExperiment);
@@ -292,9 +295,6 @@ const uploadFile = async (req, res) => {
   // from local file
   try {
     const resumableFilename = req.body.resumableFilename;
-
-    // init the upload state
-    await ExperimentHelper.initUploadState(experiment, resumableFilename);
     logger.debug(`ExperimentsController#uploadFile: files state: ${JSON.stringify(experiment.get("files"), null, 2)}`);
 
 
@@ -324,7 +324,8 @@ const uploadFile = async (req, res) => {
       logger.debug(`ExperimentsController#uploadFile: complete`);
 
       // check pending uploads
-      const pending = await ExperimentHelper.isUploadInProgress(experiment.id, resumableFilename);
+      await ExperimentHelper.markFileAsComplete(experiment.id, resumableFilename);
+      const pending = await ExperimentHelper.isUploadInProgress(experiment.id);
 
       logger.debug(`ExperimentsController#uploadFile: pending: ${pending}`);
 
