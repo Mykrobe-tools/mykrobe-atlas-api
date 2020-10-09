@@ -295,6 +295,8 @@ const uploadFile = async (req, res) => {
 
     // init the upload state
     await ExperimentHelper.initUploadState(experiment, resumableFilename);
+    logger.debug(`ExperimentsController#uploadFile: files state: ${JSON.stringify(experiment.get("files"), null, 2)}`);
+
 
     const uploadDirectory = `${config.express.uploadDir}/experiments/${experiment.id}/file`;
     logger.debug(`ExperimentsController#uploadFile: uploadDirectory: ${uploadDirectory}`);
@@ -323,6 +325,8 @@ const uploadFile = async (req, res) => {
 
       // check pending uploads
       const pending = await ExperimentHelper.isUploadInProgress(experiment.id, resumableFilename);
+
+      logger.debug(`ExperimentsController#uploadFile: pending: ${pending}`);
 
       await EventHelper.clearUploadsState(req.dbUser.id, experiment.id);
       experimentEventEmitter.emit("upload-complete", {

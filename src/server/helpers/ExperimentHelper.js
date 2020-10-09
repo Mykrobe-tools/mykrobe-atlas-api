@@ -82,14 +82,14 @@ class ExperimentHelper {
       if (file.name === filename) {
         return {
           name: filename,
-          completed: true
+          uploaded: true
         };
 
         return file;
       }
     });
     await experiment.save();
-    return experiment.files.find(file => file.completed === false);
+    return experiment.files.find(file => file.uploaded === false);
   }
 }
 
