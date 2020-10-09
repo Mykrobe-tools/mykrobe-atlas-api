@@ -76,7 +76,7 @@ class ExperimentHelper {
     logger.debug(`isUploadInProgress isolateId: ${isolateId}`);
     const files = isolateId.split(",").map(name => {
       return {
-        name,
+        name: name.trim(),
         uploaded: false
       };
     });
@@ -107,9 +107,9 @@ class ExperimentHelper {
           name: filename,
           uploaded: true
         };
-
-        return file;
       }
+
+      return file;
     });
     logger.debug(`markFileAsComplete experimentFiles: ${experimentFiles}`);
     experiment.set("experimentFiles");
