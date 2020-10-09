@@ -129,11 +129,13 @@ const filenameSort = (first, second) => {
   return first.localeCompare(second);
 };
 
-const reassembleChunksToFile = (directory, targetPath, remove = true) => {
+const reassembleChunksToFile = (directory, targetPath, filename, remove = true) => {
   const files = fs.readdirSync(directory);
 
   // remove hidden / unwanted files
-  const filteredFiles = files.filter(item => !/(^|\/)\.[^\/\.]/g.test(item));
+  const key = filename.split(".").join("");
+  const regex = new RegExp(`.*?(${key}).*?`);
+  const filteredFiles = files.filter(item => !/(^|\/)\.[^\/\.]/g.test(item) && regex.test(item));
 
   // sort into a natural order i.e. file.9, file.10, file.11
   const sortedFiles = filteredFiles.sort(filenameSort);
@@ -162,7 +164,7 @@ const reassembleChunks = async (id, name, cb) => {
   const directory = `${config.express.uploadDir}/experiments/${id}/file`;
   const targetPath = `${config.express.uploadDir}/experiments/${id}/file/${name}`;
 
-  reassembleChunksToFile(directory, targetPath, true);
+  reassembleChunksToFile(directory, targetPath, name, true);
 
   const foundExperiment = await Experiment.get(id);
   foundExperiment.file = name;

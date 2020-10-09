@@ -753,7 +753,20 @@ describe("ExperimentController", () => {
     describe("when uploading multiple files", () => {
       const asyncTasks = [];
       beforeEach(async () => {
-        asyncTasks.push(done => {
+        asyncTasks.push(async done => {
+          const experiment = await Experiment.get(args.id);
+          const files = [
+            {
+              name: "333-08.json",
+              uploaded: false
+            },
+            {
+              name: "333-09.json",
+              uploaded: false
+            }
+          ];
+          experiment.set("files", files);
+          await experiment.save();
           request(args.app)
             .put(`/experiments/${args.id}/file`)
             .set("Authorization", `Bearer ${args.token}`)
@@ -799,7 +812,7 @@ describe("ExperimentController", () => {
         const mockCallback = jest.fn();
         experimentEventEmitter.on("upload-complete", mockCallback);
         async.series(asyncTasks, async () => {
-          expect(mockCallback.mock.calls.length).toEqual(1);
+          expect(mockCallback.mock.calls.length).toEqual(2);
           const calls = mockCallback.mock.calls;
 
           expect(mockCallback.mock.calls[0].length).toEqual(1);
@@ -814,21 +827,6 @@ describe("ExperimentController", () => {
           expect(experiment.id).toEqual(args.id);
           expect(status.filename).toEqual("333-08.json");
           expect(status.complete).toEqual(true);
-          done();
-        });
-      });
-      it("should call the analysis api with payload", done => {
-        async.series(asyncTasks, async () => {
-          const jobs = mongo(config.db.uri, []).agendaJobs;
-          let job = await findJob(jobs, args.id, "call analysis api");
-          while (!job) {
-            job = await findJob(jobs, args.id, "call analysis api");
-          }
-          expect(job.name).toEqual("call analysis api");
-          expect(job.data.file).toEqual(
-            `${config.express.uploadsLocation}/experiments/${args.id}/file/333-08.json`
-          );
-          expect(job.data.experiment_id).toEqual(args.id);
           done();
         });
       });

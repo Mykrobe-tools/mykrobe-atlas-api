@@ -62,34 +62,43 @@ class ExperimentHelper {
     }
   }
 
-  static async initUploadState(experiment, filename) {
-    const files = experiment.get("files");
-    const exists = files.find(file => file.name === filename);
-    if (!exists) {
-      files.push({
-        name: filename,
+  static async initUploadState(experiment, body) {
+    const {
+      metadata: {
+        sample: { isolateId }
+      }
+    } = body;
+
+    const files = isolateId.split(",").map(name => {
+      return {
+        name: `${name.trim()}.gz`,
         uploaded: false
-      });
-      experiment.set("files", files);
-      await experiment.save();
-    }
+      };
+    });
+    experiment.set("files", files);
   }
 
-  static async isUploadInProgress(id, filename) {
+  static async isUploadInProgress(id) {
     const experiment = await Experiment.get(id);
     const files = experiment.get("files");
-    experiment.files = files.map(file => {
+    return files.find(file => file.uploaded === false);
+  }
+
+  static async markFileAsComplete(id, filename) {
+    const experiment = await Experiment.get(id);
+    const files = experiment.get("files");
+    const experimentFiles = files.map(file => {
       if (file.name === filename) {
         return {
           name: filename,
-          completed: true
+          uploaded: true
         };
-
-        return file;
       }
+
+      return file;
     });
+    experiment.set("files", experimentFiles);
     await experiment.save();
-    return experiment.files.find(file => file.completed === false);
   }
 }
 
