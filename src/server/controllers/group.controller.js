@@ -7,8 +7,10 @@ import { group as groupSchema } from "mykrobe-atlas-jsonschema";
 import ArrayJSONTransformer from "makeandship-api-common/lib/transformers/ArrayJSONTransformer";
 
 import Group from "../models/group.model";
+import Search from "../models/search.model";
 import GroupJSONTransformer from "../transformers/GroupJSONTransformer";
 import Constants from "../Constants";
+import GroupHelper from "../helpers/GroupHelper";
 
 /**
  * Load group and append to req.
@@ -119,9 +121,17 @@ const get = (req, res) => res.jsend(req.group);
 
 const search = async (req, res) => {
   try {
-    return res.jsend("call search");
+    if (req.group) {
+      // call search for a single group
+      await GroupHelper.triggerSearch(req.group);
+    } else {
+      // call search for all groups
+      const groups = await Group.list();
+      groups.forEach(async group => await GroupHelper.triggerSearch(group));
+    }
+    return res.jsend("Search triggered");
   } catch (e) {
-    return res.jerror(new APIError(e.message, httpStatus.UNAUTHORIZED));
+    return res.jerror(new APIError(e.message, httpStatus.INTERNAL_SERVER_ERROR));
   }
 };
 

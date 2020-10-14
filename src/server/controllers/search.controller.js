@@ -17,6 +17,7 @@ import { createQuery } from "../modules/search/bigsi";
 import { userEventEmitter } from "../modules/events";
 
 import Constants from "../Constants";
+import GroupHelper from "../helpers/GroupHelper";
 
 /**
  * Load organisation and append to req.
@@ -102,6 +103,12 @@ const saveResult = async (req, res) => {
       const bigsi = savedSearch.get("bigsi");
       bigsi.search = regeneratedSearch;
       savedSearch.set("bigsi", bigsi);
+    }
+
+    const group = await GroupHelper.findBySearchHash(savedSearch.hash);
+    if (group) {
+      // tag group experiments
+      await GroupHelper.enrichGroupWithExperiments(group, savedSearch);
     }
 
     return res.jsend(savedSearch);

@@ -4,7 +4,8 @@ export default {
   },
   express: {
     uploadsLocation: "/tmp/uploads",
-    demoDataRootFolder: "data"
+    demoDataRootFolder: "data",
+    groupsLocation: "/tmp/groups.json"
   },
   accounts: {
     keycloak: {

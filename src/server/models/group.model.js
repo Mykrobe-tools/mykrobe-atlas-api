@@ -5,6 +5,7 @@ import { APIError } from "makeandship-api-common/lib/modules/error";
 import Constants from "../Constants";
 import JSONMongooseSchema from "./jsonschema.model";
 import GroupJSONTransformer from "../transformers/GroupJSONTransformer";
+import SearchHelper from "../helpers/SearchHelper";
 
 /**
  * GroupSchema Schema
@@ -15,15 +16,13 @@ const GroupSchema = new JSONMongooseSchema(
     experiments: [
       {
         type: "ObjectId",
-        ref: "User"
+        ref: "Experiment"
       }
-    ],
-    search: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Search"
-    }
+    ]
   },
-  {}
+  {
+    strict: false
+  }
 );
 
 /**
@@ -39,10 +38,20 @@ GroupSchema.plugin(schemaValidator, {
   modelName: "Group"
 });
 
+// Create a hash for a search
+GroupSchema.pre("save", function() {
+  this.searchHash = this.generateHash(this.searchQuery || {});
+});
+
 /**
  * Methods
  */
-GroupSchema.method({});
+GroupSchema.method({
+  generateHash(searchQuery) {
+    const { type, bigsi } = searchQuery;
+    return SearchHelper.generateHash({ type, bigsi });
+  }
+});
 
 /**
  * Statics
@@ -56,7 +65,7 @@ GroupSchema.statics = {
   async get(id) {
     try {
       const group = await this.findById(id)
-        .populate(["experiments", "search"])
+        .populate("experiments")
         .exec();
       if (group) {
         return group;
@@ -68,6 +77,18 @@ GroupSchema.statics = {
   },
 
   /**
+   * Delete all groups
+   * @returns {Promise<group, APIError>}
+   */
+  async clear() {
+    try {
+      await this.deleteMany({});
+    } catch (e) {
+      throw new APIError(Constants.ERRORS.CLEAR_GROUPS, e.message);
+    }
+  },
+
+  /**
    * List a limit of 50 groups
    * @param {number} skip - Number of groups to be skipped.
    * @param {number} limit - Limit number of groups to be returned.
@@ -75,10 +96,19 @@ GroupSchema.statics = {
    */
   list({ skip = 0, limit = 50 } = {}) {
     return this.find()
-      .populate(["experiments", "search"])
+      .populate("experiments")
       .skip(skip)
       .limit(limit)
       .exec();
+  },
+
+  /**
+   * Get group by search hash
+   * @param {ObjectId} id - The objectId of search.
+   * @returns {Promise<group, APIError>}
+   */
+  findBySearchHash(searchHash) {
+    return this.findOne({ searchHash }).exec();
   }
 };
 
