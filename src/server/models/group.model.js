@@ -38,6 +38,23 @@ GroupSchema.plugin(schemaValidator, {
   modelName: "Group"
 });
 
+GroupSchema.path("name").validate(
+  function(value) {
+    return new Promise(resolve => {
+      if (this.isNew) {
+        const model = this.model(this.constructor.modelName);
+        model.count({ name: value }, (err, count) => {
+          return resolve(count === 0);
+        });
+      } else {
+        return resolve(true);
+      }
+    });
+  },
+  "Group already exists with name {VALUE}",
+  "unique"
+);
+
 // Create a hash for a search
 GroupSchema.pre("save", function() {
   this.searchHash = this.generateHash(this.searchQuery || {});

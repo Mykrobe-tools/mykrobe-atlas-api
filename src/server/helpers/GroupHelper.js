@@ -1,5 +1,6 @@
 import axios from "axios";
 import Search from "../models/search.model";
+import Experiment from "../models/experiment.model";
 import BigsiSearchHelper from "./BigsiSearchHelper";
 import config from "../../config/env";
 
@@ -28,10 +29,9 @@ class GroupHelper {
     const result = search.get("result");
     const results = result.results;
     const filteredResults = BigsiSearchHelper.filter(type, results);
-    const experiments = await BigsiSearchHelper.enhanceBigsiResultsWithExperiments(
-      filteredResults,
-      {}
-    );
+    const isolateIds = filteredResults.map(result => result["metadata.sample.isolateId"]);
+    const experiments = await Experiment.findByIsolateIds(isolateIds);
+
     group.set("experiments", experiments);
     await group.save();
   }

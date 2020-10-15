@@ -14,7 +14,7 @@ export default {
     uploadsLocation: "/atlas/uploads",
     uploadMaxFileSize: 12000000,
     demoDataRootFolder: process.env.DEMO_DATA_ROOT_FOLDER,
-    groupsLocation: "test/fixtures/groups.json"
+    groupsLocation: "test/fixtures/groups/init.json"
   },
   accounts: {
     keycloak: {

@@ -2,6 +2,7 @@ import { ErrorUtil, APIError } from "makeandship-api-common/lib/modules/error";
 
 import Search from "../models/search.model";
 import Audit from "../models/audit.model";
+import Group from "../models/group.model";
 
 import SearchJSONTransformer from "../transformers/SearchJSONTransformer";
 import AuditJSONTransformer from "../transformers/AuditJSONTransformer";
@@ -105,7 +106,7 @@ const saveResult = async (req, res) => {
       savedSearch.set("bigsi", bigsi);
     }
 
-    const group = await GroupHelper.findBySearchHash(savedSearch.hash);
+    const group = await Group.findBySearchHash(savedSearch.hash);
     if (group) {
       // tag group experiments
       await GroupHelper.enrichGroupWithExperiments(group, savedSearch);
