@@ -127,7 +127,9 @@ const search = async (req, res) => {
     } else {
       // call search for all groups
       const groups = await Group.list();
-      groups.forEach(async group => await GroupHelper.triggerSearch(group));
+      for (let group of groups) {
+        await GroupHelper.triggerSearch(group);
+      }
     }
     return res.jsend("Search triggered");
   } catch (e) {

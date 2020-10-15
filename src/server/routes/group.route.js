@@ -20,30 +20,8 @@ const keycloak = AccountsHelper.keycloakInstance();
  *             type: string
  *           annotation:
  *             type: string
- *           searchHash:
- *             type: string
  *           experiments:
  *             type: array
- *           searchQuery:
- *             type: object
- *             properties:
- *               type:
- *                 type: string
- *               bigsi:
- *                 type: object
- *                 properties:
- *                   seq:
- *                     type: string
- *                   threshold:
- *                     type: number
- *                   ref:
- *                     type: string
- *                   alt:
- *                     type: string
- *                   pos:
- *                     type: number
- *                   gene:
- *                     type: string
  *           id:
  *             type: string
  *     example:
@@ -51,12 +29,6 @@ const keycloak = AccountsHelper.keycloakInstance();
  *       data:
  *         name: Mendoza Group
  *         annotation: Lorem ipsum
- *         searchQuery:
- *           type: sequence
- *           bigsi:
- *             query:
- *               seq: GTCAGTCCGTTTGTTCTTGTGGCGAGTGTAGTA
- *               threshold: 0.9
  *         id: 588624076182796462cb133e
  */
 /**
@@ -75,30 +47,8 @@ const keycloak = AccountsHelper.keycloakInstance();
  *               type: string
  *             annotation:
  *               type: string
- *             searchHash:
- *               type: string
  *             experiments:
  *               type: array
- *             searchQuery:
- *               type: object
- *               properties:
- *                 type:
- *                   type: string
- *                 bigsi:
- *                   type: object
- *                   properties:
- *                     seq:
- *                       type: string
- *                     threshold:
- *                       type: number
- *                     ref:
- *                       type: string
- *                     alt:
- *                       type: string
- *                     pos:
- *                       type: number
- *                     gene:
- *                       type: string
  *             id:
  *               type: string
  *     example:
@@ -106,12 +56,6 @@ const keycloak = AccountsHelper.keycloakInstance();
  *       data:
  *         - name: Mendoza Group
  *           annotation: Lorem ipsum
- *           searchQuery:
- *             type: sequence
- *             bigsi:
- *               query:
- *                 seq: GTCAGTCCGTTTGTTCTTGTGGCGAGTGTAGTA
- *                 threshold: 0.9
  *           id: 588624076182796462cb133e
  */
 

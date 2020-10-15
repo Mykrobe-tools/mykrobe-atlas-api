@@ -2,25 +2,14 @@ import axios from "axios";
 import Search from "../models/search.model";
 import Experiment from "../models/experiment.model";
 import BigsiSearchHelper from "./BigsiSearchHelper";
+import SearchHelper from "./SearchHelper";
+import AnalysisService from "../modules/analysis/AnalysisService";
 import config from "../../config/env";
 
 class GroupHelper {
   static async triggerSearch(group) {
-    const uri = `${config.services.analysisApiUrl}/search`;
-    const search = await Search.findByHash(group.searchHash);
-
-    if (search) {
-      const { id: search_id, bigsi } = search;
-      await axios.post(uri, { search_id, bigsi });
-    } else {
-      const { type, bigsi } = group.searchQuery;
-      const newSearch = new Search();
-      newSearch.type = type;
-      newSearch.bigsi = bigsi;
-      const savedSearch = await newSearch.save();
-      const { id: search_id } = savedSearch;
-      await axios.post(uri, { search_id, bigsi });
-    }
+    const service = new AnalysisService();
+    await service.search(group.search);
   }
 
   static async enrichGroupWithExperiments(group, search) {
@@ -34,6 +23,21 @@ class GroupHelper {
 
     group.set("experiments", experiments);
     await group.save();
+  }
+
+  static async getOrCreateSearch(query) {
+    const hash = SearchHelper.generateHash(query);
+    const search = await Search.findByHash(hash);
+
+    if (search) {
+      return search;
+    }
+
+    const { type, bigsi } = query;
+    const newSearch = new Search();
+    newSearch.type = type;
+    newSearch.bigsi = bigsi;
+    return await newSearch.save();
   }
 }
 

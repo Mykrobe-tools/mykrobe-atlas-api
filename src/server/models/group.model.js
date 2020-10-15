@@ -18,11 +18,13 @@ const GroupSchema = new JSONMongooseSchema(
         type: "ObjectId",
         ref: "Experiment"
       }
-    ]
+    ],
+    search: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Search"
+    }
   },
-  {
-    strict: false
-  }
+  {}
 );
 
 /**
@@ -55,20 +57,10 @@ GroupSchema.path("name").validate(
   "unique"
 );
 
-// Create a hash for a search
-GroupSchema.pre("save", function() {
-  this.searchHash = this.generateHash(this.searchQuery || {});
-});
-
 /**
  * Methods
  */
-GroupSchema.method({
-  generateHash(searchQuery) {
-    const { type, bigsi } = searchQuery;
-    return SearchHelper.generateHash({ type, bigsi });
-  }
-});
+GroupSchema.method({});
 
 /**
  * Statics
@@ -82,7 +74,7 @@ GroupSchema.statics = {
   async get(id) {
     try {
       const group = await this.findById(id)
-        .populate("experiments")
+        .populate(["experiments", "search"])
         .exec();
       if (group) {
         return group;
@@ -113,19 +105,19 @@ GroupSchema.statics = {
    */
   list({ skip = 0, limit = 50 } = {}) {
     return this.find()
-      .populate("experiments")
+      .populate(["experiments", "search"])
       .skip(skip)
       .limit(limit)
       .exec();
   },
 
   /**
-   * Get group by search hash
+   * Get group by search
    * @param {ObjectId} id - The objectId of search.
-   * @returns {Promise<group, APIError>}
+   * @returns {Promise<search, APIError>}
    */
-  findBySearchHash(searchHash) {
-    return this.findOne({ searchHash }).exec();
+  findBySearch(search) {
+    return this.findOne({ search }).exec();
   }
 };
 

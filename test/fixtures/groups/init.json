@@ -2,56 +2,21 @@
     {
         "name": "Mendoza Group",
         "annotation": "Lorem ipsum",
-        "searchQuery": {
-            "type": "sequence",
-            "bigsi": {
-                "query": {
-                    "seq": "GTCAGTCCGTTTGTTCTTGTGGCGAGTGTAGTA",
-                    "threshold": 0.7
-                }
-            }
-        }
+        "searchQuery": "GTCAGTCCGTTTGTTCTTGTGGCGAGTGTAGT"
     },
     {
         "name": "Buenos Aires Group",
         "annotation": "dolor sit amet",
-        "searchQuery": {
-            "type": "dna-variant",
-            "bigsi": {
-                "query": {
-                    "ref": "S",
-                    "alt": "L",
-                    "pos": 450,
-                    "gene": "rpoB"
-                }
-            }
-        }
+        "searchQuery": "rpoB_S560L"
     },
     {
         "name": "Rosario Group",
         "annotation": "consectetur",
-        "searchQuery": {
-            "type": "dna-variant",
-            "bigsi": {
-                "query": {
-                    "ref": "G",
-                    "pos": 4346385,
-                    "alt": "C"
-                }
-            }
-        }
+        "searchQuery": "uyeB_S180S"
     },
     {
         "name": "Corrientes Group",
         "annotation": "adipiscing elit",
-        "searchQuery": {
-            "type": "sequence",
-            "bigsi": {
-                "query": {
-                    "seq": "CAGATC",
-                    "threshold": 50
-                }
-            }
-        }
+        "searchQuery": "CAGATC"
     }
 ]

@@ -65,7 +65,6 @@ describe("## Groups Functions", () => {
         const groups = await Group.list();
         expect(groups.length).toEqual(1);
         expect(groups[0].name).toEqual("Mendoza Group");
-        expect(groups[0].searchHash).toEqual("dc7a0dc4b8ec545fd8c02034302034c5");
         done();
       });
     });

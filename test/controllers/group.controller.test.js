@@ -16,6 +16,9 @@ import searches from "../fixtures/searches";
 import experiments from "../fixtures/experiments";
 import SearchEventJSONTransformer from "../../src/server/transformers/events/SearchEventJSONTransformer";
 
+import { parseQuery } from "../../src/server/modules/search/query-parser";
+import GroupHelper from "../../src/server/helpers/GroupHelper";
+
 const args = {
   app: null,
   token: null,
@@ -31,6 +34,9 @@ beforeAll(async () => {
 beforeEach(async done => {
   const userData = new User(users.admin);
   const groupData = new Group(groups.salta);
+  const { bigsi } = parseQuery({ q: groups.salta.searchQuery });
+  const { type, query } = bigsi;
+  groupData.search = await GroupHelper.getOrCreateSearch({ type, bigsi: { query } });
   args.user = await userData.save();
   request(args.app)
     .post("/auth/login")
@@ -45,7 +51,6 @@ beforeEach(async done => {
 
 afterEach(async done => {
   await User.deleteMany({});
-  await Search.deleteMany({});
   await Experiment.deleteMany({});
   await Group.deleteMany({ name: { $in: ["Salta Group", "Tandil Group", "Make and Ship"] } });
   done();
@@ -63,18 +68,6 @@ describe("GroupController", () => {
           .end((err, res) => {
             expect(res.body.status).toEqual("success");
             expect(res.body.data.name).toEqual("Tandil Group");
-            done();
-          });
-      });
-      it("should populate the search hash", done => {
-        request(args.app)
-          .post("/groups")
-          .set("Authorization", `Bearer ${args.token}`)
-          .send(groups.tandil)
-          .expect(httpStatus.OK)
-          .end((err, res) => {
-            expect(res.body.status).toEqual("success");
-            expect(res.body.data.searchHash).toEqual("62bfbaf41dd95ef170b7c8119f60f193");
             done();
           });
       });
@@ -254,31 +247,21 @@ describe("GroupController", () => {
           .expect(httpStatus.OK)
           .end(async (err, res) => {
             const searches = await Search.find({});
-            expect(searches.length).toEqual(1);
-            expect(searches[0].hash).toEqual("9b95aa5989caafd34bf4a5a3bd6b2434");
+            expect(searches.length).toEqual(5);
             done();
           });
       });
     });
     describe("when saving the results", () => {
-      let searchId;
-
       beforeEach(async done => {
         const experimentData = new Experiment(experiments.tbUploadMetadataTagged);
         await experimentData.save();
-        request(args.app)
-          .post(`/groups/${args.id}/search`)
-          .expect(httpStatus.OK)
-          .end(async () => {
-            const searches = await Search.find({});
-            searchId = searches[0].id;
-            done();
-          });
+        done();
       });
 
       it("should tag th experiments in the group", done => {
         request(args.app)
-          .put(`/searches/${searchId}/results`)
+          .put(`/searches/${args.group.search.id}/results`)
           .send(searches.results.sequence)
           .expect(httpStatus.OK)
           .end(async (err, res) => {
@@ -308,11 +291,8 @@ describe("GroupController", () => {
         .post(`/groups/search`)
         .expect(httpStatus.OK)
         .end(async (err, res) => {
-          let searches = await Search.find({});
-          while (searches.length < 5) {
-            searches = await Search.find({});
-          }
-          expect(searches.length).toEqual(5);
+          const count = await Search.count({});
+          expect(count).toEqual(5);
           done();
         });
     });

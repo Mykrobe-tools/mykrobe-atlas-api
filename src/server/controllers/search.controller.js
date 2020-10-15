@@ -106,7 +106,7 @@ const saveResult = async (req, res) => {
       savedSearch.set("bigsi", bigsi);
     }
 
-    const group = await Group.findBySearchHash(savedSearch.hash);
+    const group = await Group.findBySearch(savedSearch);
     if (group) {
       // tag group experiments
       await GroupHelper.enrichGroupWithExperiments(group, savedSearch);

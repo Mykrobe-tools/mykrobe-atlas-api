@@ -2,42 +2,16 @@ export default {
   salta: {
     name: "Salta Group",
     annotation: "Lorem ipsum",
-    searchQuery: {
-      type: "sequence",
-      bigsi: {
-        query: {
-          seq: "GTCAGTCCGTTTGTTCTTGTGGCGAGTGTAGTA",
-          threshold: 0.9
-        }
-      }
-    }
+    searchQuery: "GTCAGTCCGTTTGTTCTTGTGG"
   },
   tandil: {
     name: "Tandil Group",
     annotation: "dolor sit amet",
-    searchQuery: {
-      type: "dna-variant",
-      bigsi: {
-        query: {
-          ref: "S",
-          alt: "L",
-          pos: 450,
-          gene: "rpoB"
-        }
-      }
-    }
+    searchQuery: "ffrB_D450R"
   },
   medoza: {
     name: "Mendoza Group",
     annotation: "Lorem ipsum",
-    searchQuery: {
-      type: "sequence",
-      bigsi: {
-        query: {
-          seq: "GTCAGTCCGTTTGTTCTTGTGGCGAGTGTAGTA",
-          threshold: 0.7
-        }
-      }
-    }
+    searchQuery: "GTCAGTCCGTTTGTTCTTGTGGCGAGTGTAGSW"
   }
 };
