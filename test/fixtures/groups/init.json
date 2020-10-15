@@ -1,0 +1,22 @@
+[
+    {
+        "name": "Mendoza Group",
+        "annotation": "Lorem ipsum",
+        "searchQuery": "GTCAGTCCGTTTGTTCTTGTGGCGAGTGTAGT"
+    },
+    {
+        "name": "Buenos Aires Group",
+        "annotation": "dolor sit amet",
+        "searchQuery": "rpoB_S560L"
+    },
+    {
+        "name": "Rosario Group",
+        "annotation": "consectetur",
+        "searchQuery": "uyeB_S180S"
+    },
+    {
+        "name": "Corrientes Group",
+        "annotation": "adipiscing elit",
+        "searchQuery": "CAGATC"
+    }
+]

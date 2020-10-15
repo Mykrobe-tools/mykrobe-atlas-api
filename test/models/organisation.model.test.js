@@ -2,12 +2,11 @@ import Constants from "../../src/server/Constants";
 
 import Organisation from "../../src/server/models/organisation.model";
 
-import { createApp } from "../setup";
-
 import organisations from "../fixtures/organisations";
 
+import setup from "../setup";
+
 let id = null;
-createApp();
 
 beforeEach(async done => {
   const organisationData = new Organisation(organisations.apex);

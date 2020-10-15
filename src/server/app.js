@@ -15,6 +15,7 @@ import {
   ExpressInitializer,
   JsendInitializer
 } from "makeandship-api-common/lib/modules/express/initializers";
+import GroupsInitializer from "./initializers/GroupsInitializer";
 
 import Constants from "./Constants";
 
@@ -140,6 +141,7 @@ const createApp = async options => {
   logger.debug("ExpressInitializer#initialize: Initializing ...");
   const initializer = new ExpressInitializer(express);
   initializer.add(new JsendInitializer());
+  initializer.add(new GroupsInitializer());
   await initializer.initialize();
   logger.debug("ExpressInitializer#initialize: Initialization complete");
 

@@ -66,6 +66,19 @@ const samples = {
     dateArrived: moment.utc([2018, 8, 1]).toDate(),
     anatomicalOrigin: "Respiratory",
     smear: "Not known"
+  },
+  tagged: {
+    labId: "d19637ed-e5b4-4ca7-8418-8713646a3359",
+    isolateId: "ERR017683",
+    collectionDate: moment.utc([2018, 9, 19]).toDate(),
+    prospectiveIsolate: "Yes",
+    countryIsolate: "IN",
+    cityIsolate: "Mumbai",
+    longitudeIsolate: -1.2577263,
+    latitudeIsolate: 51.7520209,
+    dateArrived: moment.utc([2018, 8, 1]).toDate(),
+    anatomicalOrigin: "Respiratory",
+    smear: "Not known"
   }
 };
 const genotypings = {
@@ -200,7 +213,7 @@ const phenotypings = {
       susceptibility: "Sensitive",
       method: "Not known"
     },
-    imipenemImipenemcilastatin: {
+    imipenem: {
       susceptibility: "Sensitive",
       method: "Not known"
     },
@@ -259,5 +272,11 @@ export default {
     sample: samples.chinese,
     genotyping: genotypings.mdr,
     phenotyping: phenotypings.mdr
+  },
+  uploadedMetadataTagged: {
+    patient: patients.normal,
+    sample: samples.tagged,
+    genotyping: genotypings.normal,
+    phenotyping: phenotypings.normal
   }
 };
