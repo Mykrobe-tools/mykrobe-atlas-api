@@ -19,6 +19,7 @@ class AnalysisService {
 
     const uri = `${config.services.analysisApiUrl}/analyses`;
     const payload = {
+      files: ExperimentHelper.localiseFilesForAnalysisApi(experiment.files),
       file: ExperimentHelper.localiseFilepathForAnalysisApi(file),
       sample_id: experiment.sampleId,
       callback_url: `/experiments/${experiment.id}/results`

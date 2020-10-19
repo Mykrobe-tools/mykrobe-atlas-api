@@ -227,7 +227,7 @@ describe("SearchController", () => {
             const foundSearch = await Search.get(args.sequenceSearchId);
 
             const newExpirationDate = moment();
-            newExpirationDate.add(7, "days");
+            newExpirationDate.add(1, "hours");
 
             const expires = moment(foundSearch.expires);
             expect(expires.date()).toEqual(newExpirationDate.date());
