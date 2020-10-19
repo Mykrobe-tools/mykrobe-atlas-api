@@ -317,6 +317,7 @@ describe("SearchController", () => {
             .send(searches.results.proteinVariant)
             .expect(httpStatus.OK)
             .end((err, res) => {
+              console.log(JSON.stringify(res.body));
               body = res.body;
 
               expect(mockCallback.mock.calls.length).toEqual(1);
