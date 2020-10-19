@@ -29,10 +29,28 @@ Install the MongoDB Binaries
 $ brew install mongodb
 ```
 
-Run MongoDB
+Add the following entry to /etc/hosts file
 
 ```
-$ mongod
+127.0.0.1 docker.for.mac.localhost
+```
+
+Run MongoDB Replicaset
+
+```
+$ cd mongo && ./setup
+```
+
+inside the mongo console run this:
+
+```
+rs.initiate({_id:"rs0", members: [{_id:0, host:"docker.for.mac.localhost:27017", priority:100}, {_id:1, host:"docker.for.mac.localhost:27018", priority:50}]})
+```
+
+check the status
+
+```
+rs.status();
 ```
 
 ## Start Server
