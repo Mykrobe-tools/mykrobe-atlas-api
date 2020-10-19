@@ -1,6 +1,6 @@
 export default {
   db: {
-    uri: "mongodb://localhost/atlas-dev"
+    uri: "mongodb://localhost/atlas?replicaSet=rs0"
   },
   express: {
     uploadsLocation: "/tmp/uploads",
