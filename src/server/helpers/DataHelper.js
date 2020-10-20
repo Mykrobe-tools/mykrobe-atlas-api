@@ -161,7 +161,7 @@ class DataHelper {
         experiment.sampleId =
           Constants.AUTOGENERATE_SAMPLE_ID === "yes"
             ? isolateId
-            : await this.readSampleIdFromTrackingApi(experiment.id);
+            : await this.readSampleIdFromTrackingApi(experiment.id, isolateId);
 
         if (coordinates && coordinates.longitude && coordinates.latitude) {
           experiment.metadata.sample.longitudeIsolate = coordinates.longitude;
@@ -235,9 +235,9 @@ class DataHelper {
     return results;
   }
 
-  static async readSampleIdFromTrackingApi(experimentId) {
+  static async readSampleIdFromTrackingApi(experimentId, isolateId) {
     const trackingService = new TrackingService();
-    return await trackingService.getTrackingId(experimentId);
+    return await trackingService.getTrackingId(experimentId, isolateId);
   }
 }
 
