@@ -6,6 +6,7 @@ import Experiment from "../models/experiment.model";
 import ExperimentJSONTransformer from "../transformers/ExperimentJSONTransformer";
 import PredictorResultParser from "./results/PredictorResultParser";
 import logger from "../modules/logger";
+import TrackingService from "../modules/tracking/TrackingService";
 import LocationHelper from "./LocationHelper";
 import ExperimentHelper from "./ExperimentHelper";
 import Constants from "../Constants";
@@ -139,20 +140,14 @@ class DataHelper {
     return experiments;
   }
 
-  static buildMongooseReadyExperimentObjects(rows) {
+  static async buildMongooseReadyExperimentObjects(rows) {
     const experiments = [];
 
     if (rows) {
-      rows.forEach(row => {
+      for (const row of rows) {
         const { isolateId, countryIsolate, cityIsolate, results, coordinates } = row;
 
-        const sampleId =
-          Constants.AUTOGENERATE_SAMPLE_ID === "yes"
-            ? isolateId
-            : this.readSampleIdFromTrackingApi();
-
-        const experiment = {
-          sampleId,
+        const experiment = new Experiment({
           results,
           metadata: {
             sample: {
@@ -161,7 +156,12 @@ class DataHelper {
               cityIsolate
             }
           }
-        };
+        });
+
+        experiment.sampleId =
+          Constants.AUTOGENERATE_SAMPLE_ID === "yes"
+            ? isolateId
+            : await this.readSampleIdFromTrackingApi(experiment.id, isolateId);
 
         if (coordinates && coordinates.longitude && coordinates.latitude) {
           experiment.metadata.sample.longitudeIsolate = coordinates.longitude;
@@ -169,7 +169,7 @@ class DataHelper {
         }
 
         experiments.push(experiment);
-      });
+      }
     }
 
     return experiments;
@@ -191,7 +191,7 @@ class DataHelper {
     const experimentObjects = await this.buildExperimentObjectsFromCSVRows(rows, directory);
 
     // objects > mongoose records
-    const experimentDatabaseReadyObjects = this.buildMongooseReadyExperimentObjects(
+    const experimentDatabaseReadyObjects = await this.buildMongooseReadyExperimentObjects(
       experimentObjects
     );
     logger.debug(`${file.path} has ${experimentDatabaseReadyObjects.length} experiments to store`);
@@ -235,9 +235,9 @@ class DataHelper {
     return results;
   }
 
-  // to be implemented
-  static readSampleIdFromTrackingApi() {
-    return null;
+  static async readSampleIdFromTrackingApi(experimentId, isolateId) {
+    const trackingService = new TrackingService();
+    return await trackingService.getTrackingId(experimentId, isolateId);
   }
 }
 
