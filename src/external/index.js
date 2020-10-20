@@ -104,6 +104,17 @@ const enableExternalThirdPartyMockServices = () => {
   logger.debug(`enableExternalThirdPartyMockServices: exit`);
 };
 
+const enableMockTrackingApi = () => {
+  logger.debug(`enableMockTrackingApi: enter`);
+  nock(config.services.trackingApiUrl)
+    .persist()
+    .post("/samples")
+    .reply(201, {
+      id: uuid.v1()
+    });
+  logger.debug(`enableMockTrackingApi: exit`);
+};
+
 const enableExternalAtlasMockServices = () => {
   logger.debug(`enableExternalAtlasMockServices: enter`);
   enableMockAnalysisApi();
@@ -112,6 +123,7 @@ const enableExternalAtlasMockServices = () => {
   enableMockTreeApi();
   enableMockIsolateIdMapping();
   enableMockGenericAnalysisApi();
+  enableMockTrackingApi();
   logger.debug(`enableExternalAtlasMockServices: exit`);
 };
 

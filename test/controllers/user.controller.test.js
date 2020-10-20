@@ -28,8 +28,6 @@ beforeAll(async () => {
   args.app = await createApp();
 });
 
-const app = createApp();
-
 beforeEach(async done => {
   const userData = new User(users.admin);
   const experimentData = new Experiment(experiments.tbUploadMetadata);

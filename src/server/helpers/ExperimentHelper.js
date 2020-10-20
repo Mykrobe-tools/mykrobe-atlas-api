@@ -100,6 +100,14 @@ class ExperimentHelper {
     experiment.set("files", experimentFiles);
     await experiment.save();
   }
+
+  static async localiseFilesForAnalysisApi(files) {
+    if (files && Array.isArray(files)) {
+      return files.map(file => this.localiseFilepathForAnalysisApi(file.name));
+    }
+
+    return [];
+  }
 }
 
 export default ExperimentHelper;

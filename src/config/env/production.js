@@ -16,7 +16,8 @@ export default {
     corsOptions: {
       origin: process.env.CORS_ORIGIN,
       optionsSuccessStatus: 200
-    }
+    },
+    groupsLocation: process.env.GROUPS_LOCATION
   },
   accounts: {
     keycloak: {

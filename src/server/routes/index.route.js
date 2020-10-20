@@ -7,6 +7,7 @@ import experimentRoutes from "./experiment.route";
 import organisationRoutes from "./organisation.route";
 import dataRoutes from "./data.route";
 import searchRoutes from "./search.route";
+import groupRoutes from "./group.route";
 import { swaggerSpec } from "../modules/swagger";
 
 const router = express.Router(); // eslint-disable-line new-cap
@@ -120,5 +121,8 @@ router.use("/searches", searchRoutes);
 
 // mount data routes at /data
 router.use("/data", dataRoutes);
+
+// mount group routes at /groups
+router.use("/groups", groupRoutes);
 
 export default router;

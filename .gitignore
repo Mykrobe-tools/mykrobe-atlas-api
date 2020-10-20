@@ -60,3 +60,5 @@ package-lock.json
 
 # temporary environment variables
 .env
+mongo/rs*.conf
+mongo/rs*/*

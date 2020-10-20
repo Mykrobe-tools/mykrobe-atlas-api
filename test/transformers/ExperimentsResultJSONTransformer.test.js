@@ -214,7 +214,7 @@ describe("ExperimentsResultJSONTransformer", () => {
                     susceptibility: "Sensitive",
                     method: "Not known"
                   },
-                  imipenemImipenemcilastatin: {
+                  imipenem: {
                     susceptibility: "Sensitive",
                     method: "Not known"
                   },

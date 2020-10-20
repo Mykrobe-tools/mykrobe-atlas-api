@@ -28,6 +28,7 @@ import Scheduler from "../modules/scheduler/Scheduler";
 import { experimentEventEmitter, userEventEmitter } from "../modules/events";
 import { parseQuery, callTreeApi } from "../modules/search";
 import logger from "../modules/logger";
+import TrackingService from "../modules/tracking/TrackingService";
 
 import DownloadersFactory from "../helpers/DownloadersFactory";
 import BigsiSearchHelper from "../helpers/BigsiSearchHelper";
@@ -93,11 +94,12 @@ const get = async (req, res) => {
  */
 const create = async (req, res) => {
   const experiment = new Experiment(req.body);
+  const trackingService = new TrackingService();
   experiment.owner = req.dbUser;
   if (Constants.AUTOGENERATE_SAMPLE_ID === "yes") {
     experiment.sampleId = uuid.v1();
   } else {
-    // call tracking api
+    experiment.sampleId = await trackingService.getTrackingId(experiment.id);
   }
 
   // init upload state

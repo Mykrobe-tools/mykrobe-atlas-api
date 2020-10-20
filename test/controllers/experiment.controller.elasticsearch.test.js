@@ -203,9 +203,7 @@ describe("ExperimentController > Elasticsearch", () => {
             "Date stopped"
           );
           expect(data["metadata.patient.diabetic"].title).toEqual("Diabetic");
-          expect(data["metadata.phenotyping.pretothionamide.susceptibility"].title).toEqual(
-            "Susceptible"
-          );
+          expect(data["metadata.phenotyping.imipenem.susceptibility"].title).toEqual("Susceptible");
           expect(data["metadata.outcome.whoOutcomeCategory"].title).toEqual("WHO Outcome Category");
           expect(data["metadata.genotyping.hainAm"].title).toEqual("HAIN AM");
 
@@ -234,10 +232,10 @@ describe("ExperimentController > Elasticsearch", () => {
             "Patient",
             "Diabetic"
           ]);
-          expect(data["metadata.phenotyping.pretothionamide.susceptibility"].titles).toEqual([
+          expect(data["metadata.phenotyping.imipenem.susceptibility"].titles).toEqual([
             "Metadata",
             "Phenotyping",
-            "Pretothionamide",
+            "Imipenem",
             "Susceptible"
           ]);
           expect(data["metadata.outcome.whoOutcomeCategory"].titles).toEqual([

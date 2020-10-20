@@ -830,6 +830,25 @@ describe("ExperimentController", () => {
           done();
         });
       });
+      it("should send the list of files to predictor api", done => {
+        const mockCallback = jest.fn();
+        experimentEventEmitter.on("upload-complete", mockCallback);
+        async.series(asyncTasks, async () => {
+          const calls = mockCallback.mock.calls;
+
+          expect(mockCallback.mock.calls[0].length).toEqual(1);
+          const object = mockCallback.mock.calls[0][0];
+
+          expect(object).toHaveProperty("status");
+          expect(object).toHaveProperty("experiment");
+
+          const status = object.status;
+          const experiment = object.experiment;
+
+          expect(experiment.files.length).toEqual(2);
+          done();
+        });
+      });
       it("should call the analysis api with payload", done => {
         request(args.app)
           .put(`/experiments/${args.id}/file`)
