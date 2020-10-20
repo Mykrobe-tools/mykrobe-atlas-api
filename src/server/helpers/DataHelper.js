@@ -235,7 +235,6 @@ class DataHelper {
     return results;
   }
 
-  // to be implemented
   static async readSampleIdFromTrackingApi(experimentId) {
     const trackingService = new TrackingService();
     return await trackingService.getTrackingId(experimentId);
