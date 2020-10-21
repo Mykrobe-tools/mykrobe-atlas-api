@@ -88,9 +88,9 @@ class ExperimentHelper {
     const experiment = await Experiment.get(id);
     const files = experiment.get("files");
     const experimentFiles = files.map(file => {
-      if (file.name === filename) {
+      if (filename.indexOf(file.name) > -1) {
         return {
-          name: filename,
+          name: `${config.express.uploadsLocation}/experiments/${id}/file/${filename}`,
           uploaded: true
         };
       }
@@ -101,7 +101,7 @@ class ExperimentHelper {
     await experiment.save();
   }
 
-  static async localiseFilesForAnalysisApi(files) {
+  static localiseFilesForAnalysisApi(files) {
     if (files && Array.isArray(files)) {
       return files.map(file => this.localiseFilepathForAnalysisApi(file.name));
     }

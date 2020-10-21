@@ -297,7 +297,6 @@ const uploadFile = async (req, res) => {
   // from local file
   try {
     const resumableFilename = req.body.resumableFilename;
-    const truncatedFilename = resumableFilename.split(".")[0];
 
     const uploadDirectory = `${config.express.uploadDir}/experiments/${experiment.id}/file`;
     logger.debug(`ExperimentsController#uploadFile: uploadDirectory: ${uploadDirectory}`);
@@ -325,7 +324,7 @@ const uploadFile = async (req, res) => {
       logger.debug(`ExperimentsController#uploadFile: complete`);
 
       // check pending uploads
-      await ExperimentHelper.markFileAsComplete(experiment.id, truncatedFilename);
+      await ExperimentHelper.markFileAsComplete(experiment.id, resumableFilename);
       const pending = await ExperimentHelper.isUploadInProgress(experiment.id);
 
       await EventHelper.clearUploadsState(req.dbUser.id, experiment.id);
@@ -337,14 +336,14 @@ const uploadFile = async (req, res) => {
       await EventHelper.updateAnalysisState(
         req.dbUser.id,
         experimentJson.id,
-        `${config.express.uploadsLocation}/experiments/${experimentJson.id}/file/${truncatedFilename}`
+        `${config.express.uploadsLocation}/experiments/${experimentJson.id}/file/${resumableFilename}`
       );
       logger.debug(`ExperimentsController#uploadFile: reassembleChunks ...`);
-      return resumable.reassembleChunks(experimentJson.id, truncatedFilename, async () => {
+      return resumable.reassembleChunks(experimentJson.id, resumableFilename, async () => {
         if (!pending) {
           const scheduler = await Scheduler.getInstance();
           await scheduler.schedule("now", "call analysis api", {
-            file: `${config.express.uploadsLocation}/experiments/${experimentJson.id}/file/${truncatedFilename}`,
+            file: `${config.express.uploadsLocation}/experiments/${experimentJson.id}/file/${resumableFilename}`,
             experiment_id: experimentJson.id,
             attempt: 0,
             experiment: experimentJson
