@@ -71,7 +71,7 @@ class ExperimentHelper {
 
     const files = isolateId.split(",").map(name => {
       return {
-        name: `${name.trim()}.gz`,
+        name: name.trim(),
         uploaded: false
       };
     });
