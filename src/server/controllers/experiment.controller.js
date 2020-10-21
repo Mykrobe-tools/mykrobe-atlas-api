@@ -342,6 +342,8 @@ const uploadFile = async (req, res) => {
       return resumable.reassembleChunks(experimentJson.id, resumableFilename, async () => {
         if (!pending) {
           const scheduler = await Scheduler.getInstance();
+
+          // read the experiments data from the db to get the latest files state
           const uploadedExperiment = await Experiment.get(experimentJson.id);
           const uploadedExperimentJson = new ExperimentJSONTransformer().transform(uploadedExperiment);
           await scheduler.schedule("now", "call analysis api", {
