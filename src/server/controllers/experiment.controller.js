@@ -342,11 +342,13 @@ const uploadFile = async (req, res) => {
       return resumable.reassembleChunks(experimentJson.id, resumableFilename, async () => {
         if (!pending) {
           const scheduler = await Scheduler.getInstance();
+          const uploadedExperiment = await Experiment.get(experimentJson.id);
+          const uploadedExperimentJson = new ExperimentJSONTransformer().transform(uploadedExperiment);
           await scheduler.schedule("now", "call analysis api", {
             file: `${config.express.uploadsLocation}/experiments/${experimentJson.id}/file/${resumableFilename}`,
-            experiment_id: experimentJson.id,
+            experiment_id: uploadedExperimentJson.id,
             attempt: 0,
-            experiment: experimentJson
+            experiment: uploadedExperimentJson
           });
         }
         return res.jsend("File uploaded and reassembled");
