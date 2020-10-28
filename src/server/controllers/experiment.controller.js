@@ -280,7 +280,7 @@ const uploadFile = async (req, res) => {
         });
       });
       // mark download as complete
-      ExperimentHelper.markFileAsComplete(experiment.id, req.body.name);
+      await ExperimentHelper.markFileAsComplete(experiment.id, req.body.name);
       await experiment.save();
 
       return res.jsend(`Download started from ${req.body.provider}`);
