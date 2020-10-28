@@ -256,7 +256,7 @@ const uploadFile = async (req, res) => {
   if (req.body.provider && req.body.path) {
     const path = `${config.express.uploadDir}/experiments/${experiment.id}/file`;
     try {
-      // mark download as complete
+      // mark download as pending
       experiment.files.push({
         name: `${path}/${req.body.name}`,
         uploaded: false
