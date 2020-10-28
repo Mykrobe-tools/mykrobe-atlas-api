@@ -255,10 +255,17 @@ const uploadFile = async (req, res) => {
   // from 3rd party provider
   if (req.body.provider && req.body.path) {
     const path = `${config.express.uploadDir}/experiments/${experiment.id}/file`;
+    const uploadsLocation = `${config.express.uploadsLocation}/experiments/${experiment.id}/file`;
+
     try {
       // mark download as pending
-      await ExperimentHelper.init3rdPartyUploadState(experiment, `${path}/${req.body.name}`);
+      await ExperimentHelper.init3rdPartyUploadState(
+        experiment,
+        `${uploadsLocation}/${req.body.name}`
+      );
       await experiment.save();
+      const thirdPartyExperimentJson = new ExperimentJSONTransformer().transform(experiment);
+
       await mkdirp(path);
       const downloader = DownloadersFactory.create(`${path}/${req.body.name}`, {
         experiment,
@@ -269,14 +276,14 @@ const uploadFile = async (req, res) => {
         await EventHelper.updateAnalysisState(
           req.dbUser.id,
           experiment.id,
-          `${config.express.uploadsLocation}/experiments/${experiment.id}/file/${req.body.name}`
+          `${uploadsLocation}/${req.body.name}`
         );
         const scheduler = await Scheduler.getInstance();
         await scheduler.schedule("now", "call analysis api", {
-          file: `${config.express.uploadsLocation}/experiments/${experiment.id}/file/${req.body.name}`,
+          file: `${uploadsLocation}/${req.body.name}`,
           experiment_id: experiment.id,
           attempt: 0,
-          experiment: experimentJson
+          experiment: thirdPartyExperimentJson
         });
       });
       // mark download as complete
