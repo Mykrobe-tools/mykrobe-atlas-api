@@ -259,7 +259,7 @@ const uploadFile = async (req, res) => {
       // mark download as complete
       experiment.files.push({
         name: `${path}/${req.body.name}`,
-        uploaded: true
+        uploaded: false
       });
       await experiment.save();
       await mkdirp(path);
