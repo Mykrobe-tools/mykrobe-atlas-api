@@ -422,7 +422,7 @@ describe("util", () => {
         const trackingId = Object.keys(predictor09Result.result).pop();
         const result = predictor09Result.result[trackingId];
         const phylogenetics = util.parsePhylogenetics(result.phylogenetics);
-        console.log(JSON.stringify(phylogenetics));
+
         expect(phylogenetics.length).toEqual(6);
         phylogenetics.forEach(entry => {
           const type = entry.type;
