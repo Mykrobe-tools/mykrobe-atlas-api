@@ -276,7 +276,7 @@ const uploadFile = async (req, res) => {
         await EventHelper.updateAnalysisState(
           req.dbUser.id,
           experiment.id,
-          `${config.express.uploadsLocation}/experiments/${experiment.id}/file/${req.body.name}`
+          `${uploadsLocation}/${req.body.name}`
         );
         const scheduler = await Scheduler.getInstance();
         await scheduler.schedule("now", "call analysis api", {
