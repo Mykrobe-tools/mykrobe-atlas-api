@@ -278,7 +278,7 @@ const uploadFile = async (req, res) => {
       });
       // save file attribute
       experiment.files.push({
-        name: req.body.name,
+        name: `${path}/${req.body.name}`,
         uploaded: true
       });
       await experiment.save();
@@ -345,7 +345,9 @@ const uploadFile = async (req, res) => {
 
           // read the experiments data from the db to get the latest files state
           const uploadedExperiment = await Experiment.get(experimentJson.id);
-          const uploadedExperimentJson = new ExperimentJSONTransformer().transform(uploadedExperiment);
+          const uploadedExperimentJson = new ExperimentJSONTransformer().transform(
+            uploadedExperiment
+          );
           await scheduler.schedule("now", "call analysis api", {
             file: `${config.express.uploadsLocation}/experiments/${experimentJson.id}/file/${resumableFilename}`,
             experiment_id: uploadedExperimentJson.id,

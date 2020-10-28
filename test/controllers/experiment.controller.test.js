@@ -1141,7 +1141,9 @@ describe("ExperimentController", () => {
               while (updatedExperiment.files.length === 0) {
                 updatedExperiment = await Experiment.get(args.id);
               }
-              expect(updatedExperiment.files[0].name).toEqual("MDR.fastq.gz");
+              expect(updatedExperiment.files[0].name).toEqual(
+                `/tmp/uploads/experiments/${updatedExperiment.id}/file/MDR.fastq.gz`
+              );
               done();
             });
         });
