@@ -259,6 +259,8 @@ const uploadFile = async (req, res) => {
       // mark download as pending
       await ExperimentHelper.init3rdPartyUploadState(experiment, `${path}/${req.body.name}`);
       await experiment.save();
+      const thirdPartyExperimentJson = new ExperimentJSONTransformer().transform(experiment);
+
       await mkdirp(path);
       const downloader = DownloadersFactory.create(`${path}/${req.body.name}`, {
         experiment,
@@ -276,7 +278,7 @@ const uploadFile = async (req, res) => {
           file: `${config.express.uploadsLocation}/experiments/${experiment.id}/file/${req.body.name}`,
           experiment_id: experiment.id,
           attempt: 0,
-          experiment: experimentJson
+          experiment: thirdPartyExperimentJson
         });
       });
       // mark download as complete
