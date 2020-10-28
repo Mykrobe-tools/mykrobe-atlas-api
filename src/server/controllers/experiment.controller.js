@@ -257,7 +257,7 @@ const uploadFile = async (req, res) => {
     const path = `${config.express.uploadDir}/experiments/${experiment.id}/file`;
     try {
       // mark download as pending
-      ExperimentHelper.init3rdPartyUploadState(experiment, `${path}/${req.body.name}`);
+      await ExperimentHelper.init3rdPartyUploadState(experiment, `${path}/${req.body.name}`);
       await experiment.save();
       await mkdirp(path);
       const downloader = DownloadersFactory.create(`${path}/${req.body.name}`, {
