@@ -1142,7 +1142,7 @@ describe("ExperimentController", () => {
                 updatedExperiment = await Experiment.get(args.id);
               }
               expect(updatedExperiment.files[0].name).toEqual(
-                `/tmp/uploads/experiments/${updatedExperiment.id}/file/MDR.fastq.gz`
+                `/atlas/uploads/experiments/${updatedExperiment.id}/file/MDR.fastq.gz`
               );
               done();
             });
