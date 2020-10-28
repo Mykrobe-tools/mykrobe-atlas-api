@@ -256,6 +256,9 @@ const uploadFile = async (req, res) => {
   if (req.body.provider && req.body.path) {
     const path = `${config.express.uploadDir}/experiments/${experiment.id}/file`;
     try {
+      // mark download as pending
+      await ExperimentHelper.init3rdPartyUploadState(experiment, `${path}/${req.body.name}`);
+      await experiment.save();
       await mkdirp(path);
       const downloader = DownloadersFactory.create(`${path}/${req.body.name}`, {
         experiment,
@@ -276,11 +279,8 @@ const uploadFile = async (req, res) => {
           experiment: experimentJson
         });
       });
-      // save file attribute
-      experiment.files.push({
-        name: `${path}/${req.body.name}`,
-        uploaded: true
-      });
+      // mark download as complete
+      await ExperimentHelper.markFileAsComplete(experiment.id, req.body.name);
       await experiment.save();
 
       return res.jsend(`Download started from ${req.body.provider}`);

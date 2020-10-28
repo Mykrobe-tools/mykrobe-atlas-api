@@ -78,6 +78,17 @@ class ExperimentHelper {
     experiment.set("files", files);
   }
 
+  static async init3rdPartyUploadState(experiment, file) {
+    if (file) {
+      const fileStatus = {
+        name: file,
+        uploaded: false
+      };
+      const files = [fileStatus];
+      experiment.set("files", files);
+    }
+  }
+
   static async isUploadInProgress(id) {
     const experiment = await Experiment.get(id);
     const files = experiment.get("files");
