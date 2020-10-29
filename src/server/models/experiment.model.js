@@ -36,6 +36,8 @@ const ExperimentSchema = new JSONMongooseSchema(
   }
 );
 
+console.log(JSON.stringify(ExperimentSchema, null, 2));
+
 /**
  * Add your
  * - pre-save hooks
