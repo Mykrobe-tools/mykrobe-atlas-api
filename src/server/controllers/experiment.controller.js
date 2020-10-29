@@ -202,9 +202,16 @@ const results = async (req, res) => {
     );
   }
 
+  logger.debug(
+    `ExperimentsController#results: Parsing incoming results: ${JSON.stringify(req.body)}`
+  );
   const result = parser.parse(req.body);
+  logger.debug(`ExperimentsController#results: Parsed results: ${JSON.stringify(result)}`);
 
   if (result.type === Constants.RESULT_TYPE_DISTANCE) {
+    logger.debug(
+      `ExperimentsController#results: Distance leafId: ${JSON.stringify(result.leafId)}`
+    );
     experiment.leafId = result.leafId;
   }
 
@@ -212,24 +219,32 @@ const results = async (req, res) => {
 
   const updatedResults = [];
   if (results) {
+    logger.debug(`ExperimentsController#results: Results already exist`);
     updatedResults.push(...results);
   }
 
   updatedResults.push(result);
   experiment.set("results", updatedResults);
+  logger.debug(`ExperimentsController#results: Result added to results`);
 
   try {
+    logger.debug(`ExperimentsController#results: Saving experiment ...`);
     const savedExperiment = await experiment.save();
+    logger.debug(`ExperimentsController#results: Experiment saved`);
 
+    logger.debug(`ExperimentsController#results: Updating experiment in elasticsearch ...`);
     await elasticService.updateDocument(savedExperiment);
+    logger.debug(`ExperimentsController#results: Updated experiment in elasticsearch`);
 
     const audit = await Audit.getByExperimentId(savedExperiment.id);
 
     const experimentJSON = new ExperimentJSONTransformer().transform(experiment);
     const auditJSON = audit ? new AuditJSONTransformer().transform(audit) : null;
 
+    logger.debug(`ExperimentsController#results: Clear analysis state: ${savedExperiment.id}`);
     await EventHelper.clearAnalysisState(savedExperiment.id);
 
+    logger.debug(`ExperimentsController#results: Emit completeness event ...`);
     experimentEventEmitter.emit("analysis-complete", {
       audit: auditJSON,
       experiment: experimentJSON,
@@ -237,6 +252,7 @@ const results = async (req, res) => {
       subType: result.subType,
       fileLocation: result.files
     });
+    logger.debug(`ExperimentsController#results: Completeness event emitted`);
 
     return res.jsend(savedExperiment);
   } catch (e) {
