@@ -59,7 +59,7 @@ describe("Experiment", () => {
       });
       describe("when saving an experiment with results", () => {
         describe("containing predictor results", () => {
-          it.only("should save predictor results", async done => {
+          it("should save predictor results", async done => {
             const experimentData = new Experiment(experiments.tbUploadMetadataChinese);
             const experiment = await experimentData.save();
 
@@ -70,10 +70,10 @@ describe("Experiment", () => {
             results.push(result);
             experiment.set("results", [result]);
 
-            console.log(result.phylogenetics);
-
-            //await experiment.save();
-
+            const savedExperiment = await experiment.save();
+            expect(savedExperiment).toHaveProperty("id");
+            expect(savedExperiment).toHaveProperty("results");
+            expect(savedExperiment.results.length).toEqual(1);
             done();
           });
         });

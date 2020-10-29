@@ -4,7 +4,6 @@ import { coercer, schemaBuilder } from "makeandship-api-common/lib/modules/jsons
 class JSONMongooseSchema extends mongoose.Schema {
   constructor(schema, extensions = {}, options = {}) {
     const model = schemaBuilder.generateModel(schema, extensions);
-    console.log(`Model:\n${JSON.stringify(model, null, 2)}`);
     super(model, options);
 
     /**

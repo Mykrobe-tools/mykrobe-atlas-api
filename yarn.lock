@@ -5884,9 +5884,9 @@ make-iterator@^1.0.0:
     type-is "^1.6.18"
     url "^0.11.0"
 
-"makeandship-api-common@https://bitbucket.org/makeandship/makeandship-api-common#v0.3.6":
-  version "0.3.6"
-  resolved "https://bitbucket.org/makeandship/makeandship-api-common#b9a8691219c1bc2f05d146697250b88099956927"
+"makeandship-api-common@https://bitbucket.org/makeandship/makeandship-api-common#v0.3.7":
+  version "0.3.7"
+  resolved "https://bitbucket.org/makeandship/makeandship-api-common#3df853cb029c85fc2856eda9a86607766fe68a7d"
   dependencies:
     "@babel/runtime" "^7.10.1"
     ajv "^6.5.0"
