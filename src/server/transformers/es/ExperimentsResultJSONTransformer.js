@@ -1,5 +1,8 @@
 import ElasticsearchJSONTransformer from "makeandship-api-common/lib/modules/elasticsearch/transformers/ElasticsearchJSONTransformer";
 import HitsJSONTransformer from "makeandship-api-common/lib/modules/elasticsearch/transformers/HitsJSONTransformer";
+import BlacklistTransformer from "makeandship-api-common/lib/transformers/BlacklistJSONTransformer";
+
+const BLACKLIST = ["owner"];
 
 /**
  * Translate an elasticsearch response onto an Experiment response
@@ -16,8 +19,11 @@ class ExperimentsResultJSONTransformer extends ElasticsearchJSONTransformer {
 
     const hits = new HitsJSONTransformer().transform(res, options);
     return hits.map(element => {
+      const source = new BlacklistTransformer().transform(element._source, {
+        blacklist: BLACKLIST
+      });
       return {
-        ...element._source,
+        ...source,
         relevance: element._score
       };
     });

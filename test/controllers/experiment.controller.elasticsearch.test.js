@@ -41,9 +41,9 @@ const elasticService = new ElasticService(esConfig, experimentSearchSchema);
 
 const experimentWithMetadata = new Experiment(experiments.tbUploadMetadataPredictorResults);
 const experimentWithChineseMetadata = new Experiment(experiments.tbUploadMetadataChinese);
+const userData = new User(users.admin);
 
 beforeEach(async done => {
-  const userData = new User(users.admin);
   args.user = await userData.save();
   request(args.app)
     .post("/auth/login")
@@ -61,6 +61,8 @@ afterEach(async done => {
 });
 
 beforeAll(async done => {
+  experimentWithMetadata.owner = userData;
+  experimentWithChineseMetadata.owner = userData;
   const experiment1 = await experimentWithMetadata.save();
   const experiment2 = await experimentWithChineseMetadata.save();
 
@@ -479,6 +481,12 @@ describe("ExperimentController > Elasticsearch", () => {
             expect(result).toHaveProperty("created");
             expect(result).toHaveProperty("modified");
             expect(result).toHaveProperty("relevance");
+          });
+        });
+        it("should hide the users from search results", () => {
+          expect(data.results.length).toEqual(2);
+          data.results.forEach(result => {
+            expect(result.owner).toBeUndefined();
           });
         });
       });
