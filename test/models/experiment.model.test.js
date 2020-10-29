@@ -3,10 +3,14 @@ import setup from "../setup";
 import Experiment from "../../src/server/models/experiment.model";
 import Organisation from "../../src/server/models/organisation.model";
 import User from "../../src/server/models/user.model";
+
+import ResultsParserFactory from "../../src/server/helpers/results/ResultsParserFactory";
+
 import Constants from "../../src/server/Constants";
 
-const users = require("../fixtures/users");
-const experiments = require("../fixtures/experiments");
+import users from "../fixtures/users";
+import experiments from "../fixtures/experiments";
+import predictor09results from "../fixtures/files/predictor-0.9.json";
 
 let id = null;
 let savedExperiment = null;
@@ -34,22 +38,45 @@ afterEach(async done => {
 describe("Experiment", () => {
   describe("#save", () => {
     describe("when valid data", () => {
-      it("should save a new experiment", async done => {
-        const experimentData = new Experiment(experiments.tbUploadMetadataChinese);
-        const experiment = await experimentData.save();
+      describe("when saving a core experiment", () => {
+        it("should save a new experiment", async done => {
+          const experimentData = new Experiment(experiments.tbUploadMetadataChinese);
+          const experiment = await experimentData.save();
 
-        expect(experiment.metadata).toHaveProperty("patient");
-        expect(experiment.metadata).toHaveProperty("sample");
-        expect(experiment.metadata).toHaveProperty("genotyping");
-        expect(experiment.metadata).toHaveProperty("phenotyping");
+          expect(experiment.metadata).toHaveProperty("patient");
+          expect(experiment.metadata).toHaveProperty("sample");
+          expect(experiment.metadata).toHaveProperty("genotyping");
+          expect(experiment.metadata).toHaveProperty("phenotyping");
 
-        const patient = experiment.metadata.patient;
-        expect(patient.patientId).toEqual("9bd049c5-7407-4129-a973-17291ccdd2cc");
-        expect(patient.siteId).toEqual("ccc4e687-a094-4533-b136-c507fe00a9a8");
-        expect(patient.genderAtBirth).toEqual("Female");
-        expect(patient.countryOfBirth).toEqual("CN");
+          const patient = experiment.metadata.patient;
+          expect(patient.patientId).toEqual("9bd049c5-7407-4129-a973-17291ccdd2cc");
+          expect(patient.siteId).toEqual("ccc4e687-a094-4533-b136-c507fe00a9a8");
+          expect(patient.genderAtBirth).toEqual("Female");
+          expect(patient.countryOfBirth).toEqual("CN");
 
-        done();
+          done();
+        });
+      });
+      describe("when saving an experiment with results", () => {
+        describe("containing predictor results", () => {
+          it("should save predictor results", async done => {
+            const experimentData = new Experiment(experiments.tbUploadMetadataChinese);
+            const experiment = await experimentData.save();
+
+            const parser = ResultsParserFactory.create(predictor09results);
+            const result = parser.parse();
+
+            const results = [];
+            results.push(result);
+            experiment.set("results", [result]);
+
+            const savedExperiment = await experiment.save();
+            expect(savedExperiment).toHaveProperty("id");
+            expect(savedExperiment).toHaveProperty("results");
+            expect(savedExperiment.results.length).toEqual(1);
+            done();
+          });
+        });
       });
     });
     describe("when isolate country has changed", () => {
@@ -129,7 +156,7 @@ describe("Experiment", () => {
       });
     });
   });
-  describe("list", () => {
+  describe("#list", () => {
     describe("when experiments exist", () => {
       it("should return the list of all experiments", async done => {
         const foundExperiments = await Experiment.list();
