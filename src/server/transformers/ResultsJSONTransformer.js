@@ -20,11 +20,27 @@ class ResultsJSONTransformer extends ModelJSONTransformer {
       res.phylogenetics.forEach(result => {
         const type = result.type;
         const phyloResult = result.result;
-        phylogenetics[type] = {};
-        phylogenetics[type][phyloResult] = {
-          percentCoverage: result.percentCoverage,
-          medianDepth: result.medianDepth
-        };
+        if (!phylogenetics[type]) {
+          phylogenetics[type] = {};
+        }
+        if (!phylogenetics[type][phyloResult]) {
+          phylogenetics[type][phyloResult] = {};
+        }
+        if (result.percentCoverage) {
+          phylogenetics[type][phyloResult].percent_coverage = result.percentCoverage;
+        }
+        if (result.medianDepth) {
+          phylogenetics[type][phyloResult].median_depth = result.medianDepth;
+        }
+        if (result.lineage) {
+          phylogenetics[type][phyloResult].lineage = result.lineage;
+        }
+        if (result.callsSummary) {
+          phylogenetics[type][phyloResult].calls_summary = result.callsSummary;
+        }
+        if (result.calls) {
+          phylogenetics[type][phyloResult].calls = result.calls;
+        }
       });
       res.phylogenetics = phylogenetics;
     }

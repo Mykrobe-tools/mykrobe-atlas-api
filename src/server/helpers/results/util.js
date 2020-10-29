@@ -6,6 +6,9 @@ const RESISTANT = "R";
 const CALLED_BY = "called_by";
 const PERCENT_COVERAGE = "percent_coverage";
 const MEDIAN_DEPTH = "median_depth";
+const LINEAGE = "lineage";
+const CALLS_SUMMARY = "calls_summary";
+const CALLS = "calls";
 
 // drug names
 const AMIKACIN = "Amikacin";
@@ -165,8 +168,22 @@ const parsePhylogenetics = predictorPhylogenetics => {
           type: type
         };
         typePhylogenetics.result = result;
-        typePhylogenetics.percentCoverage = results[result][PERCENT_COVERAGE];
-        typePhylogenetics.medianDepth = results[result][MEDIAN_DEPTH];
+
+        if (results[result][PERCENT_COVERAGE]) {
+          typePhylogenetics.percentCoverage = results[result][PERCENT_COVERAGE];
+        }
+        if (results[result][MEDIAN_DEPTH]) {
+          typePhylogenetics.medianDepth = results[result][MEDIAN_DEPTH];
+        }
+        if (result === LINEAGE) {
+          typePhylogenetics.lineage = results[result];
+        }
+        if (result === CALLS_SUMMARY) {
+          typePhylogenetics.callsSummary = results[result];
+        }
+        if (result === CALLS) {
+          typePhylogenetics.calls = results[result];
+        }
 
         phylogenetics.push(typePhylogenetics);
       });

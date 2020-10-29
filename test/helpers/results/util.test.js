@@ -1,6 +1,7 @@
 import util from "../../../src/server/helpers/results/util";
 
 import MDR from "../../fixtures/files/MDR_Results.json";
+import predictor09Result from "../../fixtures/files/predictor-0.9.json";
 
 describe("util", () => {
   describe("#buildDrugResistanceSummary", () => {
@@ -415,7 +416,45 @@ describe("util", () => {
       });
     });
   });
-  describe("#parsePhylogenetics", () => {});
+  describe("#parsePhylogenetics", () => {
+    describe("when parsing phylogenetics", () => {
+      it("should create an array of entries", done => {
+        const trackingId = Object.keys(predictor09Result.result).pop();
+        const result = predictor09Result.result[trackingId];
+        const phylogenetics = util.parsePhylogenetics(result.phylogenetics);
+
+        expect(phylogenetics.length).toEqual(6);
+        phylogenetics.forEach(entry => {
+          const type = entry.type;
+          const result = entry.result;
+
+          if (type === "phylo_group" && result === "Mycobacterium_tuberculosis_complex") {
+            expect(entry.percentCoverage).toEqual(99.655);
+            expect(entry.medianDepth).toEqual(87);
+          }
+          if (type === "sub_complex" && result === "Unknown") {
+            expect(entry.percentCoverage).toEqual(-1);
+            expect(entry.medianDepth).toEqual(-1);
+          }
+          if (type === "species" && result === "Mycobacterium_tuberculosis") {
+            expect(entry.percentCoverage).toEqual(98.312);
+            expect(entry.medianDepth).toEqual(82);
+          }
+          if (type === "lineage" && result === "lineage") {
+            expect(entry.lineage.length).toEqual(1);
+            expect(entry.lineage[0]).toEqual("lineage4.10");
+          }
+          if (type === "lineage" && result === "calls_summary") {
+            expect(entry.callsSummary).toBeTruthy();
+          }
+          if (type === "lineage" && result === "calls") {
+            expect(entry.calls).toBeTruthy();
+          }
+        });
+        done();
+      });
+    });
+  });
   describe("#parseDistance", () => {});
   describe("#buildRandomDistanceResult", () => {});
 });
