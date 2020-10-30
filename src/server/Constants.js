@@ -1,4 +1,4 @@
-export default {
+const Constants = {
   SEARCH_PENDING: "pending",
   SEARCH_COMPLETE: "complete",
 
@@ -146,5 +146,51 @@ export default {
     "leafId"
   ],
 
-  RESULT_TYPE_DISTANCE: "distance"
+  RESULT_TYPE_DISTANCE: "distance",
+
+  EXTERNAL_ID: "external_id",
+  PREDICT: "predict",
+  RESISTANT: "R",
+  CALLED_BY: "called_by",
+  SUB_COMPLEX: "sub_complex",
+  PHYLO_GROUP: "phylo_group",
+  SPECIES: "species",
+  LINEAGE: "lineage",
+  PERCENT_COVERAGE: "percent_coverage",
+  MEDIAN_DEPTH: "median_depth",
+  CALLS_SUMMARY: "calls_summary",
+  CALLS: "calls",
+
+  // drug names
+  AMIKACIN: "Amikacin",
+  CAPREOMYCIN: "Capreomycin",
+  CIPROFLOXACIN: "Ciprofloxacin",
+  ETHAMBUTOL: "Ethambutol",
+  ISONIAZID: "Isoniazid",
+  KANAMYCIN: "Kanamycin",
+  MOXIFLOXACIN: "Moxifloxacin",
+  OFLOXACIN: "Ofloxacin",
+  PYRAZINAMIDE: "Pyrazinamide",
+  RIFAMPICIN: "Rifampicin",
+  STREPTOMYCIN: "Streptomycin"
 };
+
+Constants.FIRST_LINE_DRUGS = [Constants.ISONIAZID, Constants.RIFAMPICIN];
+Constants.SECOND_LINE_DRUGS = [Constants.AMIKACIN, Constants.KANAMYCIN, Constants.CAPREOMYCIN]; // for resistance calculations
+Constants.QUINOLONES = [Constants.CIPROFLOXACIN, Constants.MOXIFLOXACIN, Constants.OFLOXACIN];
+
+Constants.ALL_DRUGS = [
+  Constants.AMIKACIN,
+  Constants.CAPREOMYCIN,
+  Constants.CIPROFLOXACIN,
+  Constants.ETHAMBUTOL,
+  Constants.ISONIAZID,
+  Constants.KANAMYCIN,
+  Constants.MOXIFLOXACIN,
+  Constants.OFLOXACIN,
+  Constants.PYRAZINAMIDE,
+  Constants.RIFAMPICIN,
+  Constants.STREPTOMYCIN
+];
+
+export default Constants;

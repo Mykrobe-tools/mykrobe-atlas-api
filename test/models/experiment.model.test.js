@@ -11,6 +11,7 @@ import Constants from "../../src/server/Constants";
 import users from "../fixtures/users";
 import experiments from "../fixtures/experiments";
 import predictor09results from "../fixtures/files/predictor-0.9.json";
+import predictorINH09Result from "../fixtures/files/predictorINH-0.9.json";
 
 let id = null;
 let savedExperiment = null;
@@ -275,19 +276,82 @@ describe("Experiment", () => {
       done();
     });
     describe("when the experiement has results", () => {
-      it("should transform experiment results", async done => {
-        const experimentDataWithResults = new Experiment(experiments.tbUploadMetadataResults);
+      describe("when the results are distance results", () => {
+        it("should transform experiment results", async done => {
+          const experimentDataWithResults = new Experiment(experiments.tbUploadMetadataResults);
 
-        const savedExperimentWithResults = await experimentDataWithResults.save();
+          const savedExperimentWithResults = await experimentDataWithResults.save();
 
-        const json = savedExperimentWithResults.toJSON();
+          const json = savedExperimentWithResults.toJSON();
 
-        expect(json.results).toBeTruthy();
-        const results = json.results;
-        expect(results).toHaveProperty("distance");
-        expect(results["distance"]).toBeTruthy();
+          expect(json.results).toBeTruthy();
+          const results = json.results;
+          expect(results).toHaveProperty("distance");
+          expect(results["distance"]).toBeTruthy();
 
-        done();
+          done();
+        });
+      });
+      describe("when the results are predictor results", () => {
+        it("should transform experiment results", async done => {
+          const experimentDataWithResults = new Experiment(experiments.tbWithPredictorResults);
+          // add a predictor result
+          const parser = ResultsParserFactory.create(predictorINH09Result);
+          const result = parser.parse();
+
+          experimentDataWithResults.set("results", [result]);
+
+          const savedExperimentWithResults = await experimentDataWithResults.save();
+
+          const json = savedExperimentWithResults.toJSON();
+          expect(json.results).toBeTruthy();
+
+          const results = json.results;
+          expect(results).toHaveProperty("predictor");
+
+          expect(results.predictor).toHaveProperty("susceptibility");
+
+          expect(results.predictor).toHaveProperty("phylogenetics");
+          const phylo = results.predictor.phylogenetics;
+          expect(phylo).toHaveProperty("lineage");
+
+          expect(phylo.lineage).toHaveProperty("lineage");
+          expect(Array.isArray(phylo.lineage.lineage)).toEqual(true);
+          expect(phylo.lineage.lineage[0]).toEqual("lineage4.10");
+          expect(phylo.lineage).toHaveProperty("calls");
+
+          expect(phylo.lineage.calls["lineage4.10"]).toBeTruthy();
+          expect(Object.keys(phylo.lineage.calls).length).toEqual(1);
+          expect(phylo.lineage).toHaveProperty("calls_summary");
+          expect(phylo.lineage.calls_summary["lineage4.10"]).toBeTruthy();
+          expect(Object.keys(phylo.lineage.calls_summary).length).toEqual(1);
+
+          expect(phylo).toHaveProperty("phylo_group");
+          expect(phylo.phylo_group).toHaveProperty("Mycobacterium_tuberculosis_complex");
+          expect(phylo.phylo_group.Mycobacterium_tuberculosis_complex).toHaveProperty(
+            "percent_coverage",
+            99.655
+          );
+          expect(phylo.phylo_group.Mycobacterium_tuberculosis_complex).toHaveProperty(
+            "median_depth",
+            87
+          );
+
+          expect(phylo).toHaveProperty("species");
+          expect(phylo.species).toHaveProperty("Mycobacterium_tuberculosis");
+          expect(phylo.species.Mycobacterium_tuberculosis).toHaveProperty(
+            "percent_coverage",
+            98.312
+          );
+          expect(phylo.species.Mycobacterium_tuberculosis).toHaveProperty("median_depth", 82);
+
+          expect(phylo).toHaveProperty("sub_complex");
+          expect(phylo.sub_complex).toHaveProperty("Unknown");
+          expect(phylo.sub_complex.Unknown).toHaveProperty("percent_coverage", -1);
+          expect(phylo.sub_complex.Unknown).toHaveProperty("median_depth", -1);
+
+          done();
+        });
       });
     });
   });

@@ -1,45 +1,5 @@
+import Constants from "../../Constants";
 import Experiment from "../../models/experiment.model";
-
-const EXTERNAL_ID = "external_id";
-const PREDICT = "predict";
-const RESISTANT = "R";
-const CALLED_BY = "called_by";
-const PERCENT_COVERAGE = "percent_coverage";
-const MEDIAN_DEPTH = "median_depth";
-const LINEAGE = "lineage";
-const CALLS_SUMMARY = "calls_summary";
-const CALLS = "calls";
-
-// drug names
-const AMIKACIN = "Amikacin";
-const CAPREOMYCIN = "Capreomycin";
-const CIPROFLOXACIN = "Ciprofloxacin";
-const ETHAMBUTOL = "Ethambutol";
-const ISONIAZID = "Isoniazid";
-const KANAMYCIN = "Kanamycin";
-const MOXIFLOXACIN = "Moxifloxacin";
-const OFLOXACIN = "Ofloxacin";
-const PYRAZINAMIDE = "Pyrazinamide";
-const RIFAMPICIN = "Rifampicin";
-const STREPTOMYCIN = "Streptomycin";
-
-const FIRST_LINE_DRUGS = [ISONIAZID, RIFAMPICIN];
-const SECOND_LINE_DRUGS = [AMIKACIN, KANAMYCIN, CAPREOMYCIN]; // for resistance calculations
-const QUINOLONES = [CIPROFLOXACIN, MOXIFLOXACIN, OFLOXACIN];
-
-const ALL_DRUGS = [
-  AMIKACIN,
-  CAPREOMYCIN,
-  CIPROFLOXACIN,
-  ETHAMBUTOL,
-  ISONIAZID,
-  KANAMYCIN,
-  MOXIFLOXACIN,
-  OFLOXACIN,
-  PYRAZINAMIDE,
-  RIFAMPICIN,
-  STREPTOMYCIN
-];
 
 /**
  * Calculate the resistance per drug
@@ -62,7 +22,9 @@ const calculateResistance = drugResistance =>
   typeof drugResistance !== "undefined" &&
   drugResistance !== null &&
   drugResistance &&
-  ALL_DRUGS.some(drug => drugResistance[drug] && drugResistance[drug] === RESISTANT);
+  Constants.ALL_DRUGS.some(
+    drug => drugResistance[drug] && drugResistance[drug] === Constants.RESISTANT
+  );
 
 /**
  * Calculate MDR value
@@ -73,7 +35,9 @@ const calculateMDR = drugResistance =>
   typeof drugResistance !== "undefined" &&
   drugResistance !== null &&
   drugResistance &&
-  FIRST_LINE_DRUGS.every(drug => drugResistance[drug] && drugResistance[drug] === RESISTANT);
+  Constants.FIRST_LINE_DRUGS.every(
+    drug => drugResistance[drug] && drugResistance[drug] === Constants.RESISTANT
+  );
 
 /**
  * Calculate XDR value
@@ -86,9 +50,15 @@ const calculateXDR = drugResistance =>
   typeof drugResistance !== "undefined" &&
   drugResistance !== null &&
   drugResistance &&
-  FIRST_LINE_DRUGS.every(drug => drugResistance[drug] && drugResistance[drug] === RESISTANT) &&
-  QUINOLONES.some(drug => drugResistance[drug] && drugResistance[drug] === RESISTANT) &&
-  SECOND_LINE_DRUGS.some(drug => drugResistance[drug] && drugResistance[drug] === RESISTANT);
+  Constants.FIRST_LINE_DRUGS.every(
+    drug => drugResistance[drug] && drugResistance[drug] === Constants.RESISTANT
+  ) &&
+  Constants.QUINOLONES.some(
+    drug => drugResistance[drug] && drugResistance[drug] === Constants.RESISTANT
+  ) &&
+  Constants.SECOND_LINE_DRUGS.some(
+    drug => drugResistance[drug] && drugResistance[drug] === Constants.RESISTANT
+  );
 
 /**
  * Calculate TDR
@@ -99,7 +69,9 @@ const calculateTDR = drugResistance =>
   typeof drugResistance !== "undefined" &&
   drugResistance !== null &&
   drugResistance &&
-  ALL_DRUGS.every(drug => drugResistance[drug] && drugResistance[drug] === RESISTANT);
+  Constants.ALL_DRUGS.every(
+    drug => drugResistance[drug] && drugResistance[drug] === Constants.RESISTANT
+  );
 
 /**
  * Extract the results from a result object
@@ -117,7 +89,7 @@ const getPredictorResult = predictorNamedResult => {
     if (keys && keys.length) {
       const first = keys[0];
       const namedResult = predictorNamedResult[first];
-      namedResult[EXTERNAL_ID] = first;
+      namedResult[Constants.EXTERNAL_ID] = first;
       return namedResult;
     }
   }
@@ -138,11 +110,11 @@ const parseSusceptibility = predictorSusceptibility => {
       };
 
       const results = predictorSusceptibility[drug];
-      const prediction = results[PREDICT];
+      const prediction = results[Constants.PREDICT];
       if (prediction) {
         drugSusceptibility.prediction = prediction.toUpperCase();
-        if (prediction === RESISTANT) {
-          drugSusceptibility.calledBy = results[CALLED_BY];
+        if (prediction === Constants.RESISTANT) {
+          drugSusceptibility.calledBy = results[Constants.CALLED_BY];
         }
       }
 
@@ -165,23 +137,23 @@ const parsePhylogenetics = predictorPhylogenetics => {
       const results = predictorPhylogenetics[type];
       Object.keys(results).forEach(result => {
         const typePhylogenetics = {
-          type: type
+          type,
+          result
         };
-        typePhylogenetics.result = result;
 
-        if (results[result][PERCENT_COVERAGE]) {
-          typePhylogenetics.percentCoverage = results[result][PERCENT_COVERAGE];
+        if (results[result][Constants.PERCENT_COVERAGE]) {
+          typePhylogenetics.percentCoverage = results[result][Constants.PERCENT_COVERAGE];
         }
-        if (results[result][MEDIAN_DEPTH]) {
-          typePhylogenetics.medianDepth = results[result][MEDIAN_DEPTH];
+        if (results[result][Constants.MEDIAN_DEPTH]) {
+          typePhylogenetics.medianDepth = results[result][Constants.MEDIAN_DEPTH];
         }
-        if (result === LINEAGE) {
+        if (result === Constants.LINEAGE) {
           typePhylogenetics.lineage = results[result];
         }
-        if (result === CALLS_SUMMARY) {
+        if (result === Constants.CALLS_SUMMARY) {
           typePhylogenetics.callsSummary = results[result];
         }
-        if (result === CALLS) {
+        if (result === Constants.CALLS) {
           typePhylogenetics.calls = results[result];
         }
 

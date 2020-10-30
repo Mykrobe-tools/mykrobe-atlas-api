@@ -1,6 +1,8 @@
 import ModelJSONTransformer from "makeandship-api-common/lib/transformers/ModelJSONTransformer";
 import BlacklistTransformer from "makeandship-api-common/lib/transformers/BlacklistJSONTransformer";
 
+import Constants from "../Constants";
+
 const BLACKLIST = ["sequenceCalls", "variantCalls"];
 
 /**
@@ -20,28 +22,40 @@ class ResultsJSONTransformer extends ModelJSONTransformer {
       res.phylogenetics.forEach(result => {
         const type = result.type;
         const phyloResult = result.result;
+
         if (!phylogenetics[type]) {
           phylogenetics[type] = {};
         }
         if (!phylogenetics[type][phyloResult]) {
           phylogenetics[type][phyloResult] = {};
         }
-        if (result.percentCoverage) {
+
+        // percent_coverage
+        if (
+          [Constants.SUB_COMPLEX, Constants.PHYLO_GROUP, Constants.SPECIES].includes(type) &&
+          result.percentCoverage
+        ) {
           phylogenetics[type][phyloResult].percent_coverage = result.percentCoverage;
         }
-        if (result.medianDepth) {
+        // median_depth
+        if (
+          [Constants.SUB_COMPLEX, Constants.PHYLO_GROUP, Constants.SPECIES].includes(type) &&
+          result.medianDepth
+        ) {
           phylogenetics[type][phyloResult].median_depth = result.medianDepth;
         }
-        if (result.lineage) {
-          phylogenetics[type][phyloResult].lineage = result.lineage;
+        // lineage - cherry pick from mongoose object as unused attributes will be populated (defaults)
+        if (Constants.LINEAGE === phyloResult && result.lineage) {
+          phylogenetics[type][phyloResult] = result.lineage;
         }
-        if (result.callsSummary) {
-          phylogenetics[type][phyloResult].calls_summary = result.callsSummary;
+        if (Constants.CALLS_SUMMARY === phyloResult && result.callsSummary) {
+          phylogenetics[type][phyloResult] = result.callsSummary;
         }
-        if (result.calls) {
-          phylogenetics[type][phyloResult].calls = result.calls;
+        if (Constants.CALLS === phyloResult && result.calls) {
+          phylogenetics[type][phyloResult] = result.calls;
         }
       });
+
       res.phylogenetics = phylogenetics;
     }
 
