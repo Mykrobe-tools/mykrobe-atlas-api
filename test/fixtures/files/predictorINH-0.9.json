@@ -1,0 +1,212 @@
+{
+    "result": {
+        "188d779f-44ae-4016-9d6a-e95d7363e688": {
+            "files": [
+                "/data/experiments/5f9ae00eed62b7001239a6a1/file/INH_monoresistant.fastq.gz"
+            ],
+            "genotype_model": "kmer_count",
+            "kmer": 21,
+            "phylogenetics": {
+                "lineage": {
+                    "calls": {
+                        "lineage4.10": {
+                            "lineage4": {
+                                "T931123C": {
+                                    "_cls": "Call.VariantCall",
+                                    "genotype": [
+                                        0,
+                                        0
+                                    ],
+                                    "genotype_likelihoods": [
+                                        -79.47135461717785,
+                                        -99999999,
+                                        -11992.047868481237
+                                    ],
+                                    "info": {
+                                        "conf": 11913,
+                                        "contamination_depths": [],
+                                        "coverage": {
+                                            "alternate": {
+                                                "klen": 21,
+                                                "kmer_count": 0,
+                                                "median_depth": 0,
+                                                "min_non_zero_depth": 0,
+                                                "percent_coverage": 0.0
+                                            },
+                                            "reference": {
+                                                "klen": 21,
+                                                "kmer_count": 2053,
+                                                "median_depth": 102,
+                                                "min_non_zero_depth": 99,
+                                                "percent_coverage": 100.0
+                                            }
+                                        },
+                                        "expected_depths": [
+                                            87.0
+                                        ],
+                                        "filter": []
+                                    },
+                                    "variant": "ref-T931123C?var_name=T931123C&num_alts=1&ref=NC_000962.3&enum=0&gene=NA&mut=T931123C"
+                                }
+                            },
+                            "lineage4.10": {
+                                "A1692141C": {
+                                    "_cls": "Call.VariantCall",
+                                    "genotype": [
+                                        0,
+                                        0
+                                    ],
+                                    "genotype_likelihoods": [
+                                        -76.08371946683015,
+                                        -99999999,
+                                        -11861.745561178046
+                                    ],
+                                    "info": {
+                                        "conf": 11786,
+                                        "contamination_depths": [],
+                                        "coverage": {
+                                            "alternate": {
+                                                "klen": 21,
+                                                "kmer_count": 0,
+                                                "median_depth": 0,
+                                                "min_non_zero_depth": 0,
+                                                "percent_coverage": 0.0
+                                            },
+                                            "reference": {
+                                                "klen": 21,
+                                                "kmer_count": 2022,
+                                                "median_depth": 101,
+                                                "min_non_zero_depth": 99,
+                                                "percent_coverage": 100.0
+                                            }
+                                        },
+                                        "expected_depths": [
+                                            87.0
+                                        ],
+                                        "filter": []
+                                    },
+                                    "variant": "ref-A1692141C?var_name=A1692141C&num_alts=1&ref=NC_000962.3&enum=0&gene=NA&mut=A1692141C"
+                                }
+                            }
+                        }
+                    },
+                    "calls_summary": {
+                        "lineage4.10": {
+                            "genotypes": {
+                                "lineage4": 1,
+                                "lineage4.10": 1
+                            },
+                            "good_nodes": 2,
+                            "tree_depth": 2
+                        }
+                    },
+                    "lineage": [
+                        "lineage4.10"
+                    ]
+                },
+                "phylo_group": {
+                    "Mycobacterium_tuberculosis_complex": {
+                        "median_depth": 87.0,
+                        "percent_coverage": 99.655
+                    }
+                },
+                "species": {
+                    "Mycobacterium_tuberculosis": {
+                        "median_depth": 82.0,
+                        "percent_coverage": 98.312
+                    }
+                },
+                "sub_complex": {
+                    "Unknown": {
+                        "median_depth": -1,
+                        "percent_coverage": -1
+                    }
+                }
+            },
+            "probe_sets": [
+                "/opt/venv/lib/python3.6/site-packages/mykrobe/data/tb/tb-species-170421.fasta.gz",
+                "/opt/venv/lib/python3.6/site-packages/mykrobe/data/tb/tb-hunt-probe-set-jan-03-2019.fasta.gz",
+                "/opt/venv/lib/python3.6/site-packages/mykrobe/data/tb/tb.lineage.20200930.probes.fa.gz"
+            ],
+            "susceptibility": {
+                "Amikacin": {
+                    "predict": "S"
+                },
+                "Capreomycin": {
+                    "predict": "S"
+                },
+                "Ciprofloxacin": {
+                    "predict": "S"
+                },
+                "Ethambutol": {
+                    "predict": "S"
+                },
+                "Isoniazid": {
+                    "called_by": {
+                        "katG_S315G-GCT2155167GGT": {
+                            "_cls": "Call.VariantCall",
+                            "genotype": [
+                                1,
+                                1
+                            ],
+                            "genotype_likelihoods": [
+                                -7758.351551663837,
+                                -99999999,
+                                -24.800318056402457
+                            ],
+                            "info": {
+                                "conf": 7734,
+                                "contamination_depths": [],
+                                "coverage": {
+                                    "alternate": {
+                                        "klen": 20,
+                                        "kmer_count": 1633,
+                                        "median_depth": 82,
+                                        "min_non_zero_depth": 81,
+                                        "percent_coverage": 100.0
+                                    },
+                                    "reference": {
+                                        "klen": 21,
+                                        "kmer_count": 14,
+                                        "median_depth": 1,
+                                        "min_non_zero_depth": 1,
+                                        "percent_coverage": 70.0
+                                    }
+                                },
+                                "expected_depths": [
+                                    87.0
+                                ],
+                                "filter": []
+                            },
+                            "variant": null
+                        }
+                    },
+                    "predict": "R"
+                },
+                "Kanamycin": {
+                    "predict": "S"
+                },
+                "Moxifloxacin": {
+                    "predict": "S"
+                },
+                "Ofloxacin": {
+                    "predict": "S"
+                },
+                "Pyrazinamide": {
+                    "predict": "S"
+                },
+                "Rifampicin": {
+                    "predict": "S"
+                },
+                "Streptomycin": {
+                    "predict": "S"
+                }
+            },
+            "version": {
+                "mykrobe-atlas": "v0.9.0",
+                "mykrobe-predictor": "v0.9.0"
+            }
+        }
+    },
+    "type": "predictor"
+}
