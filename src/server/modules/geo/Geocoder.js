@@ -13,6 +13,12 @@ class Geocoder {
 
   async geocode(address) {
     logger.debug(`Geocoder#geocode: Address: ${JSON.stringify(address)}`);
+
+    if (!this.isValidAddress(address)) {
+      logger.debug(`Geocoder#geocode: Not a valid address return null`);
+      return null;
+    }
+
     const coordinates = await GeoCache.getLocation(address);
 
     if (coordinates) {
