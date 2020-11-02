@@ -141,6 +141,7 @@ class DataHelper {
   }
 
   static async buildMongooseReadyExperimentObjects(rows) {
+    logger.debug(`DataHelper#buildMongooseReadyExperimentObjects: enter`);
     const experiments = [];
 
     if (rows) {
@@ -158,10 +159,14 @@ class DataHelper {
           }
         });
 
+        logger.debug(`DataHelper#buildMongooseReadyExperimentObjects: generate sampleId`);
         experiment.sampleId =
           Constants.AUTOGENERATE_SAMPLE_ID === "yes"
             ? isolateId
             : await this.readSampleIdFromTrackingApi(experiment.id, isolateId);
+        logger.debug(
+          `DataHelper#buildMongooseReadyExperimentObjects: sampleId generated: ${experiment.sampleId}`
+        );
 
         if (coordinates && coordinates.longitude && coordinates.latitude) {
           experiment.metadata.sample.longitudeIsolate = coordinates.longitude;
@@ -171,6 +176,8 @@ class DataHelper {
         experiments.push(experiment);
       }
     }
+
+    logger.debug(`DataHelper#buildMongooseReadyExperimentObjects: exit`);
 
     return experiments;
   }
@@ -236,6 +243,7 @@ class DataHelper {
   }
 
   static async readSampleIdFromTrackingApi(experimentId, isolateId) {
+    logger.debug(`DataHelper#readSampleIdFromTrackingApi: enter`);
     const trackingService = new TrackingService();
     return await trackingService.getTrackingId(experimentId, isolateId);
   }
