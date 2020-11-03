@@ -15,6 +15,7 @@ import Experiment from "../../src/server/models/experiment.model";
 import Audit from "../../src/server/models/audit.model";
 import Tree from "../../src/server/models/tree.model";
 import Search from "../../src/server/models/search.model";
+import Organisation from "../../src/server/models/organisation.model";
 
 import { experimentEventEmitter, userEventEmitter } from "../../src/server/modules/events";
 
@@ -30,6 +31,7 @@ import users from "../fixtures/users";
 import experiments from "../fixtures/experiments";
 import trees from "../fixtures/trees";
 import searches from "../fixtures/searches";
+import organisations from "../fixtures/organisations";
 
 const mongo = require("promised-mongo").compatible();
 
@@ -53,8 +55,10 @@ beforeAll(async () => {
 
 beforeEach(async done => {
   const userData = new User(users.admin);
+  const organisationData = new Organisation(organisations.apex);
   const experimentData = new Experiment(experiments.tbUploadMetadata);
 
+  userData.organisation = await organisationData.save();
   const savedUser = await userData.save();
   request(args.app)
     .post("/auth/login")
@@ -78,6 +82,7 @@ afterEach(async done => {
   await Experiment.remove({});
   await Search.remove({});
   await Audit.remove({});
+  await Organisation.remove({});
   done();
 });
 
@@ -156,6 +161,20 @@ describe("ExperimentController", () => {
           expect(res.body.status).toEqual("success");
           expect(res.body.data.owner.firstname).toEqual("David");
           expect(res.body.data.owner.lastname).toEqual("Robin");
+
+          done();
+        });
+    });
+    it("should set the organisation", done => {
+      request(args.app)
+        .post("/experiments")
+        .set("Authorization", `Bearer ${args.token}`)
+        .send(experiments.tbUploadMetadata)
+        .expect(httpStatus.OK)
+        .end((err, res) => {
+          expect(res.body.status).toEqual("success");
+          expect(res.body.data.organisation.name).toEqual("Apex Entertainment");
+          expect(res.body.data.organisation.slug).toEqual("apex-entertainment");
 
           done();
         });

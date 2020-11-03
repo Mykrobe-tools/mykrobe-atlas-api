@@ -96,6 +96,7 @@ const create = async (req, res) => {
   const experiment = new Experiment(req.body);
   const trackingService = new TrackingService();
   experiment.owner = req.dbUser;
+  experiment.organisation = req.dbUser.organisation;
   if (Constants.AUTOGENERATE_SAMPLE_ID === "yes") {
     experiment.sampleId = uuid.v1();
   } else {
