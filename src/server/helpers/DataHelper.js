@@ -249,18 +249,22 @@ class DataHelper {
       return results;
     }
 
-    const content = await resultsFile.buffer(); // returns a promise on the buffered content of the file
-    if (content) {
-      const rawResults = content.toString();
-      if (rawResults) {
-        const parser = new PredictorResultParser({ result: JSON.parse(rawResults) });
-        const result = parser.parse();
-        results.push(result);
+    try {
+      const content = await resultsFile.buffer(); // returns a promise on the buffered content of the file
+      if (content) {
+        const rawResults = content.toString();
+        if (rawResults) {
+          const parser = new PredictorResultParser({ result: JSON.parse(rawResults) });
+          const result = parser.parse();
+          results.push(result);
+        } else {
+          logger.debug(`loadAndParsePredictorResults: No results file contents found}`);
+        }
       } else {
-        logger.debug(`loadAndParsePredictorResults: No results file contents found}`);
+        logger.debug(`loadAndParsePredictorResults: No results file found}`);
       }
-    } else {
-      logger.debug(`loadAndParsePredictorResults: No results file found}`);
+    } catch (e) {
+      logger.debug(`loadAndParsePredictorResults: Error: ${JSON.stringify(e)}`);
     }
 
     logger.debug(`loadAndParsePredictorResults: results: ${results}`);
