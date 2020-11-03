@@ -38,7 +38,7 @@ class TrackingService {
         };
         logger.debug(`TrackingService#getTrackingId: GET ${uri}?isolate_id=${isolateId}`);
         // note cannot call with body, only query stirng
-        const filterUri = `${url}?isolate_id=${isolateId}`;
+        const filterUri = `${uri}?isolate_id=${isolateId}`;
         try {
           const response = await axios.get(filterUri);
           if (response && response.data) {
