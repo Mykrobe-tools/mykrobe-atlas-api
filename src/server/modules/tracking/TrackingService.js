@@ -36,11 +36,10 @@ class TrackingService {
         const payloadGet = {
           isolate_id: isolateId
         };
-        logger.debug(`TrackingService#getTrackingId: GET ${uri}`);
-        logger.debug(
-          `TrackingService#getTrackingId: payload: ${JSON.stringify(payloadGet, null, 2)}`
-        );
-        const response = await axios.get(uri, payload);
+        logger.debug(`TrackingService#getTrackingId: GET ${uri}?isolate_id=${isolateId}`);
+        // note cannot call with body, only query stirng
+        const filterUri = `${url}?isolate_id=${isolateId}`;
+        const response = await axios.get(filterUri);
         if (response && response.data) {
           logger.debug(`TrackingService#getTrackingId: Response: ${JSON.stringify(response.data)}`);
           if (Array.isArray(response.data)) {
