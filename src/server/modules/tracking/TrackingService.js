@@ -72,15 +72,30 @@ class TrackingService {
                         2
                       )}`
                     );
-                    const patchResponse = await axios.patch(updateUri, updatePayload);
-                    if (patchResponse && patchResponse.data) {
+                    try {
+                      const patchResponse = await axios.patch(updateUri, updatePayload);
+                      if (patchResponse && patchResponse.data) {
+                        logger.debug(
+                          `TrackingService#getTrackingId: patch response: ${JSON.stringify(
+                            patchResponse
+                          )}`
+                        );
+                      } else {
+                        logger.debug(`TrackingService#getTrackingId: patch response invalid`);
+                      }
+                    } catch (patchError) {
                       logger.debug(
-                        `TrackingService#getTrackingId: patch response: ${JSON.stringify(
-                          patchResponse
-                        )}`
+                        `TrackingService#getTrackingId: Unable to patch ${fetchedTrackingId}`
                       );
-                    } else {
-                      logger.debug(`TrackingService#getTrackingId: patch response invalid`);
+                      if (patchError.response) {
+                        logger.debug(
+                          `TrackingService#getTrackingId: Error: ${JSON.stringify(
+                            patchError.response,
+                            null,
+                            2
+                          )}`
+                        );
+                      }
                     }
                     return fetchedTrackingId;
                   }
