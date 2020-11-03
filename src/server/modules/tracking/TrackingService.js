@@ -28,10 +28,10 @@ class TrackingService {
         logger.debug(`TrackingService#getTrackingId: sampleId: ${sampleId}`);
         return sampleId;
       }
-    } catch (e) {
+    } catch (createError) {
       logger.debug(`TrackingService#getTrackingId: error creating sampleId`);
       // if duplicate, perform a lookup
-      if (e && e.response && e.response.status === 409) {
+      if (createError && createError.response && createError.response.status === 409) {
         logger.debug(`TrackingService#getTrackingId: sampleId exists`);
         const payloadGet = {
           isolate_id: isolateId
@@ -39,18 +39,29 @@ class TrackingService {
         logger.debug(`TrackingService#getTrackingId: GET ${uri}?isolate_id=${isolateId}`);
         // note cannot call with body, only query stirng
         const filterUri = `${url}?isolate_id=${isolateId}`;
-        const response = await axios.get(filterUri);
-        if (response && response.data) {
-          logger.debug(`TrackingService#getTrackingId: Response: ${JSON.stringify(response.data)}`);
-          if (Array.isArray(response.data)) {
-            const first = response.data[0];
-            if (first) {
-              const fetchedTrackingId = first["tracking-id"];
-              if (fetchedTrackingId) {
-                return fetchedTrackingId;
+        try {
+          const response = await axios.get(filterUri);
+          if (response && response.data) {
+            logger.debug(
+              `TrackingService#getTrackingId: Response: ${JSON.stringify(response.data)}`
+            );
+            if (Array.isArray(response.data)) {
+              const first = response.data[0];
+              if (first) {
+                const fetchedTrackingId = first["tracking-id"];
+                if (fetchedTrackingId) {
+                  return fetchedTrackingId;
+                }
               }
             }
           }
+        } catch (filterError) {
+          logger.debug(
+            `TrackingService#getTrackingId: Unable to filter and find an id for ${isolateId}`
+          );
+          logger.debug(
+            `TrackingService#getTrackingId: Error: ${JSON.stringify(filterError, null, 2)}`
+          );
         }
       }
 
