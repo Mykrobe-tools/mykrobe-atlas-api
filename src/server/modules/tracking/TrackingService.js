@@ -73,13 +73,17 @@ class TrackingService {
                       )}`
                     );
                     const patchResponse = await axios.patch(updateUri, updatePayload);
-                    logger.debug(
-                      `TrackingService#getTrackingId: patch response: ${JSON.stringify(
-                        patchResponse
-                      )}`
-                    );
+                    if (patchResponse && patchResponse.data) {
+                      logger.debug(
+                        `TrackingService#getTrackingId: patch response: ${JSON.stringify(
+                          patchResponse
+                        )}`
+                      );
+                    } else {
+                      logger.debug(`TrackingService#getTrackingId: patch response invalid`);
+                    }
+                    return fetchedTrackingId;
                   }
-                  return fetchedTrackingId;
                 }
               }
             }
