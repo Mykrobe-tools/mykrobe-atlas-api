@@ -37,7 +37,9 @@ class TrackingService {
           isolate_id: isolateId
         };
         logger.debug(`TrackingService#getTrackingId: GET ${uri}`);
-        logger.debug(`TrackingService#getTrackingId: payload: ${JSON.stringify(payload, null, 2)}`);
+        logger.debug(
+          `TrackingService#getTrackingId: payload: ${JSON.stringify(payloadGet, null, 2)}`
+        );
         const response = await axios.get(uri, payload);
         if (response && response.data) {
           logger.debug(`TrackingService#getTrackingId: Response: ${JSON.stringify(response.data)}`);
