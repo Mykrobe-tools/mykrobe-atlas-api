@@ -126,8 +126,20 @@ class DataHelper {
 
         // geo coordinates
         const coordinates = await LocationHelper.getCoordinates(location);
+        logger.debug(
+          `DataHelper#buildExperimentObjectsFromCSVRows: coordinates: ${JSON.stringify(
+            coordinates,
+            null,
+            2
+          )}`
+        );
 
         // predictor results
+        logger.debug(
+          `DataHelper#buildExperimentObjectsFromCSVRows: retrieving predictor results: ${JSON.stringify(
+            row.predictor
+          )}, ${JSON.stringify(directory)}`
+        );
         const results = await this.loadAndParsePredictorResults(row.predictor, directory);
 
         // build an experiment
@@ -225,20 +237,24 @@ class DataHelper {
    * @param {*} resultFileName
    */
   static async loadAndParsePredictorResults(resultFileName, directory) {
+    logger.debug(`loadAndParsePredictorResults: enter`);
     const results = [];
 
     const resultsFile = directory.files.find(
       d => d.path === `results/${resultFileName}` && d.type === "File"
     );
+    logger.debug(`loadAndParsePredictorResults: resultsFile: ${JSON.stringify(resultsFile)}`);
 
     if (!resultsFile) {
       return results;
     }
 
     const content = await resultsFile.buffer();
+    logger.debug(`loadAndParsePredictorResults: buffer: ${JSON.stringify(content.toString)}`);
     const parser = new PredictorResultParser({ result: JSON.parse(content.toString()) });
     results.push(parser.parse());
 
+    logger.debug(`loadAndParsePredictorResults: results: ${results}`);
     return results;
   }
 
