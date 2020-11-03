@@ -39,6 +39,7 @@ import ExperimentHelper from "../helpers/ExperimentHelper";
 
 import AuditJSONTransformer from "../transformers/AuditJSONTransformer";
 import ExperimentJSONTransformer from "../transformers/ExperimentJSONTransformer";
+import ExperimentSearchJSONTransformer from "../transformers/ExperimentSearchJSONTransformer";
 import ExperimentsResultJSONTransformer from "../transformers/es/ExperimentsResultJSONTransformer";
 import ResultsJSONTransformer from "../transformers/ResultsJSONTransformer";
 
@@ -107,7 +108,12 @@ const create = async (req, res) => {
 
   try {
     const savedExperiment = await experiment.save();
-    await elasticService.indexDocument(savedExperiment);
+    // prepare and index in search
+    const indexableExperiment = new ExperimentSearchJSONTransformer().transform(
+      savedExperiment,
+      {}
+    );
+    await elasticService.indexDocument(indexableExperiment);
     return res.jsend(savedExperiment);
   } catch (e) {
     return res.jerror(ErrorUtil.convert(e, Constants.ERRORS.CREATE_EXPERIMENT));
@@ -129,7 +135,12 @@ const update = async (req, res) => {
 
   try {
     const savedExperiment = await experiment.save();
-    await elasticService.updateDocument(savedExperiment);
+    // prepare and index in search
+    const indexableExperiment = new ExperimentSearchJSONTransformer().transform(
+      savedExperiment,
+      {}
+    );
+    await elasticService.updateDocument(indexableExperiment);
     return res.jsend(savedExperiment);
   } catch (e) {
     return res.jerror(ErrorUtil.convert(e, Constants.ERRORS.UPDATE_EXPERIMENT));
@@ -180,7 +191,12 @@ const metadata = async (req, res) => {
 
   try {
     const savedExperiment = await experiment.save();
-    await elasticService.updateDocument(savedExperiment);
+    // prepare and index in search
+    const indexableExperiment = new ExperimentSearchJSONTransformer().transform(
+      savedExperiment,
+      {}
+    );
+    await elasticService.updateDocument(indexableExperiment);
     return res.jsend(savedExperiment);
   } catch (e) {
     return res.jerror(ErrorUtil.convert(e, Constants.ERRORS.UPDATE_EXPERIMENT));
@@ -233,7 +249,11 @@ const results = async (req, res) => {
     logger.debug(`ExperimentsController#results: Experiment saved`);
 
     logger.debug(`ExperimentsController#results: Updating experiment in elasticsearch ...`);
-    await elasticService.updateDocument(savedExperiment);
+    const indexableExperiment = new ExperimentSearchJSONTransformer().transform(
+      savedExperiment,
+      {}
+    );
+    await elasticService.updateDocument(indexableExperiment);
     logger.debug(`ExperimentsController#results: Updated experiment in elasticsearch`);
 
     const audit = await Audit.getByExperimentId(savedExperiment.id);
@@ -453,7 +473,16 @@ const reindex = async (req, res) => {
       logger.debug(
         `ExperimentController#reindex: Collected data to index: ${data ? data.length : 0}`
       );
-      const result = await elasticService.indexDocuments(data);
+      const indexableData = data.map(experiment => {
+        const indexableExperiment = new ExperimentSearchJSONTransformer().transform(experiment);
+        return indexableExperiment;
+      });
+      logger.debug(
+        `ExperimentController#reindex: Transform data to index: ${
+          indexableData ? indexableData.length : 0
+        }`
+      );
+      const result = await elasticService.indexDocuments(indexableData);
       logger.debug(`ExperimentController#reindex: Indexed documents: ${JSON.stringify(result)}`);
 
       if (data.length === parseInt(size)) {
