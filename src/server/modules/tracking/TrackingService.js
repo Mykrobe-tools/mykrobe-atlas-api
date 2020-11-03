@@ -52,7 +52,7 @@ class TrackingService {
                 `TrackingService#getTrackingId: First element: ${JSON.stringify(first, null, 2)}`
               );
               if (first) {
-                const fetchedTrackingId = first["tracking-id"];
+                const fetchedTrackingId = first["id"];
                 logger.debug(`TrackingService#getTrackingId: Tracking Id: ${fetchedTrackingId}`);
                 const fetchedExperimentId = first["experiment-id"];
                 logger.debug(
