@@ -138,7 +138,7 @@ class DataHelper {
         logger.debug(
           `DataHelper#buildExperimentObjectsFromCSVRows: retrieving predictor results: ${JSON.stringify(
             row.predictor
-          )}, ${JSON.stringify(directory)}`
+          )}`
         );
         const results = await this.loadAndParsePredictorResults(row.predictor, directory);
 
