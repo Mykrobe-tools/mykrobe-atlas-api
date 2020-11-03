@@ -51,7 +51,7 @@ class TrackingService {
                 const fetchedTrackingId = first["tracking-id"];
                 const fetchedExperimentId = first["experiment-id"];
                 if (fetchedTrackingId) {
-                  if (fetchedExprimentId && fetchedTrackingId !== experimentId) {
+                  if (fetchedExperimentId && fetchedTrackingId !== experimentId) {
                     const updateUri = `${uri}/samples/${isolateId}`;
                     const updatePayload = {
                       "experiment-id": experimentId
