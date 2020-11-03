@@ -46,10 +46,18 @@ class TrackingService {
               `TrackingService#getTrackingId: Response: ${JSON.stringify(response.data)}`
             );
             if (Array.isArray(response.data)) {
+              logger.debug(`TrackingService#getTrackingId: Data is an array`);
               const first = response.data[0];
+              logger.debug(
+                `TrackingService#getTrackingId: First element: ${JSON.stringify(first, null, 2)}`
+              );
               if (first) {
                 const fetchedTrackingId = first["tracking-id"];
+                logger.debug(`TrackingService#getTrackingId: Tracking Id: ${fetchedTrackingId}`);
                 const fetchedExperimentId = first["experiment-id"];
+                logger.debug(
+                  `TrackingService#getTrackingId: Experiment Id: ${fetchedExperimentId}`
+                );
                 if (fetchedTrackingId) {
                   if (fetchedExperimentId && fetchedTrackingId !== experimentId) {
                     const updateUri = `${uri}/samples/${isolateId}`;
