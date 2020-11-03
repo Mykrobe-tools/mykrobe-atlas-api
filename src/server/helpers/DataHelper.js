@@ -243,16 +243,24 @@ class DataHelper {
     const resultsFile = directory.files.find(
       d => d.path === `results/${resultFileName}` && d.type === "File"
     );
-    logger.debug(`loadAndParsePredictorResults: resultsFile: ${JSON.stringify(resultsFile)}`);
+    logger.debug(`loadAndParsePredictorResults: resultsFile: ${JSON.stringify(resultsFile.path)}`);
 
     if (!resultsFile) {
       return results;
     }
 
     const content = await resultsFile.buffer();
-    logger.debug(`loadAndParsePredictorResults: buffer: ${JSON.stringify(content.toString)}`);
-    const parser = new PredictorResultParser({ result: JSON.parse(content.toString()) });
-    results.push(parser.parse());
+    if (content) {
+      const rawResults = content.toString();
+      if (rawResults) {
+        const parser = new PredictorResultParser({ result: JSON.parse(content.toString()) });
+        results.push(parser.parse());
+      } else {
+        logger.debug(`loadAndParsePredictorResults: No results file contents found}`);
+      }
+    } else {
+      logger.debug(`loadAndParsePredictorResults: No results file found}`);
+    }
 
     logger.debug(`loadAndParsePredictorResults: results: ${results}`);
     return results;

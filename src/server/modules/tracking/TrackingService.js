@@ -49,7 +49,28 @@ class TrackingService {
               const first = response.data[0];
               if (first) {
                 const fetchedTrackingId = first["tracking-id"];
+                const fetchedExperimentId = first["experiment-id"];
                 if (fetchedTrackingId) {
+                  if (fetchedExprimentId && fetchedTrackingId !== experimentId) {
+                    const updateUri = `${uri}/samples/${isolateId}`;
+                    const updatePayload = {
+                      "experiment-id": experimentId
+                    };
+                    logger.debug(`TrackingService#getTrackingId: PATCH ${updateUri}`);
+                    logger.debug(
+                      `TrackingService#getTrackingId: payload: ${JSON.stringify(
+                        updatePayload,
+                        null,
+                        2
+                      )}`
+                    );
+                    const patchResponse = await axios.patch(updateUri, updatePayload);
+                    logger.debug(
+                      `TrackingService#getTrackingId: patch response: ${JSON.stringify(
+                        patchResponse
+                      )}`
+                    );
+                  }
                   return fetchedTrackingId;
                 }
               }
