@@ -1,5 +1,7 @@
 import ExperimentJSONTransformer from "./ExperimentJSONTransformer";
 
+import logger from "../modules/logger";
+
 /**
  * A class to transform json responses
  * @property response : the response Object from mongoose
@@ -10,16 +12,22 @@ class ExperimentSearchJSONTransformer extends ExperimentJSONTransformer {
    */
   transform(o, options = {}) {
     let res = super.transform(o, options);
+    logger.debug(`ExperimentSearchJSONTransformer: enter`);
 
-    if (res.results && res.results.phylogenetics) {
-      // delete unmapped fields so they are not indexed for search
-      if (res.results.phylogenetics.lineage && res.results.phylogenetics.lineage.calls) {
-        delete res.results.phylogenetics.lineage.calls;
-      }
-      if (res.results.phylogenetics.lineage && res.results.phylogenetics.lineage.calls_summary) {
-        delete res.results.phylogenetics.lineage.calls_summary;
-      }
+    // delete unmapped fields so they are not indexed for search
+    if (
+      res.results &&
+      res.results.predictor &&
+      res.results.predictor.phylogenetics &&
+      res.results.predictor.phylogenetics.lineage
+    ) {
+      const lineage = {
+        lineage: res.results.predictor.phylogenetics.lineage
+      };
+      res.results.predictor.phylogenetics.lineage = lineage;
     }
+
+    logger.debug(`ExperimentSearchJSONTransformer: exit`);
 
     return res;
   }
