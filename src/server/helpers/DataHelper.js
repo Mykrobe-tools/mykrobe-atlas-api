@@ -256,9 +256,13 @@ class DataHelper {
 
     // write each block
     for (const experimentChunk of experimentChunks) {
+      const insertExperiments = experimentChunk.filter(experiment => experiment.isNew);
+      const updateExperiments = experimentChunk.filter(experiment => !experiment.isNew);
       // geo coordinates will be added in ExperimentModel save
-      await Experiment.insertMany(experimentChunk);
-      logger.debug(`Stored ${experimentChunk.length} experiments of ${rows.length}`);
+      await Experiment.insertMany(insertExperiments);
+      logger.debug(`Created ${insertExperiments.length} experiments of ${rows.length}`);
+      await Experiment.updateMany(updateExperiments);
+      logger.debug(`Updated ${updateExperiments.length} experiments of ${rows.length}`);
     }
 
     return {
