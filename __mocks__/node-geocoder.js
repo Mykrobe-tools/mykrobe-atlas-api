@@ -192,8 +192,8 @@ GoogleGeocoder.prototype.geocode = function(location) {
       return [
         {
           formattedAddress: "South Africa: King George V Hospital, Durban",
-          latitude: -123.9587022,
-          longitude: -5.69304159999999,
+          latitude: -29.85717,
+          longitude: 30.9868,
           extra: {
             googlePlaceId: "ChIJW9fXNZNTtpUde45Se4r",
             confidence: 0.5,

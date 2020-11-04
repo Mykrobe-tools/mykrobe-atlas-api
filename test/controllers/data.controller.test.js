@@ -311,8 +311,8 @@ describe("DataController", () => {
               expect(experiment.metadata.sample.latitudeIsolate).toBeCloseTo(-32.96, 1);
               expect(experiment.metadata.sample.longitudeIsolate).toBeCloseTo(-60.69, 1);
             } else if (countryIsolate === "ZA" && cityIsolate === "Durban") {
-              expect(experiment.metadata.sample.latitudeIsolate).toBeCloseTo(-123.95, 1);
-              expect(experiment.metadata.sample.longitudeIsolate).toBeCloseTo(-5.69, 1);
+              expect(experiment.metadata.sample.latitudeIsolate).toBeCloseTo(-29.85717, 1);
+              expect(experiment.metadata.sample.longitudeIsolate).toBeCloseTo(30.9868, 1);
             } else if (countryIsolate === "UK" && cityIsolate === "") {
               expect(experiment.metadata.sample.latitudeIsolate).toBeCloseTo(55.37, 1);
               expect(experiment.metadata.sample.longitudeIsolate).toBeCloseTo(-3.43, 1);
@@ -351,27 +351,63 @@ describe("DataController", () => {
         });
       });
       describe("when purge is false", () => {
-        beforeEach(async done => {
-          const experimentData = new Experiment(experiments.tbUploadMetadata);
-          const experiment = await experimentData.save();
-          request(args.app)
-            .post("/data/bulk")
-            .set("Authorization", `Bearer ${args.token}`)
-            .attach("file", "test/fixtures/files/upload.zip")
-            .expect(httpStatus.OK)
-            .end(async (err, res) => {
-              let total = await Experiment.count();
-              while (total < 4) {
-                await DataHelper.sleep(100);
-                total = await Experiment.count();
-              }
-              done();
-            });
+        describe("when no experiments exist", () => {
+          beforeEach(async done => {
+            const experimentData = new Experiment(experiments.tbUploadMetadata);
+            const experiment = await experimentData.save();
+            request(args.app)
+              .post("/data/bulk")
+              .set("Authorization", `Bearer ${args.token}`)
+              .attach("file", "test/fixtures/files/upload.zip")
+              .expect(httpStatus.OK)
+              .end(async (err, res) => {
+                let total = await Experiment.count();
+                while (total < 4) {
+                  await DataHelper.sleep(100);
+                  total = await Experiment.count();
+                }
+                done();
+              });
+          });
+          it("should keep the existing experiments", async done => {
+            const total = await Experiment.count();
+            expect(total).toEqual(4);
+            done();
+          });
         });
-        it("should keep the existing experiments", async done => {
-          const total = await Experiment.count();
-          expect(total).toEqual(4);
-          done();
+        describe("when experiments exist", () => {
+          beforeEach(async done => {
+            const experimentData = new Experiment(experiments.tbUploadMetadata);
+            const experiment = await experimentData.save();
+            request(args.app)
+              .post("/data/bulk")
+              .set("Authorization", `Bearer ${args.token}`)
+              .attach("file", "test/fixtures/files/upload.zip")
+              .expect(httpStatus.OK)
+              .end(async (err, res) => {
+                let total = await Experiment.count();
+                while (total < 4) {
+                  await DataHelper.sleep(100);
+                  total = await Experiment.count();
+                }
+                done();
+              });
+          });
+          it("should update the existing experiments", async done => {
+            request(args.app)
+              .post("/data/bulk")
+              .set("Authorization", `Bearer ${args.token}`)
+              .attach("file", "test/fixtures/files/upload.zip")
+              .expect(httpStatus.OK)
+              .end(async (err, res) => {
+                let total = await Experiment.count();
+                while (total < 4) {
+                  await DataHelper.sleep(100);
+                  total = await Experiment.count();
+                }
+                done();
+              });
+          });
         });
       });
     });

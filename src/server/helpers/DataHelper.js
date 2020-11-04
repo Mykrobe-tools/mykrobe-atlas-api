@@ -1,5 +1,6 @@
 import fs from "fs";
 import csv from "fast-csv";
+import Promise from "bluebird";
 import { experiment as experimentJsonSchema } from "mykrobe-atlas-jsonschema";
 import SchemaExplorer from "makeandship-api-common/lib/modules/jsonschema/schema-explorer";
 import Experiment from "../models/experiment.model";
@@ -259,10 +260,21 @@ class DataHelper {
       const insertExperiments = experimentChunk.filter(experiment => experiment.isNew);
       const updateExperiments = experimentChunk.filter(experiment => !experiment.isNew);
       // geo coordinates will be added in ExperimentModel save
-      await Experiment.insertMany(insertExperiments);
+      logger.debug(`Creating ${insertExperiments.length} experiments ...`);
+      const insertResult = await Experiment.insertMany(insertExperiments);
       logger.debug(`Created ${insertExperiments.length} experiments of ${rows.length}`);
-      await Experiment.updateMany(updateExperiments);
-      logger.debug(`Updated ${updateExperiments.length} experiments of ${rows.length}`);
+
+      const updateResult = { count: 0 };
+      logger.debug(`Updating ${JSON.stringify(updateExperiments.length)} experiments ...`);
+      for (const updateExperiment of updateExperiments) {
+        try {
+          const updatedExperiment = await updateExperiment.save();
+          updateResult.count++;
+        } catch (e) {
+          logger.debug(`Error: ${e}`);
+        }
+      }
+      logger.debug(`Updated ${updateResult.count} experiments of ${rows.length}`);
     }
 
     return {
