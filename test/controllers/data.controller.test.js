@@ -23,7 +23,6 @@ beforeAll(async () => {
 
 beforeEach(async done => {
   const userData = new User(users.admin);
-
   const savedUser = await userData.save();
   request(args.app)
     .post("/auth/login")
@@ -177,7 +176,7 @@ describe("DataController", () => {
   describe("POST /data/bulk", () => {
     describe("when invalid", () => {
       describe("when the token is invalid", () => {
-        it("should be a protected route", done => {
+        it("should return an error", done => {
           request(args.app)
             .post("/data/bulk")
             .set("Authorization", "Bearer INVALID")
@@ -230,7 +229,6 @@ describe("DataController", () => {
         beforeEach(async done => {
           const experimentData = new Experiment(experiments.tbUploadMetadata);
           const experiment = await experimentData.save();
-
           request(args.app)
             .post("/data/bulk")
             .set("Authorization", `Bearer ${args.token}`)

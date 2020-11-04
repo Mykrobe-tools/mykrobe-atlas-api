@@ -167,8 +167,14 @@ class DataHelper {
         );
 
         const experiment = exists
-          ? buildExperimentFromCurrent(existing[0], results, isolateId, countryIsolate, cityIsolate)
-          : buildExperiment(results, isolateId, countryIsolate, cityIsolate);
+          ? this.buildExperimentFromCurrent(
+              existing[0],
+              results,
+              isolateId,
+              countryIsolate,
+              cityIsolate
+            )
+          : this.buildExperiment(results, isolateId, countryIsolate, cityIsolate);
 
         logger.debug(`DataHelper#buildMongooseReadyExperimentObjects: generate sampleId`);
         experiment.sampleId =
@@ -273,7 +279,11 @@ class DataHelper {
     const resultsFile = directory.files.find(
       d => d.path === `results/${resultFileName}` && d.type === "File"
     );
-    logger.debug(`loadAndParsePredictorResults: resultsFile: ${JSON.stringify(resultsFile.path)}`);
+    logger.debug(
+      `loadAndParsePredictorResults: resultsFile: ${JSON.stringify(
+        resultsFile ? resultsFile.path : "Not found"
+      )}`
+    );
 
     if (!resultsFile) {
       return results;
