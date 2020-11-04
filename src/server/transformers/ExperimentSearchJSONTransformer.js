@@ -22,7 +22,7 @@ class ExperimentSearchJSONTransformer extends ExperimentJSONTransformer {
       res.results.predictor.phylogenetics.lineage
     ) {
       const lineage = {
-        lineage: res.results.predictor.phylogenetics.lineage
+        lineage: res.results.predictor.phylogenetics.lineage.lineage
       };
       res.results.predictor.phylogenetics.lineage = lineage;
     }
