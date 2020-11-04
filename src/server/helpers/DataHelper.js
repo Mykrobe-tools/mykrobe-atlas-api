@@ -160,16 +160,15 @@ class DataHelper {
       for (const row of rows) {
         const { isolateId, countryIsolate, cityIsolate, results, coordinates } = row;
 
-        const experiment = new Experiment({
-          results,
-          metadata: {
-            sample: {
-              isolateId,
-              countryIsolate,
-              cityIsolate
-            }
-          }
-        });
+        const existing = isolateId ? await Experiment.findByIsolateIds([isolateId]) : null;
+        const exists = existing && Array.isArray(existing) && existing.length;
+        logger.debug(
+          `DataHelper#buildMongooseReadyExperimentObjects: ${isolateId} exists?: ${exists}`
+        );
+
+        const experiment = exists
+          ? buildExperimentFromCurrent(existing[0], results, isolateId, countryIsolate, cityIsolate)
+          : buildExperiment(results, isolateId, countryIsolate, cityIsolate);
 
         logger.debug(`DataHelper#buildMongooseReadyExperimentObjects: generate sampleId`);
         experiment.sampleId =
@@ -192,6 +191,37 @@ class DataHelper {
     logger.debug(`DataHelper#buildMongooseReadyExperimentObjects: exit`);
 
     return experiments;
+  }
+
+  static buildExperimentFromCurrent(experiment, results, isolateId, countryIsolate, cityIsolate) {
+    logger.debug(`DataHelper#buildExperimentFromCurrent: enter`);
+    if (experiment) {
+      logger.debug(`DataHelper#buildExperimentFromCurrent: Update existing experiment`);
+      experiment.metadata.sample.isolateId = isolateId;
+      experiment.metadata.sample.countryIsolate = countryIsolate;
+      experiment.metadata.sample.cityIsolate = cityIsolate;
+
+      experiment.set("results", results);
+
+      return experiment;
+    } else {
+      logger.debug(`DataHelper#buildExperimentFromCurrent: Build experiment`);
+      return this.buildExperiment(results, isolateId, countryIsolate, cityIsolate);
+    }
+  }
+
+  static buildExperiment(results, isolateId, countryIsolate, cityIsolate) {
+    logger.debug(`DataHelper#buildExperiment: enter`);
+    return new Experiment({
+      results,
+      metadata: {
+        sample: {
+          isolateId,
+          countryIsolate,
+          cityIsolate
+        }
+      }
+    });
   }
 
   /**
