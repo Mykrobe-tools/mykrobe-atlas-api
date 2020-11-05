@@ -155,11 +155,9 @@ const bulk = async (req, res) => {
     await Experiment.deleteMany({});
   }
 
-  const directory = await unzipper.Open.file(file.path);
-
   try {
-    logger.debug(`DataController#bulk: load`);
-    await DataHelper.load(directory);
+    logger.debug(`DataController#bulk: load from ${file.path}`);
+    await DataHelper.load(file.path);
     return res.jsend("Demo data upload started");
   } catch (e) {
     return res.jerror(e);
