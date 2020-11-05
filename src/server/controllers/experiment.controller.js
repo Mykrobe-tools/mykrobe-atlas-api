@@ -23,6 +23,7 @@ import Tree from "../models/tree.model";
 import CacheHelper from "../modules/cache/CacheHelper";
 import ResponseCache from "../modules/cache/ResponseCache";
 
+import SearchConfig from "../modules/search/SearchConfig";
 import SearchQueryDecorator from "../modules/search/search-query-decorator";
 import RequestSearchQueryParser from "../modules/search/request-search-query-parser";
 
@@ -686,14 +687,14 @@ const summary = async (req, res) => {
     logger.debug(`ExperimentController#summary: size: ${size}`);
 
     // if we exceed the max window size, scroll results
-    const useScrolling = size > Constants.MAX_PAGE_SIZE;
+    const useScrolling = size > SearchConfig.getMaxPageSize();
     logger.debug(
       `ExperimentController#summary: Scroll: ${size} > ${Constants.MAX_PAGE_SIZE} = ${useScrolling}`
     );
 
     const clone = Object.assign(req.query, {
-      per: useScrolling ? Constants.MAX_PAGE_SIZE : size,
-      source: Constants.LIGHT_EXPERIMENT_FIELDS
+      per: useScrolling ? SearchConfig.getMaxPageSize() : size,
+      source: SearchConfig.getSummaryFields()
     });
     logger.debug(`ExperimentController#plot: Incoming query: ${JSON.stringify(clone, null, 2)}`);
 
@@ -701,7 +702,6 @@ const summary = async (req, res) => {
     logger.debug(`ExperimentController#plot: Hash: ${JSON.stringify(hash, null, 2)}`);
     console.log(ResponseCache.getQueryResponse);
     const cached = await ResponseCache.getQueryResponse(`summary`, hash);
-    logger.debug(`ExperimentController#plot: Cached: ${JSON.stringify(cached, null, 2)}`);
     if (cached && typeof cached !== "undefined") {
       logger.debug(`ExperimentController#summary: Using cached summary`);
       return res.jsend(cached);
@@ -718,7 +718,7 @@ const summary = async (req, res) => {
       // call elasticsearch
       const options = {};
       if (useScrolling) {
-        options.scroll = Constants.DEFAULT_SCROLL_TTL;
+        options.scroll = SearchConfig.getScrollTTL();
       }
       const elasticsearchResults = await elasticService.search(searchQuery, options);
 

@@ -36,7 +36,6 @@ class ResponseCache {
     const key = this.getKey(`${methodKey}-${queryKey}`);
     logger.debug(`ResponseCache#getQueryResponse: key: ${key}`);
     const value = await Cache.getJson(key);
-    logger.debug(`ResponseCache#getQueryResponse: value: ${value}`);
     return value;
   }
 }

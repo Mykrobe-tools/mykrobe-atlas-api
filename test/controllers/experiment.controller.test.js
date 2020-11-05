@@ -3049,36 +3049,4 @@ describe("ExperimentController", () => {
         });
     });
   });
-  describe("GET /experiments/summary", () => {
-    describe("when summary is less that the MAX_PAGE_SIZE", () => {
-      let status = null;
-      let data = null;
-      beforeEach(done => {
-        request(args.app)
-          .get("/experiments/summary")
-          .set("Authorization", `Bearer ${args.token}`)
-          .expect(httpStatus.OK)
-          .end((err, res) => {
-            console.log(res.body);
-            status = res.body.status;
-            data = res.body.data;
-            done();
-          });
-      });
-      it("should return success", done => {
-        expect(status).toEqual("success");
-        done();
-      });
-      it("should return a summary of all records", done => {
-        expect(Array.isArray(data)).toEqual(true);
-        expect(data.length).toEqual(1);
-        const entry = data[0];
-        expect(entry).toHaveProperty("metadata");
-        expect(entry).toHaveProperty("sampleId");
-        expect(entry).toHaveProperty("id");
-        expect(entry).toHaveProperty("relevance");
-        done();
-      });
-    });
-  });
 });
