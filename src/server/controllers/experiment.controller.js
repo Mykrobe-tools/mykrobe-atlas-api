@@ -695,7 +695,7 @@ const summary = async (req, res) => {
     const searchQuery = new SearchQueryDecorator(req.originalUrl).decorate(parsedQuery);
 
     // if we exceed the max window size, scroll results
-    const useScrolling = storeCount > Constants.MAX_PAGE_SIZE;
+    const useScrolling = size > Constants.MAX_PAGE_SIZE;
     const options = {};
     if (useScrolling) {
       options.scroll = Constants.DEFAULT_SCROLL_TTL;
