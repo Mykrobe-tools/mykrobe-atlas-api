@@ -677,13 +677,16 @@ const mappings = async (req, res) => {
  * @returns {Experiment[]}
  */
 const summary = async (req, res) => {
+  logger.debug(`ExperimentController#summary: enter`);
   try {
     const size = await elasticService.count();
+    logger.debug(`ExperimentController#summary: size: ${size}`);
 
     const clone = Object.assign(req.query, {
       per: size,
       source: Constants.LIGHT_EXPERIMENT_FIELDS
     });
+    logger.debug(`ExperimentController#summary: Query: ${clone}`);
 
     // parse the query
     const parsedQuery = new RequestSearchQueryParser(req.originalUrl).parse(clone);
@@ -704,6 +707,7 @@ const summary = async (req, res) => {
     // augment with full result set if scrolling
     if (useScrolling) {
       const scrollId = elasticsearchResults["_scroll_id"];
+      logger.debug(`ExperimentController#summary: Using scrolling: ${scrollId}`);
       const total =
         elasticsearchResults.hits &&
         elasticsearchResults.hits.total &&
@@ -721,9 +725,10 @@ const summary = async (req, res) => {
         };
         const results = await elasticService.scroll(scrollId, scrollOptions);
         if (results && results.hits && results.hits.hits) {
+          logger.debug(`ExperimentController#summary: More results, adding to overall result set`);
           elasticsearchResults.hits.hits.push(...results.hits.hits);
           logger.debug(
-            `ExperimentController#summary: elasticsearchResults.hits.hits.length: ${elasticsearchResults.hits.hits.length}`
+            `ExperimentController#summary: Total results: ${elasticsearchResults.hits.hits.length}`
           );
         }
       }
