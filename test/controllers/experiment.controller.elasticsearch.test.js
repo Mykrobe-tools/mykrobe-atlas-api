@@ -17,6 +17,8 @@ import User from "../../src/server/models/user.model";
 import Experiment from "../../src/server/models/experiment.model";
 import Search from "../../src/server/models/search.model";
 
+import SearchConfig from "../../src/server/modules/search/SearchConfig";
+
 import config from "../../src/config/env/";
 
 import users from "../fixtures/users";
@@ -44,6 +46,7 @@ const experimentWithChineseMetadata = new Experiment(experiments.tbUploadMetadat
 const userData = new User(users.admin);
 
 beforeEach(async done => {
+  jest.dontMock();
   args.user = await userData.save();
   request(args.app)
     .post("/auth/login")
@@ -1089,7 +1092,9 @@ describe("ExperimentController > Elasticsearch", () => {
         let status = null;
         let data = null;
         beforeEach(async done => {
-          // mocks/atlas-experiment/_search/POST.5d7cacdb16a8232999007cd5bae31a3c.mock
+          jest.spyOn(SearchConfig, "getMaxPageSize").mockImplementation(() => {
+            return 1;
+          });
           request(args.app)
             .get("/experiments/summary")
             .set("Authorization", `Bearer ${args.token}`)
