@@ -13,6 +13,8 @@ import Constants from "../../src/server/Constants";
 import users from "../fixtures/users";
 import organisations from "../fixtures/organisations";
 
+jest.mock("../../src/server/modules/mandrill/MandrillService");
+
 const args = {
   app: null,
   token: null,
@@ -1041,6 +1043,145 @@ describe("OrganisationController", () => {
               const org = await Organisation.get(args.id);
               expect(org.members.length).toEqual(1);
               expect(org.members[0].firstname).toEqual("David");
+              done();
+            });
+        });
+      });
+    });
+  });
+  describe("POST /organisations/:id/invite", () => {
+    describe("when the user is not authenticated", () => {
+      it("should return an error", done => {
+        request(args.app)
+          .post(`/organisations/${args.id}/invite`)
+          .set("Authorization", "Bearer INVALID_TOKEN")
+          .expect(httpStatus.UNAUTHORIZED)
+          .end((err, res) => {
+            expect(res.body.status).toEqual("error");
+            expect(res.body.code).toEqual(Constants.ERRORS.NOT_ALLOWED);
+            expect(res.body.message).toEqual("Not Authorised");
+            done();
+          });
+      });
+    });
+    describe("when the user's email is not provided", () => {
+      it("should return a validation error", done => {
+        request(args.app)
+          .post(`/organisations/${args.id}/invite`)
+          .set("Authorization", `Bearer ${args.token}`)
+          .expect(httpStatus.OK)
+          .end((err, res) => {
+            expect(res.body.status).toEqual("error");
+            expect(res.body.message).toEqual("Validation failed");
+            expect(res.body.data.errors.email.message).toEqual(
+              "should have required property 'email'"
+            );
+            done();
+          });
+      });
+    });
+    describe("when the user's email is not valid", () => {
+      it("should return a validation error", done => {
+        request(args.app)
+          .post(`/organisations/${args.id}/invite`)
+          .set("Authorization", `Bearer ${args.token}`)
+          .send({ email: "sam@mykro" })
+          .expect(httpStatus.OK)
+          .end((err, res) => {
+            expect(res.body.status).toEqual("error");
+            expect(res.body.message).toEqual("Validation failed");
+            expect(res.body.data.errors.email.message).toEqual('should match format "email"');
+            done();
+          });
+      });
+    });
+    describe("when the user is not an owner", () => {
+      it("should return an error message", done => {
+        request(args.app)
+          .post(`/organisations/${args.id}/invite`)
+          .set("Authorization", `Bearer ${args.token}`)
+          .send({ email: "sam@mykro.be" })
+          .expect(httpStatus.OK)
+          .end((err, res) => {
+            expect(res.body.status).toEqual("error");
+            expect(res.body.message).toEqual("You are not an owner of this organisation");
+            done();
+          });
+      });
+    });
+    describe("when the user is an owner", () => {
+      beforeEach(async done => {
+        const member = await OrganisationHelper.createMember(args.user);
+        args.organisation.owners.push(member);
+        const saved = await args.organisation.save();
+        done();
+      });
+      describe("when the user is not registered", () => {
+        it("should send a registration email", done => {
+          request(args.app)
+            .post(`/organisations/${args.id}/invite`)
+            .set("Authorization", `Bearer ${args.token}`)
+            .send({ email: "sam@mykro.be" })
+            .expect(httpStatus.OK)
+            .end((err, res) => {
+              expect(res.body.status).toEqual("success");
+              expect(res.body.data).toEqual("Registration link sent to sam@mykro.be");
+              done();
+            });
+        });
+      });
+      describe("when the user is registered", () => {
+        it("should send an invitation email", done => {
+          request(args.app)
+            .post(`/organisations/${args.id}/invite`)
+            .set("Authorization", `Bearer ${args.token}`)
+            .send({ email: "admin@nhs.co.uk" })
+            .expect(httpStatus.OK)
+            .end((err, res) => {
+              expect(res.body.status).toEqual("success");
+              expect(res.body.data).toEqual("Invitation link sent to admin@nhs.co.uk");
+              done();
+            });
+        });
+      });
+      describe("when the user is registered and already invited", () => {
+        beforeEach(async done => {
+          request(args.app)
+            .post(`/organisations/${args.id}/invite`)
+            .set("Authorization", `Bearer ${args.token}`)
+            .send({ email: "admin@nhs.co.uk" })
+            .expect(httpStatus.OK)
+            .end(() => {
+              done();
+            });
+        });
+        it("should not send the invitation multiple times", done => {
+          request(args.app)
+            .post(`/organisations/${args.id}/invite`)
+            .set("Authorization", `Bearer ${args.token}`)
+            .send({ email: "admin@nhs.co.uk" })
+            .expect(httpStatus.OK)
+            .end((err, res) => {
+              expect(res.body.status).toEqual("success");
+              expect(res.body.data).toEqual(
+                "This email has already been invited to Apex Entertainment"
+              );
+              done();
+            });
+        });
+        it("should make the invitations available in /user", done => {
+          request(args.app)
+            .get(`/user`)
+            .set("Authorization", `Bearer ${args.token}`)
+            .send({ email: "admin@nhs.co.uk" })
+            .expect(httpStatus.OK)
+            .end((err, res) => {
+              expect(res.body.status).toEqual("success");
+
+              const { invitations } = res.body.data;
+              expect(invitations.length).toEqual(1);
+              expect(invitations[0].status).toEqual("Pending");
+              expect(invitations[0].organisation.name).toEqual("Apex Entertainment");
               done();
             });
         });
