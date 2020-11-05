@@ -682,8 +682,14 @@ const summary = async (req, res) => {
     const size = await elasticService.count();
     logger.debug(`ExperimentController#summary: size: ${size}`);
 
+    // if we exceed the max window size, scroll results
+    const useScrolling = size > Constants.MAX_PAGE_SIZE;
+    logger.debug(
+      `ExperimentController#summary: Scroll: ${size} > ${Constants.MAX_PAGE_SIZE}} = ${useScrolling}`
+    );
+
     const clone = Object.assign(req.query, {
-      per: size,
+      per: useScrolling ? Constants.MAX_PAGE_SIZE : size,
       source: Constants.LIGHT_EXPERIMENT_FIELDS
     });
 
@@ -693,23 +699,14 @@ const summary = async (req, res) => {
     // prepare the search queru
     const searchQuery = new SearchQueryDecorator(req.originalUrl).decorate(parsedQuery);
 
-    // if we exceed the max window size, scroll results
-    const useScrolling = size > Constants.MAX_PAGE_SIZE;
+    logger.debug(`ExperimentController#summary: Query: ${JSON.stringify(searchQuery, null, 2)}`);
+
+    // call elasticsearch
     const options = {};
     if (useScrolling) {
       options.scroll = Constants.DEFAULT_SCROLL_TTL;
     }
-
-    const maybeScrollSearchQuery = Object.assign({}, searchQuery);
-    if (useScrolling) {
-      maybeScrollSearchQuery.per = Constants.MAX_PAGE_SIZE;
-    }
-    logger.debug(
-      `ExperimentController#summary: Query: ${JSON.stringify(maybeScrollSearchQuery, null, 2)}`
-    );
-
-    // call elasticsearch
-    const elasticsearchResults = await elasticService.search(maybeScrollSearchQuery, options);
+    const elasticsearchResults = await elasticService.search(searchQuery, options);
 
     // augment with full result set if scrolling
     if (useScrolling) {
