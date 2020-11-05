@@ -1,5 +1,4 @@
 import geo from "./geo";
-import mandrill from "./mandrill";
 
 export default {
   analysisApiUrl: process.env.ANALYSIS_API || "https://cli.mykrobe.com",
@@ -8,6 +7,5 @@ export default {
   analysisApiBackOffPeriod: "in 20 minutes",
   treeResultsTTL: 1, // 1 hour
   bigsiResultsTTL: 1, // 1 hour
-  geo,
-  mandrill
+  geo
 };

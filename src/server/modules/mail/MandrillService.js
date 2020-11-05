@@ -1,17 +1,26 @@
+import MailService from "./MailService";
 import config from "../../../config/env";
 
-class MandrillService {
-  static async sendTemplate(templateName, email, content = {}) {
+class MandrillService extends MailService {
+  constructor() {
+    super();
+  }
+
+  async send(params = {}) {
     // need to be called at runtime to mock it if necessary
     const mandrill = require("mandrill-api/mandrill");
 
-    const { mandrill: mandrillConfig } = config.services;
+    const { templateName, email, content } = params;
+
+    const { mandrill: mandrillConfig } = config.mail.providers;
+    const { mail: mailConfig } = config;
+
     const client = new mandrill.Mandrill(mandrillConfig.apiKey);
 
     const message = {
       subject: content.subject,
-      from_email: mandrillConfig.from,
-      from_name: mandrillConfig.fromName,
+      from_email: mailConfig.from,
+      from_name: mailConfig.fromName,
       to: [{ email }],
       global_merge_vars: this.arrayFromObject(content)
     };
@@ -37,7 +46,7 @@ class MandrillService {
     });
   }
 
-  static arrayFromObject(content) {
+  arrayFromObject(content) {
     const val = [];
     for (const key in content) {
       val.push({ name: key, content: content[key] });

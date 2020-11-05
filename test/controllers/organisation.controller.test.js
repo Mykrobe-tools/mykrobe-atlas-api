@@ -13,7 +13,7 @@ import Constants from "../../src/server/Constants";
 import users from "../fixtures/users";
 import organisations from "../fixtures/organisations";
 
-jest.mock("../../src/server/modules/mandrill/MandrillService");
+jest.mock("../../src/server/modules/mail/MandrillService");
 
 const args = {
   app: null,

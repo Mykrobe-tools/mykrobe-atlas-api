@@ -2,7 +2,7 @@ import { APIError } from "makeandship-api-common/lib/modules/error";
 
 import Member from "../models/member.model";
 import Invitation from "../models/invitation.model";
-import MandrillService from "../modules/mandrill/MandrillService";
+import MailProviderFactory from "../modules/mail/MailProviderFactory";
 import config from "../../config/env";
 
 class OrganisationHelper {
@@ -125,16 +125,26 @@ class OrganisationHelper {
    * @param {*} user
    */
   static async sendInvitation(organisation, email) {
-    const { mandrill: mandrillConfig } = config.services;
+    const mailProvider = MailProviderFactory.create(config.mail.provider);
+
+    const { mail: mailConfig } = config;
+
     const {
       invitationTemplate: templateName,
       inviteLink: link,
       invitationSubject: subject
-    } = mandrillConfig;
-    await MandrillService.sendTemplate(templateName, email, {
-      INVITE_LINK: link,
-      subject
-    });
+    } = mailConfig;
+
+    const params = {
+      templateName,
+      email,
+      content: {
+        INVITE_LINK: link,
+        subject
+      }
+    };
+
+    await mailProvider.send(params);
   }
 
   /**
@@ -143,16 +153,26 @@ class OrganisationHelper {
    * @param {*} user
    */
   static async sendRegistration(organisation, email) {
-    const { mandrill: mandrillConfig } = config.services;
+    const mailProvider = MailProviderFactory.create(config.mail.provider);
+
+    const { mail: mailConfig } = config;
+
     const {
       registrationTemplate: templateName,
       registerLink: link,
       registrationSubject: subject
-    } = mandrillConfig;
-    await MandrillService.sendTemplate(templateName, email, {
-      REGISTRATION_LINK: link,
-      subject
-    });
+    } = mailConfig;
+
+    const params = {
+      templateName,
+      email,
+      content: {
+        INVITE_LINK: link,
+        subject
+      }
+    };
+
+    await mailProvider.send(params);
   }
 }
 
