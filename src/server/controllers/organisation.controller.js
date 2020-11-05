@@ -265,6 +265,33 @@ const demote = async (req, res) => {
   }
 };
 
+/**
+ * Invite a member.
+ * @returns {*}
+ */
+const invite = async (req, res) => {
+  const organisation = req.organisation;
+  const { email } = req.body;
+  try {
+    const user = await User.findUsersInvitations(email);
+    if (user) {
+      const existingInvitation = user.invitations.find(
+        item => item.organisation.id === organisation.id
+      );
+      if (existingInvitation) {
+        return res.jsend(`This email has already been invited to ${organisation.name}`);
+      }
+      await OrganisationHelper.createInvitation(organisation, user);
+      await OrganisationHelper.sendInvitation(organisation, user.email);
+      return res.jsend(`Invitation link sent to ${email}`);
+    }
+    await OrganisationHelper.sendRegistration(organisation, email);
+    return res.jsend(`Registration link sent to ${email}`);
+  } catch (e) {
+    return res.jerror(ErrorUtil.convert(e, Constants.ERRORS.INVITE_MEMBER));
+  }
+};
+
 export default {
   load,
   get,
@@ -277,5 +304,6 @@ export default {
   reject,
   removeMember,
   promote,
-  demote
+  demote,
+  invite
 };

@@ -1,5 +1,9 @@
-import Member from "../models/member.model";
 import { APIError } from "makeandship-api-common/lib/modules/error";
+
+import Member from "../models/member.model";
+import Invitation from "../models/invitation.model";
+import MandrillService from "../modules/mandrill/MandrillService";
+import config from "../../config/env";
 
 class OrganisationHelper {
   /**
@@ -101,6 +105,54 @@ class OrganisationHelper {
     delete userJson.id;
     const member = new Member(userJson);
     return await member.save();
+  }
+
+  /**
+   * Create a new invitation
+   * @param {*} organisation
+   * @param {*} user
+   */
+  static async createInvitation(organisation, user) {
+    const invitation = new Invitation({ status: "Pending", organisation });
+    const savedInvitation = await invitation.save();
+    user.invitations.push(savedInvitation);
+    await user.save();
+  }
+
+  /**
+   * Send invitation
+   * @param {*} organisation
+   * @param {*} user
+   */
+  static async sendInvitation(organisation, email) {
+    const { mandrill: mandrillConfig } = config.services;
+    const {
+      invitationTemplate: templateName,
+      inviteLink: link,
+      invitationSubject: subject
+    } = mandrillConfig;
+    await MandrillService.sendTemplate(templateName, email, {
+      INVITE_LINK: link,
+      subject
+    });
+  }
+
+  /**
+   * Send registration
+   * @param {*} organisation
+   * @param {*} user
+   */
+  static async sendRegistration(organisation, email) {
+    const { mandrill: mandrillConfig } = config.services;
+    const {
+      registrationTemplate: templateName,
+      registerLink: link,
+      registrationSubject: subject
+    } = mandrillConfig;
+    await MandrillService.sendTemplate(templateName, email, {
+      REGISTRATION_LINK: link,
+      subject
+    });
   }
 }
 

@@ -1,4 +1,5 @@
 import nock from "nock";
+import mockery from "mockery";
 import uuid from "uuid";
 
 import config from "../config/env";
@@ -115,6 +116,46 @@ const enableMockTrackingApi = () => {
   logger.debug(`enableMockTrackingApi: exit`);
 };
 
+const mandrillApiMock = (function mandrillApiMock() {
+  let sentMail = [];
+  let mandrillOptions;
+
+  function Mandrill(options) {
+    mandrillOptions = options;
+    this.messages = {
+      sendTemplate: function(data, success, failure) {
+        sentMail.push(data);
+        success(null, data);
+      }
+    };
+  }
+
+  return {
+    Mandrill,
+    mock: {
+      sentMailCount: () => {
+        return sentMail.length;
+      },
+      sentMail: () => sentMail,
+      reset: () => {
+        (sentMail = []), (mandrillOptions = null);
+      },
+      getOptions: () => {
+        return mandrillOptions;
+      }
+    }
+  };
+})();
+
+const enableMockMandrill = () => {
+  logger.debug(`enableMockMandrill: enter`);
+  mockery.enable({
+    warnOnUnregistered: false
+  });
+  mockery.registerMock("mandrill-api/mandrill", mandrillApiMock);
+  logger.debug(`enableMockMandrill: exit`);
+};
+
 const enableExternalAtlasMockServices = () => {
   logger.debug(`enableExternalAtlasMockServices: enter`);
   enableMockAnalysisApi();
@@ -124,6 +165,7 @@ const enableExternalAtlasMockServices = () => {
   enableMockIsolateIdMapping();
   enableMockGenericAnalysisApi();
   enableMockTrackingApi();
+  enableMockMandrill();
   logger.debug(`enableExternalAtlasMockServices: exit`);
 };
 

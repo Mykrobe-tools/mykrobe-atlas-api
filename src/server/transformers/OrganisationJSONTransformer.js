@@ -4,6 +4,7 @@ import BlacklistTransformer from "makeandship-api-common/lib/transformers/Blackl
 import MemberJSONTransformer from "./MemberJSONTransformer";
 
 const BLACKLIST = ["__v"];
+const LIGHT_BLACKLIST = ["__v", "owners", "members", "unapprovedMembers", "rejectedMembers"];
 
 /**
  * A class to transform json responses
@@ -15,7 +16,9 @@ class OrganisationJSONTransformer extends ModelJSONTransformer {
    */
   transform(o, options = {}) {
     let res = super.transform(o, options);
-    res = new BlacklistTransformer().transform(res, { blacklist: BLACKLIST });
+    const { light } = options;
+    const blacklist = light ? LIGHT_BLACKLIST : BLACKLIST;
+    res = new BlacklistTransformer().transform(res, { blacklist });
 
     if (res.owners) {
       res.owners = res.owners.map(owner => new MemberJSONTransformer().transform(owner, options));
