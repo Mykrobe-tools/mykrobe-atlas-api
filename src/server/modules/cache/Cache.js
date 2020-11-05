@@ -60,4 +60,5 @@ class Cache {
   }
 }
 
-export default Cache;
+const cache = new Cache();
+export default cache;

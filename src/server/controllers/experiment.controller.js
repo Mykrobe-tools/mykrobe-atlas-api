@@ -688,20 +688,25 @@ const summary = async (req, res) => {
     // if we exceed the max window size, scroll results
     const useScrolling = size > Constants.MAX_PAGE_SIZE;
     logger.debug(
-      `ExperimentController#summary: Scroll: ${size} > ${Constants.MAX_PAGE_SIZE}} = ${useScrolling}`
+      `ExperimentController#summary: Scroll: ${size} > ${Constants.MAX_PAGE_SIZE} = ${useScrolling}`
     );
 
     const clone = Object.assign(req.query, {
       per: useScrolling ? Constants.MAX_PAGE_SIZE : size,
       source: Constants.LIGHT_EXPERIMENT_FIELDS
     });
+    logger.debug(`ExperimentController#plot: Incoming query: ${JSON.stringify(clone, null, 2)}`);
 
     const hash = CacheHelper.getObjectHash(req.query);
+    logger.debug(`ExperimentController#plot: Hash: ${JSON.stringify(hash, null, 2)}`);
+    console.log(ResponseCache.getQueryResponse);
     const cached = await ResponseCache.getQueryResponse(`summary`, hash);
+    logger.debug(`ExperimentController#plot: Cached: ${JSON.stringify(cached, null, 2)}`);
     if (cached && typeof cached !== "undefined") {
-      logger.debug(`ExperimentController#plot: Using cached summary`);
+      logger.debug(`ExperimentController#summary: Using cached summary`);
       return res.jsend(cached);
     } else {
+      logger.debug(`ExperimentController#summary: Generating results`);
       // parse the query
       const parsedQuery = new RequestSearchQueryParser(req.originalUrl).parse(clone);
 
