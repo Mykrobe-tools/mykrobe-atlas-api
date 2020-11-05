@@ -27,7 +27,13 @@ const UserSchema = new mongoose.Schema({
   organisation: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Organisation"
-  }
+  },
+  invitations: [
+    {
+      type: "ObjectId",
+      ref: "Invitation"
+    }
+  ]
 });
 
 /**
@@ -64,7 +70,16 @@ UserSchema.statics = {
   async get(id) {
     try {
       const user = await this.findById(id)
-        .populate("organisation")
+        .populate([
+          { path: "organisation" },
+          {
+            path: "invitations",
+            populate: {
+              path: "organisation",
+              model: "Organisation"
+            }
+          }
+        ])
         .exec();
       if (user) {
         return user;
@@ -86,6 +101,26 @@ UserSchema.statics = {
       return user;
     }
     throw new APIError(Constants.ERRORS.GET_USER, `User not found with email ${email}`);
+  },
+
+  /**
+   * Get user and invitations
+   * @param {String} email - The email of user.
+   * @returns {Promise<User, APIError>}
+   */
+  async findUsersInvitations(email) {
+    return this.findOne({ email })
+      .populate([
+        { path: "organisation" },
+        {
+          path: "invitations",
+          populate: {
+            path: "organisation",
+            model: "Organisation"
+          }
+        }
+      ])
+      .exec();
   },
 
   /**

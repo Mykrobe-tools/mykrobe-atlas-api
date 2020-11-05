@@ -7,6 +7,7 @@ import elasticsearch from "../elasticsearch";
 import express from "../express";
 import services from "../services";
 import logging from "../logging";
+import mail from "../mail";
 
 import development from "./development";
 import test from "./test";
@@ -22,7 +23,8 @@ const appConfig = {
   elasticsearch,
   services,
   express,
-  logging
+  logging,
+  mail
 };
 
 // per environment config for this project
