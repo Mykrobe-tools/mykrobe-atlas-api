@@ -519,6 +519,50 @@ router
     organisationController.demote
   );
 
+router
+  .route("/:id/invite")
+  /**
+   * @swagger
+   * /organisations/{id}/invite:
+   *   post:
+   *     tags:
+   *       - Organisations
+   *     description: Demote an organisation owner
+   *     operationId: inviteOrganisationMember
+   *     produces:
+   *       - application/json
+   *     security:
+   *       - Bearer: []
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         type: string
+   *         description: The organisation id
+   *       - in: body
+   *         name: email
+   *         description: The member email address
+   *         schema:
+   *           type: object
+   *           properties:
+   *             name:
+   *               type: string
+   *           example:
+   *             name: sam@apex.com
+   *     responses:
+   *       200:
+   *         description: A jsend response
+   *         schema:
+   *           $ref: '#/definitions/BasicResponse'
+   */
+  .post(
+    keycloak.connect.protect(),
+    jsonschema.schemaValidation(schemas["resendNotification"]),
+    userController.loadCurrentUser,
+    OrganisationHelper.isOwner(Constants.ERRORS.INVITE_MEMBER),
+    organisationController.invite
+  );
+
 /** Load user when API with id route parameter is hit */
 router.param("id", organisationController.load);
 
