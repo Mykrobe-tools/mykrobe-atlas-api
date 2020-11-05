@@ -172,7 +172,11 @@ const Constants = {
   OFLOXACIN: "Ofloxacin",
   PYRAZINAMIDE: "Pyrazinamide",
   RIFAMPICIN: "Rifampicin",
-  STREPTOMYCIN: "Streptomycin"
+  STREPTOMYCIN: "Streptomycin",
+
+  // elasticsearch
+  MAX_PAGE_SIZE: 10000,
+  DEFAULT_SCROLL_TTL: "1m"
 };
 
 Constants.FIRST_LINE_DRUGS = [Constants.ISONIAZID, Constants.RIFAMPICIN];

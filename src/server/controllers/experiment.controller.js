@@ -690,8 +690,44 @@ const summary = async (req, res) => {
 
     // prepare the search queru
     const searchQuery = new SearchQueryDecorator(req.originalUrl).decorate(parsedQuery);
+
+    // if we exceed the max window size, scroll results
+    const useScrolling = storeCount > Constants.MAX_PAGE_SIZE;
+    const options = {};
+    if (useScrolling) {
+      options.scroll = Constants.DEFAULT_SCROLL_TTL;
+    }
+
     // call elasticsearch
-    const elasticsearchResults = await elasticService.search(searchQuery, {});
+    const elasticsearchResults = await elasticService.search(searchQuery, options);
+
+    // augment with full result set if scrolling
+    if (useScrolling) {
+      const scrollId = elasticsearchResults["_scroll_id"];
+      const total =
+        elasticsearchResults.hits &&
+        elasticsearchResults.hits.total &&
+        elasticsearchResults.hits.total.value
+          ? elasticsearchResults.hits.total.value
+          : 0;
+
+      while (
+        elasticsearchResults.hits &&
+        elasticsearchResults.hits.hits &&
+        elasticsearchResults.hits.hits.length < total
+      ) {
+        const scrollOptions = {
+          scroll: Constants.DEFAULT_SCROLL_TTL
+        };
+        const results = await elasticService.scroll(scrollId, scrollOptions);
+        if (results && results.hits && results.hits.hits) {
+          elasticsearchResults.hits.hits.push(...results.hits.hits);
+          logger.debug(
+            `ExperimentController#summary: elasticsearchResults.hits.hits.length: ${elasticsearchResults.hits.hits.length}`
+          );
+        }
+      }
+    }
 
     // transform the results
     const results = new ExperimentsResultJSONTransformer().transform(elasticsearchResults, {});
