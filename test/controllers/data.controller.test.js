@@ -236,6 +236,7 @@ describe("DataController", () => {
             .attach("file", "test/fixtures/files/upload.zip")
             .expect(httpStatus.OK)
             .end(async (err, res) => {
+              console.log(`res.body: ${JSON.stringify(res.body)}`);
               status = res.body.status;
               data = res.body.data;
 
