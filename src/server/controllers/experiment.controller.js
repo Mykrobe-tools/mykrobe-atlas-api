@@ -686,7 +686,6 @@ const summary = async (req, res) => {
       per: size,
       source: Constants.LIGHT_EXPERIMENT_FIELDS
     });
-    logger.debug(`ExperimentController#summary: Query: ${clone}`);
 
     // parse the query
     const parsedQuery = new RequestSearchQueryParser(req.originalUrl).parse(clone);
@@ -701,8 +700,16 @@ const summary = async (req, res) => {
       options.scroll = Constants.DEFAULT_SCROLL_TTL;
     }
 
+    const maybeScrollSearchQuery = Object.assign({}, searchQuery);
+    if (useScrolling) {
+      maybeScrollSearchQuery.per = Constants.MAX_PAGE_SIZE;
+    }
+    logger.debug(
+      `ExperimentController#summary: Query: ${JSON.stringify(maybeScrollSearchQuery, null, 2)}`
+    );
+
     // call elasticsearch
-    const elasticsearchResults = await elasticService.search(searchQuery, options);
+    const elasticsearchResults = await elasticService.search(maybeScrollSearchQuery, options);
 
     // augment with full result set if scrolling
     if (useScrolling) {
