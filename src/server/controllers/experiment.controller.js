@@ -20,6 +20,9 @@ import Audit from "../models/audit.model";
 import Experiment from "../models/experiment.model";
 import Tree from "../models/tree.model";
 
+import CacheHelper from "../modules/cache/CacheHelper";
+import ResponseCache from "../modules/cache/ResponseCache";
+
 import SearchQueryDecorator from "../modules/search/search-query-decorator";
 import RequestSearchQueryParser from "../modules/search/request-search-query-parser";
 
@@ -693,55 +696,66 @@ const summary = async (req, res) => {
       source: Constants.LIGHT_EXPERIMENT_FIELDS
     });
 
-    // parse the query
-    const parsedQuery = new RequestSearchQueryParser(req.originalUrl).parse(clone);
+    const hash = CacheHelper.getObjectHash(req.query);
+    const cached = await ResponseCache.getQueryResponse(`summary`, hash);
+    if (cached && typeof cached !== "undefined") {
+      logger.debug(`ExperimentController#plot: Using cached summary`);
+      return res.jsend(cached);
+    } else {
+      // parse the query
+      const parsedQuery = new RequestSearchQueryParser(req.originalUrl).parse(clone);
 
-    // prepare the search queru
-    const searchQuery = new SearchQueryDecorator(req.originalUrl).decorate(parsedQuery);
+      // prepare the search queru
+      const searchQuery = new SearchQueryDecorator(req.originalUrl).decorate(parsedQuery);
 
-    logger.debug(`ExperimentController#summary: Query: ${JSON.stringify(searchQuery, null, 2)}`);
+      logger.debug(`ExperimentController#summary: Query: ${JSON.stringify(searchQuery, null, 2)}`);
 
-    // call elasticsearch
-    const options = {};
-    if (useScrolling) {
-      options.scroll = Constants.DEFAULT_SCROLL_TTL;
-    }
-    const elasticsearchResults = await elasticService.search(searchQuery, options);
+      // call elasticsearch
+      const options = {};
+      if (useScrolling) {
+        options.scroll = Constants.DEFAULT_SCROLL_TTL;
+      }
+      const elasticsearchResults = await elasticService.search(searchQuery, options);
 
-    // augment with full result set if scrolling
-    if (useScrolling) {
-      const scrollId = elasticsearchResults["_scroll_id"];
-      logger.debug(`ExperimentController#summary: Using scrolling: ${scrollId}`);
-      const total =
-        elasticsearchResults.hits &&
-        elasticsearchResults.hits.total &&
-        elasticsearchResults.hits.total.value
-          ? elasticsearchResults.hits.total.value
-          : 0;
+      // augment with full result set if scrolling
+      if (useScrolling) {
+        const scrollId = elasticsearchResults["_scroll_id"];
+        logger.debug(`ExperimentController#summary: Using scrolling: ${scrollId}`);
+        const total =
+          elasticsearchResults.hits &&
+          elasticsearchResults.hits.total &&
+          elasticsearchResults.hits.total.value
+            ? elasticsearchResults.hits.total.value
+            : 0;
 
-      while (
-        elasticsearchResults.hits &&
-        elasticsearchResults.hits.hits &&
-        elasticsearchResults.hits.hits.length < total
-      ) {
-        const scrollOptions = {
-          scroll: Constants.DEFAULT_SCROLL_TTL
-        };
-        const results = await elasticService.scroll(scrollId, scrollOptions);
-        if (results && results.hits && results.hits.hits) {
-          logger.debug(`ExperimentController#summary: More results, adding to overall result set`);
-          elasticsearchResults.hits.hits.push(...results.hits.hits);
-          logger.debug(
-            `ExperimentController#summary: Total results: ${elasticsearchResults.hits.hits.length}`
-          );
+        while (
+          elasticsearchResults.hits &&
+          elasticsearchResults.hits.hits &&
+          elasticsearchResults.hits.hits.length < total
+        ) {
+          const scrollOptions = {
+            scroll: Constants.DEFAULT_SCROLL_TTL
+          };
+          const results = await elasticService.scroll(scrollId, scrollOptions);
+          if (results && results.hits && results.hits.hits) {
+            logger.debug(
+              `ExperimentController#summary: More results, adding to overall result set`
+            );
+            elasticsearchResults.hits.hits.push(...results.hits.hits);
+            logger.debug(
+              `ExperimentController#summary: Total results: ${elasticsearchResults.hits.hits.length}`
+            );
+          }
         }
       }
+
+      // transform the results
+      const results = new ExperimentsResultJSONTransformer().transform(elasticsearchResults, {});
+      if (results) {
+        await ResponseCache.setQueryResponse(`summary`, hash, results);
+      }
+      return res.jsend(results);
     }
-
-    // transform the results
-    const results = new ExperimentsResultJSONTransformer().transform(elasticsearchResults, {});
-
-    return res.jsend(results);
   } catch (e) {
     return res.jerror(ErrorUtil.convert(e, Constants.ERRORS.SEARCH_EXPERIMENTS_SUMMARY));
   }
