@@ -9,9 +9,9 @@ class ResponseCache {
     return `${PREFIX}-${key}`;
   }
 
-  setResponse(responseKey, response) {
+  setResponse(responseKey, response, expiry = Constants.RESPONSE_CACHE_IN_SECONDS) {
     const key = this.getKey(responseKey);
-    Cache.setJson(key, response);
+    Cache.setJson(key, response, expiry);
   }
 
   async getResponse(responseKey) {
