@@ -564,6 +564,7 @@ const search = async (req, res) => {
       );
       const elasticsearchResults = await elasticService.search(searchQuery, {});
       
+      // TODO enable passing a query
       const size = await elasticService.count();
       logger.debug(`ExperimentController#search: size: ${size}`);
 
