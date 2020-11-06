@@ -581,7 +581,7 @@ const search = async (req, res) => {
           elasticsearchResults,
           {}
         );
-        if (results.total > SearchConfig.getMaxPageSize() && size > results.total) {
+        if (results.total === SearchConfig.getMaxPageSize() && size > results.total) {
           logger.debug(`ExperimentsController#search: size > results.`);
           if (results.pagination && results.pagination.per) {
             results.pagination.pages = Math.ceil(size / results.pagination.per);
