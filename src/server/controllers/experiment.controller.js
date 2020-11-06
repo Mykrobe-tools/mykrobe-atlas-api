@@ -588,7 +588,6 @@ const search = async (req, res) => {
             logger.debug(`ExperimentsController#search: Override pages: ${results.pagination.pages}`);
             results.total = size;
             logger.debug(`ExperimentsController#search: Override total: ${results.total}`);
-            l
           }
         }
         // augment with the original search query

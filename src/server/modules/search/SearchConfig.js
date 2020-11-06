@@ -8,7 +8,6 @@ class SearchConfig {
   }
 
   getMaxPageSize() {
-    console.log(`getMaxPageSize`);
     return this.maxPageSize;
   }
 
