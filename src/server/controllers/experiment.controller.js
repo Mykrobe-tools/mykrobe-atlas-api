@@ -719,6 +719,9 @@ const summary = async (req, res) => {
       if (useScrolling) {
         options.scroll = SearchConfig.getScrollTTL();
       }
+      logger.debug(
+        `ExperimentController#summary: Searching with options: ${JSON.stringify(options)}`
+      );
       const elasticsearchResults = await elasticService.search(searchQuery, options);
 
       // augment with full result set if scrolling
@@ -731,6 +734,7 @@ const summary = async (req, res) => {
           elasticsearchResults.hits.total.value
             ? elasticsearchResults.hits.total.value
             : 0;
+        logger.debug(`ExperimentController#summary: Scrolling total results: ${total}`);
 
         while (
           elasticsearchResults.hits &&
@@ -743,7 +747,14 @@ const summary = async (req, res) => {
           const results = await elasticService.scroll(scrollId, scrollOptions);
           if (results && results.hits && results.hits.hits) {
             logger.debug(
-              `ExperimentController#summary: More results, adding to overall result set`
+              `ExperimentController#summary: Total ${
+                results.hits && results.hits.total ? results.hits.total : 0
+              }`
+            );
+            logger.debug(
+              `ExperimentController#summary: More results, adding ${
+                results.hits && results.hits.hits ? results.hits.hits.length : 0
+              } to overall result set`
             );
             elasticsearchResults.hits.hits.push(...results.hits.hits);
             logger.debug(
