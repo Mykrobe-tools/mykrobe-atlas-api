@@ -1,15 +1,17 @@
+import Constants from "../../Constants";
+import logger from "../../modules/logger";
 import Cache from "./Cache";
 
 const PREFIX = "response";
 
-class ResponseCache extends Cache {
+class ResponseCache {
   getKey(key) {
     return `${PREFIX}-${key}`;
   }
 
-  setResponse(responseKey, response) {
+  setResponse(responseKey, response, expiry = Constants.RESPONSE_CACHE_IN_SECONDS) {
     const key = this.getKey(responseKey);
-    Cache.setJson(key, response);
+    Cache.setJson(key, response, expiry);
   }
 
   async getResponse(responseKey) {
@@ -23,13 +25,18 @@ class ResponseCache extends Cache {
     response,
     expiry = Constants.RESPONSE_CACHE_IN_SECONDS
   ) {
+    logger.debug(`ResponseCache#setQueryResponse: enter`);
     const key = this.getKey(`${methodKey}-${queryKey}`);
+    logger.debug(`ResponseCache#setQueryResponse: key: ${key}`);
     await Cache.setJson(key, response, expiry);
   }
 
   async getQueryResponse(methodKey, queryKey) {
+    logger.debug(`ResponseCache#getQueryResponse: enter`);
     const key = this.getKey(`${methodKey}-${queryKey}`);
-    return await Cache.getJson(key);
+    logger.debug(`ResponseCache#getQueryResponse: key: ${key}`);
+    const value = await Cache.getJson(key);
+    return value;
   }
 }
 

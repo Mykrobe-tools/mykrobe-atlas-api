@@ -20,6 +20,10 @@ import Audit from "../models/audit.model";
 import Experiment from "../models/experiment.model";
 import Tree from "../models/tree.model";
 
+import CacheHelper from "../modules/cache/CacheHelper";
+import ResponseCache from "../modules/cache/ResponseCache";
+
+import SearchConfig from "../modules/search/SearchConfig";
 import SearchQueryDecorator from "../modules/search/search-query-decorator";
 import RequestSearchQueryParser from "../modules/search/request-search-query-parser";
 
@@ -677,26 +681,96 @@ const mappings = async (req, res) => {
  * @returns {Experiment[]}
  */
 const summary = async (req, res) => {
+  logger.debug(`ExperimentController#summary: enter`);
   try {
     const size = await elasticService.count();
+    logger.debug(`ExperimentController#summary: size: ${size}`);
+
+    // if we exceed the max window size, scroll results
+    const useScrolling = size > SearchConfig.getMaxPageSize();
+    logger.debug(
+      `ExperimentController#summary: Scroll: ${size} > ${SearchConfig.getMaxPageSize()} = ${useScrolling}`
+    );
 
     const clone = Object.assign(req.query, {
-      per: size,
-      source: Constants.LIGHT_EXPERIMENT_FIELDS
+      per: useScrolling ? SearchConfig.getMaxPageSize() : size,
+      source: SearchConfig.getSummaryFields()
     });
+    logger.debug(`ExperimentController#plot: Incoming query: ${JSON.stringify(clone, null, 2)}`);
 
-    // parse the query
-    const parsedQuery = new RequestSearchQueryParser(req.originalUrl).parse(clone);
+    const hash = CacheHelper.getObjectHash(req.query);
+    logger.debug(`ExperimentController#plot: Hash: ${JSON.stringify(hash, null, 2)}`);
+    const cached = await ResponseCache.getQueryResponse(`summary`, hash);
+    if (cached && typeof cached !== "undefined") {
+      logger.debug(`ExperimentController#summary: Using cached summary`);
+      return res.jsend(cached);
+    } else {
+      logger.debug(`ExperimentController#summary: Generating results`);
+      // parse the query
+      const parsedQuery = new RequestSearchQueryParser(req.originalUrl).parse(clone);
 
-    // prepare the search queru
-    const searchQuery = new SearchQueryDecorator(req.originalUrl).decorate(parsedQuery);
-    // call elasticsearch
-    const elasticsearchResults = await elasticService.search(searchQuery, {});
+      // prepare the search queru
+      const searchQuery = new SearchQueryDecorator(req.originalUrl).decorate(parsedQuery);
 
-    // transform the results
-    const results = new ExperimentsResultJSONTransformer().transform(elasticsearchResults, {});
+      logger.debug(`ExperimentController#summary: Query: ${JSON.stringify(searchQuery, null, 2)}`);
 
-    return res.jsend(results);
+      // call elasticsearch
+      const options = {};
+      if (useScrolling) {
+        options.scroll = SearchConfig.getScrollTTL();
+      }
+      logger.debug(
+        `ExperimentController#summary: Searching with options: ${JSON.stringify(options)}`
+      );
+      const elasticsearchResults = await elasticService.search(searchQuery, options);
+
+      // augment with full result set if scrolling
+      if (useScrolling) {
+        const scrollId = elasticsearchResults["_scroll_id"];
+        logger.debug(`ExperimentController#summary: Using scrolling: ${scrollId}`);
+        const total =
+          elasticsearchResults.hits &&
+          elasticsearchResults.hits.total &&
+          elasticsearchResults.hits.total.value
+            ? elasticsearchResults.hits.total.value
+            : 0;
+        logger.debug(`ExperimentController#summary: Scrolling total results: ${total}`);
+
+        while (
+          elasticsearchResults.hits &&
+          elasticsearchResults.hits.hits &&
+          elasticsearchResults.hits.hits.length < total
+        ) {
+          const scrollOptions = {
+            scroll: Constants.DEFAULT_SCROLL_TTL
+          };
+          const results = await elasticService.scroll(scrollId, scrollOptions);
+          if (results && results.hits && results.hits.hits) {
+            logger.debug(
+              `ExperimentController#summary: Total ${
+                results.hits && results.hits.total ? results.hits.total : 0
+              }`
+            );
+            logger.debug(
+              `ExperimentController#summary: More results, adding ${
+                results.hits && results.hits.hits ? results.hits.hits.length : 0
+              } to overall result set`
+            );
+            elasticsearchResults.hits.hits.push(...results.hits.hits);
+            logger.debug(
+              `ExperimentController#summary: Total results: ${elasticsearchResults.hits.hits.length}`
+            );
+          }
+        }
+      }
+
+      // transform the results
+      const results = new ExperimentsResultJSONTransformer().transform(elasticsearchResults, {});
+      if (results) {
+        await ResponseCache.setQueryResponse(`summary`, hash, results);
+      }
+      return res.jsend(results);
+    }
   } catch (e) {
     return res.jerror(ErrorUtil.convert(e, Constants.ERRORS.SEARCH_EXPERIMENTS_SUMMARY));
   }

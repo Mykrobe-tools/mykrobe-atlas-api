@@ -8,6 +8,13 @@ import Constants from "../../src/server/Constants";
 
 import { config, createApp } from "../setup";
 
+import { ElasticService } from "makeandship-api-common/lib/modules/elasticsearch/";
+import {
+  SearchQuery,
+  AggregationSearchQuery
+} from "makeandship-api-common/lib/modules/elasticsearch/";
+import { experimentSearch as experimentSearchSchema } from "mykrobe-atlas-jsonschema";
+
 import SearchHelper from "../../src/server/helpers/SearchHelper";
 
 import User from "../../src/server/models/user.model";
@@ -49,7 +56,15 @@ const args = {
   id: null
 };
 
+// constants
+const esConfig = { type: "experiment", ...config.elasticsearch };
+const elasticService = new ElasticService(esConfig, experimentSearchSchema);
+
 beforeAll(async () => {
+  // make sure an elastic index is available
+  await elasticService.deleteIndex();
+  await elasticService.createIndex();
+
   args.app = await createApp();
 });
 
@@ -3034,6 +3049,17 @@ describe("ExperimentController", () => {
         .end((err, res) => {
           expect(res.body.status).toEqual("success");
           expect(res.body.data["9c0c00f2-8cb1-4254-bf53-3271f35ce696"]).toEqual(args.id);
+          done();
+        });
+    });
+    it("should be a protected route", done => {
+      request(args.app)
+        .get("/experiments/tree")
+        .set("Authorization", "Bearer INVALID_TOKEN")
+        .expect(httpStatus.UNAUTHORIZED)
+        .end((err, res) => {
+          expect(res.body.status).toEqual("error");
+          expect(res.body.message).toEqual("Not Authorised");
           done();
         });
     });
