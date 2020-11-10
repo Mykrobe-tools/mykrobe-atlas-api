@@ -180,7 +180,8 @@ describe("Cache", () => {
       it("should call with a prefixed key", () => {
         expect(mockRedisServiceSet).toHaveBeenCalledWith(
           "atlas-key",
-          JSON.stringify({ one: "two" }), null
+          JSON.stringify({ one: "two" }),
+          null
         );
       });
       it("should call RedisService.set", () => {
