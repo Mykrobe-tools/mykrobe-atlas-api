@@ -1,5 +1,9 @@
-import Member from "../models/member.model";
 import { APIError } from "makeandship-api-common/lib/modules/error";
+
+import Member from "../models/member.model";
+import Invitation from "../models/invitation.model";
+import MailProviderFactory from "../modules/mail/MailProviderFactory";
+import config from "../../config/env";
 
 class OrganisationHelper {
   /**
@@ -101,6 +105,74 @@ class OrganisationHelper {
     delete userJson.id;
     const member = new Member(userJson);
     return await member.save();
+  }
+
+  /**
+   * Create a new invitation
+   * @param {*} organisation
+   * @param {*} user
+   */
+  static async createInvitation(organisation, user) {
+    const invitation = new Invitation({ status: "Pending", organisation });
+    const savedInvitation = await invitation.save();
+    user.invitations.push(savedInvitation);
+    await user.save();
+  }
+
+  /**
+   * Send invitation
+   * @param {*} organisation
+   * @param {*} user
+   */
+  static async sendInvitation(organisation, email) {
+    const mailProvider = MailProviderFactory.create(config.mail.provider);
+
+    const { mail: mailConfig } = config;
+
+    const {
+      invitationTemplate: templateName,
+      inviteLink: link,
+      invitationSubject: subject
+    } = mailConfig;
+
+    const params = {
+      templateName,
+      email,
+      content: {
+        INVITE_LINK: link,
+        subject
+      }
+    };
+
+    await mailProvider.send(params);
+  }
+
+  /**
+   * Send registration
+   * @param {*} organisation
+   * @param {*} user
+   */
+  static async sendRegistration(organisation, email) {
+    const mailProvider = MailProviderFactory.create(config.mail.provider);
+
+    const { mail: mailConfig } = config;
+
+    const {
+      registrationTemplate: templateName,
+      registerLink: link,
+      registrationSubject: subject
+    } = mailConfig;
+
+    const params = {
+      templateName,
+      email,
+      content: {
+        INVITE_LINK: link,
+        subject
+      }
+    };
+
+    await mailProvider.send(params);
   }
 }
 

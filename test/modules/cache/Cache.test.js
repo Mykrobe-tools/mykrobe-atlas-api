@@ -92,7 +92,7 @@ describe("Cache", () => {
         jest.clearAllMocks();
       });
       it("should call with a prefixed key", () => {
-        expect(mockRedisServiceSet).toHaveBeenCalledWith("atlas-key", { one: "two" });
+        expect(mockRedisServiceSet).toHaveBeenCalledWith("atlas-key", { one: "two" }, null);
       });
       it("should call RedisService.set", () => {
         expect(mockRedisServiceSet).toHaveBeenCalledTimes(1);
@@ -104,7 +104,7 @@ describe("Cache", () => {
         // mock the RedisService.set method
         mockRedisServiceSet = jest.spyOn(RedisService, "set").mockImplementation();
 
-        await Cache.set(null, { one: "two" });
+        await Cache.set(null, { one: "two" }, null);
         done();
       });
       afterEach(() => {
@@ -180,7 +180,8 @@ describe("Cache", () => {
       it("should call with a prefixed key", () => {
         expect(mockRedisServiceSet).toHaveBeenCalledWith(
           "atlas-key",
-          JSON.stringify({ one: "two" })
+          JSON.stringify({ one: "two" }),
+          null
         );
       });
       it("should call RedisService.set", () => {

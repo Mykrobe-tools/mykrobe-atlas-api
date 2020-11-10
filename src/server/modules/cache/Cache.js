@@ -20,11 +20,11 @@ class Cache {
     return null;
   }
 
-  set(name, value) {
+  set(name, value, expiry = null) {
     const key = this.getKey(name);
 
     if (key) {
-      return RedisService.set(key, value);
+      return RedisService.set(key, value, expiry);
     }
 
     return null;
@@ -41,11 +41,11 @@ class Cache {
     return null;
   }
 
-  setJson(name, value) {
+  setJson(name, value, expiry = null) {
     const key = this.getKey(name);
 
     if (key) {
-      return RedisService.set(key, JSON.stringify(value));
+      return RedisService.set(key, JSON.stringify(value), expiry);
     }
 
     return null;

@@ -17,6 +17,8 @@ import User from "../../src/server/models/user.model";
 import Experiment from "../../src/server/models/experiment.model";
 import Search from "../../src/server/models/search.model";
 
+import SearchConfig from "../../src/server/modules/search/SearchConfig";
+
 import config from "../../src/config/env/";
 
 import users from "../fixtures/users";
@@ -44,6 +46,7 @@ const experimentWithChineseMetadata = new Experiment(experiments.tbUploadMetadat
 const userData = new User(users.admin);
 
 beforeEach(async done => {
+  jest.dontMock();
   args.user = await userData.save();
   request(args.app)
     .post("/auth/login")
@@ -1046,6 +1049,52 @@ describe("ExperimentController > Elasticsearch", () => {
         let data = null;
         beforeEach(async done => {
           // mocks/atlas-experiment/_search/POST.5d7cacdb16a8232999007cd5bae31a3c.mock
+          request(args.app)
+            .get("/experiments/summary")
+            .set("Authorization", `Bearer ${args.token}`)
+            .expect(httpStatus.OK)
+            .end((err, res) => {
+              status = res.body.status;
+              data = res.body.data;
+
+              done();
+            });
+        });
+        it("should return success", done => {
+          expect(status).toEqual("success");
+          expect(data.length).toEqual(2);
+          done();
+        });
+        it("should return the whitelisted fields", () => {
+          data.forEach(result => {
+            expect(result).toHaveProperty("id");
+            expect(result).toHaveProperty("sampleId");
+            expect(result).toHaveProperty("metadata.sample.isolateId");
+            expect(result).toHaveProperty("metadata.sample.latitudeIsolate");
+            expect(result).toHaveProperty("metadata.sample.cityIsolate");
+            expect(result).toHaveProperty("metadata.sample.longitudeIsolate");
+            expect(result).toHaveProperty("metadata.sample.countryIsolate");
+          });
+        });
+        it("should not return the blacklisted fields", () => {
+          data.forEach(result => {
+            expect(result.metadata.patient).toBeUndefined();
+            expect(result.metadata.sample.labId).toBeUndefined();
+            expect(result.metadata.genotyping).toBeUndefined();
+            expect(result.metadata.phenotyping).toBeUndefined();
+            expect(result.results).toBeUndefined();
+            expect(result.created).toBeUndefined();
+            expect(result.modified).toBeUndefined();
+          });
+        });
+      });
+      describe("when scrolling is required", () => {
+        let status = null;
+        let data = null;
+        beforeEach(async done => {
+          jest.spyOn(SearchConfig, "getMaxPageSize").mockImplementation(() => {
+            return 1;
+          });
           request(args.app)
             .get("/experiments/summary")
             .set("Authorization", `Bearer ${args.token}`)

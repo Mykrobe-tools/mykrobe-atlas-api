@@ -8,6 +8,13 @@ import Constants from "../../src/server/Constants";
 
 import { config, createApp } from "../setup";
 
+import { ElasticService } from "makeandship-api-common/lib/modules/elasticsearch/";
+import {
+  SearchQuery,
+  AggregationSearchQuery
+} from "makeandship-api-common/lib/modules/elasticsearch/";
+import { experimentSearch as experimentSearchSchema } from "mykrobe-atlas-jsonschema";
+
 import SearchHelper from "../../src/server/helpers/SearchHelper";
 
 import User from "../../src/server/models/user.model";
@@ -15,6 +22,7 @@ import Experiment from "../../src/server/models/experiment.model";
 import Audit from "../../src/server/models/audit.model";
 import Tree from "../../src/server/models/tree.model";
 import Search from "../../src/server/models/search.model";
+import Organisation from "../../src/server/models/organisation.model";
 
 import { experimentEventEmitter, userEventEmitter } from "../../src/server/modules/events";
 
@@ -30,6 +38,7 @@ import users from "../fixtures/users";
 import experiments from "../fixtures/experiments";
 import trees from "../fixtures/trees";
 import searches from "../fixtures/searches";
+import organisations from "../fixtures/organisations";
 
 const mongo = require("promised-mongo").compatible();
 
@@ -47,14 +56,24 @@ const args = {
   id: null
 };
 
+// constants
+const esConfig = { type: "experiment", ...config.elasticsearch };
+const elasticService = new ElasticService(esConfig, experimentSearchSchema);
+
 beforeAll(async () => {
+  // make sure an elastic index is available
+  await elasticService.deleteIndex();
+  await elasticService.createIndex();
+
   args.app = await createApp();
 });
 
 beforeEach(async done => {
   const userData = new User(users.admin);
+  const organisationData = new Organisation(organisations.apex);
   const experimentData = new Experiment(experiments.tbUploadMetadata);
 
+  userData.organisation = await organisationData.save();
   const savedUser = await userData.save();
   request(args.app)
     .post("/auth/login")
@@ -78,6 +97,7 @@ afterEach(async done => {
   await Experiment.remove({});
   await Search.remove({});
   await Audit.remove({});
+  await Organisation.remove({});
   done();
 });
 
@@ -156,6 +176,20 @@ describe("ExperimentController", () => {
           expect(res.body.status).toEqual("success");
           expect(res.body.data.owner.firstname).toEqual("David");
           expect(res.body.data.owner.lastname).toEqual("Robin");
+
+          done();
+        });
+    });
+    it("should set the organisation", done => {
+      request(args.app)
+        .post("/experiments")
+        .set("Authorization", `Bearer ${args.token}`)
+        .send(experiments.tbUploadMetadata)
+        .expect(httpStatus.OK)
+        .end((err, res) => {
+          expect(res.body.status).toEqual("success");
+          expect(res.body.data.organisation.name).toEqual("Apex Entertainment");
+          expect(res.body.data.organisation.slug).toEqual("apex-entertainment");
 
           done();
         });
@@ -3015,6 +3049,17 @@ describe("ExperimentController", () => {
         .end((err, res) => {
           expect(res.body.status).toEqual("success");
           expect(res.body.data["9c0c00f2-8cb1-4254-bf53-3271f35ce696"]).toEqual(args.id);
+          done();
+        });
+    });
+    it("should be a protected route", done => {
+      request(args.app)
+        .get("/experiments/tree")
+        .set("Authorization", "Bearer INVALID_TOKEN")
+        .expect(httpStatus.UNAUTHORIZED)
+        .end((err, res) => {
+          expect(res.body.status).toEqual("error");
+          expect(res.body.message).toEqual("Not Authorised");
           done();
         });
     });

@@ -25,7 +25,7 @@ export default {
     uri: `mongodb://${username}:${password}@${process.env.DB_SERVICE_HOST}:${process.env.DB_SERVICE_PORT}/atlas?replicaSet=${process.env.DB_RS_NAME}`
   },
   elasticsearch: {
-    log: "debug"
+    log: process.env.LOG_LEVEL
   },
   express: {
     uploadDir: process.env.UPLOAD_DIR,
