@@ -92,7 +92,7 @@ const enableMockGenericAnalysisApi = () => {
       result: "success",
       task_id: uuid.v1()
     });
-  logger.debug(`enableMockGenericAnalysisApi: exot`);
+  logger.debug(`enableMockGenericAnalysisApi: exit`);
 };
 
 const enableExternalThirdPartyMockServices = () => {

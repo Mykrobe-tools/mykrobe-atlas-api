@@ -564,6 +564,9 @@ const search = async (req, res) => {
       );
       const elasticsearchResults = await elasticService.search(searchQuery, {});
 
+      const size = await elasticService.count(searchQuery);
+      logger.debug(`ExperimentController#search: size: ${size}`);
+
       // generate the core elastic search structure
       const options = {
         per: req.query.per || config.elasticsearch.resultsPerPage,
@@ -577,6 +580,17 @@ const search = async (req, res) => {
           elasticsearchResults,
           {}
         );
+        if (results.total === SearchConfig.getMaxPageSize() && size > results.total) {
+          logger.debug(`ExperimentsController#search: size > results.`);
+          if (results.pagination && results.pagination.per) {
+            results.pagination.pages = Math.ceil(size / results.pagination.per);
+            logger.debug(
+              `ExperimentsController#search: Override pages: ${results.pagination.pages}`
+            );
+            results.total = size;
+            logger.debug(`ExperimentsController#search: Override total: ${results.total}`);
+          }
+        }
         // augment with the original search query
         results.search = new SearchQueryJSONTransformer().transform(searchQuery, {});
       }
