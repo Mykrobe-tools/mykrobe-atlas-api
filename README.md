@@ -1,8 +1,12 @@
 # Atlas
 
-A RESTful api using [Express](http://expressjs.com) and mongoose in [ES6](http://es6-features.org)
-with [jest](https://facebook.github.io/jest/) for tests and coverage
-and [JsonWebToken](https://jwt.io) authentication.
+A RESTful API using:
+
+- [Express](http://expressjs.com)
+- Mongoose
+- [ES6](http://es6-features.org)
+- [Jest](https://facebook.github.io/jest/) for tests and coverage
+- [JsonWebToken](https://jwt.io) authentication
 
 ## Install
 
