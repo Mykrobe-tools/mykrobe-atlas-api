@@ -4,6 +4,7 @@ import cookieParser from "cookie-parser";
 import compress from "compression";
 import methodOverride from "method-override";
 import cors from "cors";
+import winston from "winston";
 import expressWinston from "express-winston";
 import helmet from "helmet";
 import httpStatus from "http-status";
@@ -60,35 +61,32 @@ const createApp = async options => {
   app.use(keycloak.connect.middleware());
   app.use(keycloak.getUserMiddleware.bind(keycloak));
 
-  // enable detailed API logging in dev env
-  if (
-    config.env === "development" ||
-    (process.env.DEBUG && (process.env.DEBUG === "true" || process.env.DEBUG === "1"))
-  ) {
-    expressWinston.responseWhitelist.push("body");
-    app.use(
-      expressWinston.logger({
-        winstonInstance: logger,
-        meta: true, // optional: log meta data about request (defaults to true)
-        msg: "HTTP {{req.method}} {{req.url}} {{res.statusCode}} {{res.responseTime}}ms",
-        colorStatus: true, // Color the status code (default green, 3XX cyan, 4XX yellow, 5XX red).
-        requestWhitelist: [
-          "url",
-          "headers",
-          "method",
-          "httpVersion",
-          "originalUrl",
-          "query",
-          "body"
-        ],
-        responseWhitelist: [],
-        bodyBlacklist: ["password", "confirmPassword"],
-        ignoreRoute: req => {
-          return /health-check/.test(req.url);
-        }
-      })
-    );
-  }
+  // logging
+  const isDebug = process.env.DEBUG || process.env.DEBUG === "1" || process.env.DEBUG === "true";
+
+  const requestWhitelist = isDebug
+    ? ["url", "headers", "method", "httpVersion", "originalUrl", "query", "body"]
+    : ["method", "url", "query"];
+  const responseWhitelist = isDebug
+    ? ["statusCode", "responseTime", "body"]
+    : ["statusCode", "responseTime"];
+  const meta = isDebug;
+
+  app.use(
+    expressWinston.logger({
+      winstonInstance: logger,
+      meta: true, // optional: log meta data about request (defaults to true)
+      msg: "HTTP {{req.method}} {{req.url}} {{res.statusCode}} {{res.responseTime}}ms",
+      colorStatus: true, // Color the status code (default green, 3XX cyan, 4XX yellow, 5XX red).
+      requestWhitelist,
+      responseWhitelist,
+      bodyBlacklist: ["password", "confirmPassword"],
+      headerBlacklist: ["authorization"],
+      ignoreRoute: req => {
+        return /health-check/.test(req.url);
+      }
+    })
+  );
 
   // 1000 requests per 15 min
   const limiter = new RateLimit({
