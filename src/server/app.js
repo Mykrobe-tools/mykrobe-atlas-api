@@ -4,7 +4,6 @@ import cookieParser from "cookie-parser";
 import compress from "compression";
 import methodOverride from "method-override";
 import cors from "cors";
-import winston from "winston";
 import expressWinston from "express-winston";
 import helmet from "helmet";
 import httpStatus from "http-status";
@@ -75,7 +74,7 @@ const createApp = async options => {
   app.use(
     expressWinston.logger({
       winstonInstance: logger,
-      meta: true, // optional: log meta data about request (defaults to true)
+      meta, // optional: log meta data about request (defaults to true)
       msg: "HTTP {{req.method}} {{req.url}} {{res.statusCode}} {{res.responseTime}}ms",
       colorStatus: true, // Color the status code (default green, 3XX cyan, 4XX yellow, 5XX red).
       requestWhitelist,
