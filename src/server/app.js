@@ -61,8 +61,8 @@ const createApp = async options => {
   app.use(keycloak.connect.middleware());
   app.use(keycloak.getUserMiddleware.bind(keycloak));
 
-  // logging
-  const isDebug = process.env.DEBUG || process.env.DEBUG === "1" || process.env.DEBUG === "true";
+  // logging - true, 1 or "1"
+  const isDebug = !!process.env.DEBUG;
 
   const requestWhitelist = isDebug
     ? ["url", "headers", "method", "httpVersion", "originalUrl", "query", "body"]
