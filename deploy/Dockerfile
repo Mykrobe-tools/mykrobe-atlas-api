@@ -4,6 +4,9 @@ LABEL MAINTAINER="Yassire Elhani <yassire@makeandship.com>"
 ENV NPM_CONFIG_PREFIX=/home/node/.npm-global
 ENV PATH=$PATH:/home/node/.npm-global/bin
 
+# logrotate
+ADD deploy/forever /etc/logrotate.d/
+
 # server installation directory
 WORKDIR /home/node/app
 RUN mkdir /home/node/.npm-global
