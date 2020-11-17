@@ -5,7 +5,6 @@ ENV NPM_CONFIG_PREFIX=/home/node/.npm-global
 ENV PATH=$PATH:/home/node/.npm-global/bin
 
 # logrotate
-RUN apt-get install logrotate
 ADD deploy/forever /etc/logrotate.d/
 
 # server installation directory
