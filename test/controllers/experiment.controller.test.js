@@ -1914,7 +1914,7 @@ describe("ExperimentController", () => {
         });
     });
   });
-  describe.only("POST /experiments/:id/results", () => {
+  describe("POST /experiments/:id/results", () => {
     beforeEach(async done => {
       const auditData = {
         experimentId: args.id,
@@ -1936,7 +1936,7 @@ describe("ExperimentController", () => {
     describe("when user is not authenticated", () => {
       it("should return an error", async done => {
         request(args.app)
-          .post(`/experiments/${experimentId}/results`)
+          .post(`/experiments/${args.id}/results`)
           .send(MDR)
           .expect(httpStatus.OK)
           .end(async (err, res) => {
@@ -1949,6 +1949,7 @@ describe("ExperimentController", () => {
     it("should be successful", done => {
       request(args.app)
         .post(`/experiments/${args.id}/results`)
+        .set("Authorization", `Bearer ${args.token}`)
         .send(MDR)
         .expect(httpStatus.OK)
         .end((err, res) => {
@@ -2206,6 +2207,7 @@ describe("ExperimentController", () => {
 
         request(args.app)
           .post(`/experiments/${experimentId}/results`)
+          .set("Authorization", `Bearer ${args.token}`)
           .send(predictor787)
           .expect(httpStatus.OK)
           .end(async (err, res) => {
@@ -2235,6 +2237,7 @@ describe("ExperimentController", () => {
 
         request(args.app)
           .post(`/experiments/${experimentId}/results`)
+          .set("Authorization", `Bearer ${args.token}`)
           .send(predictor788)
           .expect(httpStatus.OK)
           .end(async (err, res) => {
@@ -2266,6 +2269,7 @@ describe("ExperimentController", () => {
 
         request(args.app)
           .post(`/experiments/${experimentId}/results`)
+          .set("Authorization", `Bearer ${args.token}`)
           .send(predictor789)
           .expect(httpStatus.OK)
           .end(async (err, res) => {
@@ -2838,6 +2842,7 @@ describe("ExperimentController", () => {
             // mocks/atlas-experiment/_search/POST.818b0644922be906251ee4da3d386554.mock
             request(args.app)
               .put(`/searches/${search.id}/results`)
+              .set("Authorization", `Bearer ${args.token}`)
               .send(proteinVariant)
               .expect(httpStatus.OK)
               .end(async (err, res) => {
@@ -2895,6 +2900,7 @@ describe("ExperimentController", () => {
             // store some results
             request(args.app)
               .put(`/searches/${search.id}/results`)
+              .set("Authorization", `Bearer ${args.token}`)
               .send(proteinVariantWith0Genotype)
               .expect(httpStatus.OK)
               .end(async (err, res) => {

@@ -82,6 +82,8 @@ router
    *     operationId: saveSearchResult
    *     produces:
    *       - application/json
+   *     security:
+   *       - Bearer: []
    *     parameters:
    *       - in: path
    *         name: id
