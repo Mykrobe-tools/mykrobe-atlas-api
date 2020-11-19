@@ -4302,7 +4302,7 @@ router
    *         schema:
    *           $ref: '#/definitions/ExperimentResponse'
    */
-  .post(experimentController.results)
+  .post(keycloak.connect.protect(), experimentController.results)
   /**
    * @swagger
    * /experiments/{id}/results:

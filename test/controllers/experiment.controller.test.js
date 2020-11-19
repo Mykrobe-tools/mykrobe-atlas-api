@@ -1914,7 +1914,7 @@ describe("ExperimentController", () => {
         });
     });
   });
-  describe("POST /experiments/:id/results", () => {
+  describe.only("POST /experiments/:id/results", () => {
     beforeEach(async done => {
       const auditData = {
         experimentId: args.id,
@@ -1932,6 +1932,19 @@ describe("ExperimentController", () => {
       await audit.remove();
 
       done();
+    });
+    describe("when user is not authenticated", () => {
+      it("should return an error", async done => {
+        request(args.app)
+          .post(`/experiments/${experimentId}/results`)
+          .send(MDR)
+          .expect(httpStatus.OK)
+          .end(async (err, res) => {
+            expect(res.body.status).toEqual("error");
+            expect(res.body.message).toEqual("Not Authorised");
+            done();
+          });
+      });
     });
     it("should be successful", done => {
       request(args.app)
@@ -1957,6 +1970,7 @@ describe("ExperimentController", () => {
     it("should return r, mdr, xdr and tdr attributes", done => {
       request(args.app)
         .post(`/experiments/${args.id}/results`)
+        .set("Authorization", `Bearer ${args.token}`)
         .send(MDR)
         .expect(httpStatus.OK)
         .end((err, res) => {
@@ -1982,6 +1996,7 @@ describe("ExperimentController", () => {
     it("should save results against the experiment", done => {
       request(args.app)
         .post(`/experiments/${args.id}/results`)
+        .set("Authorization", `Bearer ${args.token}`)
         .send(MDR)
         .expect(httpStatus.OK)
         .end(async (err, res) => {
@@ -1995,6 +2010,7 @@ describe("ExperimentController", () => {
     it("should create distance results", done => {
       request(args.app)
         .post(`/experiments/${args.id}/results`)
+        .set("Authorization", `Bearer ${args.token}`)
         .send(DISTANCE)
         .expect(httpStatus.OK)
         .end((err, res) => {
@@ -2018,6 +2034,7 @@ describe("ExperimentController", () => {
     it("should not handle invalid result type", done => {
       request(args.app)
         .post(`/experiments/${args.id}/results`)
+        .set("Authorization", `Bearer ${args.token}`)
         .send({ type: "invalid" })
         .expect(httpStatus.OK)
         .end((err, res) => {
@@ -2030,6 +2047,7 @@ describe("ExperimentController", () => {
     it("should save r, mdr, xdr and tdr against the experiment", done => {
       request(args.app)
         .post(`/experiments/${args.id}/results`)
+        .set("Authorization", `Bearer ${args.token}`)
         .send(MDR)
         .expect(httpStatus.OK)
         .end(async (err, res) => {
@@ -2056,6 +2074,7 @@ describe("ExperimentController", () => {
     it("should update the experiment leafId", done => {
       request(args.app)
         .post(`/experiments/${args.id}/results`)
+        .set("Authorization", `Bearer ${args.token}`)
         .send(DISTANCE)
         .set("Authorization", `Bearer ${args.token}`)
         .expect(httpStatus.OK)
@@ -2073,6 +2092,7 @@ describe("ExperimentController", () => {
       experimentEventEmitter.on("analysis-complete", mockCallback);
       request(args.app)
         .post(`/experiments/${args.id}/results`)
+        .set("Authorization", `Bearer ${args.token}`)
         .send(MDR)
         .expect(httpStatus.OK)
         .end(async (err, res) => {
@@ -2129,6 +2149,7 @@ describe("ExperimentController", () => {
         experimentEventEmitter.on("analysis-complete", mockCallback);
         request(args.app)
           .post(`/experiments/${args.id}/results`)
+          .set("Authorization", `Bearer ${args.token}`)
           .send(predictor784)
           .expect(httpStatus.OK)
           .end(async (err, res) => {
@@ -2154,6 +2175,7 @@ describe("ExperimentController", () => {
       it("should save results against the experiment", done => {
         request(args.app)
           .post(`/experiments/${args.id}/results`)
+          .set("Authorization", `Bearer ${args.token}`)
           .send(predictor784)
           .expect(httpStatus.OK)
           .end(async (err, res) => {
