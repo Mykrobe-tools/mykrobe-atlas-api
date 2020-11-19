@@ -797,6 +797,7 @@ describe("UserController", () => {
             .end(() => {
               request(args.app)
                 .post(`/experiments/${args.experimentId}/results`)
+                .set("Authorization", `Bearer ${args.token}`)
                 .send(MDR)
                 .expect(httpStatus.OK)
                 .end(() => {
@@ -851,6 +852,7 @@ describe("UserController", () => {
               const searchId = res.body.data.id;
               request(args.app)
                 .put(`/searches/${searchId}/results`)
+                .set("Authorization", `Bearer ${args.token}`)
                 .send(searches.results.proteinVariant)
                 .expect(httpStatus.OK)
                 .end(() => {

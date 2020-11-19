@@ -262,6 +262,7 @@ describe("GroupController", () => {
       it("should tag th experiments in the group", done => {
         request(args.app)
           .put(`/searches/${args.group.search.id}/results`)
+          .set("Authorization", `Bearer ${args.token}`)
           .send(searches.results.sequence)
           .expect(httpStatus.OK)
           .end(async (err, res) => {
