@@ -1,6 +1,6 @@
 import nodeGeocoder from "node-geocoder";
 
-import logger from "../logger";
+import logger from "../logging/logger";
 import GeoCache from "../cache/GeoCache";
 
 class Geocoder {

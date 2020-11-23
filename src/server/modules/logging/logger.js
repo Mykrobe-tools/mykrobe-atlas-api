@@ -1,12 +1,14 @@
 import winston from "winston";
 
-import config from "../../config/env";
+import LoggingUtil from "./LoggingUtil";
+
+import config from "../../../config/env";
 
 const logFormat = winston.format.printf(function(info) {
-  if (info.meta) {
-    return `${info.level}: ${JSON.stringify(info.meta, null, 4)}\n`;
+  if (LoggingUtil.isMetaMessage(info)) {
+    return `${info.level}: ${JSON.stringify(LoggingUtil.safe(info.meta), null, 4)}\n`;
   } else {
-    return `${info.level}: ${info.message}`;
+    return `${info.level}: ${LoggingUtil.safe(info.message)}`;
   }
 });
 

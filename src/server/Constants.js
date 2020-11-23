@@ -178,7 +178,11 @@ const Constants = {
 
   // elasticsearch
   MAX_PAGE_SIZE: 10000,
-  DEFAULT_SCROLL_TTL: "1m"
+  DEFAULT_SCROLL_TTL: "1m",
+
+  // logging
+  LOG_MESSAGE_MAX_SIZE: 40000,
+  UNITS: ["bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"]
 };
 
 Constants.FIRST_LINE_DRUGS = [Constants.ISONIAZID, Constants.RIFAMPICIN];

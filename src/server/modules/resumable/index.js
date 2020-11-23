@@ -11,7 +11,7 @@ import {
 } from "./util";
 import Experiment from "../../models/experiment.model";
 import config from "../../../config/env";
-import logger from "../logger";
+import logger from "../logging/logger";
 
 // handle get requests
 const get = req => {
