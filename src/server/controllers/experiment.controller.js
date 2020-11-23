@@ -250,36 +250,46 @@ const results = async (req, res) => {
 
   try {
     logger.debug(`ExperimentsController#results: Saving experiment ...`);
-    const savedExperiment = await experiment.save();
-    logger.debug(`ExperimentsController#results: Experiment saved`);
+    experiment
+      .save()
+      .then(async savedExperiment => {
+        logger.debug(`ExperimentsController#results: Experiment saved`);
+        const experimentJSON = new ExperimentJSONTransformer().transform(savedExperiment);
 
-    logger.debug(`ExperimentsController#results: Updating experiment in elasticsearch ...`);
-    const indexableExperiment = new ExperimentSearchJSONTransformer().transform(
-      savedExperiment,
-      {}
-    );
-    await elasticService.updateDocument(indexableExperiment);
-    logger.debug(`ExperimentsController#results: Updated experiment in elasticsearch`);
+        // send result saved event
+        experimentJSON.status = Constants.SAVED;
+        experimentEventEmitter.emit(Constants.EVENTS.RESULTS_SAVED.EVENT, {
+          experiment: experimentJSON,
+          type: result.type
+        });
 
-    const audit = await Audit.getByExperimentId(savedExperiment.id);
+        logger.debug(`ExperimentsController#results: Updating experiment in elasticsearch ...`);
+        const indexableExperiment = new ExperimentSearchJSONTransformer().transform(
+          savedExperiment,
+          {}
+        );
+        await elasticService.updateDocument(indexableExperiment);
+        logger.debug(`ExperimentsController#results: Updated experiment in elasticsearch`);
 
-    const experimentJSON = new ExperimentJSONTransformer().transform(experiment);
-    const auditJSON = audit ? new AuditJSONTransformer().transform(audit) : null;
+        const audit = await Audit.getByExperimentId(savedExperiment.id);
+        const auditJSON = audit ? new AuditJSONTransformer().transform(audit) : null;
 
-    logger.debug(`ExperimentsController#results: Clear analysis state: ${savedExperiment.id}`);
-    await EventHelper.clearAnalysisState(savedExperiment.id);
+        logger.debug(`ExperimentsController#results: Clear analysis state: ${savedExperiment.id}`);
+        await EventHelper.clearAnalysisState(savedExperiment.id);
 
-    logger.debug(`ExperimentsController#results: Emit completeness event ...`);
-    experimentEventEmitter.emit("analysis-complete", {
-      audit: auditJSON,
-      experiment: experimentJSON,
-      type: result.type,
-      subType: result.subType,
-      fileLocation: result.files
-    });
-    logger.debug(`ExperimentsController#results: Completeness event emitted`);
+        logger.debug(`ExperimentsController#results: Emit completeness event ...`);
+        experimentEventEmitter.emit("analysis-complete", {
+          audit: auditJSON,
+          experiment: experimentJSON,
+          type: result.type,
+          subType: result.subType,
+          fileLocation: result.files
+        });
+        logger.debug(`ExperimentsController#results: Completeness event emitted`);
+      })
+      .catch(e => res.jerror(ErrorUtil.convert(e, Constants.ERRORS.UPDATE_EXPERIMENT_RESULTS)));
 
-    return res.jsend(savedExperiment);
+    return res.jsend({ status: Constants.SAVE_IN_PROGRESS, ...experiment.toJSON() });
   } catch (e) {
     return res.jerror(ErrorUtil.convert(e, Constants.ERRORS.UPDATE_EXPERIMENT_RESULTS));
   }
