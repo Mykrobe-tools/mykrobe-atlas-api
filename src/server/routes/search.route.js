@@ -1,7 +1,9 @@
 import express from "express";
 import searchController from "../controllers/search.controller";
+import AccountsHelper from "../helpers/AccountsHelper";
 
 const router = express.Router();
+const keycloak = AccountsHelper.keycloakInstance();
 
 /**
  * @swagger
@@ -80,6 +82,8 @@ router
    *     operationId: saveSearchResult
    *     produces:
    *       - application/json
+   *     security:
+   *       - Bearer: []
    *     parameters:
    *       - in: path
    *         name: id
@@ -109,7 +113,7 @@ router
    *         schema:
    *           $ref: '#/definitions/SearchResultResponse'
    */
-  .put(searchController.saveResult);
+  .put(keycloak.connect.protect(), searchController.saveResult);
 
 /** Load user when API with id route parameter is hit */
 router.param("id", searchController.load);

@@ -1,6 +1,6 @@
 import axios from "axios";
 
-import logger from "../logger";
+import logger from "../logging/logger";
 
 import ExperimentHelper from "../../helpers/ExperimentHelper";
 

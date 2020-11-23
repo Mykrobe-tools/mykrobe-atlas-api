@@ -3,7 +3,7 @@ import path from "path";
 import crypto from "crypto";
 import mkdirp from "mkdirp-promise";
 import config from "../../../config/env";
-import logger from "../logger";
+import logger from "../logging/logger";
 
 const maxFileSize = config.express.uploadMaxFileSize;
 

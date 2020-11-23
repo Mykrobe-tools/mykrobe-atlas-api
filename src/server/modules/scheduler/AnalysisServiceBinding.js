@@ -1,4 +1,4 @@
-import logger from "../logger";
+import logger from "../logging/logger";
 
 import AnalysisService from "../analysis/AnalysisService";
 

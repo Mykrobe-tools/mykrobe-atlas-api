@@ -13,7 +13,7 @@ import { APIError, ErrorUtil } from "makeandship-api-common/lib/modules/error";
 import User from "../models/user.model";
 import Experiment from "../models/experiment.model";
 
-import logger from "../modules/logger";
+import logger from "../modules/logging/logger";
 
 import phylogenetics from "../../config/faker/phylogenetics-choices";
 import config from "../../config/env";

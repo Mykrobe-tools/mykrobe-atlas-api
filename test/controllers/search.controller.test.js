@@ -73,7 +73,13 @@ beforeEach(async done => {
   });
   await dnaSearchAudit.save();
 
-  done();
+  request(args.app)
+    .post("/auth/login")
+    .send({ username: "admin@nhs.co.uk", password: "password" })
+    .end((err, res) => {
+      args.token = res.body.data.access_token;
+      done();
+    });
 });
 afterEach(async done => {
   await Search.deleteMany({});
@@ -88,6 +94,7 @@ describe("SearchController", () => {
       it("should return an error an error", done => {
         request(args.app)
           .put("/searches/56c787ccc67fc16ccc1a5e92/results")
+          .set("Authorization", `Bearer ${args.token}`)
           .send(searches.results.sequence)
           .expect(httpStatus.OK)
           .end((err, res) => {
@@ -109,6 +116,7 @@ describe("SearchController", () => {
             userEventEmitter.on("sequence-search-complete", mockCallback);
             request(args.app)
               .put(`/searches/${args.sequenceSearchId}/results`)
+              .set("Authorization", `Bearer ${args.token}`)
               .send(searches.results.sequence)
               .expect(httpStatus.OK)
               .end((err, res) => {
@@ -263,6 +271,7 @@ describe("SearchController", () => {
             userEventEmitter.on("sequence-search-complete", mockCallback);
             request(args.app)
               .put(`/searches/${args.sequenceSearchId}/results`)
+              .set("Authorization", `Bearer ${args.token}`)
               .send(searches.results.emptySequence)
               .expect(httpStatus.OK)
               .end((err, res) => {
@@ -314,6 +323,7 @@ describe("SearchController", () => {
           userEventEmitter.on("protein-variant-search-complete", mockCallback);
           request(args.app)
             .put(`/searches/${args.proteinVariantSearchId}/results`)
+            .set("Authorization", `Bearer ${args.token}`)
             .send(searches.results.proteinVariant)
             .expect(httpStatus.OK)
             .end((err, res) => {
@@ -444,6 +454,7 @@ describe("SearchController", () => {
           userEventEmitter.on("dna-variant-search-complete", mockCallback);
           request(args.app)
             .put(`/searches/${args.dnaVariantSearchId}/results`)
+            .set("Authorization", `Bearer ${args.token}`)
             .send(searches.results.dnaVariant)
             .expect(httpStatus.OK)
             .end((err, res) => {

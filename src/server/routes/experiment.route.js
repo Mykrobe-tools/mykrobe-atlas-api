@@ -4285,6 +4285,8 @@ router
    *     operationId: experimentResults
    *     produces:
    *       - application/json
+   *     security:
+   *       - Bearer: []
    *     parameters:
    *       - in: path
    *         name: id
@@ -4302,7 +4304,7 @@ router
    *         schema:
    *           $ref: '#/definitions/ExperimentResponse'
    */
-  .post(experimentController.results)
+  .post(keycloak.connect.protect(), experimentController.results)
   /**
    * @swagger
    * /experiments/{id}/results:

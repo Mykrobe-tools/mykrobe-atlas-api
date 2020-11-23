@@ -7,7 +7,7 @@ import SchemaExplorer from "makeandship-api-common/lib/modules/jsonschema/schema
 import Experiment from "../models/experiment.model";
 import ExperimentJSONTransformer from "../transformers/ExperimentJSONTransformer";
 import PredictorResultParser from "./results/PredictorResultParser";
-import logger from "../modules/logger";
+import logger from "../modules/logging/logger";
 import TrackingService from "../modules/tracking/TrackingService";
 import LocationHelper from "./LocationHelper";
 import ExperimentHelper from "./ExperimentHelper";

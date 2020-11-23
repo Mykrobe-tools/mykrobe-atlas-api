@@ -1,6 +1,6 @@
 import https from "https";
 import fs from "fs";
-import logger from "../modules/logger";
+import logger from "../modules/logging/logger";
 import { experimentEventEmitter } from "../modules/events";
 import EventHelper from "../helpers/events/EventHelper";
 import EventProgress from "../helpers/events/EventProgress";

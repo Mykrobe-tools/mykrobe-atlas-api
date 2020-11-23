@@ -1,7 +1,7 @@
 import Agenda from "agenda";
 
 import AnalysisServiceBinding from "./AnalysisServiceBinding";
-import logger from "../logger";
+import logger from "../logging/logger";
 import config from "../../../config/env";
 
 class Scheduler {
