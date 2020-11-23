@@ -142,6 +142,12 @@ const createApp = async options => {
   await initializer.initialize();
   logger.debug("ExpressInitializer#initialize: Initialization complete");
 
+  // test uncaughtException
+  process.on('uncaughtException', function(err) { 
+    console.log( " UNCAUGHT EXCEPTION " );
+    console.log( "[Inside 'uncaughtException' event] " + err.stack || err.message );
+  });
+
   return app;
 };
 
