@@ -1,5 +1,5 @@
 import Constants from "../../Constants";
-import logger from "../../modules/logger";
+import logger from "../logging/logger";
 import Cache from "./Cache";
 
 const PREFIX = "response";

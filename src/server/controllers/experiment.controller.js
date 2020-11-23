@@ -31,7 +31,7 @@ import resumable from "../modules/resumable";
 import Scheduler from "../modules/scheduler/Scheduler";
 import { experimentEventEmitter, userEventEmitter } from "../modules/events";
 import { parseQuery, callTreeApi } from "../modules/search";
-import logger from "../modules/logger";
+import logger from "../modules/logging/logger";
 import TrackingService from "../modules/tracking/TrackingService";
 
 import DownloadersFactory from "../helpers/DownloadersFactory";

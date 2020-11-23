@@ -4,7 +4,7 @@ import uuid from "uuid";
 
 import config from "../config/env";
 
-import logger from "../server/modules/logger";
+import logger from "../server/modules/logging/logger";
 
 const enableMockAnalysisApi = () => {
   logger.debug(`enableMockAnalysisApi: enter`);

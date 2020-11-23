@@ -1,4 +1,4 @@
-import logger from "../modules/logger";
+import logger from "../modules/logging/logger";
 import { geocode } from "../modules/geo/";
 
 import LocationHelper from "../helpers/LocationHelper";

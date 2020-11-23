@@ -19,7 +19,7 @@ import DnaVariantSearchStartedEventJSONTransformer from "../transformers/events/
 import DnaVariantSearchCompleteEventJSONTransformer from "../transformers/events/DnaVariantSearchCompleteEventJSONTransformer";
 import ResultsSavedJSONTransformer from "../transformers/events/ResultsSavedJSONTransformer";
 
-import logger from "./logger";
+import logger from "./logging/logger";
 
 const experimentEventEmitter = new EventEmitter();
 const userEventEmitter = new EventEmitter();

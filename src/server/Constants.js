@@ -186,7 +186,11 @@ const Constants = {
 
   // save staus
   SAVE_IN_PROGRESS: "Save in progress",
-  SAVED: "Saved"
+  SAVED: "Saved",
+
+  // logging
+  LOG_MESSAGE_MAX_SIZE: 40000,
+  UNITS: ["bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"]
 };
 
 Constants.FIRST_LINE_DRUGS = [Constants.ISONIAZID, Constants.RIFAMPICIN];
