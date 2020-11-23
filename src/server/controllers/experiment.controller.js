@@ -289,8 +289,7 @@ const results = async (req, res) => {
       })
       .catch(e => res.jerror(ErrorUtil.convert(e, Constants.ERRORS.UPDATE_EXPERIMENT_RESULTS)));
 
-    logger.debug(`ExperimentsController#results: returning ...`);
-    return res.jsend({ status: Constants.SAVE_IN_PROGRESS });
+    return res.jsend({ status: Constants.SAVE_IN_PROGRESS,  ...experiment.toJSON() });
   } catch (e) {
     return res.jerror(ErrorUtil.convert(e, Constants.ERRORS.UPDATE_EXPERIMENT_RESULTS));
   }
