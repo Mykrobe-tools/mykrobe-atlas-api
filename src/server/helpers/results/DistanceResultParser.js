@@ -39,8 +39,9 @@ class DistanceResultParser extends ResultParser {
   }
 
   truncateResult() {
+    const size = this.namedResult.result.length;
     logger.warn(
-      `DistanceResultParser#truncateResult: truncating the result to ${Constants.DISTANCE_RESULT_SIZE_THRESHOLD} items`
+      `DistanceResultParser#truncateResult: Truncating ${size} distance results to ${Constants.DISTANCE_RESULT_SIZE_THRESHOLD}`
     );
     const distanceResult = this.namedResult.result;
     return distanceResult.slice(0, Constants.DISTANCE_RESULT_SIZE_THRESHOLD);
