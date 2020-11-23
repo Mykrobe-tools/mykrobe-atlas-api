@@ -257,6 +257,7 @@ const results = async (req, res) => {
         const experimentJSON = new ExperimentJSONTransformer().transform(savedExperiment);
 
         // send result saved event
+        experimentJSON.status = Constants.SAVED;
         experimentEventEmitter.emit(Constants.EVENTS.RESULTS_SAVED.EVENT, {
           experiment: experimentJSON,
           type: result.type
@@ -288,7 +289,7 @@ const results = async (req, res) => {
       })
       .catch(e => res.jerror(ErrorUtil.convert(e, Constants.ERRORS.UPDATE_EXPERIMENT_RESULTS)));
 
-    return res.jsend(experiment);
+    return res.jsend({ status: Constants.SAVE_IN_PROGRESS, ...experiment.toJSON() });
   } catch (e) {
     return res.jerror(ErrorUtil.convert(e, Constants.ERRORS.UPDATE_EXPERIMENT_RESULTS));
   }

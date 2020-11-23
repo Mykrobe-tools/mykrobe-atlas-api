@@ -182,7 +182,11 @@ const Constants = {
 
   // elasticsearch
   MAX_PAGE_SIZE: 10000,
-  DEFAULT_SCROLL_TTL: "1m"
+  DEFAULT_SCROLL_TTL: "1m",
+
+  // save staus
+  SAVE_IN_PROGRESS: "Save in progress",
+  SAVED: "Saved"
 };
 
 Constants.FIRST_LINE_DRUGS = [Constants.ISONIAZID, Constants.RIFAMPICIN];
