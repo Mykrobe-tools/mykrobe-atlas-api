@@ -17,6 +17,7 @@ import ProteinVariantSearchStartedEventJSONTransformer from "../transformers/eve
 import ProteinVariantSearchCompleteEventJSONTransformer from "../transformers/events/ProteinVariantSearchCompleteEventJSONTransformer";
 import DnaVariantSearchStartedEventJSONTransformer from "../transformers/events/DnaVariantSearchStartedEventJSONTransformer";
 import DnaVariantSearchCompleteEventJSONTransformer from "../transformers/events/DnaVariantSearchCompleteEventJSONTransformer";
+import ResultsSavedJSONTransformer from "../transformers/events/ResultsSavedJSONTransformer";
 
 import logger from "./logging/logger";
 
@@ -273,6 +274,18 @@ userEventEmitter.on(Constants.EVENTS.DNA_VARIANT_SEARCH_COMPLETE.EVENT, async pa
       sendUserEvent(userId, data);
     }
   } catch (e) {}
+});
+
+experimentEventEmitter.on(Constants.EVENTS.RESULTS_SAVED.EVENT, async payload => {
+  try {
+    const { experiment, type } = payload;
+    if (experiment && type) {
+      const data = new ResultsSavedJSONTransformer().transform(payload, {});
+      sendExperimentOwnerEvent(payload.experiment, data, Constants.EVENTS.RESULTS_SAVED.EVENT);
+    }
+  } catch (e) {
+    logger.error(`results-saved: error: ${JSON.stringify(e, null, 2)}`);
+  }
 });
 
 export { experimentEventEmitter };

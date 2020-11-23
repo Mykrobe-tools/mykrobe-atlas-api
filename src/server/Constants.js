@@ -127,6 +127,10 @@ const Constants = {
     UPLOAD_COMPLETE: {
       EVENT: "upload-complete",
       NAME: "Upload complete"
+    },
+    RESULTS_SAVED: {
+      EVENT: "results-saved",
+      NAME: "Results saved"
     }
   },
 
@@ -179,6 +183,10 @@ const Constants = {
   // elasticsearch
   MAX_PAGE_SIZE: 10000,
   DEFAULT_SCROLL_TTL: "1m",
+
+  // save staus
+  SAVE_IN_PROGRESS: "Save in progress",
+  SAVED: "Saved",
 
   // logging
   LOG_MESSAGE_MAX_SIZE: 40000,
