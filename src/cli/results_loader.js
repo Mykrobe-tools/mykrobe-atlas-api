@@ -1,7 +1,7 @@
 import { argv } from "yargs";
 import fs from "fs";
 import axios from "axios";
-import logger from "../server/modules/logger";
+import logger from "../server/modules/logging/logger";
 
 const { basePath, username, password, folder } = argv;
 let token, mapping;

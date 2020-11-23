@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 import util from "util";
 import config from "./config/env";
 import createApp from "./server/app";
-import logger from "./server/modules/logger";
+import logger from "./server/modules/logging/logger";
 
 (async () => {
   // make bluebird default Promise

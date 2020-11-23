@@ -1,4 +1,4 @@
-import logger from "../src/server/modules/logger";
+import logger from "../src/server/modules/logging/logger";
 
 const create = (realm, keycloakUser) => {
   logger.log("debug", "keycloak-admin-client#create");

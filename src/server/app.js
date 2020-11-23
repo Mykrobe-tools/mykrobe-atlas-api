@@ -19,7 +19,7 @@ import GroupsInitializer from "./initializers/GroupsInitializer";
 
 import Constants from "./Constants";
 
-import logger from "./modules/logger";
+import logger from "./modules/logging/logger";
 import routes from "./routes/index.route";
 import config from "../config/env";
 

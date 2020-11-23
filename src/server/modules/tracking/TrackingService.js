@@ -1,5 +1,5 @@
 import axios from "axios";
-import logger from "../logger";
+import logger from "../logging/logger";
 import config from "../../../config/env";
 
 class TrackingService {

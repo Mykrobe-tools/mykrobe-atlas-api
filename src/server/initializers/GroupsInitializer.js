@@ -4,7 +4,7 @@ import { parseQuery } from "../modules/search";
 import GroupHelper from "../helpers/GroupHelper";
 
 import config from "../../config/env";
-import logger from "../modules/logger";
+import logger from "../modules/logging/logger";
 
 /**
  * A cache initializer create groups
