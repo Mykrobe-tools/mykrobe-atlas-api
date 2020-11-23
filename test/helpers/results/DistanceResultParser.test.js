@@ -33,10 +33,10 @@ describe("DistanceResultParser", () => {
 
           done();
         });
-      })
+      });
       describe("with a large distance result", () => {
         it("should parse a result", done => {
-          console.log(`before`)
+          console.log(`before`);
           const parser = new DistanceResultParser(LARGE_DISTANCE);
           const result = parser.parse();
 

@@ -1,6 +1,10 @@
 import Constants from "../../Constants";
 
 class LoggingUtil {
+  isMetaMessage(message) {
+    return message && message.meta && Object.keys(message.meta).length > 0;
+  }
+
   getMessageSize(message = null) {
     if (message) {
       const size = Buffer.byteLength(JSON.stringify(message));
