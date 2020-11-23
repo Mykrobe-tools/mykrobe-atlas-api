@@ -127,10 +127,6 @@ const Constants = {
     UPLOAD_COMPLETE: {
       EVENT: "upload-complete",
       NAME: "Upload complete"
-    },
-    RESULTS_SAVED: {
-      EVENT: "results-saved",
-      NAME: "Results saved"
     }
   },
 
@@ -190,7 +186,10 @@ const Constants = {
 
   // logging
   LOG_MESSAGE_MAX_SIZE: 40000,
-  UNITS: ["bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"]
+  UNITS: ["bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"],
+
+  // max distance results size
+  DISTANCE_RESULT_SIZE_THRESHOLD: 1000
 };
 
 Constants.FIRST_LINE_DRUGS = [Constants.ISONIAZID, Constants.RIFAMPICIN];

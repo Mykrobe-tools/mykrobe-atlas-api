@@ -1,3 +1,4 @@
+import Constants from "../../../src/server/Constants";
 import DistanceResultParser from "../../../src/server/helpers/results/DistanceResultParser";
 import DISTANCE from "../../fixtures/files/Distance_Results.json";
 import LARGE_DISTANCE from "../../fixtures/files/large-distance-result.json";
@@ -43,7 +44,13 @@ describe("DistanceResultParser", () => {
           expect(result).toHaveProperty("received");
           expect(result).toHaveProperty("experiments");
 
-          expect(result.experiments.length).toEqual(37955);
+          done();
+        });
+
+        it("should truncate the result", done => {
+          const parser = new DistanceResultParser(LARGE_DISTANCE);
+          const result = parser.parse();
+          expect(result.experiments.length).toEqual(Constants.DISTANCE_RESULT_SIZE_THRESHOLD);
 
           done();
         });

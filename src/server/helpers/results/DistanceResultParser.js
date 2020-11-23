@@ -1,5 +1,7 @@
+import Constants from "../../Constants";
 import ResultParser from "./ResultParser";
 import { parseDistance } from "./util";
+import logger from "../../modules/logging/logger";
 
 class DistanceResultParser extends ResultParser {
   constructor(namedResult) {
@@ -16,11 +18,32 @@ class DistanceResultParser extends ResultParser {
     result.leafId = this.namedResult.leafId;
 
     if (this.namedResult.result) {
+      if (this.isOversizedResultSet()) {
+        this.namedResult.result = this.truncateResult();
+      }
+
       const distanceResult = this.namedResult.result;
       result.experiments = parseDistance(distanceResult);
     }
 
     return result;
+  }
+
+  isOversizedResultSet() {
+    if (Array.isArray(this.namedResult.result)) {
+      const size = this.namedResult.result.length;
+      logger.info(`DistanceResultParser#isOversizedResultSet: result size ${size} items`);
+      return size > Constants.DISTANCE_RESULT_SIZE_THRESHOLD;
+    }
+    return false;
+  }
+
+  truncateResult() {
+    logger.warn(
+      `DistanceResultParser#truncateResult: truncating the result to ${Constants.DISTANCE_RESULT_SIZE_THRESHOLD} items`
+    );
+    const distanceResult = this.namedResult.result;
+    return distanceResult.slice(0, Constants.DISTANCE_RESULT_SIZE_THRESHOLD);
   }
 }
 
