@@ -189,7 +189,7 @@ const Constants = {
   UNITS: ["bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"],
 
   // max distance results size
-  DISTANCE_RESULT_SIZE_THRESHOLD: 1000
+  DISTANCE_RESULT_SIZE_THRESHOLD: 5000
 };
 
 Constants.FIRST_LINE_DRUGS = [Constants.ISONIAZID, Constants.RIFAMPICIN];
