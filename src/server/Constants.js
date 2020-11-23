@@ -127,6 +127,10 @@ const Constants = {
     UPLOAD_COMPLETE: {
       EVENT: "upload-complete",
       NAME: "Upload complete"
+    },
+    RESULTS_SAVED: {
+      EVENT: "results-saved",
+      NAME: "Results saved"
     }
   },
 
