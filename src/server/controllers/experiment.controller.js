@@ -73,24 +73,40 @@ const load = async (req, res, next, id) => {
  * @returns {Experiment}
  */
 const get = async (req, res) => {
-  const experimentJSON = new ExperimentJSONTransformer().transform(req.experiment, {
-    calledBy: true
-  });
-
-  const results = experimentJSON.results;
-  if (results) {
-    const promises = {};
-
-    const keys = Object.keys(results);
-    keys.forEach(key => {
-      const result = results[key];
-      promises[key] = inflateResult(result, Constants.DISTANCE_PROJECTION);
+  const id = req.experiment && req.experiment.id ? req.experiment.id : null;
+  const query = { id };
+  logger.debug(`ExperimentController#get: Generate hash for: ${JSON.stringify(query)}`);
+  const hash = CacheHelper.getObjectHash(query);
+  logger.debug(`ExperimentController#get: Check #get for: ${JSON.stringify(hash)}`);
+  const cached = await ResponseCache.getQueryResponse(`get`, hash);
+  if (cached && typeof cached !== "undefined") {
+    logger.debug(`ExperimentController#get: Using cached response`);
+    return res.jsend(cached);
+  } else {
+    logger.debug(`ExperimentController#get: Generate response ...`);
+    const experimentJSON = new ExperimentJSONTransformer().transform(req.experiment, {
+      calledBy: true
     });
 
-    experimentJSON.results = await Promise.props(promises);
-  }
+    const results = experimentJSON.results;
+    if (results) {
+      const promises = {};
 
-  return res.jsend(experimentJSON);
+      const keys = Object.keys(results);
+      keys.forEach(key => {
+        const result = results[key];
+        promises[key] = inflateResult(result, Constants.DISTANCE_PROJECTION);
+      });
+
+      experimentJSON.results = await Promise.props(promises);
+    }
+
+    if (experimentJSON) {
+      logger.debug(`ExperimentController#get: Store response for #get: ${JSON.stringify(hash)}`);
+      await ResponseCache.setQueryResponse(`get`, hash, experimentJSON);
+    }
+    return res.jsend(experimentJSON);
+  }
 };
 
 /**
