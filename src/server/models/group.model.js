@@ -19,10 +19,12 @@ const GroupSchema = new JSONMongooseSchema(
         ref: "Experiment"
       }
     ],
-    search: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Search"
-    }
+    searches: [
+      {
+        type: "ObjectId",
+        ref: "Search"
+      }
+    ]
   },
   {}
 );
@@ -74,7 +76,7 @@ GroupSchema.statics = {
   async get(id) {
     try {
       const group = await this.findById(id)
-        .populate(["experiments", "search"])
+        .populate(["experiments", "searches"])
         .exec();
       if (group) {
         return group;
@@ -105,7 +107,7 @@ GroupSchema.statics = {
    */
   list({ skip = 0, limit = 50 } = {}) {
     return this.find()
-      .populate(["experiments", "search"])
+      .populate(["experiments", "searches"])
       .skip(skip)
       .limit(limit)
       .exec();
@@ -117,7 +119,7 @@ GroupSchema.statics = {
    * @returns {Promise<search, APIError>}
    */
   findBySearch(search) {
-    return this.findOne({ search }).exec();
+    return this.find({ searches: { $eq: search } }).exec();
   }
 };
 

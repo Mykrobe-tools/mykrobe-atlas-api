@@ -16,8 +16,10 @@ class GroupJSONTransformer extends ModelJSONTransformer {
   transform(o, options = {}) {
     let res = super.transform(o, options);
     res = new BlacklistTransformer().transform(res, { blacklist: BLACKLIST });
-    if (res.search) {
-      res.search = new SearchJSONTransformer().transform(res.search, options);
+    if (res.searches) {
+      res.searches = res.searches.map(search =>
+        new SearchJSONTransformer().transform(search, options)
+      );
     }
 
     if (res.experiments) {

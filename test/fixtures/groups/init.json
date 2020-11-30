@@ -2,7 +2,7 @@
     {
         "name": "Mendoza Group",
         "annotation": "Lorem ipsum",
-        "searchQuery": "GTCAGTCCGTTTGTTCTTGTGGCGAGTGTAGT"
+        "searchQuery": ["GTCAGTCCGTTTGTTCTTGTGGCGAGTGTAGT", "rpoB_S560L"]
     },
     {
         "name": "Buenos Aires Group",
@@ -12,11 +12,11 @@
     {
         "name": "Rosario Group",
         "annotation": "consectetur",
-        "searchQuery": "uyeB_S180S"
+        "searchQuery": ["uyeB_S180S", "CAGATC", "rpoB_S560L"]
     },
     {
         "name": "Corrientes Group",
         "annotation": "adipiscing elit",
-        "searchQuery": "CAGATC"
+        "searchQuery": ["CAGATC", "rpoB_S560L"]
     }
 ]

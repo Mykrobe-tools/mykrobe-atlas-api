@@ -19,6 +19,8 @@ import { userEventEmitter } from "../modules/events";
 
 import Constants from "../Constants";
 import GroupHelper from "../helpers/GroupHelper";
+import GroupsInitializer from "../initializers/GroupsInitializer";
+import { group } from "yargs";
 
 /**
  * Load organisation and append to req.
@@ -106,10 +108,11 @@ const saveResult = async (req, res) => {
       savedSearch.set("bigsi", bigsi);
     }
 
-    const group = await Group.findBySearch(savedSearch);
-    if (group) {
-      // tag group experiments
-      await GroupHelper.enrichGroupWithExperiments(group, savedSearch);
+    const groups = await Group.findBySearch(savedSearch);
+    if (groups && groups.length > 0) {
+      groups.forEach(
+        async group => await GroupHelper.enrichGroupWithExperiments(group, savedSearch)
+      );
     }
 
     return res.jsend(savedSearch);

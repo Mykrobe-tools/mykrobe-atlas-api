@@ -9,11 +9,12 @@ import config from "../../config/env";
 class GroupHelper {
   static async triggerSearch(group) {
     const service = new AnalysisService();
-    await service.search(group.search);
+    group.searches.forEach(async search => await service.search(search));
   }
 
   static async enrichGroupWithExperiments(group, search) {
     const type = search.type;
+    const existingExperiments = group.get("experiments") || [];
 
     const result = search.get("result");
     const results = result.results;
@@ -21,7 +22,7 @@ class GroupHelper {
     const isolateIds = filteredResults.map(result => result["metadata.sample.isolateId"]);
     const experiments = await Experiment.findByIsolateIds(isolateIds);
 
-    group.set("experiments", experiments);
+    group.set("experiments", this.intersection(experiments, existingExperiments));
     await group.save();
   }
 
@@ -38,6 +39,17 @@ class GroupHelper {
     newSearch.type = type;
     newSearch.bigsi = bigsi;
     return await newSearch.save();
+  }
+
+  static intersection(experiments, existing) {
+    if (existing.length === 0) {
+      return experiments;
+    }
+
+    return experiments.filter(experiment => {
+      const exists = existing.find(item => item.id === experiment.id);
+      return !!exists;
+    });
   }
 }
 
