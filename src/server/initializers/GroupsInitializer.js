@@ -17,17 +17,38 @@ class GroupsInitializer {
       await Group.clear();
       for (let raw of groups) {
         const group = await new Group(raw);
-        const { bigsi } = parseQuery({ q: raw.searchQuery });
-        if (bigsi) {
-          const { type, query } = bigsi;
-          group.search = await GroupHelper.getOrCreateSearch({ type, bigsi: { query } });
+        const searches = [];
+        if (Array.isArray(raw.searchQuery)) {
+          for (const query of raw.searchQuery) {
+            const searchQuery = await this.handleSearchQuery(query);
+            if (searchQuery) {
+              searches.push(searchQuery);
+            }
+          }
+        } else {
+          const searchQuery = await this.handleSearchQuery(raw.searchQuery);
+          if (searchQuery) {
+            searches.push(searchQuery);
+          }
         }
+        group.searches = searches;
         await group.save();
       }
       logger.info(`GroupsInitializer: ${groups.length} created.`);
     } catch (e) {
       logger.error(`Error in GroupsInitializer: ${e.message}`);
     }
+  }
+
+  async handleSearchQuery(searchQuery) {
+    const { bigsi } = parseQuery({ q: searchQuery });
+    if (bigsi) {
+      const { type, query } = bigsi;
+      const search = await GroupHelper.getOrCreateSearch({ type, bigsi: { query } });
+      return search;
+    }
+
+    return null;
   }
 }
 

@@ -34,9 +34,20 @@ beforeAll(async () => {
 beforeEach(async done => {
   const userData = new User(users.admin);
   const groupData = new Group(groups.salta);
-  const { bigsi } = parseQuery({ q: groups.salta.searchQuery });
-  const { type, query } = bigsi;
-  groupData.search = await GroupHelper.getOrCreateSearch({ type, bigsi: { query } });
+  const searches = [];
+
+  for (const groupSearchQuery of groups.salta.searchQuery) {
+    const { bigsi } = parseQuery({ q: groupSearchQuery });
+    const { type, query } = bigsi;
+
+    const searchQuery = await GroupHelper.getOrCreateSearch({ type, bigsi: { query } });
+    if (searchQuery) {
+      searches.push(searchQuery);
+    }
+  }
+
+  groupData.searches = searches;
+
   args.user = await userData.save();
   request(args.app)
     .post("/auth/login")
@@ -253,26 +264,59 @@ describe("GroupController", () => {
       });
     });
     describe("when saving the results", () => {
-      beforeEach(async done => {
-        const experimentData = new Experiment(experiments.tbUploadMetadataTagged);
-        await experimentData.save();
-        done();
-      });
+      describe("when no experiments were stored", () => {
+        beforeEach(async done => {
+          const experimentData = new Experiment(experiments.tbUploadMetadataTagged);
+          await experimentData.save();
+          done();
+        });
 
-      it("should tag th experiments in the group", done => {
-        request(args.app)
-          .put(`/searches/${args.group.search.id}/results`)
-          .set("Authorization", `Bearer ${args.token}`)
-          .send(searches.results.sequence)
-          .expect(httpStatus.OK)
-          .end(async (err, res) => {
-            expect(res.body).toHaveProperty("status", "success");
-            expect(res.body).toHaveProperty("data");
-            const group = await Group.get(args.id);
-            expect(group.experiments.length).toEqual(1);
-            expect(group.experiments[0].metadata.sample.isolateId).toEqual("ERR017683");
-            done();
-          });
+        it("should tag all the experiments in the group", done => {
+          request(args.app)
+            .put(`/searches/${args.group.searches[0].id}/results`)
+            .set("Authorization", `Bearer ${args.token}`)
+            .send(searches.results.sequence)
+            .expect(httpStatus.OK)
+            .end(async (err, res) => {
+              expect(res.body).toHaveProperty("status", "success");
+              expect(res.body).toHaveProperty("data");
+              const group = await Group.get(args.id);
+              expect(group.experiments.length).toEqual(1);
+              expect(group.experiments[0].metadata.sample.isolateId).toEqual("ERR017683");
+              done();
+            });
+        });
+      });
+      describe("when running all the searches", () => {
+        beforeEach(async done => {
+          const experimentData1 = new Experiment(experiments.tbUploadMetadataTagged);
+          await experimentData1.save();
+          const experimentData2 = new Experiment(experiments.tbUploadMetadata);
+          await experimentData2.save();
+          done();
+        });
+
+        it("should tag the intersection of the experiments in the group", done => {
+          request(args.app)
+            .put(`/searches/${args.group.searches[0].id}/results`)
+            .set("Authorization", `Bearer ${args.token}`)
+            .send(searches.results.sequence)
+            .expect(httpStatus.OK)
+            .end(async (err, res) => {
+              request(args.app)
+                .put(`/searches/${args.group.searches[1].id}/results`)
+                .set("Authorization", `Bearer ${args.token}`)
+                .send(searches.results.dnaVariant)
+                .expect(httpStatus.OK)
+                .end(async (err, res) => {
+                  expect(res.body).toHaveProperty("status", "success");
+                  expect(res.body).toHaveProperty("data");
+                  const group = await Group.get(args.id);
+                  expect(group.experiments.length).toEqual(0);
+                  done();
+                });
+            });
+        });
       });
     });
   });
