@@ -253,7 +253,7 @@ describe("DataController", () => {
           done();
         });
         it("should trigger loading the experiments", done => {
-          expect(data).toEqual("Demo data upload started");
+          expect(data).toEqual("Bulk upload started");
           done();
         });
         it("should purge all the experiments", async done => {
@@ -486,7 +486,7 @@ describe("DataController", () => {
           done();
         });
         it("should trigger loading the experiments", done => {
-          expect(data).toEqual("Demo data upload started");
+          expect(data).toEqual("Bulk metadata upload started");
           done();
         });
         it("should purge all the experiments", async done => {

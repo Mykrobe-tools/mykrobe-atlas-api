@@ -158,7 +158,7 @@ const bulk = async (req, res) => {
   try {
     logger.debug(`DataController#bulk: load from ${file.path}`);
     await DataHelper.load(file.path);
-    return res.jsend("Demo data upload started");
+    return res.jsend("Bulk upload started");
   } catch (e) {
     return res.jerror(e);
   }
@@ -187,7 +187,7 @@ const bulkMetadata = async (req, res) => {
   try {
     logger.debug(`DataController#bulkMetadata: load from ${file.path}`);
     await DataHelper.load(file.path, true);
-    return res.jsend("Demo data upload started");
+    return res.jsend("Bulk metadata upload started");
   } catch (e) {
     return res.jerror(e);
   }
