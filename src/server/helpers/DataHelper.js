@@ -33,7 +33,7 @@ class DataHelper {
    * Load all files from a given directory
    * @param {*} path
    */
-  static async load(filepath) {
+  static async load(filepath, metadataOnly = false) {
     logger.debug("DataHelper#load: enter");
 
     logger.debug(`DataHelper#load: filepath: ${filepath}`);
@@ -56,7 +56,7 @@ class DataHelper {
       throw new Error("Cannot find metadata files");
     }
 
-    await this.process(type, metadata, files);
+    await this.process(type, metadata, files, metadataOnly);
     logger.debug("DataHelper#load: exit");
   }
 
@@ -169,7 +169,11 @@ class DataHelper {
     if (rows) {
       logger.debug(`DataHelper#buildExperimentObjectsFromCSVRows: ${rows ? rows.length : 0} rows`);
       for (const row of rows) {
-        const isolateId = row.sample_name;
+        const sampleMetadata = {
+          isolateId: row.sample_name,
+          collectionDate: row.collection_date,
+          dateArrived: row.date_arrived
+        };
 
         // city and country
         const country = row.geo_metadata || row.geography_metadata;
@@ -214,7 +218,7 @@ class DataHelper {
         const results = parsedResult ? [parsedResult] : [];
 
         // build an experiment
-        const experiment = Object.assign({ results, isolateId, coordinates }, mappedCountry);
+        const experiment = Object.assign({ results, sampleMetadata, coordinates }, mappedCountry);
         logger.debug(`DataHelper#buildExperimentObjectsFromCSVRows: Add experiment`);
         experiments.push(experiment);
       }
@@ -228,35 +232,42 @@ class DataHelper {
     return experiments;
   }
 
-  static async buildMongooseReadyExperimentObjects(rows) {
+  static async buildMongooseReadyExperimentObjects(rows, metadataOnly = false) {
     logger.debug(`DataHelper#buildMongooseReadyExperimentObjects: enter`);
     const experiments = [];
 
     if (rows) {
       for (const row of rows) {
-        const { isolateId, countryIsolate, cityIsolate, results, coordinates } = row;
+        const { sampleMetadata, countryIsolate, cityIsolate, results, coordinates } = row;
 
-        const existing = isolateId ? await Experiment.findByIsolateIds([isolateId]) : null;
+        const existing = sampleMetadata.isolateId
+          ? await Experiment.findByIsolateIds([sampleMetadata.isolateId])
+          : null;
         const exists = existing && Array.isArray(existing) && existing.length;
         logger.debug(
-          `DataHelper#buildMongooseReadyExperimentObjects: ${isolateId} exists?: ${exists}`
+          `DataHelper#buildMongooseReadyExperimentObjects: ${sampleMetadata.isolateId} exists?: ${exists}`
         );
+
+        // only process existing records when doing metadata only
+        if (!exists && metadataOnly) {
+          continue;
+        }
 
         const experiment = exists
           ? this.buildExperimentFromCurrent(
               existing[0],
               results,
-              isolateId,
+              sampleMetadata,
               countryIsolate,
               cityIsolate
             )
-          : this.buildExperiment(results, isolateId, countryIsolate, cityIsolate);
+          : this.buildExperiment(results, sampleMetadata, countryIsolate, cityIsolate);
 
         logger.debug(`DataHelper#buildMongooseReadyExperimentObjects: generate sampleId`);
         experiment.sampleId =
           Constants.AUTOGENERATE_SAMPLE_ID === "yes"
-            ? isolateId
-            : await this.readSampleIdFromTrackingApi(experiment.id, isolateId);
+            ? sampleMetadata.isolateId
+            : await this.readSampleIdFromTrackingApi(experiment.id, sampleMetadata.isolateId);
         logger.debug(
           `DataHelper#buildMongooseReadyExperimentObjects: sampleId generated: ${experiment.sampleId}`
         );
@@ -275,32 +286,47 @@ class DataHelper {
     return experiments;
   }
 
-  static buildExperimentFromCurrent(experiment, results, isolateId, countryIsolate, cityIsolate) {
+  static buildExperimentFromCurrent(
+    experiment,
+    results,
+    sampleMetadata,
+    countryIsolate,
+    cityIsolate
+  ) {
     logger.debug(`DataHelper#buildExperimentFromCurrent: enter`);
     if (experiment) {
       logger.debug(`DataHelper#buildExperimentFromCurrent: Update existing experiment`);
-      experiment.metadata.sample.isolateId = isolateId;
-      experiment.metadata.sample.countryIsolate = countryIsolate;
-      experiment.metadata.sample.cityIsolate = cityIsolate;
+      experiment.metadata.sample.isolateId =
+        sampleMetadata.isolateId || experiment.metadata.sample.isolateId;
+      experiment.metadata.sample.collectionDate =
+        sampleMetadata.collectionDate || experiment.metadata.sample.collectionDate;
+      experiment.metadata.sample.dateArrived =
+        sampleMetadata.dateArrived || experiment.metadata.sample.dateArrived;
+      experiment.metadata.sample.countryIsolate =
+        countryIsolate || experiment.metadata.sample.countryIsolate;
+      experiment.metadata.sample.cityIsolate =
+        cityIsolate || experiment.metadata.sample.cityIsolate;
 
-      experiment.set("results", results);
+      if (results && Array.isArray(results) && results.length > 0) {
+        experiment.set("results", results);
+      }
 
       return experiment;
     } else {
       logger.debug(`DataHelper#buildExperimentFromCurrent: Build experiment`);
-      return this.buildExperiment(results, isolateId, countryIsolate, cityIsolate);
+      return this.buildExperiment(results, sampleMetadata, countryIsolate, cityIsolate);
     }
   }
 
-  static buildExperiment(results, isolateId, countryIsolate, cityIsolate) {
+  static buildExperiment(results, sampleMetadata, countryIsolate, cityIsolate) {
     logger.debug(`DataHelper#buildExperiment: enter`);
     return new Experiment({
       results,
       metadata: {
         sample: {
-          isolateId,
           countryIsolate,
-          cityIsolate
+          cityIsolate,
+          ...sampleMetadata
         }
       }
     });
@@ -313,7 +339,7 @@ class DataHelper {
    * @param {*} metadata
    * @param {*} files as filename => json
    */
-  static async process(type, metadata, files) {
+  static async process(type, metadata, files, metadataOnly = false) {
     logger.debug(`DataHelper#process: enter`);
 
     const rows = await this.loadMetadata(type, metadata);
@@ -324,7 +350,8 @@ class DataHelper {
 
     // objects > mongoose records
     const experimentDatabaseReadyObjects = await this.buildMongooseReadyExperimentObjects(
-      experimentObjects
+      experimentObjects,
+      metadataOnly
     );
     logger.debug(
       `DataHelper#process: ${experimentDatabaseReadyObjects.length} experiments to store`

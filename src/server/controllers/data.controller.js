@@ -164,4 +164,33 @@ const bulk = async (req, res) => {
   }
 };
 
-export default { clean, create, bulk };
+/**
+ * Load metadata from CSV files
+ * @param req
+ * @param res
+ * @returns {*}
+ */
+const bulkMetadata = async (req, res) => {
+  logger.debug(`DataController#bulkMetadata: enter`);
+  if (!req.file) {
+    return res.jerror(new APIError(Constants.ERRORS.UPLOAD_FILE, "No files found to upload"));
+  }
+
+  const { file } = req;
+
+  logger.debug(`DataController#bulkMetadata: file: ${JSON.stringify(file, null, 2)}`);
+
+  if (file.mimetype !== "application/zip") {
+    return res.jerror(new APIError(Constants.ERRORS.UPLOAD_FILE, "Input file must be a zip file"));
+  }
+
+  try {
+    logger.debug(`DataController#bulkMetadata: load from ${file.path}`);
+    await DataHelper.load(file.path, true);
+    return res.jsend("Demo data upload started");
+  } catch (e) {
+    return res.jerror(e);
+  }
+};
+
+export default { clean, create, bulk, bulkMetadata };
