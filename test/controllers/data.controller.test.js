@@ -253,12 +253,12 @@ describe("DataController", () => {
           done();
         });
         it("should trigger loading the experiments", done => {
-          expect(data).toEqual("Demo data upload started");
+          expect(data).toEqual("Bulk upload started");
           done();
         });
         it("should purge all the experiments", async done => {
           const total = await Experiment.count();
-          expect(total).toEqual(3);
+          expect(total).toEqual(4);
 
           done();
         });
@@ -331,7 +331,7 @@ describe("DataController", () => {
             }
           }
 
-          expect(results.length).toEqual(2);
+          expect(results.length).toEqual(3);
           for (const result of results) {
             expect(result).toHaveProperty("type", "predictor");
           }
@@ -408,6 +408,208 @@ describe("DataController", () => {
                 done();
               });
           });
+        });
+      });
+    });
+  });
+  describe("POST /data/bulk/metadata", () => {
+    describe("when invalid", () => {
+      describe("when the token is invalid", () => {
+        it("should return an error", done => {
+          request(args.app)
+            .post("/data/bulk/metadata")
+            .set("Authorization", "Bearer INVALID")
+            .attach("file", "test/fixtures/experiments-demo/metadata_ena11.tsv")
+            .expect(httpStatus.UNAUTHORIZED)
+            .end((err, res) => {
+              expect(res.body.status).toEqual("error");
+              expect(res.body.message).toEqual("Not Authorised");
+              done();
+            });
+        });
+      });
+      describe("when the file is not a zip", () => {
+        it("should return an error", done => {
+          request(args.app)
+            .post("/data/bulk/metadata")
+            .set("Authorization", `Bearer ${args.token}`)
+            .field("purge", true)
+            .attach("file", "test/fixtures/files/333-08.json")
+            .expect(httpStatus.OK)
+            .end((err, res) => {
+              expect(res.body.status).toEqual("error");
+              expect(res.body.message).toEqual("Input file must be a zip file");
+              done();
+            });
+        });
+      });
+      describe("when the zip content is incomplete", () => {
+        it("should return an error", done => {
+          request(args.app)
+            .post("/data/bulk/metadata")
+            .set("Authorization", `Bearer ${args.token}`)
+            .field("purge", true)
+            .attach("file", "test/fixtures/files/invalid.zip")
+            .expect(httpStatus.OK)
+            .end((err, res) => {
+              expect(res.body.status).toEqual("error");
+              expect(res.body.message).toEqual("Cannot find metadata files");
+              done();
+            });
+        });
+      });
+    });
+    describe("when valid", () => {
+      describe("when updating existing experiments", () => {
+        let total = 0;
+        let status = null;
+        let data = null;
+
+        beforeEach(async done => {
+          const experimentData = new Experiment(experiments.tbUploadMetadata);
+          const experiment = await experimentData.save();
+          request(args.app)
+            .post("/data/bulk/metadata")
+            .set("Authorization", `Bearer ${args.token}`)
+            .field("purge", true)
+            .attach("file", "test/fixtures/files/upload.zip")
+            .expect(httpStatus.OK)
+            .end(async (err, res) => {
+              status = res.body.status;
+              data = res.body.data;
+
+              done();
+            });
+        });
+        it("should return success", done => {
+          expect(status).toEqual("success");
+          done();
+        });
+        it("should trigger loading the experiments", done => {
+          expect(data).toEqual("Bulk metadata upload started");
+          done();
+        });
+        it("should purge all the experiments", async done => {
+          const total = await Experiment.count();
+          expect(total).toEqual(1);
+
+          done();
+        });
+        it("should successfully load the experiments", async done => {
+          const experiments = await Experiment.find({});
+          const results = [];
+
+          for (const experiment of experiments) {
+            expect(experiment).toHaveProperty("metadata");
+            expect(experiment).toHaveProperty("results");
+            expect(experiment).toHaveProperty("id");
+
+            for (const result of experiment.results) {
+              results.push(result);
+            }
+          }
+
+          for (const result of results) {
+            expect(result).toHaveProperty("type", "predictor");
+          }
+
+          done();
+        });
+        it("should store city and country", async done => {
+          const experiments = await Experiment.find({});
+
+          for (const experiment of experiments) {
+            expect(experiment).toHaveProperty("metadata");
+            expect(experiment.metadata).toHaveProperty("sample");
+            expect(experiment.metadata.sample).toHaveProperty("countryIsolate");
+            expect(experiment.metadata.sample).toHaveProperty("cityIsolate");
+
+            expect(["UK"]).toContain(experiment.metadata.sample.countryIsolate);
+          }
+
+          done();
+        });
+        it("should store geo location", async done => {
+          const experiments = await Experiment.find({});
+
+          for (const experiment of experiments) {
+            expect(experiment.metadata.sample).toHaveProperty("latitudeIsolate");
+            expect(experiment.metadata.sample).toHaveProperty("longitudeIsolate");
+
+            const { countryIsolate, cityIsolate } = experiment.metadata.sample;
+            if (countryIsolate === "AR" && cityIsolate === "Rosario") {
+              expect(experiment.metadata.sample.latitudeIsolate).toBeCloseTo(-32.96, 1);
+              expect(experiment.metadata.sample.longitudeIsolate).toBeCloseTo(-60.69, 1);
+            } else if (countryIsolate === "ZA" && cityIsolate === "Durban") {
+              expect(experiment.metadata.sample.latitudeIsolate).toBeCloseTo(-29.85717, 1);
+              expect(experiment.metadata.sample.longitudeIsolate).toBeCloseTo(30.9868, 1);
+            } else if (countryIsolate === "UK" && cityIsolate === "") {
+              expect(experiment.metadata.sample.latitudeIsolate).toBeCloseTo(55.37, 1);
+              expect(experiment.metadata.sample.longitudeIsolate).toBeCloseTo(-3.43, 1);
+            }
+          }
+          done();
+        });
+
+        it("should store predictor results", async done => {
+          const experiments = await Experiment.find({});
+          const results = [];
+
+          for (const experiment of experiments) {
+            for (const result of experiment.results) {
+              results.push(result);
+            }
+          }
+
+          expect(results.length).toEqual(1);
+          for (const result of results) {
+            expect(result).toHaveProperty("type", "predictor");
+          }
+
+          done();
+        });
+
+        it("should store the sampleId", async done => {
+          const experiments = await Experiment.find({});
+
+          for (const experiment of experiments) {
+            expect(experiment).toHaveProperty("sampleId");
+            expect(experiment.sampleId).toBeTruthy();
+          }
+
+          done();
+        });
+
+        it("should update the dates", async done => {
+          const experiments = await Experiment.find({});
+
+          expect(experiments[0].metadata.sample).toHaveProperty("collectionDate");
+          expect(experiments[0].metadata.sample).toHaveProperty("dateArrived");
+          expect(experiments[0].metadata.sample.collectionDate).toEqual(
+            new Date("2020-12-12T00:00:00.000Z")
+          );
+          expect(experiments[0].metadata.sample.dateArrived).toEqual(
+            new Date("2020-12-13T00:00:00.000Z")
+          );
+
+          done();
+        });
+      });
+      describe("when no experiments match", () => {
+        beforeEach(async done => {
+          request(args.app)
+            .post("/data/bulk/metadata")
+            .set("Authorization", `Bearer ${args.token}`)
+            .attach("file", "test/fixtures/files/upload.zip")
+            .expect(httpStatus.OK)
+            .end(async (err, res) => {
+              done();
+            });
+        });
+        it("should not", async done => {
+          const total = await Experiment.count();
+          expect(total).toEqual(0);
+          done();
         });
       });
     });
