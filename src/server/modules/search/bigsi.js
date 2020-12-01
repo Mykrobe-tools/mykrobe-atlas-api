@@ -15,7 +15,9 @@ const SEQUENCE = "sequence";
 const PROTEIN_VARIANT = "protein-variant";
 const DNA_VARIANT = "dna-variant";
 
-const DEFAULT_THRESHOLD = 40;
+const DEFAULT_THRESHOLD = process.env.DEFAULT_SEQUENCE_THRESHOLD
+  ? parseInt(process.env.DEFAULT_SEQUENCE_THRESHOLD)
+  : 100;
 
 // regexp group indexes
 const PROTEIN_GENE_INDEX = 1;
