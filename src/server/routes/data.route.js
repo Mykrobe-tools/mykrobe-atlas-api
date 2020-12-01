@@ -85,4 +85,38 @@ router.route("/create").post(dataController.create);
  */
 router.route("/bulk").post(keycloak.connect.protect(), upload.single("file"), dataController.bulk);
 
+/**
+ * @swagger
+ * /data/bulk/metadata:
+ *   post:
+ *     tags:
+ *       - Data
+ *     description: Load Metadata
+ *     consumes:
+ *       - multipart/form-data
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: formData
+ *         name: file
+ *         description: The file to upload
+ *         type: string
+ *         format: binary
+ *         required: true
+ *       - in: formData
+ *         name: purge
+ *         description: A flag to purge existing experiments
+ *         type: boolean
+ *     security:
+ *       - Bearer: []
+ *     responses:
+ *       200:
+ *         description: A jsend response
+ *         schema:
+ *           $ref: '#/definitions/BasicResponse'
+ */
+router
+  .route("/bulk/metadata")
+  .post(keycloak.connect.protect(), upload.single("file"), dataController.bulkMetadata);
+
 export default router;
