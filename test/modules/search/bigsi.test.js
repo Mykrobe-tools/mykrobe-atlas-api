@@ -51,7 +51,7 @@ describe("bigsi", () => {
           const bigsi = extractBigsiQuery(search);
           expect(bigsi).toHaveProperty("query");
           const query = bigsi.query;
-          expect(query).toHaveProperty("threshold", 40);
+          expect(query).toHaveProperty("threshold", 100);
         });
         it("should remove the free text search from the underlying query", () => {
           const query = {
