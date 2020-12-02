@@ -4039,30 +4039,6 @@ router
   .get(keycloak.connect.protect(), experimentController.tree);
 
 router
-  .route("/mappings")
-  /**
-   * @swagger
-   * /experiments/mappings:
-   *   get:
-   *     tags:
-   *       - Experiments
-   *     description: Experiments mappings to isolateId
-   *     operationId: experimentsMappings
-   *     produces:
-   *       - application/json
-   *     security:
-   *       - Bearer: []
-   *     responses:
-   *       200:
-   *         description: Experiments mappings
-   *         schema:
-   *           $ref: '#/definitions/ExperimentsMappingsResponse'
-   *       401:
-   *         description: Failed authentication
-   */
-  .get(keycloak.connect.protect(), experimentController.mappings);
-
-router
   .route("/:id")
   /**
    * @swagger
