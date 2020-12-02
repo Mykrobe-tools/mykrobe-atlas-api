@@ -235,13 +235,22 @@ class BigsiSearchHelper {
       query && Object.keys(query).length > 0
         ? Object.assign(sampleQuery, flatten(query))
         : sampleQuery;
-    logger.debug(
-      `enhanceBigsiResultsWithExperiments: sampleQuery: ${JSON.stringify(elasticQuery, null, 2)}`
-    );
 
     const searchQuery = new SearchQuery(elasticQuery, experimentSearchSchema);
+    logger.debug(
+      `enhanceBigsiResultsWithExperiments: elasticQuery: ${JSON.stringify(
+        searchQuery.toJSON(),
+        null,
+        2
+      )}`
+    );
     const resp = await elasticService.search(searchQuery, {});
     const experiments = new ExperimentsResultJSONTransformer().transform(resp, {});
+    logger.debug(
+      `enhanceBigsiResultsWithExperiments: Experiment matches: ${
+        experiments ? experiments.length : 0
+      }`
+    );
 
     // merge results in order
     const hits = [];
@@ -265,6 +274,8 @@ class BigsiSearchHelper {
         hits.push(hit);
       }
     });
+
+    logger.debug(`enhanceBigsiResultsWithExperiments: Hits: ${hits ? hits.length : 0}`);
 
     return hits;
   }
