@@ -219,19 +219,25 @@ class BigsiSearchHelper {
    * @param {*} query
    */
   static async enhanceBigsiResultsWithExperiments(results, query) {
-    const isolateIds =
-      results && Array.isArray(results) && results.length
-        ? results.map(r => r["metadata.sample.isolateId"])
-        : [];
-
-    // filter by isolateIds
-    const isolateQuery = { "metadata.sample.isolateId": isolateIds, per: isolateIds.length };
+    logger.debug(`enhanceBigsiResultsWithExperiments: enter`);
+    logger.debug(`enhanceBigsiResultsWithExperiments: results: ${JSON.stringify(results)}`);
+    const sampleIds =
+      results && Array.isArray(results) && results.length ? results.map(r => r.sampleId) : [];
+    logger.debug(`enhanceBigsiResultsWithExperiments: sampleIds: ${JSON.stringify(sampleIds)}`);
+    // filter by sampleId
+    const sampleQuery = { sampleId: sampleIds, per: sampleIds.length };
+    logger.debug(
+      `enhanceBigsiResultsWithExperiments: sampleQuery: ${JSON.stringify(sampleQuery, null, 2)}`
+    );
 
     // include any elasticsearch side query filters
     const elasticQuery =
       query && Object.keys(query).length > 0
-        ? Object.assign(isolateQuery, flatten(query))
-        : isolateQuery;
+        ? Object.assign(sampleQuery, flatten(query))
+        : sampleQuery;
+    logger.debug(
+      `enhanceBigsiResultsWithExperiments: sampleQuery: ${JSON.stringify(elasticQuery, null, 2)}`
+    );
 
     const searchQuery = new SearchQuery(elasticQuery, experimentSearchSchema);
     const resp = await elasticService.search(searchQuery, {});
@@ -239,18 +245,18 @@ class BigsiSearchHelper {
 
     // merge results in order
     const hits = [];
-    isolateIds.forEach(isolateId => {
+    sampleIds.forEach(sampleId => {
       const match = experiments.find(item => {
-        return item.metadata.sample.isolateId === isolateId;
+        return item.sampleId === sampleId;
       });
 
       const bigsi =
         results && Array.isArray(results) && results.length
-          ? results.find(item => item["metadata.sample.isolateId"] === isolateId)
+          ? results.find(item => item.sampleId === sampleId)
           : null;
 
-      if (bigsi && bigsi["metadata.sample.isolateId"]) {
-        delete bigsi["metadata.sample.isolateId"];
+      if (bigsi && bigsi.sampleId) {
+        delete bigsi.sampleId;
       }
 
       // merge result data and handle nulls

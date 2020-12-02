@@ -28,8 +28,8 @@ import searches from "../fixtures/searches";
 const args = {
   app: null,
   token: null,
-  isolateId1: null,
-  isolateId2: null,
+  sampleId1: null,
+  sampleId2: null,
   user: null
 };
 
@@ -79,11 +79,8 @@ beforeAll(async done => {
     total = await elasticService.count();
   }
 
-  const metadata1 = experiment1.get("metadata");
-  const metadata2 = experiment2.get("metadata");
-
-  args.isolateId1 = metadata1.sample.isolateId;
-  args.isolateId2 = metadata2.sample.isolateId;
+  args.sampleId1 = experiment1.sampleId;
+  args.sampleId2 = experiment2.sampleId;
 
   done();
 });
@@ -772,7 +769,7 @@ describe("ExperimentController > Elasticsearch", () => {
             it("should set a default threshold", done => {
               const bigsi = data.bigsi;
               const query = bigsi.query;
-              expect(query.threshold).toEqual(40);
+              expect(query.threshold).toEqual(100);
               done();
             });
             it("should store a search record in the database", async done => {
@@ -782,7 +779,7 @@ describe("ExperimentController > Elasticsearch", () => {
               expect(search).toHaveProperty("type", "sequence");
               const bigsi = search.get("bigsi");
               const query = bigsi.query;
-              expect(query.threshold).toEqual(40);
+              expect(query.threshold).toEqual(100);
               done();
             });
             it("should add the user to the list of users to be notified", done => {
@@ -877,14 +874,15 @@ describe("ExperimentController > Elasticsearch", () => {
           threshold: 80
         }
       };
-      const isolateId1 = args.isolateId1;
-      const isolateId2 = args.isolateId2;
+      const sampleId1 = args.sampleId1;
+      const sampleId2 = args.sampleId2;
+
       result.results.push({
-        "metadata.sample.isolateId": isolateId1,
+        sampleId: sampleId1,
         percent_kmers_found: 100
       });
       result.results.push({
-        "metadata.sample.isolateId": isolateId2,
+        sampleId: sampleId2,
         percent_kmers_found: 90
       });
 

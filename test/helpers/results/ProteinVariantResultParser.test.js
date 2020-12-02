@@ -26,10 +26,10 @@ describe("ProteinVariantResultParser", () => {
       const results = parsedResult.results;
       expect(results.length).toEqual(2);
       results.forEach(entry => {
-        const isolateId = entry["metadata.sample.isolateId"];
+        const sampleId = entry.sampleId;
         const genotype = entry.genotype;
 
-        expect(["HN081", "SAMN06192378"].includes(isolateId)).toEqual(true);
+        expect(["HN081", "SAMN06192378"].includes(sampleId)).toEqual(true);
         expect(genotype).toEqual("1/1");
       });
 

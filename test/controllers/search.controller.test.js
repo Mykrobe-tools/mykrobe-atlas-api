@@ -192,10 +192,10 @@ describe("SearchController", () => {
           it("should return result isolate ids", done => {
             const data = body.data;
             data.results.forEach(result => {
-              const isolateId = result["metadata.sample.isolateId"];
+              const sampleId = result.sampleId;
               const kmers = result.percentKmersFound;
 
-              switch (isolateId) {
+              switch (sampleId) {
                 case "ERR017683":
                   expect(kmers).toEqual(100);
                   break;
@@ -405,10 +405,10 @@ describe("SearchController", () => {
         it("should return result isolate ids", done => {
           const data = body.data;
           data.results.forEach(entry => {
-            const isolateId = entry["metadata.sample.isolateId"];
+            const sampleId = entry.sampleId;
             const genotype = entry.genotype;
 
-            expect(["HN081", "SAMN06192378"].includes(isolateId)).toEqual(true);
+            expect(["HN081", "SAMN06192378"].includes(sampleId)).toEqual(true);
             expect(genotype).toEqual("1/1");
           });
           done();
@@ -536,10 +536,10 @@ describe("SearchController", () => {
         it("should return result isolate ids", done => {
           const data = body.data;
           data.results.forEach(entry => {
-            const isolateId = entry["metadata.sample.isolateId"];
+            const sampliId = entry.sampleId;
             const genotype = entry.genotype;
 
-            expect(["HN079", "SAMN06092584"].includes(isolateId)).toEqual(true);
+            expect(["HN079", "SAMN06092584"].includes(sampliId)).toEqual(true);
             expect(genotype).toEqual("1/1");
           });
           done();

@@ -26,7 +26,7 @@ class DnaVariantResultParser extends ResultParser {
       if (container.results) {
         const hits = container.results.map(hit => {
           return {
-            "metadata.sample.isolateId": hit.sample_name,
+            sampleId: hit.sample_name,
             genotype: hit.genotype
           };
         });
