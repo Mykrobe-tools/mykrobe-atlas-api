@@ -2833,10 +2833,10 @@ describe("ExperimentController", () => {
             await proteinVariantAudit.save();
 
             const experiment = await Experiment.get(args.id);
-            const isolateId = experiment.get("metadata.sample.isolateId");
+            const sampleId = experiment.get("sampleId");
 
             const proteinVariant = Object.assign({}, searches.results.proteinVariant);
-            proteinVariant.result.results[0].sample_name = isolateId;
+            proteinVariant.result.results[0].sample_name = sampleId;
 
             // store some results
             // mocks/atlas-experiment/_search/POST.818b0644922be906251ee4da3d386554.mock
@@ -2889,13 +2889,13 @@ describe("ExperimentController", () => {
             await proteinVariantAudit.save();
 
             const experiment = await Experiment.get(args.id);
-            const isolateId = experiment.get("metadata.sample.isolateId");
+            const sampleId = experiment.get("sampleId");
 
             const proteinVariantWith0Genotype = Object.assign(
               {},
               searches.results.proteinVariantWith0Genotype
             );
-            proteinVariantWith0Genotype.result.results[2].sample_name = isolateId;
+            proteinVariantWith0Genotype.result.results[2].sample_name = sampleId;
 
             // store some results
             request(args.app)
@@ -2930,7 +2930,7 @@ describe("ExperimentController", () => {
           });
         });
       });
-      describe("when a results are expired", () => {
+      describe("when results have expired", () => {
         let searchId = null;
         beforeEach(async done => {
           const search = new Search(searches.full.proteinVariant);
@@ -3066,30 +3066,6 @@ describe("ExperimentController", () => {
             done();
           });
       });
-    });
-  });
-  describe("GET /experiments/mappings", () => {
-    it("should get the experiments mappings with isolate ids", done => {
-      request(args.app)
-        .get("/experiments/mappings")
-        .set("Authorization", `Bearer ${args.token}`)
-        .expect(httpStatus.OK)
-        .end((err, res) => {
-          expect(res.body.status).toEqual("success");
-          expect(res.body.data["9c0c00f2-8cb1-4254-bf53-3271f35ce696"]).toEqual(args.id);
-          done();
-        });
-    });
-    it("should be a protected route", done => {
-      request(args.app)
-        .get("/experiments/tree")
-        .set("Authorization", "Bearer INVALID_TOKEN")
-        .expect(httpStatus.UNAUTHORIZED)
-        .end((err, res) => {
-          expect(res.body.status).toEqual("error");
-          expect(res.body.message).toEqual("Not Authorised");
-          done();
-        });
     });
   });
 });
