@@ -251,6 +251,11 @@ class BigsiSearchHelper {
         experiments ? experiments.length : 0
       }`
     );
+    logger.debug(
+      `enhanceBigsiResultsWithExperiments: Experiment example: ${
+        experiments ? JSON.stringify(experiments[0]) : ""
+      }`
+    );
 
     // merge results in order
     const hits = [];
