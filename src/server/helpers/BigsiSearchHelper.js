@@ -260,14 +260,17 @@ class BigsiSearchHelper {
     // merge results in order
     const hits = [];
     sampleIds.forEach(sampleId => {
+      logger.debug(`enhanceBigsiResultsWithExperiments: Find sample with id: ${sampleId}`);
       const match = experiments.find(item => {
         return item.sampleId === sampleId;
       });
+      logger.debug(`enhanceBigsiResultsWithExperiments: Match: ${JSON.stringify(match)}`);
 
       const bigsi =
         results && Array.isArray(results) && results.length
           ? results.find(item => item.sampleId === sampleId)
           : null;
+      logger.debug(`enhanceBigsiResultsWithExperiments: BIGSI match: ${JSON.stringify(bigsi)}`);
 
       if (bigsi && bigsi.sampleId) {
         delete bigsi.sampleId;
@@ -275,6 +278,7 @@ class BigsiSearchHelper {
 
       // merge result data and handle nulls
       if (match && bigsi) {
+        logger.debug(`enhanceBigsiResultsWithExperiments: Merge BIGSI and result`);
         const hit = deepmerge(bigsi, match);
         hits.push(hit);
       }
