@@ -220,15 +220,10 @@ class BigsiSearchHelper {
    */
   static async enhanceBigsiResultsWithExperiments(results, query) {
     logger.debug(`enhanceBigsiResultsWithExperiments: enter`);
-    logger.debug(`enhanceBigsiResultsWithExperiments: results: ${JSON.stringify(results)}`);
     const sampleIds =
       results && Array.isArray(results) && results.length ? results.map(r => r.sampleId) : [];
-    logger.debug(`enhanceBigsiResultsWithExperiments: sampleIds: ${JSON.stringify(sampleIds)}`);
     // filter by sampleId
     const sampleQuery = { sampleId: sampleIds, per: sampleIds.length };
-    logger.debug(
-      `enhanceBigsiResultsWithExperiments: sampleQuery: ${JSON.stringify(sampleQuery, null, 2)}`
-    );
 
     // include any elasticsearch side query filters
     const elasticQuery =
@@ -237,52 +232,21 @@ class BigsiSearchHelper {
         : sampleQuery;
 
     const searchQuery = new SearchQuery(elasticQuery, experimentSearchSchema);
-    logger.debug(
-      `enhanceBigsiResultsWithExperiments: elasticQuery: ${JSON.stringify(
-        searchQuery.toJSON(),
-        null,
-        2
-      )}`
-    );
     const resp = await elasticService.search(searchQuery, {});
     const experiments = new ExperimentsResultJSONTransformer().transform(resp, {});
-    logger.debug(
-      `enhanceBigsiResultsWithExperiments: Experiment matches: ${
-        experiments ? experiments.length : 0
-      }`
-    );
-    logger.debug(
-      `enhanceBigsiResultsWithExperiments: Experiment example: ${
-        experiments ? JSON.stringify(experiments[0]) : ""
-      }`
-    );
 
     const experimentsBySampleId = {};
     for (const experiment of experiments) {
       const sampleId = experiment.sampleId;
       experimentsBySampleId[sampleId] = experiment;
     }
-    logger.debug(
-      `BigsiSearchHelper#enhanceBigsiResultsWithExperiments: experimentsBySampleId: ${Object.keys(
-        experimentsBySampleId
-      )}`
-    );
 
     // merge results in order
     const hits = [];
     for (const result of results) {
       const sampleId = result.sampleId;
-      logger.debug(
-        `BigsiSearchHelper#enhanceBigsiResultsWithExperiments: Find match for sampleId: ${sampleId}`
-      );
       const match = sampleId ? experimentsBySampleId[sampleId] : null;
-      logger.debug(
-        `BigsiSearchHelper#enhanceBigsiResultsWithExperiments: Match is: ${JSON.stringify(match)}`
-      );
       const hit = match ? deepmerge(result, match) : result;
-      logger.debug(
-        `BigsiSearchHelper#enhanceBigsiResultsWithExperiments: Hit ${JSON.stringify(hit, null, 2)}`
-      );
       hits.push(hit);
     }
 
