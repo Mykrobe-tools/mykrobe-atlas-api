@@ -257,37 +257,36 @@ class BigsiSearchHelper {
       }`
     );
 
+    const experimentsBySampleId = {};
+    for (const experiment of experiments) {
+      const sampleId = experiment.sampleId;
+      experimentsBySampleId[sampleId] = experiment;
+    }
+    logger.debug(
+      `BigsiSearchHelper#enhanceBigsiResultsWithExperiments: experimentsBySampleId: ${Object.keys(
+        experimentsBySampleId
+      )}`
+    );
+
     // merge results in order
     const hits = [];
-    sampleIds.forEach(sampleId => {
+    for (const result of results) {
+      const sampleId = result.sampleId;
       logger.debug(
-        `enhanceBigsiResultsWithExperiments: Find sample with id ${sampleId} in ${
-          experiments ? experiments.length : 0
-        } experiments`
+        `BigsiSearchHelper#enhanceBigsiResultsWithExperiments: Find match for sampleId: ${sampleId}`
       );
-      const match = experiments.find(item => {
-        logger.debug(`Verify: ${item ? item.sampleId : ""} === ${sampleId}`);
-        return item.sampleId === sampleId;
-      });
-      logger.debug(`enhanceBigsiResultsWithExperiments: Match: ${JSON.stringify(match)}`);
-
-      const bigsi =
-        results && Array.isArray(results) && results.length
-          ? results.find(item => item.sampleId === sampleId)
-          : null;
-      logger.debug(`enhanceBigsiResultsWithExperiments: BIGSI match: ${JSON.stringify(bigsi)}`);
-
-      if (bigsi && bigsi.sampleId) {
-        delete bigsi.sampleId;
-      }
-
-      // merge result data and handle nulls
-      if (match && bigsi) {
-        logger.debug(`enhanceBigsiResultsWithExperiments: Merge BIGSI and result`);
-        const hit = deepmerge(bigsi, match);
-        hits.push(hit);
-      }
-    });
+      const match = sampleId ? experimentsBySampleId[sampleId] : null;
+      logger.debug(
+        `BigsiSearchHelper#enhanceBigsiResultsWithExperiments: Match is: ${
+          match ? "Found" : "Not found"
+        }`
+      );
+      const hit = match ? result : deepmerge(result, match);
+      logger.debug(
+        `BigsiSearchHelper#enhanceBigsiResultsWithExperiments: Hit ${JSON.stringify(hit, null, 2)}`
+      );
+      hits.push(hit);
+    }
 
     logger.debug(`enhanceBigsiResultsWithExperiments: Hits: ${hits ? hits.length : 0}`);
 
