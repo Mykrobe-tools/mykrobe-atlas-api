@@ -260,8 +260,13 @@ class BigsiSearchHelper {
     // merge results in order
     const hits = [];
     sampleIds.forEach(sampleId => {
-      logger.debug(`enhanceBigsiResultsWithExperiments: Find sample with id: ${sampleId}`);
+      logger.debug(
+        `enhanceBigsiResultsWithExperiments: Find sample with id ${sampleId} in ${
+          experiments ? experiments.length : 0
+        } experiments`
+      );
       const match = experiments.find(item => {
+        logger.debug(`Verify: ${item ? item.sampleId : ""} === ${sampleId}`);
         return item.sampleId === sampleId;
       });
       logger.debug(`enhanceBigsiResultsWithExperiments: Match: ${JSON.stringify(match)}`);
