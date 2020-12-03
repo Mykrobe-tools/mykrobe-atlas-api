@@ -277,11 +277,9 @@ class BigsiSearchHelper {
       );
       const match = sampleId ? experimentsBySampleId[sampleId] : null;
       logger.debug(
-        `BigsiSearchHelper#enhanceBigsiResultsWithExperiments: Match is: ${
-          match ? "Found" : "Not found"
-        }`
+        `BigsiSearchHelper#enhanceBigsiResultsWithExperiments: Match is: ${JSON.stringify(match)}`
       );
-      const hit = match ? result : deepmerge(result, match);
+      const hit = match ? deepmerge(result, match) : result;
       logger.debug(
         `BigsiSearchHelper#enhanceBigsiResultsWithExperiments: Hit ${JSON.stringify(hit, null, 2)}`
       );
