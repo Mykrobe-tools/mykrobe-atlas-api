@@ -1,6 +1,4 @@
 import moment from "moment";
-import dateformat from "dateformat";
-import { isNull } from "lodash";
 import logger from "../modules/logging/logger";
 
 const DATES_MAPPING = {
