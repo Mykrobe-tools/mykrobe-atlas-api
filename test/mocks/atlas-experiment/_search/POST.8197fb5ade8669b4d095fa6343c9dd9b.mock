@@ -40,7 +40,7 @@ Content-Type: application/json; charset=utf-8
                         },
                         "sample": {
                             "labId": "d19637ed-e5b4-4ca7-8418-8713646a3359",
-                            "isolateId": "9c0c00f2-8cb1-4254-bf53-3271f35ce696",
+                            "isolateId": "9a981339-d0b4-4dcb-ba0d-efe8ed37b9d6",
                             "collectionDate": "2018-10-19T00:00:00.000Z",
                             "prospectiveIsolate": "Yes",
                             "countryIsolate": "IN",
