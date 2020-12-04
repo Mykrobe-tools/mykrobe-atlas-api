@@ -157,8 +157,9 @@ const bulk = async (req, res) => {
 
   try {
     logger.debug(`DataController#bulk: load from ${file.path}`);
-    await DataHelper.load(file.path);
-    return res.jsend("Bulk upload started");
+    const errors = await DataHelper.load(file.path);
+    const message = errors.length ? `${errors.length} issues found when updating metadata` : `Metadata updated successfully`;
+    return res.jsend({ message, errors });
   } catch (e) {
     return res.jerror(e);
   }
@@ -186,8 +187,9 @@ const bulkMetadata = async (req, res) => {
 
   try {
     logger.debug(`DataController#bulkMetadata: load from ${file.path}`);
-    await DataHelper.load(file.path, true);
-    return res.jsend("Bulk metadata upload started");
+    const errors = await DataHelper.load(file.path, true);
+    const message = errors.length ? `${errors.length} issues found when updating metadata` : `Metadata updated successfully`;
+    return res.jsend({ message, errors });
   } catch (e) {
     return res.jerror(e);
   }
