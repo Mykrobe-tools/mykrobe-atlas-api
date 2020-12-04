@@ -262,6 +262,11 @@ describe("DataController", () => {
           expect(errors[1]).toEqual("SAMEA3231777 invalid date February 26, 207");
           done();
         });
+        it("should log a message", done => {
+          const { message } = data;
+          expect(message).toEqual("2 issues found when updating metadata");
+          done();
+        });
         it("should purge all the experiments", async done => {
           const total = await Experiment.count();
           expect(total).toEqual(6);
@@ -499,6 +504,11 @@ describe("DataController", () => {
           const { errors } = data;
           expect(errors[0]).toEqual("SAMEA3231776 invalid date 2012-01-46");
           expect(errors[1]).toEqual("SAMEA3231777 invalid date February 26, 207");
+          done();
+        });
+        it("should log a message", done => {
+          const { message } = data;
+          expect(message).toEqual("2 issues found when updating metadata");
           done();
         });
         it("should purge all the experiments", async done => {
