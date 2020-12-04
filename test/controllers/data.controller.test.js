@@ -253,12 +253,23 @@ describe("DataController", () => {
           done();
         });
         it("should trigger loading the experiments", done => {
-          expect(data).toEqual("Bulk upload started");
+          expect(data.errors.length).toEqual(2);
+          done();
+        });
+        it("should log the errors", done => {
+          const { errors } = data;
+          expect(errors[0]).toEqual("SAMEA3231776 invalid date 2012-01-46");
+          expect(errors[1]).toEqual("SAMEA3231777 invalid date February 26, 207");
+          done();
+        });
+        it("should log a message", done => {
+          const { message } = data;
+          expect(message).toEqual("2 issues found when updating metadata");
           done();
         });
         it("should purge all the experiments", async done => {
           const total = await Experiment.count();
-          expect(total).toEqual(4);
+          expect(total).toEqual(6);
 
           done();
         });
@@ -331,7 +342,7 @@ describe("DataController", () => {
             }
           }
 
-          expect(results.length).toEqual(3);
+          expect(results.length).toEqual(5);
           for (const result of results) {
             expect(result).toHaveProperty("type", "predictor");
           }
@@ -362,7 +373,7 @@ describe("DataController", () => {
               .expect(httpStatus.OK)
               .end(async (err, res) => {
                 let total = await Experiment.count();
-                while (total < 4) {
+                while (total < 6) {
                   await DataHelper.sleep(100);
                   total = await Experiment.count();
                 }
@@ -371,7 +382,7 @@ describe("DataController", () => {
           });
           it("should keep the existing experiments", async done => {
             const total = await Experiment.count();
-            expect(total).toEqual(4);
+            expect(total).toEqual(6);
             done();
           });
         });
@@ -386,7 +397,7 @@ describe("DataController", () => {
               .expect(httpStatus.OK)
               .end(async (err, res) => {
                 let total = await Experiment.count();
-                while (total < 4) {
+                while (total < 6) {
                   await DataHelper.sleep(100);
                   total = await Experiment.count();
                 }
@@ -401,7 +412,7 @@ describe("DataController", () => {
               .expect(httpStatus.OK)
               .end(async (err, res) => {
                 let total = await Experiment.count();
-                while (total < 4) {
+                while (total < 6) {
                   await DataHelper.sleep(100);
                   total = await Experiment.count();
                 }
@@ -486,7 +497,18 @@ describe("DataController", () => {
           done();
         });
         it("should trigger loading the experiments", done => {
-          expect(data).toEqual("Bulk metadata upload started");
+          expect(data.errors.length).toEqual(2);
+          done();
+        });
+        it("should log the errors", done => {
+          const { errors } = data;
+          expect(errors[0]).toEqual("SAMEA3231776 invalid date 2012-01-46");
+          expect(errors[1]).toEqual("SAMEA3231777 invalid date February 26, 207");
+          done();
+        });
+        it("should log a message", done => {
+          const { message } = data;
+          expect(message).toEqual("2 issues found when updating metadata");
           done();
         });
         it("should purge all the experiments", async done => {

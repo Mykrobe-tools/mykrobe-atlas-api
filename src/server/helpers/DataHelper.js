@@ -11,6 +11,7 @@ import logger from "../modules/logging/logger";
 import TrackingService from "../modules/tracking/TrackingService";
 import LocationHelper from "./LocationHelper";
 import ExperimentHelper from "./ExperimentHelper";
+import DateHelper from "./DateHelper";
 import Constants from "../Constants";
 
 const geo = {
@@ -33,7 +34,7 @@ class DataHelper {
    * Load all files from a given directory
    * @param {*} path
    */
-  static async load(filepath, metadataOnly = false) {
+  static async load(filepath, metadataOnly = false, errors = []) {
     logger.debug("DataHelper#load: enter");
 
     logger.debug(`DataHelper#load: filepath: ${filepath}`);
@@ -56,8 +57,10 @@ class DataHelper {
       throw new Error("Cannot find metadata files");
     }
 
-    await this.process(type, metadata, files, metadataOnly);
+    await this.process(type, metadata, files, metadataOnly, errors);
     logger.debug("DataHelper#load: exit");
+
+    return errors;
   }
 
   static getMetadataTypeFromZipEntries(entries) {
@@ -163,12 +166,14 @@ class DataHelper {
    * @param {*} rows - metadata rows
    * @param {*} files - hash of filename => json
    */
-  static async buildExperimentObjectsFromCSVRows(rows, files) {
+  static async buildExperimentObjectsFromCSVRows(rows, files, errors) {
     const experiments = [];
 
     if (rows) {
       logger.debug(`DataHelper#buildExperimentObjectsFromCSVRows: ${rows ? rows.length : 0} rows`);
       for (const row of rows) {
+        DateHelper.validateRow(row, errors);
+
         const sampleMetadata = {
           isolateId: row.sample_name,
           collectionDate: row.collection_date,
@@ -339,14 +344,14 @@ class DataHelper {
    * @param {*} metadata
    * @param {*} files as filename => json
    */
-  static async process(type, metadata, files, metadataOnly = false) {
+  static async process(type, metadata, files, metadataOnly = false, errors) {
     logger.debug(`DataHelper#process: enter`);
 
     const rows = await this.loadMetadata(type, metadata);
     logger.debug(`DataHelper#process: metadata rows: ${JSON.stringify(rows.length, null, 2)}`);
 
     // rows > objects
-    const experimentObjects = await this.buildExperimentObjectsFromCSVRows(rows, files);
+    const experimentObjects = await this.buildExperimentObjectsFromCSVRows(rows, files, errors);
 
     // objects > mongoose records
     const experimentDatabaseReadyObjects = await this.buildMongooseReadyExperimentObjects(

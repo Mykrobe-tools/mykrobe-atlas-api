@@ -2839,7 +2839,7 @@ describe("ExperimentController", () => {
             proteinVariant.result.results[0].sample_name = sampleId;
 
             // store some results
-            // mocks/atlas-experiment/_search/POST.818b0644922be906251ee4da3d386554.mock
+            // mocks/atlas-experiment/_search/POST.23b5469143d74d10234260295f4dcb04.mock
             request(args.app)
               .put(`/searches/${search.id}/results`)
               .set("Authorization", `Bearer ${args.token}`)
