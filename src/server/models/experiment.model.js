@@ -25,9 +25,6 @@ const ExperimentSchema = new JSONMongooseSchema(
     owner: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User"
-    },
-    sampleId: {
-      index: true
     }
   },
   {
