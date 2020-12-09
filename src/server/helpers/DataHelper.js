@@ -417,7 +417,7 @@ class DataHelper {
   static async readSampleIdFromTrackingApi(experimentId, isolateId) {
     logger.debug(`DataHelper#readSampleIdFromTrackingApi: enter`);
     const trackingService = new TrackingService();
-    return await trackingService.getTrackingId(experimentId, isolateId);
+    return await trackingService.upsert(experimentId, isolateId);
   }
 }
 

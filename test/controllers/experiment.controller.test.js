@@ -2793,10 +2793,9 @@ describe("ExperimentController", () => {
             .set("Authorization", `Bearer ${args.token}`)
             .expect(httpStatus.OK)
             .end(async (err, res) => {
-              console.log(`res.body: ${JSON.stringify(res.body, null, 2)}`);
-              // expect(res.body.status).toEqual("success");
-              // expect(res.body.data.id).toEqual(searchId);
-              // expect(res.body.data.users.length).toEqual(0);
+              expect(res.body.status).toEqual("success");
+              expect(res.body.data.id).toEqual(searchId);
+              expect(res.body.data.users.length).toEqual(0);
               done();
             });
         });
