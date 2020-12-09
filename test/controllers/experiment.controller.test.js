@@ -2861,9 +2861,9 @@ describe("ExperimentController", () => {
                     expect(data).toHaveProperty("status", "complete");
                     expect(data).toHaveProperty("type", "protein-variant");
                     expect(data).toHaveProperty("results");
-                    expect(data.results.length).toEqual(1);
+                    expect(data.results.length).toEqual(2);
 
-                    expect(data).toHaveProperty("total", 1);
+                    expect(data).toHaveProperty("total", 2);
                     expect(data).toHaveProperty("pagination");
 
                     done();
@@ -2872,7 +2872,7 @@ describe("ExperimentController", () => {
           });
         });
         describe("when results contain genotype 0/0", () => {
-          it("should return cached search results", async done => {
+          it("should remove them from returned results", async done => {
             // make sure this is the only rpob_S450L search
             await Search.remove({});
 
@@ -2920,8 +2920,8 @@ describe("ExperimentController", () => {
                     expect(data).toHaveProperty("type", "protein-variant");
 
                     expect(data).toHaveProperty("results");
-                    expect(data.results.length).toEqual(0);
-                    expect(data).toHaveProperty("total", 0);
+                    expect(data.results.length).toEqual(2);
+                    expect(data).toHaveProperty("total", 2);
 
                     expect(data).toHaveProperty("pagination");
 
