@@ -19,7 +19,7 @@ const geo = {
   initialised: false
 };
 
-const BULK_INSERT_LIMIT = 1000;
+const BULK_INSERT_LIMIT = 200;
 
 class DataHelper {
   /**
