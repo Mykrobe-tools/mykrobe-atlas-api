@@ -98,6 +98,7 @@ afterEach(async done => {
   await Search.remove({});
   await Audit.remove({});
   await Organisation.remove({});
+
   done();
 });
 
@@ -2786,7 +2787,7 @@ describe("ExperimentController", () => {
           await auditData.save();
           done();
         });
-        it.only("should not add the user to the list of users", done => {
+        it("should not add the user to the list of users", async done => {
           // mocks/atlas-experiment/_search/POST.20fbeb4fb3e9780df79d89e99ae08bfb.mock
           request(args.app)
             .get("/experiments/search?q=rpoB_S450L")
