@@ -20,6 +20,7 @@ const geo = {
 };
 
 const BULK_INSERT_LIMIT = 200;
+const BULK_UPDATE_LIMIT = 10;
 
 class DataHelper {
   /**
@@ -380,17 +381,19 @@ class DataHelper {
       logger.debug(
         `DataHelper#process: Updating ${JSON.stringify(updateExperiments.length)} experiments ...`
       );
-      for (const updateExperiment of updateExperiments) {
-        try {
-          const updatedExperiment = await updateExperiment.save();
-          updateResult.count++;
-        } catch (e) {
-          logger.debug(`DataHelper#process: Error: ${e}`);
+      const updateChunks = this.chunk(updateExperiments, BULK_UPDATE_LIMIT);
+      for (const updateChunk of updateChunks) {
+        const promises = [];
+        for (const updateExperiment of updateChunk) {
+          promises.push(updateExperiment.save());
         }
+        logger.debug(`DataHelper#process: Updating ${promises.count} experiments ...`);
+        await Promise.all(promises);
+        updateResult.count = updateResult.count + promises.length;
+        logger.debug(
+          `DataHelper#process: Updated ${promises.count} experiments.  ${updateResult.count}/${rows.length} in total.`
+        );
       }
-      logger.debug(
-        `DataHelper#process: Updated ${updateResult.count} experiments of ${rows.length}`
-      );
     }
 
     return {
