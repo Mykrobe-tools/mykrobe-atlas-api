@@ -387,11 +387,11 @@ class DataHelper {
         for (const updateExperiment of updateChunk) {
           promises.push(updateExperiment.save());
         }
-        logger.debug(`DataHelper#process: Updating ${promises.count} experiments ...`);
+        logger.debug(`DataHelper#process: Updating ${promises.length} experiments ...`);
         await Promise.all(promises);
         updateResult.count = updateResult.count + promises.length;
         logger.debug(
-          `DataHelper#process: Updated ${promises.count} experiments.  ${updateResult.count}/${rows.length} in total.`
+          `DataHelper#process: Updated ${promises.length} experiments.  ${updateResult.count}/${rows.length} in total.`
         );
       }
     }
