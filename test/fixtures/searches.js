@@ -24,47 +24,25 @@ export default {
     proteinVariant: {
       type: "protein-variant",
       result: {
-        rpoB_S450L: {
-          SRR1229544: {
-            genotype: "0/0",
-            aa_mut: "S450L",
-            variant: "TCG761154CTG",
-            gene: "rpoB"
-          },
-          SRR1792504: {
-            genotype: "0/0",
-            aa_mut: "S450L",
-            variant: "TCG761154CTG",
-            gene: "rpoB"
-          },
-          SRR1173815: {
-            genotype: "0/0",
-            aa_mut: "S450L",
-            variant: "TCG761154CTG",
-            gene: "rpoB"
-          },
-          ERR133938: {
-            genotype: "0/0",
-            aa_mut: "S450L",
-            variant: "TCG761154CTG",
-            gene: "rpoB"
-          },
-          ERR550906: {
-            genotype: "1/1",
-            aa_mut: "S450L",
-            variant: "TCG761154TTG",
-            gene: "rpoB"
-          },
-          ERR1213887: {
-            genotype: "1/1",
-            aa_mut: "S450L",
-            variant: "TCG761154TTG",
-            gene: "rpoB"
-          }
-        }
+        id: "5c6cfa45b7d623943564191a",
+        reference: "/config/NC_000962.3.fasta",
+        ref: "S",
+        pos: 450,
+        alt: "L",
+        genbank: "/config/NC_000962.3.gb",
+        gene: "rpoB",
+        completed_bigsi_queries: 2,
+        total_bigsi_queries: 1,
+        results: [
+          { sample_name: "SRR1229544", genotype: "0/0" },
+          { sample_name: "SRR1792504", genotype: "0/0" },
+          { sample_name: "SRR1173815", genotype: "0/0" },
+          { sample_name: "ERR133938", genotype: "0/0" },
+          { sample_name: "ERR550906", genotype: "1/1" },
+          { sample_name: "ERR1213887", genotype: "1/1" }
+        ]
       },
       bigsi: {
-        type: "protein-variant",
         query: {
           ref: "S",
           alt: "L",
