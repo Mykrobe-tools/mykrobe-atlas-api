@@ -387,7 +387,10 @@ class DataHelper {
       for (const updateChunk of updateChunks) {
         const promises = [];
         for (const updateExperiment of updateChunk) {
-          promises.push(updateExperiment.save());
+          // disable mongo updates
+          //promises.push(updateExperiment.save());
+          logger.debug(`DataHelper#process: Mongo update disabled.`);
+          promises.push(() => true);
         }
         logger.debug(`DataHelper#process: Updating ${promises.length} experiments ...`);
         await Promise.all(promises);
