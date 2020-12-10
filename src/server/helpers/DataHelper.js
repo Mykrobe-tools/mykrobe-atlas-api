@@ -386,21 +386,21 @@ class DataHelper {
       );
       const updateChunks = this.chunk(updateExperiments, BULK_UPDATE_LIMIT);
       for (const updateChunk of updateChunks) {
-        const promises = [];
+        const operations = [];
         for (const updateExperiment of updateChunk) {
-          promises.push({
+          operations.push({
             updateOne: {
               filter: { _id: mongoose.Types.ObjectId(updateExperiment.id) },
               update: { "experiment.metadata.sample": updateExperiment.metadata.sample }
             }
           });
         }
-        logger.debug(`DataHelper#process: Updating ${promises.length} experiments ...`);
-        logger.debug(`DataHelper#process: calling bulk write.`);
-        await Experiment.collection.bulkWrite(promises, { orderd: true, w: 1 });
-        updateResult.count = updateResult.count + promises.length;
+        logger.debug(`DataHelper#process: Updating ${operations.length} experiments ...`);
+        logger.debug(`DataHelper#process: Calling bulk write.`);
+        await Experiment.collection.bulkWrite(operations, { orderd: true, w: 1 });
+        updateResult.count = updateResult.count + operations.length;
         logger.debug(
-          `DataHelper#process: Updated ${promises.length} experiments.  ${updateResult.count}/${rows.length} in total.`
+          `DataHelper#process: Updated ${operations.length} experiments.  ${updateResult.count}/${rows.length} in total.`
         );
       }
     }
