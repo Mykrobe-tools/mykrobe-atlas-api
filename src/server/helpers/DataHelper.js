@@ -391,7 +391,7 @@ class DataHelper {
           operations.push({
             updateOne: {
               filter: { _id: mongoose.Types.ObjectId(updateExperiment.id) },
-              update: { $set: { "experiment.metadata.sample": updateExperiment.metadata.sample } }
+              update: { $set: { "metadata.sample": updateExperiment.metadata.sample } }
             }
           });
         }
