@@ -388,25 +388,16 @@ class DataHelper {
       for (const updateChunk of updateChunks) {
         const promises = [];
         for (const updateExperiment of updateChunk) {
-          // disable mongo updates
-          //promises.push(updateExperiment.save());
           promises.push({
-            'updateOne': {
-              'filter': {'_id': mongoose.Types.ObjectId(updateExperiment.id)},
-              'update': {'experiment.metadata.sample': updateExperiment.metadata.sample}
+            updateOne: {
+              filter: { _id: mongoose.Types.ObjectId(updateExperiment.id) },
+              update: { "experiment.metadata.sample": updateExperiment.metadata.sample }
             }
-          })
-          logger.debug(`DataHelper#process: Mongo update enabled.`);
-          if (updateExperiment.metadata.sample.collectionDate) {
-            logger.debug(`DataHelper#process: updating experiment id ${updateExperiment.id}`);
-            logger.debug(`DataHelper#process: updating experiment sample ${JSON.stringify(updateExperiment.metadata.sample)}`);
-          }
-          //promises.push(() => true);
+          });
         }
         logger.debug(`DataHelper#process: Updating ${promises.length} experiments ...`);
-        //await Promise.all(promises);
         logger.debug(`DataHelper#process: calling bulk write.`);
-        await Experiment.collection.bulkWrite(promises, {orderd: true, w: 1});
+        await Experiment.collection.bulkWrite(promises, { orderd: true, w: 1 });
         updateResult.count = updateResult.count + promises.length;
         logger.debug(
           `DataHelper#process: Updated ${promises.length} experiments.  ${updateResult.count}/${rows.length} in total.`
