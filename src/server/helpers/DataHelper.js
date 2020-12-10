@@ -21,7 +21,7 @@ const geo = {
 };
 
 const BULK_INSERT_LIMIT = 200;
-const BULK_UPDATE_LIMIT = 10;
+const BULK_UPDATE_LIMIT = 100;
 
 class DataHelper {
   /**
