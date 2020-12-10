@@ -121,7 +121,7 @@ const create = async (req, res) => {
   if (Constants.AUTOGENERATE_SAMPLE_ID === "yes") {
     experiment.sampleId = uuid.v1();
   } else {
-    experiment.sampleId = await trackingService.getTrackingId(experiment.id);
+    experiment.sampleId = await trackingService.upsert(experiment.id);
   }
 
   // init upload state

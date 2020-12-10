@@ -24,53 +24,34 @@ export default {
     proteinVariant: {
       type: "protein-variant",
       result: {
-        rpoB_S450L: {
-          SRR1229544: {
-            genotype: "0/0",
-            aa_mut: "S450L",
-            variant: "TCG761154CTG",
-            gene: "rpoB"
-          },
-          SRR1792504: {
-            genotype: "0/0",
-            aa_mut: "S450L",
-            variant: "TCG761154CTG",
-            gene: "rpoB"
-          },
-          SRR1173815: {
-            genotype: "0/0",
-            aa_mut: "S450L",
-            variant: "TCG761154CTG",
-            gene: "rpoB"
-          },
-          ERR133938: {
-            genotype: "0/0",
-            aa_mut: "S450L",
-            variant: "TCG761154CTG",
-            gene: "rpoB"
-          },
-          ERR550906: {
-            genotype: "1/1",
-            aa_mut: "S450L",
-            variant: "TCG761154TTG",
-            gene: "rpoB"
-          },
-          ERR1213887: {
-            genotype: "1/1",
-            aa_mut: "S450L",
-            variant: "TCG761154TTG",
-            gene: "rpoB"
-          }
-        }
+        id: "5c6cfa45b7d623943564191a",
+        type: "protein-variant",
+        received: "2020-12-09T15:22:29.580Z",
+        reference: "/config/NC_000962.3.fasta",
+        ref: "S",
+        pos: 450,
+        alt: "L",
+        genebank: null,
+        gene: "rpoB",
+        completedBigsiQueries: 2,
+        totalBigsiQueries: 1,
+        results: [
+          { sampleId: "SRR1229544", genotype: "0/0" },
+          { sampleId: "SRR1792504", genotype: "0/0" },
+          { sampleId: "SRR1173815", genotype: "0/0" },
+          { sampleId: "ERR133938", genotype: "0/0" },
+          { sampleId: "ERR550906", genotype: "1/1" },
+          { sampleId: "ERR1213887", genotype: "1/1" }
+        ]
       },
       bigsi: {
-        type: "protein-variant",
         query: {
+          gene: "rpoB",
           ref: "S",
-          alt: "L",
           pos: 450,
-          gene: "rpoB"
-        }
+          alt: "L"
+        },
+        type: "protein-variant"
       },
       status: "complete"
     },

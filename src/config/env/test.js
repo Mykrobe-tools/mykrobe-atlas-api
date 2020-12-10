@@ -8,7 +8,7 @@ export default {
     port: mockedEsPort,
     index: "atlas",
     host: `http://localhost:${mockedEsPort}`,
-    log: "debug"
+    log: "info"
   },
   express: {
     uploadsLocation: "/atlas/uploads",

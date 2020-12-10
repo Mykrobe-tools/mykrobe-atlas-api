@@ -31,6 +31,12 @@ describe("DateHelper", () => {
           expect(date).toBe(null);
         });
       });
+      describe("when passing a day-mmm-year", () => {
+        it("should return the same date", () => {
+          const date = DateHelper.createValidDateFromString("16-Jan-2009", "SAMEA3367307", []);
+          expect(date).toEqual("2009-01-16");
+        });
+      });
       describe("when passing invalid values", () => {
         it("should return null for unknown", () => {
           const date = DateHelper.createValidDateFromString("unknown", "SAMEA3367307", []);

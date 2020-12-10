@@ -17,6 +17,7 @@ import logger from "./server/modules/logging/logger";
   mongoose.set("useFindAndModify", false);
   mongoose.set("useCreateIndex", true);
   mongoose.set("useUnifiedTopology", true);
+  mongoose.set("poolSize", 20);
   mongoose.connect(config.db.uri, { useNewUrlParser: true });
   mongoose.connection.on("error", () => {
     throw new Error(`unable to connect to database: ${config.db.uri}`);

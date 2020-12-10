@@ -2,6 +2,7 @@ import fs from "fs";
 import csv from "fast-csv";
 import Promise from "bluebird";
 import AdmZip from "adm-zip";
+import mongoose from "mongoose";
 import { experiment as experimentJsonSchema } from "mykrobe-atlas-jsonschema";
 import SchemaExplorer from "makeandship-api-common/lib/modules/jsonschema/schema-explorer";
 import Experiment from "../models/experiment.model";
@@ -19,7 +20,8 @@ const geo = {
   initialised: false
 };
 
-const BULK_INSERT_LIMIT = 1000;
+const BULK_INSERT_LIMIT = 200;
+const BULK_UPDATE_LIMIT = 10;
 
 class DataHelper {
   /**
@@ -362,6 +364,8 @@ class DataHelper {
       `DataHelper#process: ${experimentDatabaseReadyObjects.length} experiments to store`
     );
 
+    const updateResult = { count: 0 };
+
     // build blocks of experiments to write to the database
     const experimentChunks = this.chunk(experimentDatabaseReadyObjects, BULK_INSERT_LIMIT);
 
@@ -372,25 +376,34 @@ class DataHelper {
       // geo coordinates will be added in ExperimentModel save
       logger.debug(`DataHelper#process: Creating ${insertExperiments.length} experiments ...`);
       const insertResult = await Experiment.insertMany(insertExperiments);
+      updateResult.count = updateResult.count + insertExperiments.length;
       logger.debug(
         `DataHelper#process: Created ${insertExperiments.length} experiments of ${rows.length}`
       );
 
-      const updateResult = { count: 0 };
       logger.debug(
         `DataHelper#process: Updating ${JSON.stringify(updateExperiments.length)} experiments ...`
       );
-      for (const updateExperiment of updateExperiments) {
-        try {
-          const updatedExperiment = await updateExperiment.save();
-          updateResult.count++;
-        } catch (e) {
-          logger.debug(`DataHelper#process: Error: ${e}`);
+      const updateChunks = this.chunk(updateExperiments, BULK_UPDATE_LIMIT);
+      for (const updateChunk of updateChunks) {
+        const operations = [];
+        for (const updateExperiment of updateChunk) {
+          operations.push({
+            updateOne: {
+              filter: { _id: mongoose.Types.ObjectId(updateExperiment.id) },
+              update: { "experiment.metadata.sample": updateExperiment.metadata.sample }
+            }
+          });
         }
+        logger.debug(`DataHelper#process: Updating ${operations.length} experiments ...`);
+        logger.debug(`DataHelper#process: Calling bulk write ...`);
+        await Experiment.collection.bulkWrite(operations, { orderd: true, w: 1 });
+        logger.debug(`DataHelper#process: Bulk write called.`);
+        updateResult.count = updateResult.count + operations.length;
+        logger.debug(
+          `DataHelper#process: Updated ${operations.length} experiments.  ${updateResult.count}/${rows.length} in total.`
+        );
       }
-      logger.debug(
-        `DataHelper#process: Updated ${updateResult.count} experiments of ${rows.length}`
-      );
     }
 
     return {
@@ -417,7 +430,7 @@ class DataHelper {
   static async readSampleIdFromTrackingApi(experimentId, isolateId) {
     logger.debug(`DataHelper#readSampleIdFromTrackingApi: enter`);
     const trackingService = new TrackingService();
-    return await trackingService.getTrackingId(experimentId, isolateId);
+    return await trackingService.upsert(experimentId, isolateId);
   }
 }
 

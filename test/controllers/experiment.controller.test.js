@@ -98,6 +98,7 @@ afterEach(async done => {
   await Search.remove({});
   await Audit.remove({});
   await Organisation.remove({});
+
   done();
 });
 
@@ -2786,7 +2787,7 @@ describe("ExperimentController", () => {
           await auditData.save();
           done();
         });
-        it("should not add the user to the list of users", done => {
+        it("should not add the user to the list of users", async done => {
           // mocks/atlas-experiment/_search/POST.20fbeb4fb3e9780df79d89e99ae08bfb.mock
           request(args.app)
             .get("/experiments/search?q=rpoB_S450L")
@@ -2860,9 +2861,9 @@ describe("ExperimentController", () => {
                     expect(data).toHaveProperty("status", "complete");
                     expect(data).toHaveProperty("type", "protein-variant");
                     expect(data).toHaveProperty("results");
-                    expect(data.results.length).toEqual(1);
+                    expect(data.results.length).toEqual(2);
 
-                    expect(data).toHaveProperty("total", 1);
+                    expect(data).toHaveProperty("total", 2);
                     expect(data).toHaveProperty("pagination");
 
                     done();
@@ -2871,7 +2872,7 @@ describe("ExperimentController", () => {
           });
         });
         describe("when results contain genotype 0/0", () => {
-          it("should return cached search results", async done => {
+          it("should remove them from returned results", async done => {
             // make sure this is the only rpob_S450L search
             await Search.remove({});
 
@@ -2919,8 +2920,8 @@ describe("ExperimentController", () => {
                     expect(data).toHaveProperty("type", "protein-variant");
 
                     expect(data).toHaveProperty("results");
-                    expect(data.results.length).toEqual(0);
-                    expect(data).toHaveProperty("total", 0);
+                    expect(data.results.length).toEqual(2);
+                    expect(data).toHaveProperty("total", 2);
 
                     expect(data).toHaveProperty("pagination");
 
