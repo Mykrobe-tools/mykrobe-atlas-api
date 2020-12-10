@@ -363,6 +363,8 @@ class DataHelper {
       `DataHelper#process: ${experimentDatabaseReadyObjects.length} experiments to store`
     );
 
+    const updateResult = { count: 0 };
+
     // build blocks of experiments to write to the database
     const experimentChunks = this.chunk(experimentDatabaseReadyObjects, BULK_INSERT_LIMIT);
 
@@ -373,11 +375,11 @@ class DataHelper {
       // geo coordinates will be added in ExperimentModel save
       logger.debug(`DataHelper#process: Creating ${insertExperiments.length} experiments ...`);
       const insertResult = await Experiment.insertMany(insertExperiments);
+      updateResult.count = updateResult.count + insertExperiments.length;
       logger.debug(
         `DataHelper#process: Created ${insertExperiments.length} experiments of ${rows.length}`
       );
 
-      const updateResult = { count: 0 };
       logger.debug(
         `DataHelper#process: Updating ${JSON.stringify(updateExperiments.length)} experiments ...`
       );
