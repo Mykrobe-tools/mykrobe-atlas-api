@@ -393,13 +393,13 @@ class DataHelper {
           promises.push({
             'updateOne': {
               'filter': {'_id': mongoose.Types.ObjectId(updateExperiment.id)},
-              'update': {'experiment.metadata.sample': updateExperiment.sample}
+              'update': {'experiment.metadata.sample': updateExperiment.metadata.sample}
             }
           })
           logger.debug(`DataHelper#process: Mongo update enabled.`);
           if (updateExperiment.metadata.sample.collectionDate) {
             logger.debug(`DataHelper#process: updating experiment id ${updateExperiment.id}`);
-            logger.debug(`DataHelper#process: updating experiment sample ${JSON.stringify(updateExperiment.sample)}`);
+            logger.debug(`DataHelper#process: updating experiment sample ${JSON.stringify(updateExperiment.metadata.sample)}`);
           }
           //promises.push(() => true);
         }
