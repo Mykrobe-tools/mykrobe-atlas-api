@@ -2,6 +2,7 @@ import fs from "fs";
 import csv from "fast-csv";
 import Promise from "bluebird";
 import AdmZip from "adm-zip";
+import mongoose from "mongoose";
 import { experiment as experimentJsonSchema } from "mykrobe-atlas-jsonschema";
 import SchemaExplorer from "makeandship-api-common/lib/modules/jsonschema/schema-explorer";
 import Experiment from "../models/experiment.model";
