@@ -398,6 +398,7 @@ class DataHelper {
         logger.debug(`DataHelper#process: Updating ${operations.length} experiments ...`);
         logger.debug(`DataHelper#process: Calling bulk write ...`);
         await Experiment.collection.bulkWrite(operations, { orderd: true, w: 1 });
+        logger.debug(`DataHelper#process: Bulk write called.`);
         updateResult.count = updateResult.count + operations.length;
         logger.debug(
           `DataHelper#process: Updated ${operations.length} experiments.  ${updateResult.count}/${rows.length} in total.`
