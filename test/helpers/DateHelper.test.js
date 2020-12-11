@@ -42,6 +42,22 @@ describe("DateHelper", () => {
           const date = DateHelper.createValidDateFromString("Nov-2013", "SAMEA3367307", []);
           expect(date).toEqual("2013-11-01");
         });
+        it("should return a valid date", () => {
+          const date = DateHelper.createValidDateFromString("Jan-1998", "SAMEA3367307", []);
+          expect(date).toEqual("1998-01-01");
+        });
+      });
+      describe("when passing a full month-year", () => {
+        it("should return the same date", () => {
+          const date = DateHelper.createValidDateFromString("July-1999", "SAMEA3367307", []);
+          expect(date).toEqual("1999-07-01");
+        });
+      });
+      describe("when passing a full date", () => {
+        it("should return the same date", () => {
+          const date = DateHelper.createValidDateFromString("02-December-2012", "SAMEA3367307", []);
+          expect(date).toEqual("2012-12-02");
+        });
       });
       describe("when passing invalid values", () => {
         it("should return null for unknown", () => {
