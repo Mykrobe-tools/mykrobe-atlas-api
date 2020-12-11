@@ -53,6 +53,12 @@ describe("DateHelper", () => {
           expect(date).toEqual("1999-07-01");
         });
       });
+      describe("when passing year/mm/dd", () => {
+        it("should return the same date", () => {
+          const date = DateHelper.createValidDateFromString("2007/04/02", "SAMEA3367307", []);
+          expect(date).toEqual("2007-04-02");
+        });
+      });
       describe("when passing a full date", () => {
         it("should return the same date", () => {
           const date = DateHelper.createValidDateFromString("02-December-2012", "SAMEA3367307", []);

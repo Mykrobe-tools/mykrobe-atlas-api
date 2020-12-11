@@ -7,7 +7,7 @@ const DATES_MAPPING = {
 
 class DateHelper {
   static createValidDateFromString(stringValue, isolateId, errors) {
-    if (!stringValue) {
+    if (!stringValue || "unknown" === stringValue) {
       return null;
     }
 
@@ -34,6 +34,8 @@ class DateHelper {
         date = moment(stringValue, "MMM-YYYY");
       } else if (this.isFullDate(stringValue)) {
         date = moment(stringValue, "DD-MMM-YYYY");
+      } else if (this.isYearMonthDay(stringValue)) {
+        date = moment(stringValue, "YYYY/MM/DD");
       } else if (this.isIsoDate(stringValue)) {
         date = moment(stringValue, "YYYY-MM-DD");
       }
@@ -72,12 +74,18 @@ class DateHelper {
     );
   }
 
+  static isYearMonthDay(value) {
+    return value.match(/^\d{4}[\/.]\d{1,2}[\/.]\d{1,2}$/);
+  }
+
   static isMMMyyyy(value) {
     return value.match(/^(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\-(\d{4}$)/);
   }
 
   static isFullMonthYear(value) {
-    return value.match(/^(January|February|March|April|May|June|July|August|September|October|November|December)\-(\d{4}$)/);
+    return value.match(
+      /^(January|February|March|April|May|June|July|August|September|October|November|December)\-(\d{4}$)/
+    );
   }
 
   static isFullDate(value) {
