@@ -575,7 +575,6 @@ describe("DataController", () => {
 
         it("should store predictor results", async done => {
           const experiments = await Experiment.find({});
-          console.log(`Experiments: ${JSON.stringify(experiments, null, 2)}`);
           const results = [];
 
           for (const experiment of experiments) {
