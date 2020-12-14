@@ -221,7 +221,21 @@ class DataHelper {
           `DataHelper#buildExperimentObjectsFromCSVRows: predictorFilepath: ${predictorFilepath}`
         );
         const rawResult = files[predictorFilepath];
+        logger.debug(
+          `DataHelper#buildExperimentObjectsFromCSVRows: rawResult: ${JSON.stringify(
+            rawResult,
+            null,
+            2
+          )}`
+        );
         const parsedResult = this.parsePredictorResults(rawResult);
+        logger.debug(
+          `DataHelper#buildExperimentObjectsFromCSVRows: parsedResult: ${JSON.stringify(
+            parsedResult,
+            null,
+            2
+          )}`
+        );
         const results = parsedResult ? [parsedResult] : [];
 
         // build an experiment
@@ -394,6 +408,16 @@ class DataHelper {
               update: { $set: { "metadata.sample": updateExperiment.metadata.sample } }
             }
           });
+          // add predictor results if found
+          if (updateExperiment.results) {
+            const results = updateExperiment.get("results");
+            operations.push({
+              updateOne: {
+                filter: { _id: mongoose.Types.ObjectId(updateExperiment.id) },
+                update: { $push: { results: { $each: results } } }
+              }
+            });
+          }
         }
         logger.debug(`DataHelper#process: Updating ${operations.length} experiments ...`);
         logger.debug(`DataHelper#process: Calling bulk write ...`);
