@@ -92,6 +92,12 @@ class TrackingService {
     }
   }
 
+  /**
+   * Update an entry in the Tracking API
+   *
+   * @param String trackingId of the tracking entry to update
+   * @param String experimentId to set into the tracking entry
+   */
   async update(trackingId, experimentId) {
     const uri = `${config.services.trackingApiUrl}/samples`;
     const updateUri = `${uri}/${trackingId}`;
@@ -111,7 +117,7 @@ class TrackingService {
         logger.debug(`TrackingService#update: patch response invalid`);
       }
     } catch (e) {
-      logger.debug(`TrackingService#update: Unable to patch ${fetchedTrackingId}`);
+      logger.debug(`TrackingService#update: Unable to patch ${trackingId}`);
       if (e.response) {
         logger.debug(`TrackingService#update: Error: ${JSON.stringify(e.response, null, 2)}`);
       }
