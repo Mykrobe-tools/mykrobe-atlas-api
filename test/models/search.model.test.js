@@ -435,4 +435,12 @@ describe("Search", () => {
       });
     });
   });
+  describe("#toJSON", () => {
+    it("return core search details", async done => {
+      const foundSearch = await Search.get(id);
+      const json = foundSearch.toJSON();
+      expect(json.type).toEqual("sequence");
+      done();
+    });
+  });
 });
