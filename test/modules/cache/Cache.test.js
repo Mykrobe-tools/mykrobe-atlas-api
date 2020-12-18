@@ -166,26 +166,65 @@ describe("Cache", () => {
   });
   describe("#setJson", () => {
     describe("when valid", () => {
-      let mockRedisServiceSet = null;
-      beforeEach(async done => {
-        // mock the RedisService.set method
-        mockRedisServiceSet = jest.spyOn(RedisService, "set").mockImplementation();
+      describe("when no expiry date", () => {
+        let mockRedisServiceSet = null;
+        beforeEach(async done => {
+          // mock the RedisService.set method
+          mockRedisServiceSet = jest.spyOn(RedisService, "set").mockImplementation();
 
-        await Cache.setJson("key", { one: "two" });
-        done();
+          await Cache.setJson("key", { one: "two" });
+          done();
+        });
+        afterEach(() => {
+          jest.clearAllMocks();
+        });
+        it("should call with a prefixed key", () => {
+          expect(mockRedisServiceSet).toHaveBeenCalledWith(
+            "atlas-key",
+            JSON.stringify({ one: "two" }),
+            null
+          );
+        });
+        it("should call RedisService.set", () => {
+          expect(mockRedisServiceSet).toHaveBeenCalledTimes(1);
+        });
+        it("should call RedisService.set wil null expiry date", () => {
+          expect(mockRedisServiceSet).toHaveBeenCalledWith(
+            "atlas-key",
+            JSON.stringify({ one: "two" }),
+            null
+          );
+        });
       });
-      afterEach(() => {
-        jest.clearAllMocks();
-      });
-      it("should call with a prefixed key", () => {
-        expect(mockRedisServiceSet).toHaveBeenCalledWith(
-          "atlas-key",
-          JSON.stringify({ one: "two" }),
-          null
-        );
-      });
-      it("should call RedisService.set", () => {
-        expect(mockRedisServiceSet).toHaveBeenCalledTimes(1);
+      describe("when using expiry", () => {
+        let mockRedisServiceSet = null;
+        beforeEach(async done => {
+          // mock the RedisService.set method
+          mockRedisServiceSet = jest.spyOn(RedisService, "set").mockImplementation();
+
+          await Cache.setJson("key", { one: "two" }, 3600);
+          done();
+        });
+        afterEach(() => {
+          jest.clearAllMocks();
+        });
+        it("should call with a prefixed key", () => {
+          expect(mockRedisServiceSet).toHaveBeenCalledWith(
+            "atlas-key",
+            JSON.stringify({ one: "two" }),
+            3600
+          );
+        });
+        it("should call RedisService.set", () => {
+          expect(mockRedisServiceSet).toHaveBeenCalledTimes(1);
+        });
+        it("should call RedisService.set wil null expiry date", () => {
+          expect(mockRedisServiceSet).toHaveBeenCalledWith(
+            "atlas-key",
+            JSON.stringify({ one: "two" }),
+            3600
+          );
+        });
       });
     });
     describe("when not valid", () => {

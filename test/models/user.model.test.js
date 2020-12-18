@@ -140,4 +140,12 @@ describe("User", () => {
       done();
     });
   });
+  describe("#toJSON", () => {
+    it("return core search details", async done => {
+      const foundUser = await User.get(id);
+      const json = foundUser.toJSON();
+      expect(json.firstname).toEqual("Thomas");
+      done();
+    });
+  });
 });

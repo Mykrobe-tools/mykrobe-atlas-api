@@ -81,5 +81,13 @@ describe("Audit", () => {
         done();
       });
     });
+    describe("#toJSON", () => {
+      it("return core audit details", async done => {
+        const foundAudit = await Audit.getByTaskId("7897d8dc-ad6a-4a46-be4f-7ad9eb2ad08c");
+        const json = foundAudit.toJSON();
+        expect(json.experimentId).toEqual("eac95021-a637-443e-b4af-b6a59bda0f21");
+        done();
+      });
+    });
   });
 });

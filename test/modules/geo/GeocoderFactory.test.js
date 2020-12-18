@@ -38,6 +38,20 @@ describe("GeocoderFactory", () => {
         expect(options.apiKey).toEqual("locationiq-apikey");
       });
     });
+    describe("when unknown", () => {
+      let options = null;
+      beforeEach(() => {
+        const config = {
+          other: {
+            apiKey: "other-apikey"
+          }
+        };
+        options = GeocoderFactory.getOptions(config);
+      });
+      it("should set the options to null", () => {
+        expect(options).toEqual(null);
+      });
+    });
   });
   describe("#getGeocoder", () => {
     describe("when Google", () => {
@@ -66,6 +80,20 @@ describe("GeocoderFactory", () => {
       });
       it("should return a LocationIQ geocoder", () => {
         expect(geocoder instanceof LocationIQGeocoder).toEqual(true);
+      });
+    });
+    describe("when Unknown", () => {
+      let geocoder = null;
+      beforeEach(() => {
+        const config = {
+          other: {
+            apiKey: "other-apikey"
+          }
+        };
+        geocoder = GeocoderFactory.getGeocoder(config);
+      });
+      it("should return a LocationIQ geocoder", () => {
+        expect(geocoder).toEqual(null);
       });
     });
   });
