@@ -42,6 +42,11 @@ describe("CacheHelper", () => {
           expect(CacheHelper.getObjectHash(undefined)).toEqual(null);
         });
       });
+      describe("when the object is NaN", () => {
+        it("should return null", () => {
+          expect(CacheHelper.getObjectHash(NaN)).toEqual(null);
+        });
+      });
     });
   });
 });
