@@ -12,6 +12,7 @@ export default {
   },
   express: {
     uploadsLocation: "/atlas/uploads",
+    analysisApiDir: "/atlas/data",
     uploadMaxFileSize: 12000000,
     demoDataRootFolder: process.env.DEMO_DATA_ROOT_FOLDER,
     groupsLocation: "test/fixtures/groups/init.json"
