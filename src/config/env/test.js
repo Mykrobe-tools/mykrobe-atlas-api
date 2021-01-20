@@ -1,13 +1,13 @@
 import _ from "lodash";
-const mockedEsPort = process.env.SKIP_ES ? _.random(10000, 65535) : 9200;
+const esPort = 9200;
 const mockedKeycloakPort = _.random(10000, 65535);
 
 export default {
   db: {},
   elasticsearch: {
-    port: mockedEsPort,
+    port: esPort,
     index: "atlas",
-    host: `http://localhost:${mockedEsPort}`,
+    host: `http://localhost:${esPort}`,
     log: "info"
   },
   express: {

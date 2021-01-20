@@ -972,11 +972,13 @@ describe("ExperimentController > Elasticsearch", () => {
       });
       it("should inflate search results", done => {
         const results = data.results;
-        expect(results.length).toEqual(1);
+        expect(results.length).toEqual(2);
 
-        const result = results[0];
+        const result = results.find(
+          item => item.sampleId === "44bcd581-cf41-4c81-accd-47f46ce38118"
+        );
 
-        expect(result.id).toBeTruthy();
+        expect(result.sampleId).toBeTruthy();
         expect(result.metadata).toBeTruthy();
         expect(result.metadata.patient.smoker).toEqual("No");
         expect(result.percent_kmers_found).toEqual(90);
@@ -984,8 +986,8 @@ describe("ExperimentController > Elasticsearch", () => {
       });
       it("should filter search results", done => {
         const result = data.results[0];
-
-        expect(result.metadata.patient.smoker).toEqual("No");
+        expect(result).toHaveProperty("sampleId", "f194df25-2a8b-4f4d-8594-e013ac58223a");
+        expect(result).toHaveProperty("percent_kmers_found", 100);
         done();
       });
     });
@@ -1019,7 +1021,7 @@ describe("ExperimentController > Elasticsearch", () => {
         expect(data.type).toEqual("sequence");
 
         const results = data.results;
-        expect(results.length).toEqual(0);
+        expect(results.length).toEqual(2);
 
         done();
       });
