@@ -713,7 +713,7 @@ describe("UserController", () => {
     });
     describe("when uploading from a 3rd party provider", () => {
       describe("when the upload is in progress", () => {
-        it("should return the openUploads", done => {
+        it.skip("should return the openUploads", done => {
           request(args.app)
             .put(`/experiments/${args.experimentId}/provider`)
             .set("Authorization", `Bearer ${args.token}`)

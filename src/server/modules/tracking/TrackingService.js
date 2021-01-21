@@ -90,6 +90,8 @@ class TrackingService {
       logger.debug(`TrackingService#create: Error: ${JSON.stringify(e.response, null, 2)}`);
       return null;
     }
+
+    return null;
   }
 
   /**
