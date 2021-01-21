@@ -1,3 +1,4 @@
+import axios from "axios";
 import {
   isBigsiQuery,
   extractBigsiQuery,
@@ -5,7 +6,7 @@ import {
   createQuery
 } from "../../../src/server/modules/search/bigsi";
 
-import setup from "../../setup";
+jest.mock("axios");
 
 describe("bigsi", () => {
   describe("#extractBigsiQuery", () => {
@@ -136,7 +137,13 @@ describe("bigsi", () => {
   });
   describe("#callBigsiApi", () => {
     describe("when calling the sequence search", () => {
-      it("should return success with task_id", async () => {
+      let result;
+      beforeEach(async done => {
+        axios.post.mockClear().mockImplementation(() =>
+          Promise.resolve({
+            data: { result: "success", task_id: "457abe90-5f7d-49e6-adbd-8ea3c12c5511" }
+          })
+        );
         const query = {
           type: "sequence",
           query: {
@@ -145,13 +152,40 @@ describe("bigsi", () => {
           },
           user_id: "5b8d19173470371d9e49811d"
         };
-        const result = await callBigsiApi(query);
+        result = await callBigsiApi(query);
+
+        done();
+      });
+      it("should call post", done => {
+        expect(axios.post).toHaveBeenCalledTimes(1);
+        done();
+      });
+      it("should call the search API URL", done => {
+        const url = axios.post.mock.calls[0][0];
+        expect(url).toEqual("https://cli.mykrobe.com/search");
+        done();
+      });
+      it("should call the search API with correct payload", done => {
+        const payload = axios.post.mock.calls[0][1];
+        expect(payload.type).toEqual("sequence");
+        expect(payload.query.seq).toEqual("GTTCTTGTGGCGAGTGTTGC");
+        expect(payload.query.threshold).toEqual(90);
+        expect(payload.user_id).toEqual("5b8d19173470371d9e49811d");
+        done();
+      });
+      it("should return success with task_id", async () => {
         expect(result.result).toEqual("success");
         expect(result.task_id).toBeTruthy();
       });
     });
     describe("when calling the protein variant search", () => {
-      it("should return success with task_id", async () => {
+      let result;
+      beforeEach(async done => {
+        axios.post.mockClear().mockImplementation(() =>
+          Promise.resolve({
+            data: { result: "success", task_id: "457abe90-5f7d-49e6-adbd-8ea3c12c5511" }
+          })
+        );
         const query = {
           type: "protein-variant",
           query: {
@@ -162,12 +196,41 @@ describe("bigsi", () => {
           },
           search_id: "56c787ccc67fc16ccc13245"
         };
-        const result = await callBigsiApi(query);
+        result = await callBigsiApi(query);
+
+        done();
+      });
+      it("should call post", done => {
+        expect(axios.post).toHaveBeenCalledTimes(1);
+        done();
+      });
+      it("should call the search API URL", done => {
+        const url = axios.post.mock.calls[0][0];
+        expect(url).toEqual("https://cli.mykrobe.com/search");
+        done();
+      });
+      it("should call the search API with correct payload", done => {
+        const payload = axios.post.mock.calls[0][1];
+        expect(payload.type).toEqual("protein-variant");
+        expect(payload.search_id).toEqual("56c787ccc67fc16ccc13245");
+        expect(payload.query.ref).toEqual("S");
+        expect(payload.query.alt).toEqual("L");
+        expect(payload.query.pos).toEqual(450);
+        expect(payload.query.gene).toEqual("rpoB");
+        done();
+      });
+      it("should return success with task_id", async () => {
         expect(result.result).toEqual("success");
         expect(result.task_id).toBeTruthy();
       });
     });
     describe("when throwing an error", () => {
+      beforeEach(async done => {
+        axios.post.mockClear().mockImplementation(() => {
+          throw new Error();
+        });
+        done();
+      });
       it("should return error", async done => {
         // an error is triggered in stubSearchApi when search_id === 56c787ccc67fc16ccc13246
         const query = {
