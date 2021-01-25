@@ -8,12 +8,14 @@ import channels from "../modules/channels";
 
 import User from "../models/user.model";
 import Event from "../models/event.model";
+import Organisation from "../models/organisation.model";
 
 import UserJSONTransformer from "../transformers/UserJSONTransformer";
 import EventJSONTransformer from "../transformers/EventJSONTransformer";
 
 import AccountsHelper from "../helpers/AccountsHelper";
 import EmailHelper from "../helpers/EmailHelper";
+import OrganisationHelper from "../helpers/OrganisationHelper";
 
 import config from "../../config/env";
 
@@ -103,6 +105,13 @@ const create = async (req, res) => {
     }
 
     const user = new User(userData);
+    const organisation = new Organisation({ name: `${firstname} ${lastname}` });
+
+    const member = await OrganisationHelper.createMember(user);
+    organisation.owners.push(member);
+
+    const savedOrganisation = await organisation.save();
+    user.organisation = savedOrganisation;
     const savedUser = await user.save();
     return res.jsend(savedUser);
   } catch (e) {
