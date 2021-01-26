@@ -16,6 +16,7 @@ import {
   JsendInitializer
 } from "makeandship-api-common/lib/modules/express/initializers";
 import GroupsInitializer from "./initializers/GroupsInitializer";
+import PersonalOrganisationHandler from "./handlers/user/PersonalOrganisationHandler";
 
 import Constants from "./Constants";
 
@@ -25,8 +26,11 @@ import config from "../config/env";
 
 import AccountsHelper from "./helpers/AccountsHelper";
 import { enableExternalAtlasMockServices } from "../external";
+import { handlersMiddleware } from "../server/handlers/middlewares";
 
 const keycloak = AccountsHelper.keycloakInstance();
+
+const handlers = [new PersonalOrganisationHandler()];
 
 const createApp = async options => {
   const settings = Object.assign(config.express, options);
@@ -59,6 +63,9 @@ const createApp = async options => {
   // Keycloak for account management
   app.use(keycloak.connect.middleware());
   app.use(keycloak.getUserMiddleware.bind(keycloak));
+
+  // Handlers Middleware
+  app.use(handlersMiddleware(handlers));
 
   // logging - true, 1 or "1"
   const isDebug = !!process.env.DEBUG;
