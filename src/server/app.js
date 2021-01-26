@@ -30,7 +30,8 @@ import { handlersMiddleware } from "../server/handlers/middlewares";
 
 const keycloak = AccountsHelper.keycloakInstance();
 
-const handlers = [new PersonalOrganisationHandler()];
+const userHandlers = [new PersonalOrganisationHandler()];
+const otherHandlers = [];
 
 const createApp = async options => {
   const settings = Object.assign(config.express, options);
@@ -65,7 +66,7 @@ const createApp = async options => {
   app.use(keycloak.getUserMiddleware.bind(keycloak));
 
   // Handlers Middleware
-  app.use(handlersMiddleware(handlers));
+  app.use(handlersMiddleware(userHandlers, otherHandlers));
 
   // logging - true, 1 or "1"
   const isDebug = !!process.env.DEBUG;
