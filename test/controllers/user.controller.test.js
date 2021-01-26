@@ -65,118 +65,132 @@ describe("UserController", () => {
   };
 
   describe("# POST /users", () => {
-    it("should create a new user", done => {
-      request(args.app)
-        .post("/users")
-        .send(user)
-        .expect(httpStatus.OK)
-        .end((err, res) => {
-          expect(res.body.status).toEqual("success");
-          expect(res.body.data.firstname).toEqual(user.firstname);
-          expect(res.body.data.lastname).toEqual(user.lastname);
-          expect(res.body.data.phone).toEqual(user.phone);
-          expect(res.body.data.email).toEqual(user.username);
-          done();
-        });
+    describe("when valid", () => {
+      let data, status;
+
+      beforeEach(async done => {
+        request(args.app)
+          .post("/users")
+          .send(user)
+          .expect(httpStatus.OK)
+          .end((err, res) => {
+            status = res.body.status;
+            data = res.body.data;
+            done();
+          });
+      });
+
+      it("should return success", () => {
+        expect(status).toEqual("success");
+      });
+
+      it("should create a new user", () => {
+        expect(data.firstname).toEqual(user.firstname);
+        expect(data.lastname).toEqual(user.lastname);
+        expect(data.phone).toEqual(user.phone);
+        expect(data.email).toEqual(user.username);
+      });
     });
 
-    it("should validate user before creation - username", done => {
-      const invalid = {
-        firstname: "David",
-        lastname: "Robin",
-        password: "password"
-      };
-      request(args.app)
-        .post("/users")
-        .send(invalid)
-        .expect(httpStatus.OK)
-        .end((err, res) => {
-          expect(res.body.status).toEqual("error");
-          expect(res.body.code).toEqual(Constants.ERRORS.VALIDATION_ERROR);
-          expect(res.body.message).toEqual("Unable to create user");
-          expect(res.body.data.errors.username.message).toEqual(
-            "should have required property 'username'"
-          );
-          done();
-        });
-    });
+    describe("when invalid", () => {
+      it("should validate user before creation - username", done => {
+        const invalid = {
+          firstname: "David",
+          lastname: "Robin",
+          password: "password"
+        };
+        request(args.app)
+          .post("/users")
+          .send(invalid)
+          .expect(httpStatus.OK)
+          .end((err, res) => {
+            expect(res.body.status).toEqual("error");
+            expect(res.body.code).toEqual(Constants.ERRORS.VALIDATION_ERROR);
+            expect(res.body.message).toEqual("Unable to create user");
+            expect(res.body.data.errors.username.message).toEqual(
+              "should have required property 'username'"
+            );
+            done();
+          });
+      });
 
-    it("should validate user before creation - password", done => {
-      const invalid = {
-        firstname: "David",
-        lastname: "Robin",
-        username: "admin@gmail.com"
-      };
-      request(args.app)
-        .post("/users")
-        .send(invalid)
-        .expect(httpStatus.OK)
-        .end((err, res) => {
-          expect(res.body.status).toEqual("error");
-          expect(res.body.code).toEqual(Constants.ERRORS.CREATE_USER);
-          expect(res.body.message).toEqual("Please provide a password");
-          done();
-        });
-    });
+      it("should validate user before creation - password", done => {
+        const invalid = {
+          firstname: "David",
+          lastname: "Robin",
+          username: "admin@gmail.com"
+        };
+        request(args.app)
+          .post("/users")
+          .send(invalid)
+          .expect(httpStatus.OK)
+          .end((err, res) => {
+            expect(res.body.status).toEqual("error");
+            expect(res.body.code).toEqual(Constants.ERRORS.CREATE_USER);
+            expect(res.body.message).toEqual("Please provide a password");
+            done();
+          });
+      });
 
-    it("should not save duplicate emails", done => {
-      const invalid = {
-        firstname: "David",
-        lastname: "Robin",
-        password: "password",
-        phone: "06734929442",
-        username: "admin@nhs.co.uk"
-      };
-      request(args.app)
-        .post("/users")
-        .send(invalid)
-        .expect(httpStatus.OK)
-        .end((err, res) => {
-          expect(res.body.status).toEqual("error");
-          expect(res.body.code).toEqual(Constants.ERRORS.CREATE_USER);
-          expect(res.body.message).toEqual(
-            "User validation failed: username: admin@nhs.co.uk has already been registered"
-          );
-          done();
-        });
-    });
+      it("should not save duplicate emails", done => {
+        const invalid = {
+          firstname: "David",
+          lastname: "Robin",
+          password: "password",
+          phone: "06734929442",
+          username: "admin@nhs.co.uk"
+        };
+        request(args.app)
+          .post("/users")
+          .send(invalid)
+          .expect(httpStatus.OK)
+          .end((err, res) => {
+            expect(res.body.status).toEqual("error");
+            expect(res.body.code).toEqual(Constants.ERRORS.CREATE_USER);
+            expect(res.body.message).toEqual(
+              "User validation failed: username: admin@nhs.co.uk has already been registered"
+            );
+            done();
+          });
+      });
 
-    it("should validate user before creation - email", done => {
-      const invalid = {
-        firstname: "David",
-        lastname: "Robin",
-        phone: "094324783253",
-        username: "david",
-        password: "password"
-      };
-      request(args.app)
-        .post("/users")
-        .send(invalid)
-        .expect(httpStatus.OK)
-        .end((err, res) => {
-          expect(res.body.status).toEqual("error");
-          expect(res.body.code).toEqual(Constants.ERRORS.CREATE_USER);
-          expect(res.body.message).toEqual("Invalid username");
-          expect(res.body.data).toHaveProperty("errors");
-          expect(res.body.data.errors).toHaveProperty("username");
-          done();
-        });
-    });
+      it("should validate user before creation - email", done => {
+        const invalid = {
+          firstname: "David",
+          lastname: "Robin",
+          phone: "094324783253",
+          username: "david",
+          password: "password"
+        };
+        request(args.app)
+          .post("/users")
+          .send(invalid)
+          .expect(httpStatus.OK)
+          .end((err, res) => {
+            expect(res.body.status).toEqual("error");
+            expect(res.body.code).toEqual(Constants.ERRORS.CREATE_USER);
+            expect(res.body.message).toEqual("Invalid username");
+            expect(res.body.data).toHaveProperty("errors");
+            expect(res.body.data.errors).toHaveProperty("username");
+            done();
+          });
+      });
 
-    it("should save a valid keycloak id", done => {
-      request(args.app)
-        .post("/users")
-        .send(user)
-        .expect(httpStatus.OK)
-        .end((err, res) => {
-          expect(res.body.status).toEqual("success");
-          expect(res.body.data.firstname).toEqual(user.firstname);
-          expect(res.body.data.lastname).toEqual(user.lastname);
-          expect(res.body.data.phone).toEqual(user.phone);
-          expect(res.body.data.email).toEqual(user.username);
-          expect(res.body.data.keycloakId).toBeTruthy();
-          done();
-        });
+      it("should save a valid keycloak id", done => {
+        request(args.app)
+          .post("/users")
+          .send(user)
+          .expect(httpStatus.OK)
+          .end((err, res) => {
+            expect(res.body.status).toEqual("success");
+            expect(res.body.data.firstname).toEqual(user.firstname);
+            expect(res.body.data.lastname).toEqual(user.lastname);
+            expect(res.body.data.phone).toEqual(user.phone);
+            expect(res.body.data.email).toEqual(user.username);
+            expect(res.body.data.keycloakId).toBeTruthy();
+            done();
+          });
+      });
     });
   });
 
