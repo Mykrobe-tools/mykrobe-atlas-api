@@ -90,19 +90,6 @@ describe("UserController", () => {
         expect(data.phone).toEqual(user.phone);
         expect(data.email).toEqual(user.username);
       });
-
-      it("should create a personal organisation", () => {
-        const { organisation } = data;
-        expect(organisation.name).toEqual(`${user.firstname} ${user.lastname}`);
-      });
-
-      it("should assign the user as the organisation owner", () => {
-        const {
-          organisation: { owners }
-        } = data;
-        expect(owners[0].firstname).toEqual(user.firstname);
-        expect(owners[0].lastname).toEqual(user.lastname);
-      });
     });
 
     describe("when invalid", () => {
