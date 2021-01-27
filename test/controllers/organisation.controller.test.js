@@ -222,7 +222,7 @@ describe("OrganisationController", () => {
     });
     describe("when trying to update blacklisted fields", () => {
       beforeEach(async done => {
-        const member = await OrganisationHelper.createMember(args.user);
+        const member = await OrganisationHelper.getOrCreateMember(args.user);
         args.organisation.owners.push(member);
         await args.organisation.save();
         done();
@@ -276,7 +276,19 @@ describe("OrganisationController", () => {
         .expect(httpStatus.OK)
         .end((err, res) => {
           expect(Array.isArray(res.body.data)).toBe(true);
-          expect(res.body.data.length).toEqual(1);
+          expect(res.body.data.length).toEqual(2);
+          done();
+        });
+    });
+    it("should return a personal organisation", done => {
+      request(args.app)
+        .get("/organisations")
+        .set("Authorization", `Bearer ${args.token}`)
+        .expect(httpStatus.OK)
+        .end((err, res) => {
+          expect(Array.isArray(res.body.data)).toBe(true);
+          const personalOrganisation = res.body.data.find(item => item.name === "David Robin");
+          expect(personalOrganisation).toBeTruthy();
           done();
         });
     });
@@ -339,7 +351,7 @@ describe("OrganisationController", () => {
     });
     describe("when the user is part unapprovedMembers list", () => {
       beforeEach(async done => {
-        const member = await OrganisationHelper.createMember(args.user);
+        const member = await OrganisationHelper.getOrCreateMember(args.user);
         args.organisation.unapprovedMembers.push(member);
         await args.organisation.save();
         done();
@@ -370,7 +382,7 @@ describe("OrganisationController", () => {
     });
     describe("when the user is part rejectedMembers list", () => {
       beforeEach(async done => {
-        const member = await OrganisationHelper.createMember(args.user);
+        const member = await OrganisationHelper.getOrCreateMember(args.user);
         args.organisation.rejectedMembers.push(member);
         await args.organisation.save();
         done();
@@ -401,7 +413,7 @@ describe("OrganisationController", () => {
     });
     describe("when the user is already a member", () => {
       beforeEach(async done => {
-        const member = await OrganisationHelper.createMember(args.user);
+        const member = await OrganisationHelper.getOrCreateMember(args.user);
         args.organisation.members.push(member);
         await args.organisation.save();
         done();
@@ -434,7 +446,7 @@ describe("OrganisationController", () => {
   describe("POST /organisations/:id/members/:memberId/approve", () => {
     let member = null;
     beforeEach(async done => {
-      member = await OrganisationHelper.createMember(args.user);
+      member = await OrganisationHelper.getOrCreateMember(args.user);
       done();
     });
     describe("when the user is not authenticated", () => {
@@ -605,7 +617,7 @@ describe("OrganisationController", () => {
   describe("POST /organisations/:id/members/:memberId/reject", () => {
     let member = null;
     beforeEach(async done => {
-      member = await OrganisationHelper.createMember(args.user);
+      member = await OrganisationHelper.getOrCreateMember(args.user);
       done();
     });
     describe("when the user is not authenticated", () => {
@@ -751,7 +763,7 @@ describe("OrganisationController", () => {
   describe("POST /organisations/:id/members/:memberId/remove", () => {
     let member = null;
     beforeEach(async done => {
-      member = await OrganisationHelper.createMember(args.user);
+      member = await OrganisationHelper.getOrCreateMember(args.user);
       done();
     });
     describe("when the user is not authenticated", () => {
@@ -839,7 +851,7 @@ describe("OrganisationController", () => {
   describe("POST /organisations/:id/members/:memberId/promote", () => {
     let member = null;
     beforeEach(async done => {
-      member = await OrganisationHelper.createMember(args.user);
+      member = await OrganisationHelper.getOrCreateMember(args.user);
       done();
     });
     describe("when the user is not authenticated", () => {
@@ -938,7 +950,7 @@ describe("OrganisationController", () => {
   describe("POST /organisations/:id/owners/:memberId/demote", () => {
     let member = null;
     beforeEach(async done => {
-      member = await OrganisationHelper.createMember(args.user);
+      member = await OrganisationHelper.getOrCreateMember(args.user);
       done();
     });
     describe("when the user is not authenticated", () => {
@@ -1004,7 +1016,7 @@ describe("OrganisationController", () => {
         beforeEach(async done => {
           const ownerData = new User(users.thomas);
           const savedOwner = await ownerData.save();
-          const secondMember = await OrganisationHelper.createMember(savedOwner);
+          const secondMember = await OrganisationHelper.getOrCreateMember(savedOwner);
           args.organisation.owners.push(member);
           args.organisation.owners.push(secondMember);
           await args.organisation.save();
@@ -1111,7 +1123,7 @@ describe("OrganisationController", () => {
     });
     describe("when the user is an owner", () => {
       beforeEach(async done => {
-        const member = await OrganisationHelper.createMember(args.user);
+        const member = await OrganisationHelper.getOrCreateMember(args.user);
         args.organisation.owners.push(member);
         const saved = await args.organisation.save();
         done();

@@ -97,7 +97,14 @@ class OrganisationHelper {
    * Creates a member from a user
    * @param {User} user
    */
-  static async createMember(user) {
+  static async getOrCreateMember(user) {
+    const userId = user.id;
+    const foundMember = await Member.findByUserId(userId);
+
+    if (foundMember) {
+      return foundMember;
+    }
+
     const userJson = {
       userId: user.id,
       ...user.toJSON()

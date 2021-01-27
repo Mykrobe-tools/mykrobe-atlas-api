@@ -20,12 +20,21 @@ MemberSchema.method({});
  */
 MemberSchema.statics = {
   /**
+   * Get member by id
+   * @param {String} id - The id of member.
+   * @returns {Promise<Member, APIError>}
+   */
+  async get(id) {
+    return await this.findById(id).exec();
+  },
+
+  /**
    * Get member by userId
    * @param {String} userId - The id of user.
    * @returns {Promise<User, APIError>}
    */
-  async get(id) {
-    return await this.findById(id).exec();
+  async findByUserId(userId) {
+    return await this.findOne({ userId }).exec();
   }
 };
 

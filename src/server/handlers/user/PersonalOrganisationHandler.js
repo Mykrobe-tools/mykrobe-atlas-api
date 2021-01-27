@@ -16,7 +16,7 @@ class PersonalOrganisationHandler extends UserHandler {
   async handle(user) {
     const keycloak = AccountsHelper.keycloakInstance();
     const organisation = new Organisation({ name: `${user.firstname} ${user.lastname}` });
-    const member = await OrganisationHelper.createMember(user);
+    const member = await OrganisationHelper.getOrCreateMember(user);
     organisation.owners.push(member);
 
     try {
