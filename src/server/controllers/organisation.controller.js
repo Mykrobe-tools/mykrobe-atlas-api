@@ -46,7 +46,7 @@ const create = async (req, res) => {
   const body = normalizer.normalize(organisationSchema, req.body);
   const organisation = new Organisation(body);
 
-  const member = await OrganisationHelper.createMember(req.dbUser);
+  const member = await OrganisationHelper.getOrCreateMember(req.dbUser);
   organisation.owners.push(member);
 
   try {
@@ -131,7 +131,7 @@ const remove = async (req, res) => {
 const join = async (req, res) => {
   const organisation = req.organisation;
   try {
-    const member = await OrganisationHelper.createMember(req.dbUser);
+    const member = await OrganisationHelper.getOrCreateMember(req.dbUser);
     organisation.unapprovedMembers.push(member);
     const savedOrganisation = await organisation.save();
     return res.jsend(savedOrganisation);

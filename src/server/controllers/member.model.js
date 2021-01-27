@@ -33,7 +33,7 @@ MemberSchema.statics = {
    * @param {String} userId - The id of user.
    * @returns {Promise<User, APIError>}
    */
-  async findByUserId(userId) {
+  async getOrCreateMember(userId) {
     return await this.findOne({ userId }).exec();
   }
 };

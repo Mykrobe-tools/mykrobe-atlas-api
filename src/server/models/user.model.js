@@ -71,7 +71,20 @@ UserSchema.statics = {
     try {
       const user = await this.findById(id)
         .populate([
-          { path: "organisation" },
+          {
+            path: "organisation",
+            populate: {
+              path: "owners",
+              model: "Member"
+            }
+          },
+          {
+            path: "organisation",
+            populate: {
+              path: "members",
+              model: "Member"
+            }
+          },
           {
             path: "invitations",
             populate: {
@@ -111,7 +124,20 @@ UserSchema.statics = {
   async findUsersInvitations(email) {
     return this.findOne({ email })
       .populate([
-        { path: "organisation" },
+        {
+          path: "organisation",
+          populate: {
+            path: "owners",
+            model: "Member"
+          }
+        },
+        {
+          path: "organisation",
+          populate: {
+            path: "members",
+            model: "Member"
+          }
+        },
         {
           path: "invitations",
           populate: {
