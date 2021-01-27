@@ -1,5 +1,3 @@
-import { ACCEPTED } from "http-status";
-
 const Constants = {
   SEARCH_PENDING: "pending",
   SEARCH_COMPLETE: "complete",
