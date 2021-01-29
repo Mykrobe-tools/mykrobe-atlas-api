@@ -193,7 +193,7 @@ class OrganisationHelper {
       return false;
     }
 
-    return organisation.members && organisation.members.length === 0;
+    return !organisation.members || organisation.members.length === 0;
   }
 
   /**
