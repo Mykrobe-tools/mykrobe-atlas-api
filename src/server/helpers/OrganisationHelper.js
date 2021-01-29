@@ -203,20 +203,7 @@ class OrganisationHelper {
    * @param {*} newOrg
    */
   static async migrateSamples(oldOrg, newOrg) {
-    const operations = [];
-    const experiments = await Experiment.findByOrganisation(oldOrg);
-    for (const experiment of experiments) {
-      operations.push({
-        updateOne: {
-          filter: { _id: mongoose.Types.ObjectId(experiment.id) },
-          update: { $set: { organisation: mongoose.Types.ObjectId(newOrg.id) } }
-        }
-      });
-    }
-
-    if (operations.length > 0) {
-      await Experiment.collection.bulkWrite(operations);
-    }
+    await Experiment.updateMany({ organisation: oldOrg }, { $set: { organisation: newOrg } });
   }
 }
 
