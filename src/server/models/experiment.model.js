@@ -143,6 +143,14 @@ ExperimentSchema.statics = {
    */
   async findBySampleIds(ids, projection = null) {
     return this.find({ sampleId: { $in: ids } }, projection).exec();
+  },
+
+  /**
+   * Find experiments by organisationId
+   * @returns {Promise<Experiment[]>}
+   */
+  async findByOrganisation(organisation) {
+    return this.find({ organisation }).exec();
   }
 };
 

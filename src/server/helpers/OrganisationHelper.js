@@ -1,6 +1,8 @@
 import { APIError } from "makeandship-api-common/lib/modules/error";
 
 import Member from "../models/member.model";
+import Experiment from "../models/experiment.model";
+
 import Invitation from "../models/invitation.model";
 import MailProviderFactory from "../modules/mail/MailProviderFactory";
 import config from "../../config/env";
@@ -180,6 +182,15 @@ class OrganisationHelper {
     };
 
     await mailProvider.send(params);
+  }
+
+  /**
+   * Check if an organisation is empty
+   * @param {*} organisation
+   */
+  static async isEmpty(organisation) {
+    const experiments = await Experiment.findByOrganisation(organisation);
+    return organisation.members.length === 0 && experiments.length === 0;
   }
 }
 

@@ -40,6 +40,14 @@ const accept = async (req, res) => {
   const savedInvitation = await invitation.save();
   await keycloak.addToGroup(organisation.membersGroupId, user.keycloakId);
 
+  const currentUserOrganisation = user.organisation;
+  const isEmpty = await OrganisationHelper.isEmpty(currentUserOrganisation);
+  if (isEmpty) {
+    user.organisation = null;
+    await user.save();
+    await currentUserOrganisation.remove();
+  }
+
   return res.jsend(savedInvitation);
 };
 
