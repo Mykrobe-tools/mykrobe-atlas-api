@@ -41,8 +41,10 @@ const accept = async (req, res) => {
   await keycloak.addToGroup(organisation.membersGroupId, user.keycloakId);
 
   const currentUserOrganisation = user.organisation;
-  const isEmpty = await OrganisationHelper.isEmpty(currentUserOrganisation);
-  if (isEmpty) {
+  const hasNoMembers = await OrganisationHelper.hasNoMembers(currentUserOrganisation);
+  if (hasNoMembers) {
+    await OrganisationHelper.migrateSamples(currentUserOrganisation, organisation);
+
     user.organisation = null;
     await user.save();
     await currentUserOrganisation.remove();

@@ -185,13 +185,19 @@ describe("InvitationController", () => {
             done();
           });
       });
-      it("should not clear the user organisation", async () => {
+      it("should clear the user organisation", async () => {
         const user = await User.findByEmail("admin@nhs.co.uk");
-        expect(user.organisation).toBeTruthy();
+        expect(user.organisation).toBeFalsy();
       });
-      it("should not delete the user organisation", async () => {
+      it("should delete the user organisation", async () => {
         const orgList = await Organisation.list();
-        expect(orgList.length).toEqual(2);
+        expect(orgList.length).toEqual(1);
+        expect(orgList[0].name).toEqual("Apex Entertainment");
+      });
+      it("should migrate the organisation samples", async () => {
+        const experiments = await Experiment.list();
+        expect(experiments.length).toEqual(1);
+        expect(experiments[0].organisation.name).toEqual("Apex Entertainment");
       });
     });
   });
