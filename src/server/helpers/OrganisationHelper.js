@@ -1,4 +1,3 @@
-import mongoose from "mongoose";
 import { APIError } from "makeandship-api-common/lib/modules/error";
 
 import Member from "../models/member.model";
