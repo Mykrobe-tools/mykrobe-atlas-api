@@ -161,6 +161,17 @@ const approve = async (req, res) => {
     const savedOrganisation = await organisation.save();
     const memberUser = await User.get(savedMember.userId);
     await keycloak.addToGroup(organisation.membersGroupId, memberUser.keycloakId);
+
+    const currentUserOrganisation = req.dbUser.organisation;
+    const hasNoMembers = await OrganisationHelper.hasNoMembers(currentUserOrganisation);
+    if (hasNoMembers) {
+      await OrganisationHelper.migrateSamples(currentUserOrganisation, organisation);
+
+      user.organisation = null;
+      await user.save();
+      await currentUserOrganisation.remove();
+    }
+
     return res.jsend(savedOrganisation);
   } catch (e) {
     return res.jerror(ErrorUtil.convert(e, Constants.ERRORS.APPROVE_MEMBER));

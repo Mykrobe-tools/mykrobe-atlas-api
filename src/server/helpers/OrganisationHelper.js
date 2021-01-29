@@ -185,12 +185,28 @@ class OrganisationHelper {
   }
 
   /**
-   * Check if an organisation is empty
+   * Check if an organisation has no members
    * @param {*} organisation
    */
-  static async isEmpty(organisation) {
-    const experiments = await Experiment.findByOrganisation(organisation);
-    return organisation.members.length === 0 && experiments.length === 0;
+  static async hasNoMembers(organisation) {
+    if (!organisation) {
+      return false;
+    }
+
+    return organisation.members && organisation.members.length === 0;
+  }
+
+  /**
+   * Migrate samples from oldOrg to newOrg
+   * @param {*} oldOrg
+   * @param {*} newOrg
+   */
+  static async migrateSamples(oldOrg, newOrg) {
+    const experiments = await Experiment.findByOrganisation(oldOrg);
+    for (const experiment of experiments) {
+      experiment.organisation = newOrg;
+      await experiment.save();
+    }
   }
 }
 
