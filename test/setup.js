@@ -15,8 +15,8 @@ jasmine.DEFAULT_TIMEOUT_INTERVAL = 60000;
 let mongoServer;
 
 // mocked servers
-const elasticsearchMockServer = http.createServer(mockserver(`${__dirname}/mocks`));
-const keycloakMockServer = http.createServer(mockserver(`${__dirname}/mocks`));
+// const elasticsearchMockServer = http.createServer(mockserver(`${__dirname}/mocks`));
+// const keycloakMockServer = http.createServer(mockserver(`${__dirname}/mocks`));
 
 beforeAll(async done => {
   mongoServer = new MongodbMemoryServer({
@@ -35,14 +35,14 @@ beforeAll(async done => {
   });
 
   config.db.uri = mongoUri;
-  elasticsearchMockServer.listen(config.elasticsearch.port);
-  keycloakMockServer.listen(config.accounts.keycloak.admin.port);
+  // elasticsearchMockServer.listen(config.elasticsearch.port);
+  // keycloakMockServer.listen(config.accounts.keycloak.admin.port);
   done();
 });
 
 afterAll(async done => {
-  elasticsearchMockServer.close();
-  keycloakMockServer.close();
+  // elasticsearchMockServer.close();
+  // keycloakMockServer.close();
   done();
 });
 
@@ -50,6 +50,6 @@ afterAll(async done => {
 // enableExternalAtlasMockServices();
 
 // Mock calls to External Services (e.g. Dropbox)
-enableExternalThirdPartyMockServices();
+// enableExternalThirdPartyMockServices();
 
 export default { config, createApp };

@@ -1,3 +1,4 @@
+console.log("ExperimentsController");
 import httpStatus from "http-status";
 import mkdirp from "mkdirp-promise";
 import Promise from "bluebird";
@@ -114,9 +115,16 @@ const get = async (req, res) => {
  * @returns {Experiment}
  */
 const create = async (req, res) => {
+  logger.debug("ExperimentController#create: enter");
+  logger.debug(`ExperimentController#create: req.body: ${JSON.stringify(req.body, null, 2)}`);
+  logger.debug(`ExperimentController#create: req.param: ${JSON.stringify(req.param, null, 2)}`);
+  logger.debug(`ExperimentController#create: req.query: ${JSON.stringify(req.query, null, 2)}`);
+  logger.debug(`ExperimentController#create: req.user: ${JSON.stringify(req.user, null, 2)}`);
+  logger.debug(`ExperimentController#create: req.dbUser: ${JSON.stringify(req.dbUser, null, 2)}`);
   const experiment = new Experiment(req.body);
   const trackingService = new TrackingService();
   experiment.owner = req.dbUser;
+  logger.debug(`ExperimentController#create: owner: ${JSON.stringify(experiment.owner, null, 2)}`);
   experiment.organisation = req.dbUser.organisation;
   if (Constants.AUTOGENERATE_SAMPLE_ID === "yes") {
     experiment.sampleId = uuid.v1();
@@ -134,9 +142,13 @@ const create = async (req, res) => {
       savedExperiment,
       {}
     );
+    logger.debug(`ExperimentController#create: Index document ...`);
     await elasticService.indexDocument(indexableExperiment);
+    logger.debug(`ExperimentController#create: Document indexed ...`);
+    logger.debug(`ExperimentController#create: exit`);
     return res.jsend(savedExperiment);
   } catch (e) {
+    logger.debug(`ExperimentController#create: e: ${e}`);
     return res.jerror(ErrorUtil.convert(e, Constants.ERRORS.CREATE_EXPERIMENT));
   }
 };

@@ -25,6 +25,7 @@ const keycloak = AccountsHelper.keycloakInstance();
  * Load user and append to req.
  */
 const load = async (req, res, next, id) => {
+  console.log(`userController#load: enter`);
   try {
     const user = await User.get(id);
     req.dbUser = user;

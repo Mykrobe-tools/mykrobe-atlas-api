@@ -29,17 +29,18 @@ import { enableExternalAtlasMockServices } from "../external";
 const keycloak = AccountsHelper.keycloakInstance();
 
 const createApp = async options => {
+  logger.debug(`createApp: enter`);
   const settings = Object.assign(config.express, options);
   const { rateLimitReset, rateLimitMax, limit, corsOptions = {} } = settings;
 
   const app = express();
-
+  logger.debug(`createApp: express generated`);
   if (config.env === "development") {
     // enable analysis API services
-    enableExternalAtlasMockServices();
+    // enableExternalAtlasMockServices();
   }
 
-  // parse body params and attache them to req.body
+  // parse body params and attached them to req.body
   app.use(bodyParser.json({ limit }));
   app.use(bodyParser.urlencoded({ limit, extended: true }));
 
@@ -56,9 +57,15 @@ const createApp = async options => {
   // Support request ids
   app.use(addRequestId());
 
+  logger.debug(`createApp: Services configured`);
+
   // Keycloak for account management
+  console.log(keycloak.connect);
   app.use(keycloak.connect.middleware());
+  console.log(keycloak.getUserMiddleware);
   app.use(keycloak.getUserMiddleware.bind(keycloak));
+
+  logger.debug(`createApp: Keycloak middleware configured`);
 
   // logging - true, 1 or "1"
   const isDebug = !!process.env.DEBUG;
@@ -87,22 +94,27 @@ const createApp = async options => {
     })
   );
 
+  logger.debug(`createApp: Logging middleware configured`);
+
   // 1000 requests per 15 min
-  const limiter = new RateLimit({
-    windowMs: rateLimitReset,
-    max: rateLimitMax,
-    delayMs: 0, // disable delaying - full speed until the max limit is reached
-    onLimitReached: (req, res) => {
-      throw new APIError(
-        Constants.ERRORS.API_ERROR,
-        "Too many requests, please try again later.",
-        null,
-        httpStatus.TOO_MANY_REQUESTS
-      );
-    }
-  });
+  // const limiter = new RateLimit({
+  //   windowMs: rateLimitReset,
+  //   max: rateLimitMax,
+  //   delayMs: 0, // disable delaying - full speed until the max limit is reached
+  //   onLimitReached: (req, res) => {
+  //     throw new APIError(
+  //       Constants.ERRORS.API_ERROR,
+  //       "Too many requests, please try again later.",
+  //       null,
+  //       httpStatus.TOO_MANY_REQUESTS
+  //     );
+  //   }
+  // });
   // mount all routes on / path
-  app.use("/", limiter, routes);
+  // app.use("/", limiter, routes);
+  app.use("/", routes);
+
+  logger.debug(`createApp: Rate limited configured`);
 
   // catch 404 and forward to error handler
   app.use((req, res, next) => {
@@ -115,6 +127,8 @@ const createApp = async options => {
     );
     return res.jerror(err);
   });
+
+  logger.debug(`createApp: Error handler configured`);
 
   // return the rich jsend response.
   app.use((err, req, res, next) => {
@@ -137,8 +151,11 @@ const createApp = async options => {
 
   logger.debug("ExpressInitializer#initialize: Initializing ...");
   const initializer = new ExpressInitializer(express);
+  logger.debug(`1`);
   initializer.add(new JsendInitializer());
-  initializer.add(new GroupsInitializer());
+  logger.debug(`2`);
+  //initializer.add(new GroupsInitializer());
+  logger.debug(`3`);
   await initializer.initialize();
   logger.debug("ExpressInitializer#initialize: Initialization complete");
 

@@ -5,7 +5,11 @@ import config from "../../config/env";
 
 const router = express.Router(); // eslint-disable-line new-cap
 const keycloak = AccountsHelper.keycloakInstance();
-
+console.log(`keycloak: ${keycloak}`);
+console.log(`keycloak.connect: ${JSON.stringify(keycloak.connect, null, 2)}`);
+console.log(`keycloak.connect.protect: ${keycloak.connect.protect}`);
+console.log(`userController: ${userController}`);
+console.log(`userController.loadCurrentUser: ${userController.loadCurrentUser}`);
 /**
  * @swagger
  * definitions:

@@ -1,3 +1,4 @@
+console.log("AccountsHelper");
 import httpStatus from "http-status";
 import { Keycloak } from "makeandship-api-common/lib/modules/accounts";
 import { AuthError } from "makeandship-api-common/lib/modules/error";

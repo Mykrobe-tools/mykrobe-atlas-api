@@ -2,7 +2,9 @@ module.exports = {
   testRegex: "(/test/(controllers|helpers)/.*?test).[jt]sx?$",
   testPathIgnorePatterns: ["test/helpers/AgendaHelper.test.js"],
   collectCoverage: false,
-  testEnvironment: "node",
+  globalSetup: "./test/JestSetup.js",
+  globalTeardown: "./test/JestTeardown.js",
+  testEnvironment: "./test/MongoEnvironment.js",
   reporters: [
     "default",
     [
