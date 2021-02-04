@@ -14,7 +14,7 @@ class TrackingService {
 
     // create if missing
     if (!tracking) {
-      const sampleId = await this.create(isolateId, experimentId);
+      const sampleId = await this.create(experimentId, isolateId);
       return sampleId;
     }
 
