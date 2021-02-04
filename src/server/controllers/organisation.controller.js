@@ -172,7 +172,7 @@ const approve = async (req, res) => {
       await currentUserOrganisation.remove();
     }
 
-    await OrganisationHelper.sendJoinRequestApprovedNotification(memberUser.email);
+    await OrganisationHelper.sendJoinRequestApprovedNotification(memberUser.email, organisation);
 
     return res.jsend(savedOrganisation);
   } catch (e) {

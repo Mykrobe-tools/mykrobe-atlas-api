@@ -209,10 +209,11 @@ class OrganisationHelper {
    * Send join request notification
    * @param {*} owners
    */
-  static async sendJoinRequestNotification(owners) {
+  static async sendJoinRequestNotification(organisation) {
     const mailProvider = MailProviderFactory.create(config.mail.provider);
 
     const { mail: mailConfig } = config;
+    const { owners, id } = organisation;
 
     const { joinRequestTemplate: templateName, joinRequestSubject: subject } = mailConfig;
 
@@ -221,6 +222,7 @@ class OrganisationHelper {
         templateName,
         email: owner.email,
         content: {
+          LINK: `${config.express.apiBaseUrl}/organisations/${id}`,
           subject
         }
       };
@@ -232,7 +234,7 @@ class OrganisationHelper {
    * Send join request approved notification
    * @param {*} email
    */
-  static async sendJoinRequestApprovedNotification(email) {
+  static async sendJoinRequestApprovedNotification(email, organisation) {
     const mailProvider = MailProviderFactory.create(config.mail.provider);
 
     const { mail: mailConfig } = config;
@@ -246,6 +248,7 @@ class OrganisationHelper {
       templateName,
       email,
       content: {
+        LINK: `${config.express.apiBaseUrl}/organisations/${organisation.id}`,
         subject
       }
     };
