@@ -11,7 +11,7 @@ export default {
   invitationSubject: "Invitation to Mykrobe Organisation",
   registrationSubject: "Invitation to join Mykrobe Atlas",
   joinRequestSubject: "A new member joined your organisation",
-  joinRequestApprovedSubject: "A new member joined your organisation",
+  joinRequestApprovedSubject: "Your join request has been approved",
   invitationTemplate: "atlas-invitation",
   registrationTemplate: "atlas-registration",
   joinRequestTemplate: "atlas-join-request",
