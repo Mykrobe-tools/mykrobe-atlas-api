@@ -50,6 +50,8 @@ const accept = async (req, res) => {
     await currentUserOrganisation.remove();
   }
 
+  await OrganisationHelper.sendJoinRequestNotification(organisation.owners);
+
   return res.jsend(savedInvitation);
 };
 

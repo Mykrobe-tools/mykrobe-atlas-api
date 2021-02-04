@@ -172,6 +172,8 @@ const approve = async (req, res) => {
       await currentUserOrganisation.remove();
     }
 
+    await OrganisationHelper.sendJoinRequestApprovedNotification(memberUser.email);
+
     return res.jsend(savedOrganisation);
   } catch (e) {
     return res.jerror(ErrorUtil.convert(e, Constants.ERRORS.APPROVE_MEMBER));
