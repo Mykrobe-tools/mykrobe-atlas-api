@@ -10,7 +10,11 @@ export default {
   registerLink: process.env.MANDRILL_REGISTER_LINK,
   invitationSubject: "Invitation to Mykrobe Organisation",
   registrationSubject: "Invitation to join Mykrobe Atlas",
+  joinRequestSubject: "A new member joined your organisation",
+  joinRequestApprovedSubject: "Your join request has been approved",
   invitationTemplate: "atlas-invitation",
   registrationTemplate: "atlas-registration",
+  joinRequestTemplate: "atlas-join-request",
+  joinRequestApprovedTemplate: "atlas-join-request-approved",
   provider: "Mandrill"
 };

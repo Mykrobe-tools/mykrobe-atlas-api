@@ -204,6 +204,56 @@ class OrganisationHelper {
   static async migrateSamples(oldOrg, newOrg) {
     await Experiment.updateMany({ organisation: oldOrg }, { $set: { organisation: newOrg } });
   }
+
+  /**
+   * Send join request notification
+   * @param {*} owners
+   */
+  static async sendJoinRequestNotification(organisation) {
+    const mailProvider = MailProviderFactory.create(config.mail.provider);
+
+    const { mail: mailConfig } = config;
+    const { owners, id } = organisation;
+
+    const { joinRequestTemplate: templateName, joinRequestSubject: subject } = mailConfig;
+
+    for (const owner of owners) {
+      const params = {
+        templateName,
+        email: owner.email,
+        content: {
+          LINK: `${config.express.apiBaseUrl}/organisations/${id}`,
+          subject
+        }
+      };
+      await mailProvider.send(params);
+    }
+  }
+
+  /**
+   * Send join request approved notification
+   * @param {*} email
+   */
+  static async sendJoinRequestApprovedNotification(email, organisation) {
+    const mailProvider = MailProviderFactory.create(config.mail.provider);
+
+    const { mail: mailConfig } = config;
+
+    const {
+      joinRequestApprovedTemplate: templateName,
+      joinRequestApprovedSubject: subject
+    } = mailConfig;
+
+    const params = {
+      templateName,
+      email,
+      content: {
+        LINK: `${config.express.apiBaseUrl}/organisations/${organisation.id}`,
+        subject
+      }
+    };
+    await mailProvider.send(params);
+  }
 }
 
 export default OrganisationHelper;

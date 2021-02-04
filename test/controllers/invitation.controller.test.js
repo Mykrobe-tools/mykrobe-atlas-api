@@ -16,6 +16,8 @@ import users from "../fixtures/users";
 import organisations from "../fixtures/organisations";
 import experiments from "../fixtures/experiments";
 
+jest.mock("../../src/server/modules/mail/MandrillService");
+
 const args = {
   app: null,
   token: null,
