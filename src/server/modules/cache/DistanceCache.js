@@ -10,12 +10,12 @@ class DistanceCache {
 
   setResult(sampleId, result, expiry = Constants.DISTANCE_RESULT_IN_SECONDS) {
     const key = this.getKey(sampleId);
-    Cache.setJson(key, result, expiry);
+    Cache.set(key, result, expiry);
   }
 
   async getResult(sampleId) {
     const key = this.getKey(sampleId);
-    return await Cache.getJson(key);
+    return await Cache.get(key);
   }
 
   async deleteResult(sampleId) {

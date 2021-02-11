@@ -89,8 +89,19 @@ const get = async (req, res) => {
       calledBy: true
     });
 
-    const results = experimentJSON.results;
+    const results = experimentJSON.results || {};
     const distanceResults = await DistanceCache.getResult(experimentJSON.sampleId);
+
+    if (distanceResults) {
+      results.distance = distanceResults;
+    } else {
+      const scheduler = await Scheduler.getInstance();
+      await scheduler.schedule("now", "call distance api", {
+        experiment_id: experimentJSON.id,
+        experiment: experimentJSON
+      });
+    }
+
     if (results) {
       const promises = {};
 
@@ -101,16 +112,6 @@ const get = async (req, res) => {
       });
 
       experimentJSON.results = await Promise.props(promises);
-    }
-
-    if (distanceResults) {
-      experimentJSON.results.push(distanceResults);
-    } else {
-      const scheduler = await Scheduler.getInstance();
-      await scheduler.schedule("now", "call distance api", {
-        experiment_id: experimentJSON.id,
-        experiment: experimentJSON
-      });
     }
 
     if (experimentJSON) {

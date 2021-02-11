@@ -9,6 +9,7 @@ import Constants from "../../src/server/Constants";
 import { config, createApp } from "../setup";
 
 import { ElasticService } from "makeandship-api-common/lib/modules/elasticsearch/";
+
 import {
   SearchQuery,
   AggregationSearchQuery
@@ -23,6 +24,7 @@ import Audit from "../../src/server/models/audit.model";
 import Tree from "../../src/server/models/tree.model";
 import Search from "../../src/server/models/search.model";
 import Organisation from "../../src/server/models/organisation.model";
+import DistanceCache from "../../src/server/modules/cache/DistanceCache";
 
 import { experimentEventEmitter, userEventEmitter } from "../../src/server/modules/events";
 
@@ -419,28 +421,45 @@ describe("ExperimentController", () => {
         });
       });
       describe("when using distance results", () => {
+        let mockRedisServiceGet = null;
         beforeEach(async done => {
           const experimentWithMetadataResults = new Experiment(experiments.tbUploadMetadataResults);
           const savedExperimentWithMetadataResults = await experimentWithMetadataResults.save();
-          const savedMetadata = savedExperimentWithMetadataResults.get("metadata");
 
-          const experiment = await Experiment.get(args.id);
-          const experimentResults = [];
-          experimentResults.push({
-            type: "distance",
-            leafId: "fa808a8d-ba39-4464-8704-c9fc68b1f79b",
-            experiments: [
-              {
-                sampleId: savedExperimentWithMetadataResults.sampleId,
-                leafId: "4437d2dc-12b9-4639-aab3-94e8583ee427",
-                distance: 24
-              }
-            ]
+          // mock the RedisService.get method to return a fixed value regardless of key
+          mockRedisServiceGet = jest.spyOn(DistanceCache, "getResult").mockImplementation(() => {
+            return {
+              type: "distance",
+              leafId: "fa808a8d-ba39-4464-8704-c9fc68b1f79b",
+              experiments: [
+                {
+                  sampleId: savedExperimentWithMetadataResults.sampleId,
+                  leafId: "4437d2dc-12b9-4639-aab3-94e8583ee427",
+                  distance: 24
+                }
+              ]
+            };
           });
-          experiment.set("results", experimentResults);
-          await experiment.save();
           done();
         });
+        afterEach(() => {
+          jest.clearAllMocks();
+        });
+
+        it("should call redis service", done => {
+          request(args.app)
+            .get(`/experiments/${args.id}`)
+            .set("Authorization", `Bearer ${args.token}`)
+            .expect(httpStatus.OK)
+            .end((err, res) => {
+              expect(mockRedisServiceGet).toHaveBeenCalledTimes(1);
+              expect(mockRedisServiceGet).toHaveBeenCalledWith(
+                "9a981339-d0b4-4dcb-ba0d-efe8ed37b9d6"
+              );
+              done();
+            });
+        });
+
         it("should inflate the distance results", done => {
           request(args.app)
             .get(`/experiments/${args.id}`)
@@ -1947,6 +1966,65 @@ describe("ExperimentController", () => {
           });
       });
     });
+    describe("when posting distance results", () => {
+      let mockRedisServiceSet = null;
+      beforeEach(async done => {
+        // mock the RedisService.get method to return a fixed value regardless of key
+        mockRedisServiceSet = jest.spyOn(DistanceCache, "setResult").mockImplementation(() => {
+          return true;
+        });
+        done();
+      });
+      afterEach(() => {
+        jest.clearAllMocks();
+      });
+
+      it("should call redis service", done => {
+        request(args.app)
+          .post(`/experiments/${args.id}/results`)
+          .set("Authorization", `Bearer ${args.token}`)
+          .send(DISTANCE)
+          .expect(httpStatus.OK)
+          .end((err, res) => {
+            expect(mockRedisServiceSet).toHaveBeenCalledTimes(1);
+            expect(mockRedisServiceSet).toHaveBeenCalledWith(
+              "9a981339-d0b4-4dcb-ba0d-efe8ed37b9d6",
+              expect.objectContaining({
+                experiments: [
+                  {
+                    distance: 23,
+                    leafId: "leaf_1208",
+                    sampleId: "8bc98496-9bf8-4111-a40f-5c99ac28e690"
+                  },
+                  {
+                    distance: 12,
+                    leafId: "leaf_1208",
+                    sampleId: "087efc5c-cffa-41dc-b671-5854861af144"
+                  }
+                ],
+                leafId: "leaf_1208",
+                type: "distance"
+              })
+            );
+            done();
+          });
+      });
+      it("should not save distance results in the database", done => {
+        request(args.app)
+          .post(`/experiments/${args.id}/results`)
+          .set("Authorization", `Bearer ${args.token}`)
+          .send(DISTANCE)
+          .expect(httpStatus.OK)
+          .end((err, res) => {
+            expect(res.body.status).toEqual("success");
+            expect(res.body.data).toHaveProperty("results");
+            expect(res.body.data).toHaveProperty("leafId");
+            expect(Object.keys(res.body.data.results).length).toEqual(0);
+
+            done();
+          });
+      });
+    });
     it("should be successful", done => {
       request(args.app)
         .post(`/experiments/${args.id}/results`)
@@ -2006,30 +2084,6 @@ describe("ExperimentController", () => {
           const results = experimentWithResults.get("results");
 
           expect(results.length).toEqual(1);
-          done();
-        });
-    });
-    it("should create distance results", done => {
-      request(args.app)
-        .post(`/experiments/${args.id}/results`)
-        .set("Authorization", `Bearer ${args.token}`)
-        .send(DISTANCE)
-        .expect(httpStatus.OK)
-        .end((err, res) => {
-          expect(res.body.status).toEqual("success");
-          expect(res.body.data).toHaveProperty("results");
-          expect(Object.keys(res.body.data.results).length).toEqual(1);
-
-          const distance = res.body.data.results["distance"];
-
-          expect(distance.type).toEqual("distance");
-          expect(distance.experiments.length).toEqual(2);
-          distance.experiments.forEach(experiment => {
-            expect(experiment).toHaveProperty("sampleId");
-            expect(experiment).toHaveProperty("leafId");
-            expect(experiment).toHaveProperty("distance");
-          });
-
           done();
         });
     });
