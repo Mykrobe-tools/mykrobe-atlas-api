@@ -22,6 +22,7 @@ import Tree from "../models/tree.model";
 
 import CacheHelper from "../modules/cache/CacheHelper";
 import ResponseCache from "../modules/cache/ResponseCache";
+import DistanceCache from "../modules/cache/DistanceCache";
 
 import SearchConfig from "../modules/search/SearchConfig";
 import SearchQueryDecorator from "../modules/search/search-query-decorator";
@@ -89,6 +90,7 @@ const get = async (req, res) => {
     });
 
     const results = experimentJSON.results;
+    const distanceResults = await DistanceCache.getResult(experimentJSON.sampleId);
     if (results) {
       const promises = {};
 
@@ -99,6 +101,16 @@ const get = async (req, res) => {
       });
 
       experimentJSON.results = await Promise.props(promises);
+    }
+
+    if (distanceResults) {
+      experimentJSON.results.push(distanceResults);
+    } else {
+      const scheduler = await Scheduler.getInstance();
+      await scheduler.schedule("now", "call distance api", {
+        experiment_id: experimentJSON.id,
+        experiment: experimentJSON
+      });
     }
 
     if (experimentJSON) {
@@ -250,19 +262,25 @@ const results = async (req, res) => {
       `ExperimentsController#results: Distance leafId: ${JSON.stringify(result.leafId)}`
     );
     experiment.leafId = result.leafId;
+    DistanceCache.setResult(experiment.sampleId, result);
+    if (experiment.awaitingFirstDistanceResult) {
+      await DistanceCache.deleteResults(result);
+      experiment.awaitingFirstDistanceResult = false;
+    }
+    logger.debug(`ExperimentsController#results: Distance result added to the cache`);
+  } else {
+    const results = experiment.get("results");
+
+    const updatedResults = [];
+    if (results) {
+      logger.debug(`ExperimentsController#results: Results already exist`);
+      updatedResults.push(...results);
+    }
+
+    updatedResults.push(result);
+    experiment.set("results", updatedResults);
+    logger.debug(`ExperimentsController#results: Result added to results`);
   }
-
-  const results = experiment.get("results");
-
-  const updatedResults = [];
-  if (results) {
-    logger.debug(`ExperimentsController#results: Results already exist`);
-    updatedResults.push(...results);
-  }
-
-  updatedResults.push(result);
-  experiment.set("results", updatedResults);
-  logger.debug(`ExperimentsController#results: Result added to results`);
 
   try {
     logger.debug(`ExperimentsController#results: Saving experiment ...`);

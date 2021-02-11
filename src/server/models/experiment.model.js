@@ -61,6 +61,10 @@ ExperimentSchema.pre("save", async function() {
   ) {
     await ExperimentHelper.enhanceWithGeocode(this);
   }
+
+  if (this.isNew) {
+    this.awaitingFirstDistanceResult = true;
+  }
 });
 
 /**

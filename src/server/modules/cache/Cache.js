@@ -58,6 +58,17 @@ class Cache {
     }
     return null;
   }
+
+  async delete(name) {
+    const key = this.getKey(name);
+
+    if (key) {
+      const result = await RedisService.delKey(key);
+      return result;
+    }
+
+    return null;
+  }
 }
 
 const cache = new Cache();
