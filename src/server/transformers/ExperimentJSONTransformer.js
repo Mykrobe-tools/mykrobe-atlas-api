@@ -8,7 +8,7 @@ import MetadataJSONTransformer from "./MetadataJSONTransformer";
 import FileJSONTransformer from "./FileJSONTransformer";
 import ExperimentResultsPerTypeJSONTransformer from "./ExperimentResultsPerTypeJSONTransformer";
 
-const BLACKLIST = ["__v"];
+const BLACKLIST = ["__v", "awaitingFirstDistanceResult"];
 
 /**
  * A class to transform json responses
