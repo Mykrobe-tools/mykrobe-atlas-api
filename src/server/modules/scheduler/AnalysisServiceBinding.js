@@ -99,14 +99,13 @@ class AnalysisServiceBinding {
 
     if (data) {
       const experiment = data.experiment;
-      const type = data.type;
 
       try {
         if (!data.attempt) {
           data.attempt = 0;
         }
         if (data.attempt < config.services.analysisApiMaxRetries) {
-          const taskId = await this.service.distance(experiment, type);
+          const taskId = await this.service.distance(experiment);
 
           // create an audit trail of the successful action
           const audit = new Audit({

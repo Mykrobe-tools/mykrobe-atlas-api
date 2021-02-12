@@ -36,18 +36,14 @@ class AnalysisService {
     throw new Error(`Call to predictor service failed.  Missing response`);
   }
 
-  async distance(experiment, type) {
+  async distance(experiment) {
     if (!experiment) {
       throw new Error(`Call to distance service failed.  Missing experiment`);
-    }
-    if (!type) {
-      throw new Error(`Call to distance service failed.  Missing type`);
     }
 
     const uri = `${config.services.analysisApiUrl}/distance`;
     const payload = {
       sample_id: experiment.sampleId,
-      distance_type: type,
       callback_url: `/experiments/${experiment.id}/results`
     };
     logger.debug(`AnalysisService#distance: POST ${uri}`);
@@ -59,6 +55,7 @@ class AnalysisService {
       return taskId;
     }
   }
+
   async search(search) {
     if (!search) {
       throw new Error(`Call to search service failed.  Missing search`);
