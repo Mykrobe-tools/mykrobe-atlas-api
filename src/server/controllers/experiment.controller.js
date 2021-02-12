@@ -287,6 +287,13 @@ const results = async (req, res) => {
     logger.debug(`ExperimentsController#results: Saving experiment ...`);
     const savedExperiment = await experiment.save();
 
+    logger.debug(`ExperimentsController#results: Clear experiment get cache ...`);
+    const query = { id };
+    logger.debug(`ExperimentController#get: Generate hash for: ${JSON.stringify(query)}`);
+    const hash = CacheHelper.getObjectHash(query);
+    logger.debug(`ExperimentController#get: Clear #get for: ${JSON.stringify(hash)}`);
+    const cached = await ResponseCache.deleteQueryResponse(`get`, hash);
+
     logger.debug(`ExperimentsController#results: Experiment saved`);
     const experimentJSON = new ExperimentJSONTransformer().transform(savedExperiment);
 

@@ -38,6 +38,13 @@ class ResponseCache {
     const value = await Cache.getJson(key);
     return value;
   }
+
+  async deleteQueryResponse(methodKey, queryKey) {
+    logger.debug(`ResponseCache#deleteQueryResponse: enter`);
+    const key = this.getKey(`${methodKey}-${queryKey}`);
+    logger.debug(`ResponseCache#deleteQueryResponse: key: ${key}`);
+    return await Cache.delete(key);
+  }
 }
 
 const cache = new ResponseCache();
