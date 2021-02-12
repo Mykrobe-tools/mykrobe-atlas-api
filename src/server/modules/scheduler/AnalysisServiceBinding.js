@@ -99,6 +99,7 @@ class AnalysisServiceBinding {
 
     if (data) {
       const experiment = data.experiment;
+      const file = experiment.files && experiment.files.length ? experiment.files[0] : null;
 
       try {
         if (!data.attempt) {
