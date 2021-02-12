@@ -288,7 +288,7 @@ const results = async (req, res) => {
     const savedExperiment = await experiment.save();
 
     logger.debug(`ExperimentsController#results: Clear experiment get cache ...`);
-    const query = { id };
+    const query = { id: savedExperiment.id };
     logger.debug(`ExperimentController#get: Generate hash for: ${JSON.stringify(query)}`);
     const hash = CacheHelper.getObjectHash(query);
     logger.debug(`ExperimentController#get: Clear #get for: ${JSON.stringify(hash)}`);
