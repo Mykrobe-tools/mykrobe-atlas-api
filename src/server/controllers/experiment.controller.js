@@ -47,6 +47,7 @@ import ExperimentJSONTransformer from "../transformers/ExperimentJSONTransformer
 import ExperimentSearchJSONTransformer from "../transformers/ExperimentSearchJSONTransformer";
 import ExperimentsResultJSONTransformer from "../transformers/es/ExperimentsResultJSONTransformer";
 import ResultsJSONTransformer from "../transformers/ResultsJSONTransformer";
+import ExperimentJobJSONTransformer from "../transformers/ExperimentJobJSONTransformer";
 
 import config from "../../config/env";
 import Constants from "../Constants";
@@ -98,7 +99,7 @@ const get = async (req, res) => {
       const scheduler = await Scheduler.getInstance();
       await scheduler.schedule("now", "call distance api", {
         experiment_id: experimentJSON.id,
-        experiment: experimentJSON
+        experiment: new ExperimentJobJSONTransformer().transform(experimentJSON)
       });
     }
 
@@ -347,7 +348,7 @@ const uploadFile = async (req, res) => {
         `${uploadsLocation}/${req.body.name}`
       );
       await experiment.save();
-      const thirdPartyExperimentJson = new ExperimentJSONTransformer().transform(experiment);
+      const thirdPartyExperimentJson = new ExperimentJobJSONTransformer().transform(experiment);
 
       await mkdirp(path);
       const downloader = DownloadersFactory.create(`${path}/${req.body.name}`, {
@@ -435,7 +436,7 @@ const uploadFile = async (req, res) => {
 
           // read the experiments data from the db to get the latest files state
           const uploadedExperiment = await Experiment.get(experimentJson.id);
-          const uploadedExperimentJson = new ExperimentJSONTransformer().transform(
+          const uploadedExperimentJson = new ExperimentJobJSONTransformer().transform(
             uploadedExperiment
           );
           await scheduler.schedule("now", "call analysis api", {
@@ -712,7 +713,7 @@ const tree = async (req, res) => {
  */
 const refreshResults = async (req, res) => {
   const experiment = req.experiment;
-  const experimentJson = new ExperimentJSONTransformer().transform(experiment);
+  const experimentJson = new ExperimentJobJSONTransformer().transform(experiment);
 
   const scheduler = await Scheduler.getInstance();
   await scheduler.schedule("now", "call distance api", {
