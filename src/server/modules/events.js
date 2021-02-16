@@ -17,6 +17,7 @@ import ProteinVariantSearchStartedEventJSONTransformer from "../transformers/eve
 import ProteinVariantSearchCompleteEventJSONTransformer from "../transformers/events/ProteinVariantSearchCompleteEventJSONTransformer";
 import DnaVariantSearchStartedEventJSONTransformer from "../transformers/events/DnaVariantSearchStartedEventJSONTransformer";
 import DnaVariantSearchCompleteEventJSONTransformer from "../transformers/events/DnaVariantSearchCompleteEventJSONTransformer";
+import DistanceCompletedJSONTransformer from "../transformers/events/DistanceCompletedJSONTransformer";
 
 import logger from "./logging/logger";
 
@@ -128,6 +129,17 @@ experimentEventEmitter.on(Constants.EVENTS.DISTANCE_SEARCH_STARTED.EVENT, async 
         {}
       );
       sendExperimentOwnerEvent(experiment, data, Constants.EVENTS.DISTANCE_SEARCH_STARTED.EVENT);
+    }
+  } catch (e) {}
+});
+
+experimentEventEmitter.on(Constants.EVENTS.DISTANCE_SEARCH_COMPLETE.EVENT, async payload => {
+  try {
+    const { experiment } = payload;
+
+    if (experiment) {
+      const data = new DistanceCompletedJSONTransformer().transform({ experiment }, {});
+      sendExperimentOwnerEvent(experiment, data, Constants.EVENTS.DISTANCE_SEARCH_COMPLETE.EVENT);
     }
   } catch (e) {}
 });

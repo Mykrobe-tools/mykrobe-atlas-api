@@ -270,6 +270,12 @@ const results = async (req, res) => {
       experiment.awaitingFirstDistanceResult = false;
     }
     logger.debug(`ExperimentsController#results: Distance result added to the cache`);
+    experimentEventEmitter.emit(Constants.EVENTS.DISTANCE_SEARCH_COMPLETE.EVENT, {
+      experiment: new ExperimentJSONTransformer().transform(experiment)
+    });
+    logger.debug(
+      `ExperimentsController#results: ${Constants.EVENTS.DISTANCE_SEARCH_COMPLETE.NAME} event sent to the client`
+    );
   } else {
     const results = experiment.get("results");
 
