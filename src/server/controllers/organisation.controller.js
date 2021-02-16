@@ -145,11 +145,12 @@ const join = async (req, res) => {
  * @returns {Organisation}
  */
 const approve = async (req, res) => {
+  const user = req.dbUser;
   const organisation = req.organisation;
   try {
     const userJson = {
-      userId: req.dbUser.id,
-      ...req.dbUser.toJSON()
+      userId: user.id,
+      ...user.toJSON()
     };
     delete userJson.id;
     const member = await Member.get(req.params.memberId);
@@ -162,7 +163,7 @@ const approve = async (req, res) => {
     const memberUser = await User.get(savedMember.userId);
     await keycloak.addToGroup(organisation.membersGroupId, memberUser.keycloakId);
 
-    const currentUserOrganisation = req.dbUser.organisation;
+    const currentUserOrganisation = user.organisation;
     const hasNoMembers = await OrganisationHelper.hasNoMembers(currentUserOrganisation);
     if (hasNoMembers) {
       await OrganisationHelper.migrateSamples(currentUserOrganisation, organisation);
