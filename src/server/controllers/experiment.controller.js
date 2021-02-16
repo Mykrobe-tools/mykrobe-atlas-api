@@ -81,7 +81,7 @@ const get = async (req, res) => {
   const hash = CacheHelper.getObjectHash(query);
   logger.debug(`ExperimentController#get: Check #get for: ${JSON.stringify(hash)}`);
   const cached = await ResponseCache.getQueryResponse(`get`, hash);
-  if (cached && typeof cached !== "undefined") {
+  if (cached && typeof cached !== "undefined" && cached.results && cached.results.distance) {
     logger.debug(`ExperimentController#get: Using cached response`);
     return res.jsend(cached);
   } else {
