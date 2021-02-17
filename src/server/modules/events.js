@@ -148,7 +148,7 @@ experimentEventEmitter.on(Constants.EVENTS.DISTANCE_SEARCH_COMPLETE.EVENT, async
 
       if (notify && notify.length) {
         const userIds = notify.map(user => user.id);
-        const uniqueUserIds = [...new Set(userIds)]; // string duplicates - notify once per user
+        const uniqueUserIds = [...new Set(userIds)]; // remove id duplicates - notify once per user
         logger.debug(`Distance search complete: User ids: ${JSON.stringify(uniqueUserIds)}`);
         for (const userId of uniqueUserIds) {
           sendUserEvent(userId, data);
