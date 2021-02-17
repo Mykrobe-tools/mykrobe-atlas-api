@@ -292,13 +292,14 @@ const results = async (req, res) => {
       experiment.awaitingFirstDistanceResult = false;
     }
     const users = await WatchCache.getUsers(experiment.id);
+    const watchers = users && users.length ? users : [];
     logger.debug(
-      `ExperimentsController#results: ${users.length} users watching for results of ${experiment.id}`
+      `ExperimentsController#results: ${watchers.length} users watching for results of ${experiment.id}`
     );
     logger.debug(`ExperimentsController#results: Distance result added to the cache`);
     experimentEventEmitter.emit(Constants.EVENTS.DISTANCE_SEARCH_COMPLETE.EVENT, {
       experiment: new ExperimentJSONTransformer().transform(experiment),
-      users
+      users: watchers
     });
     logger.debug(
       `ExperimentsController#results: ${Constants.EVENTS.DISTANCE_SEARCH_COMPLETE.NAME} event sent to the client`
