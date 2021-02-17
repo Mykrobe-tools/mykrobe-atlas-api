@@ -135,11 +135,25 @@ experimentEventEmitter.on(Constants.EVENTS.DISTANCE_SEARCH_STARTED.EVENT, async 
 
 experimentEventEmitter.on(Constants.EVENTS.DISTANCE_SEARCH_COMPLETE.EVENT, async payload => {
   try {
-    const { experiment } = payload;
+    const { experiment, users } = payload;
 
     if (experiment) {
       const data = new DistanceCompletedJSONTransformer().transform({ experiment }, {});
-      sendExperimentOwnerEvent(experiment, data, Constants.EVENTS.DISTANCE_SEARCH_COMPLETE.EVENT);
+
+      const owner = experiment.owner ? [experiment.owner] : [];
+      logger.debug(`Distance search complete: Owner: ${owner.length}`);
+      const watchers = users && users.length ? users : [];
+      logger.debug(`Distance search complete: Watchers: ${watchers.length}`);
+      const notify = owner.concat(watchers);
+
+      if (notify && notify.length) {
+        const userIds = notify.map(user => user.id);
+        const uniqueUserIds = [...new Set(userIds)]; // remove id duplicates - notify once per user
+        logger.debug(`Distance search complete: User ids: ${JSON.stringify(uniqueUserIds)}`);
+        for (const userId of uniqueUserIds) {
+          sendUserEvent(userId, data);
+        }
+      }
     }
   } catch (e) {}
 });
