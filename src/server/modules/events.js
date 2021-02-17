@@ -143,7 +143,7 @@ experimentEventEmitter.on(Constants.EVENTS.DISTANCE_SEARCH_COMPLETE.EVENT, async
 
       if (users) {
         for (const user of users) {
-          sendUserEvent(userId, data);
+          sendUserEvent(user.id, data);
         }
       }
     }
