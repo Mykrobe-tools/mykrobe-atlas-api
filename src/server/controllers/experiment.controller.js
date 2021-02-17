@@ -84,7 +84,7 @@ const get = async (req, res) => {
   const cached = await ResponseCache.getQueryResponse(`get`, hash);
   if (cached && typeof cached !== "undefined") {
     if (!cached.results || !cached.results.distance) {
-      const users = await WatchCache.getUsers(experimendJSON.id); // current users watching for distance results
+      const users = await WatchCache.getUsers(experimentJSON.id); // current users watching for distance results
       if (!users) {
         logger.debug(
           `ExperimentController#get: Distance results missing, request from Analysis API`
@@ -114,7 +114,7 @@ const get = async (req, res) => {
       logger.debug(
         `ExperimentController#get: Distance results missing but experiment in cache, request from Analysis API`
       );
-      const users = await WatchCache.getUsers(experimendJSON.id); // current users watching for distance results
+      const users = await WatchCache.getUsers(experimentJSON.id); // current users watching for distance results
       if (!users) {
         const scheduler = await Scheduler.getInstance();
         await scheduler.schedule("now", "call distance api", {
