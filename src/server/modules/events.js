@@ -135,11 +135,17 @@ experimentEventEmitter.on(Constants.EVENTS.DISTANCE_SEARCH_STARTED.EVENT, async 
 
 experimentEventEmitter.on(Constants.EVENTS.DISTANCE_SEARCH_COMPLETE.EVENT, async payload => {
   try {
-    const { experiment } = payload;
+    const { experiment, users } = payload;
 
     if (experiment) {
       const data = new DistanceCompletedJSONTransformer().transform({ experiment }, {});
       sendExperimentOwnerEvent(experiment, data, Constants.EVENTS.DISTANCE_SEARCH_COMPLETE.EVENT);
+
+      if (users) {
+        for (const user of users) {
+          sendUserEvent(userId, data);
+        }
+      }
     }
   } catch (e) {}
 });
