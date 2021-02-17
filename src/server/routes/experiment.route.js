@@ -4064,7 +4064,7 @@ router
    *         schema:
    *           $ref: '#/definitions/ExperimentResponse'
    */
-  .get(keycloak.connect.protect(), experimentController.get, userController.loadCurrentUser)
+  .get(keycloak.connect.protect(), userController.loadCurrentUser, experimentController.get)
   /**
    * @swagger
    * /experiments/{id}:
