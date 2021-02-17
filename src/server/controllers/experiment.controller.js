@@ -23,6 +23,7 @@ import Tree from "../models/tree.model";
 import CacheHelper from "../modules/cache/CacheHelper";
 import ResponseCache from "../modules/cache/ResponseCache";
 import DistanceCache from "../modules/cache/DistanceCache";
+import WatchCache from "../modules/cache/WatchCache";
 
 import SearchConfig from "../modules/search/SearchConfig";
 import SearchQueryDecorator from "../modules/search/search-query-decorator";
