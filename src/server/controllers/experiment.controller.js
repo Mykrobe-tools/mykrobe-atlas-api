@@ -84,7 +84,7 @@ const get = async (req, res) => {
   const cached = await ResponseCache.getQueryResponse(`get`, hash);
   if (cached && typeof cached !== "undefined") {
     if (!cached.results || !cached.results.distance) {
-      const users = await WatchCache.getUsers(experimentJSON.id); // current users watching for distance results
+      const users = await WatchCache.getUsers(id); // current users watching for distance results
       if (!users) {
         logger.debug(
           `ExperimentController#get: Distance results missing, request from Analysis API`
@@ -95,7 +95,7 @@ const get = async (req, res) => {
           experiment: new ExperimentJobJSONTransformer().transform(req.experiment)
         });
       }
-      await WatchCache.setUser(experimentJSON.id, req.dbUser); // watch
+      await WatchCache.setUser(id, req.dbUser); // watch
     }
     logger.debug(`ExperimentController#get: Using cached response`);
     return res.jsend(cached);
@@ -114,15 +114,15 @@ const get = async (req, res) => {
       logger.debug(
         `ExperimentController#get: Distance results missing but experiment in cache, request from Analysis API`
       );
-      const users = await WatchCache.getUsers(experimentJSON.id); // current users watching for distance results
+      const users = await WatchCache.getUsers(id); // current users watching for distance results
       if (!users) {
         const scheduler = await Scheduler.getInstance();
         await scheduler.schedule("now", "call distance api", {
-          experiment_id: experimentJSON.id,
+          experiment_id: id,
           experiment: new ExperimentJobJSONTransformer().transform(experimentJSON)
         });
       }
-      await WatchCache.setUser(experimentJSON.id, req.dbUser); // watch
+      await WatchCache.setUser(id, req.dbUser); // watch
     }
 
     if (results) {
