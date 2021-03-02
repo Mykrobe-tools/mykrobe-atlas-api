@@ -13,6 +13,9 @@ import experiments from "../fixtures/experiments";
 import predictor09results from "../fixtures/files/predictor-0.9.json";
 import predictorINH09Result from "../fixtures/files/predictorINH-0.9.json";
 
+import CacheHelper from "../../src/server/modules/cache/CacheHelper";
+import ResponseCache from "../../src/server/modules/cache/ResponseCache";
+
 let id = null;
 let savedExperiment = null;
 let user = null;
@@ -77,6 +80,20 @@ describe("Experiment", () => {
             expect(savedExperiment.results.length).toEqual(1);
             done();
           });
+        });
+      });
+      describe("when an id exists", () => {
+        it.only("should clear the response cache", async done => {
+          ResponseCache.deleteQueryResponse = jest.fn();
+          savedExperiment.metadata.sample.siteId = "ea2101bb-892a-4d1d-beb5-9e39c62fe44a";
+          await savedExperiment.save();
+
+          expect(ResponseCache.deleteQueryResponse).toHaveBeenCalledTimes(1);
+          expect(ResponseCache.deleteQueryResponse).toHaveBeenCalledWith(
+            "get",
+            CacheHelper.getObjectHash({ id: savedExperiment.id })
+          );
+          done();
         });
       });
     });
