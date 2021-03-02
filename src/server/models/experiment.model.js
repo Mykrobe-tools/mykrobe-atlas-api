@@ -78,9 +78,9 @@ ExperimentSchema.pre("save", async function() {
     const id = this.id;
     logger.debug(`ExperimentSchema.pre#save: id: ${id}`);
     const query = { id };
-    logger.debug(`ExperimentSchema.pre#save: id: ${query}`);
+    logger.debug(`ExperimentSchema.pre#save: query: ${JSON.stringify(query)}`);
     const hash = CacheHelper.getObjectHash(query);
-    logger.debug(`ExperimentSchema.pre#save: hash: ${query}`);
+    logger.debug(`ExperimentSchema.pre#save: hash: ${JSON.stringify(hash)}`);
     await ResponseCache.deleteQueryResponse(`get`, hash);
   }
 });
