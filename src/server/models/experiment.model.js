@@ -10,6 +10,11 @@ import JSONMongooseSchema from "./jsonschema.model";
 import ExperimentJSONTransformer from "../transformers/ExperimentJSONTransformer";
 import ExperimentHelper from "../helpers/ExperimentHelper";
 
+import CacheHelper from "../modules/cache/CacheHelper";
+import ResponseCache from "../modules/cache/ResponseCache";
+
+import logger from "../modules/logging/logger";
+
 import Constants from "../Constants";
 
 /**
@@ -64,6 +69,19 @@ ExperimentSchema.pre("save", async function() {
 
   if (this.isNew) {
     this.awaitingFirstDistanceResult = true;
+  }
+});
+
+// clear response cache on save
+ExperimentSchema.pre("save", async function() {
+  if (!this.isNew) {
+    const id = this.id;
+    logger.debug(`ExperimentSchema.pre#save: id: ${id}`);
+    const query = { id };
+    logger.debug(`ExperimentSchema.pre#save: id: ${query}`);
+    const hash = CacheHelper.getObjectHash(query);
+    logger.debug(`ExperimentSchema.pre#save: hash: ${query}`);
+    await ResponseCache.deleteQueryResponse(`get`, hash);
   }
 });
 
