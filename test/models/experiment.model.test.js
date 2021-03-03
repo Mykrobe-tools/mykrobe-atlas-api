@@ -83,7 +83,7 @@ describe("Experiment", () => {
         });
       });
       describe("when an id exists", () => {
-        it.only("should clear the response cache", async done => {
+        it("should clear the response cache", async done => {
           ResponseCache.deleteQueryResponse = jest.fn();
           savedExperiment.metadata.sample.siteId = "ea2101bb-892a-4d1d-beb5-9e39c62fe44a";
           await savedExperiment.save();
