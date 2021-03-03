@@ -654,10 +654,9 @@ const search = async (req, res) => {
 
       if (results) {
         // augment with hits (project specific transformation)
-        results.results = new ExperimentsResultJSONTransformer().transform(
-          elasticsearchResults,
-          {}
-        );
+        results.results = new ExperimentsResultJSONTransformer().transform(elasticsearchResults, {
+          currentUser: req.dbUser
+        });
         if (results.total === SearchConfig.getMaxPageSize() && size > results.total) {
           logger.debug(`ExperimentsController#search: size > results.`);
           if (results.pagination && results.pagination.per) {
