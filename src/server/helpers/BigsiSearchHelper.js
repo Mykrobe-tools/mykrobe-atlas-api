@@ -88,7 +88,8 @@ class BigsiSearchHelper {
       const experimentQuery = query ? query : search.get("query");
       const experiments = await this.enhanceBigsiResultsWithExperiments(
         filteredResults,
-        experimentQuery
+        experimentQuery,
+        user
       );
       logger.debug(
         `BigsiSearchHelper#returnCachedResults: experiments: ${
@@ -218,7 +219,7 @@ class BigsiSearchHelper {
    * @param {*} search
    * @param {*} query
    */
-  static async enhanceBigsiResultsWithExperiments(results, query) {
+  static async enhanceBigsiResultsWithExperiments(results, query, user) {
     logger.debug(`enhanceBigsiResultsWithExperiments: enter`);
     const sampleIds =
       results && Array.isArray(results) && results.length ? results.map(r => r.sampleId) : [];
@@ -233,7 +234,9 @@ class BigsiSearchHelper {
 
     const searchQuery = new SearchQuery(elasticQuery, experimentSearchSchema);
     const resp = await elasticService.search(searchQuery, {});
-    const experiments = new ExperimentsResultJSONTransformer().transform(resp, {});
+    const experiments = new ExperimentsResultJSONTransformer().transform(resp, {
+      currentUser: user
+    });
 
     const experimentsBySampleId = {};
     for (const experiment of experiments) {
