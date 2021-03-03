@@ -234,7 +234,9 @@ class BigsiSearchHelper {
 
     const searchQuery = new SearchQuery(elasticQuery, experimentSearchSchema);
     const resp = await elasticService.search(searchQuery, {});
-    const experiments = new ExperimentsResultJSONTransformer().transform(resp, { user });
+    const experiments = new ExperimentsResultJSONTransformer().transform(resp, {
+      currentUser: user
+    });
 
     const experimentsBySampleId = {};
     for (const experiment of experiments) {
