@@ -31,10 +31,10 @@ class ExperimentsResultJSONTransformer extends ElasticsearchJSONTransformer {
 
         logger.debug(
           `ExperimentsResultJSONTransformer#transform: ${JSON.stringify(
-            currentUser.id
-          )} = ${JSON.stringify(owner.id)}`
+            currentUser && currentUser.id ? currentUser.id : "undefined"
+          )} = ${JSON.stringify(owner && owner.id ? owner.id : "undefined")}`
         );
-        ownership.owner = currentUser && owner && currentUser.id === owner.id;
+        ownership.owner = owner && currentUser.id === owner.id;
       } else {
         logger.debug(`ExperimentsResultJSONTransformer#transform: No currentUser`);
         if (source.owner) {
