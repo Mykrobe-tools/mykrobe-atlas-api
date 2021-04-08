@@ -10,6 +10,8 @@ import httpStatus from "http-status";
 import RateLimit from "express-rate-limit";
 import addRequestId from "express-request-id";
 
+import AccountsService from "makeandship-api-common/lib/modules/accounts/AccountsService";
+
 import { ErrorUtil, APIError } from "makeandship-api-common/lib/modules/error";
 import {
   ExpressInitializer,
@@ -59,11 +61,10 @@ const createApp = async options => {
 
   logger.debug(`createApp: Services configured`);
 
-  // Keycloak for account management
-  console.log(keycloak.connect);
-  app.use(keycloak.connect.middleware());
-  console.log(keycloak.getUserMiddleware);
-  app.use(keycloak.getUserMiddleware.bind(keycloak));
+  // Accounts provider express middleware - user management
+  const service = new AccountsService(AccountsHelper.getAccountSettings());
+  app.use(service.middleware.express());
+  app.use(service.middleware.getUser());
 
   logger.debug(`createApp: Keycloak middleware configured`);
 

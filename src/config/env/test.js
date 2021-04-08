@@ -1,13 +1,11 @@
 import _ from "lodash";
-const esPort = 9200;
-const mockedKeycloakPort = _.random(10000, 65535);
 
 export default {
   db: {},
   elasticsearch: {
-    port: esPort,
+    port: 9200,
     index: "atlas",
-    host: `http://localhost:${esPort}`,
+    host: `http://localhost:9200`,
     log: "info"
   },
   express: {
@@ -20,8 +18,8 @@ export default {
   accounts: {
     keycloak: {
       admin: {
-        port: mockedKeycloakPort,
-        baseUrl: `http://localhost:${mockedKeycloakPort}/auth`
+        port: 8080,
+        baseUrl: `http://localhost:8080/auth`
       }
     }
   },

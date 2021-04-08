@@ -1,6 +1,7 @@
 import stableStringify from "json-stable-stringify";
 import crypto from "crypto";
 
+import config from "../../config/env";
 class SearchHelper {
   static generateHash(data) {
     const stable = stableStringify(data);
@@ -9,6 +10,13 @@ class SearchHelper {
       .update(stable)
       .digest("hex");
     return hash;
+  }
+
+  static getSearchSettings(type) {
+    return {
+      type,
+      ...config.elasticsearch
+    };
   }
 }
 

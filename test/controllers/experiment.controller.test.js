@@ -1,23 +1,27 @@
-console.log("ExperimentController.test");
+import { MongoClient } from "mongodb";
+import mongoose from "mongoose";
 import request from "supertest";
 import httpStatus from "http-status";
 import fs from "fs";
 import moment from "moment";
 import async from "async";
 import axios from "axios";
-import elasticsearch from "elasticsearch";
 
 import Constants from "../../src/server/Constants";
 
 import createApp from "../../src/server/app.js";
 import config from "../../src/config/env";
 
-import { ElasticService } from "makeandship-api-common/lib/modules/elasticsearch/";
+import ElasticService from "makeandship-api-common/lib/modules/elasticsearch/ElasticService";
 import {
   SearchQuery,
   AggregationSearchQuery
 } from "makeandship-api-common/lib/modules/elasticsearch/";
 import { experimentSearch as experimentSearchSchema } from "mykrobe-atlas-jsonschema";
+
+import AccountsService from "makeandship-api-common/lib/modules/accounts/AccountsService";
+
+import TrackingService from "../../src/server/modules/tracking/TrackingService";
 
 import SearchHelper from "../../src/server/helpers/SearchHelper";
 
@@ -46,63 +50,83 @@ import trees from "../fixtures/trees";
 import searches from "../fixtures/searches";
 import organisations from "../fixtures/organisations";
 
-// mocks
+// mock: Calls to Atlas APIs - Tracking Service, Analysis Service
 jest.mock("axios");
-jest.mock("elasticsearch");
-jest.mock("../../src/server/helpers/AccountsHelper", () => jest.fn());
-jest.mock("../../src/server/controllers/user.controller", () => jest.fn());
-
-AccountsHelper.mockImplementation(() => {
+const mockTrackingServiceUpsert = jest.fn().mockReturnValue("457abe90-5f7d-49e6-adbd-8ea3c12c5511");
+jest.mock("../../src/server/modules/tracking/TrackingService", () => {
   return {
     __esModule: true,
-    default: {
-      keycloakInstance: () => {
-        return {
-          connect: {
-            protect: jest.fn().mockImplementation(() => {
-              return (req, res, next) => {
-                console.log("protect: calling next");
-                next();
-              };
-            }),
-            middleware: jest.fn().mockImplementation(() => {
-              return (req, res, next) => {
-                console.log("middleware: calling next");
-                next();
-              };
-            })
-          },
-          getUserMiddleware: async (req, res, next) => {
-            req.user = await User.findOne({});
-            return user;
-
-            next();
-          }
-        };
-      }
-    }
+    default: jest.fn().mockImplementation(() => {
+      return {
+        upsert: mockTrackingServiceUpsert
+      };
+    })
   };
 });
-UserController.mockImplementation(() => {
+
+// mock: Calls to Elasticsearch
+const mockElasticServiceIndexDocument = jest.fn();
+jest.mock("makeandship-api-common/lib/modules/elasticsearch/ElasticService", () => {
+  return {
+    __esModule: true,
+    default: jest.fn().mockImplementation(() => {
+      return {
+        indexDocument: mockElasticServiceIndexDocument
+      };
+    })
+  };
+});
+
+// mock: Calls to Keycloak
+jest.mock("makeandship-api-common/lib/modules/accounts/AccountsService", () => {
+  return {
+    __esModule: true,
+    default: jest.fn().mockImplementation(() => {
+      return {
+        middleware: {
+          protect: jest.fn().mockImplementation(() => {
+            return (req, res, next) => {
+              next();
+            };
+          }),
+          express: jest.fn().mockImplementation(() => {
+            return (req, res, next) => {
+              next();
+            };
+          }),
+          getUser: jest.fn().mockImplementation(() => {
+            return (req, res, next) => {
+              req.user = {
+                id: "c1fb8f2b-0963-4656-a3ef-fc08fb9f9df6"
+              };
+              next();
+            };
+          })
+        },
+        groupExists: jest.fn().mockReturnValue(true),
+        createGroup: jest.fn().mockReturnValue({ id: "" }),
+        getGroup: jest.fn().mockReturnValue({ id: "" }),
+        addRoleToGroup: jest.fn()
+      };
+    })
+  };
+});
+
+// mock: Calls to User Controller (to load the current user)
+jest.mock("../../src/server/controllers/user.controller", () => {
   return {
     loadCurrentUser: (req, res, next) => {
-      req.dbUser = {
-        firstname: "Mark",
-        lastname: "Thomsit",
-        email: "mark@makeandship.com",
-        keycloakId: "75fa1d50-0c45-4001-9649-18511b9a0ea5",
-        username: "mark@makeandship.com"
-      };
+      req.dbUser = args.user;
       req.user = req.dbUser;
       next();
     },
+    load: jest.fn(),
     get: jest.fn(),
     create: jest.fn(),
     update: jest.fn(),
     list: jest.fn(),
     remove: jest.fn(),
     assignRole: jest.fn(),
-    load: jest.fn(),
     events: jest.fn(),
     eventsStatus: jest.fn()
   };
@@ -121,32 +145,33 @@ const findJobBySearchId = (jobs, id, name) =>
 const args = {
   app: null,
   token: null,
-  id: null
+  id: null,
+  client: null
 };
 
-// constants
-//const esConfig = { type: "experiment", ...config.elasticsearch };
-//const elasticService = new ElasticService(esConfig, experimentSearchSchema);
+beforeAll(async done => {
+  // db: Use in-memory db for tests
+  args.client = await MongoClient.connect(global.__MONGO_URI__, {});
+  await args.client.db(global.__MONGO_DB_NAME__);
+  await mongoose.connect(global.__MONGO_URI__, {});
 
-beforeAll(async () => {
-  // make sure an elastic index is available
-  //await elasticService.deleteIndex();
-  //await elasticService.createIndex();
-
+  // app
   args.app = await createApp();
+
+  // keycloak
+
+  done();
 });
 
 beforeEach(async done => {
-  console.log(`beforeEach`);
   const userData = new User(users.admin);
   const organisationData = new Organisation(organisations.apex);
-
   userData.organisation = await organisationData.save();
   const savedUser = await userData.save();
 
   const experimentData = new Experiment(experiments.tbUploadMetadata);
   experimentData.owner = savedUser;
-  const savedExperiment = await experimentData.owner();
+  const savedExperiment = await experimentData.save();
 
   args.user = savedUser;
   args.userId = savedUser.id;
@@ -155,22 +180,7 @@ beforeEach(async done => {
   args.experimentId = savedExperiment.id;
   args.id = args.experiment.id;
 
-  console.log(args.id);
-
   done();
-
-  // request(args.app)
-  //   .post("/auth/login")
-  //   .send({ username: "admin@nhs.co.uk", password: "password" })
-  //   .end(async (err, res) => {
-  //     args.token = res.body.data.access_token;
-
-  //     experimentData.owner = savedUser;
-  //     const savedExperiment = await experimentData.save();
-
-  //     args.id = savedExperiment.id;
-  //     done();
-  //   });
 });
 
 afterEach(async done => {
@@ -204,109 +214,146 @@ describe("ExperimentController", () => {
       );
       done();
     });
-    it.only("should create a new experiment", done => {
-      request(args.app)
-        .post("/experiments")
-        .set("Authorization", `Bearer ${args.token}`)
-        .send(experiments.tbUploadMetadata)
-        //.expect(httpStatus.OK)
-        .end((err, res) => {
-          console.log(`res.body: ${JSON.stringify(res.body)}`);
-          // expect(res.body.status).toEqual("success");
-          // expect(res.body.data).toHaveProperty("metadata");
+    describe("when valid", () => {
+      it("should save the experiment in the database", async done => {
+        const count = await Experiment.count({});
 
-          // const metadata = res.body.data.metadata;
-          // expect(metadata).toHaveProperty("patient");
-          // expect(metadata).toHaveProperty("sample");
-          // expect(metadata).toHaveProperty("genotyping");
-          // expect(metadata).toHaveProperty("phenotyping");
-          // expect(metadata).not.toHaveProperty("treatment");
-          // expect(metadata).not.toHaveProperty("outcome");
-          done();
-        });
+        const res = await request(args.app)
+          .post("/experiments")
+          .set("Authorization", `Bearer ${args.token}`)
+          .send(experiments.tbUploadMetadata);
+
+        const savedCount = await Experiment.count({});
+        expect(savedCount - count).toEqual(1);
+        done();
+      });
+      it("should index the experiment", async () => {
+        await request(args.app)
+          .post("/experiments")
+          .set("Authorization", `Bearer ${args.token}`)
+          .send(experiments.tbUploadMetadata);
+        expect(mockElasticServiceIndexDocument).toHaveBeenCalledTimes(1);
+      });
+      it("should return the experiment", async done => {
+        const res = await request(args.app)
+          .post("/experiments")
+          .set("Authorization", `Bearer ${args.token}`)
+          .send(experiments.tbUploadMetadata);
+
+        expect(res.body.status).toEqual("success");
+        expect(res.body.data).toHaveProperty("metadata");
+
+        const metadata = res.body.data.metadata;
+        expect(metadata).toHaveProperty("patient");
+        expect(metadata).toHaveProperty("sample");
+        expect(metadata).toHaveProperty("genotyping");
+        expect(metadata).toHaveProperty("phenotyping");
+        expect(metadata).not.toHaveProperty("treatment");
+        expect(metadata).not.toHaveProperty("outcome");
+        done();
+      });
+      it("should initialise country and city to null", async done => {
+        const res = await request(args.app)
+          .post("/experiments")
+          .set("Authorization", `Bearer ${args.token}`)
+          .send(experiments.tbUploadMetadataNullCountryIsolate);
+        expect(res.body.status).toEqual("success");
+        expect(res.body.data).toHaveProperty("metadata");
+
+        const metadata = res.body.data.metadata;
+        expect(metadata).toHaveProperty("sample");
+
+        const sample = metadata.sample;
+        expect(sample).toHaveProperty("countryIsolate", null);
+        expect(sample).toHaveProperty("cityIsolate", null);
+        done();
+      });
+      it.only("should initalise upload state", async done => {
+        const res = await request(args.app)
+          .post("/experiments")
+          .set("Authorization", `Bearer ${args.token}`)
+          .send(experiments.tbUploadMetadata);
+
+        console.log(JSON.stringify(res.body));
+
+        const id = res.body.data.id;
+        const experiment = await Experiment.get(id);
+        console.log(experiment.get("files"));
+        expect(experiment.get("files")).toBeTruthy();
+
+        done();
+      });
+      it("should set the owner to the current user", async done => {
+        const res = await request(args.app)
+          .post("/experiments")
+          .set("Authorization", `Bearer ${args.token}`)
+          .send(experiments.tbUploadMetadata);
+
+        expect(res.body.status).toEqual("success");
+        expect(res.body.data.owner.firstname).toEqual("David");
+        expect(res.body.data.owner.lastname).toEqual("Robin");
+
+        done();
+      });
+      it("should set the organisation", async done => {
+        const res = await request(args.app)
+          .post("/experiments")
+          .set("Authorization", `Bearer ${args.token}`)
+          .send(experiments.tbUploadMetadata);
+
+        expect(res.body.status).toEqual("success");
+        expect(res.body.data.organisation.name).toEqual("Apex Entertainment");
+        expect(res.body.data.organisation.slug).toEqual("apex-entertainment");
+
+        done();
+      });
+      it("should call the TrackingService for a tracking id", async done => {
+        const res = await request(args.app)
+          .post("/experiments")
+          .set("Authorization", `Bearer ${args.token}`)
+          .send(experiments.tbUploadMetadata);
+
+        expect(mockTrackingServiceUpsert).toHaveBeenCalledTimes(1);
+        done();
+      });
+      it("should populate the sampleId", async done => {
+        const res = await request(args.app)
+          .post("/experiments")
+          .set("Authorization", `Bearer ${args.token}`)
+          .send(experiments.tbUploadMetadata);
+
+        expect(res.body.status).toEqual("success");
+        expect(res.body.data.sampleId).toEqual("457abe90-5f7d-49e6-adbd-8ea3c12c5511");
+        done();
+      });
     });
-    it("should create a new experiment with null countryIsolate", done => {
-      request(args.app)
-        .post("/experiments")
-        .set("Authorization", `Bearer ${args.token}`)
-        .send(experiments.tbUploadMetadataNullCountryIsolate)
-        .expect(httpStatus.OK)
-        .end((err, res) => {
-          expect(res.body.status).toEqual("success");
-          expect(res.body.data).toHaveProperty("metadata");
+    describe("when invalid", () => {
+      describe("when the record contains additional fields", () => {
+        it("should not store any additional fields", done => {
+          request(args.app)
+            .post("/experiments")
+            .set("Authorization", `Bearer ${args.token}`)
+            .send(experiments.tbUploadMetadataWithAdditional)
+            .expect(httpStatus.OK)
+            .end((err, res) => {
+              expect(res.body.status).toEqual("success");
+              expect(res.body.data).toHaveProperty("metadata");
 
-          const metadata = res.body.data.metadata;
-          expect(metadata).toHaveProperty("sample");
+              const metadata = res.body.data.metadata;
+              expect(metadata).toHaveProperty("patient");
+              expect(metadata).toHaveProperty("sample");
+              expect(metadata).toHaveProperty("genotyping");
+              expect(metadata).toHaveProperty("phenotyping");
+              expect(metadata).not.toHaveProperty("treatment");
+              expect(metadata).not.toHaveProperty("outcome");
 
-          const sample = metadata.sample;
-          expect(sample).toHaveProperty("countryIsolate", null);
-          expect(sample).toHaveProperty("cityIsolate", null);
-          done();
+              expect(res.body.data).not.toHaveProperty("field1");
+              expect(res.body.data).not.toHaveProperty("field2");
+
+              done();
+            });
         });
-    });
-    it("should remove additional fields from the new experiment", done => {
-      request(args.app)
-        .post("/experiments")
-        .set("Authorization", `Bearer ${args.token}`)
-        .send(experiments.tbUploadMetadataWithAdditional)
-        .expect(httpStatus.OK)
-        .end((err, res) => {
-          expect(res.body.status).toEqual("success");
-          expect(res.body.data).toHaveProperty("metadata");
-
-          const metadata = res.body.data.metadata;
-          expect(metadata).toHaveProperty("patient");
-          expect(metadata).toHaveProperty("sample");
-          expect(metadata).toHaveProperty("genotyping");
-          expect(metadata).toHaveProperty("phenotyping");
-          expect(metadata).not.toHaveProperty("treatment");
-          expect(metadata).not.toHaveProperty("outcome");
-
-          expect(res.body.data).not.toHaveProperty("field1");
-          expect(res.body.data).not.toHaveProperty("field2");
-
-          done();
-        });
-    });
-    it("should set the owner to the current user", done => {
-      request(args.app)
-        .post("/experiments")
-        .set("Authorization", `Bearer ${args.token}`)
-        .send(experiments.tbUploadMetadata)
-        .expect(httpStatus.OK)
-        .end((err, res) => {
-          expect(res.body.status).toEqual("success");
-          expect(res.body.data.owner.firstname).toEqual("David");
-          expect(res.body.data.owner.lastname).toEqual("Robin");
-
-          done();
-        });
-    });
-    it("should set the organisation", done => {
-      request(args.app)
-        .post("/experiments")
-        .set("Authorization", `Bearer ${args.token}`)
-        .send(experiments.tbUploadMetadata)
-        .expect(httpStatus.OK)
-        .end((err, res) => {
-          expect(res.body.status).toEqual("success");
-          expect(res.body.data.organisation.name).toEqual("Apex Entertainment");
-          expect(res.body.data.organisation.slug).toEqual("apex-entertainment");
-
-          done();
-        });
-    });
-    it("should populate the sampleId", done => {
-      request(args.app)
-        .post("/experiments")
-        .set("Authorization", `Bearer ${args.token}`)
-        .send(experiments.tbUploadMetadata)
-        .expect(httpStatus.OK)
-        .end((err, res) => {
-          expect(res.body.status).toEqual("success");
-          expect(res.body.data.sampleId).toBeTruthy();
-          done();
-        });
+      });
     });
   });
   describe("GET /experiments/:id", () => {

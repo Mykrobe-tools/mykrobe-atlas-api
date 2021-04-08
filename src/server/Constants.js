@@ -180,6 +180,8 @@ const Constants = {
   MAX_PAGE_SIZE: 10000,
   DEFAULT_SCROLL_TTL: "1m",
 
+  SEARCH_TYPE_EXPERIMENT: "experiment",
+
   // save staus
   SAVE_IN_PROGRESS: "Save in progress",
   SAVED: "Saved",

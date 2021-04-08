@@ -1,15 +1,13 @@
 import express from "express";
+import AccountsService from "makeandship-api-common/lib/modules/accounts/AccountsService";
 import AccountsHelper from "../helpers/AccountsHelper";
 import userController from "../controllers/user.controller";
 import config from "../../config/env";
 
 const router = express.Router(); // eslint-disable-line new-cap
-const keycloak = AccountsHelper.keycloakInstance();
-console.log(`keycloak: ${keycloak}`);
-console.log(`keycloak.connect: ${JSON.stringify(keycloak.connect, null, 2)}`);
-console.log(`keycloak.connect.protect: ${keycloak.connect.protect}`);
-console.log(`userController: ${userController}`);
-console.log(`userController.loadCurrentUser: ${userController.loadCurrentUser}`);
+
+const service = new AccountsService(AccountsHelper.getAccountSettings());
+
 /**
  * @swagger
  * definitions:
@@ -225,7 +223,7 @@ router
    *       401:
    *         description: Failed authentication
    */
-  .get(keycloak.connect.protect(), userController.loadCurrentUser, userController.get)
+  .get(service.middleware.protect(), userController.loadCurrentUser, userController.get)
   /**
    * @swagger
    * /user:
@@ -270,7 +268,7 @@ router
    *       401:
    *         description: Failed authentication
    */
-  .put(keycloak.connect.protect(), userController.loadCurrentUser, userController.update)
+  .put(service.middleware.protect(), userController.loadCurrentUser, userController.update)
   /**
    * @swagger
    * /user:
@@ -289,7 +287,7 @@ router
    *         schema:
    *           $ref: '#/definitions/BasicResponse'
    */
-  .delete(keycloak.connect.protect(), userController.loadCurrentUser, userController.remove);
+  .delete(service.middleware.protect(), userController.loadCurrentUser, userController.remove);
 
 router
   .route("/events")
@@ -322,7 +320,7 @@ router
    *           analysisCompleteExample:
    *             $ref: '#/definitions/analysisCompleteExample'
    */
-  .get(keycloak.connect.protect(), userController.loadCurrentUser, userController.events);
+  .get(service.middleware.protect(), userController.loadCurrentUser, userController.events);
 
 router
   .route("/events/status")
@@ -344,6 +342,6 @@ router
    *         schema:
    *           $ref: '#/definitions/UserEventsResponse'
    */
-  .get(keycloak.connect.protect(), userController.loadCurrentUser, userController.eventsStatus);
+  .get(service.middleware.protect(), userController.loadCurrentUser, userController.eventsStatus);
 
 export default router;

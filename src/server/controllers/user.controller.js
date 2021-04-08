@@ -5,6 +5,7 @@ import { ErrorUtil, APIError } from "makeandship-api-common/lib/modules/error";
 import ArrayJSONTransformer from "makeandship-api-common/lib/transformers/ArrayJSONTransformer";
 
 import channels from "../modules/channels";
+import logger from "../modules/logging/logger";
 
 import User from "../models/user.model";
 import Event from "../models/event.model";
@@ -25,8 +26,9 @@ const keycloak = AccountsHelper.keycloakInstance();
  * Load user and append to req.
  */
 const load = async (req, res, next, id) => {
-  console.log(`userController#load: enter`);
+  logger.debug(`UserController#load: enter`);
   try {
+    logger.debug(`UserController#load: id: ${id}`);
     const user = await User.get(id);
     req.dbUser = user;
     return next();
@@ -38,7 +40,10 @@ const load = async (req, res, next, id) => {
 /**
  * Load current user and append to req.
  */
-const loadCurrentUser = (req, res, next) => load(req, res, next, req.user.id);
+const loadCurrentUser = (req, res, next) => {
+  logger.debug(`UserController#loadCurrentUser: user: ${req.user}`);
+  load(req, res, next, req.user.id);
+};
 /**
  * Get user
  * @returns {User}

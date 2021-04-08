@@ -1,11 +1,10 @@
-console.log("ExperimentsController");
 import httpStatus from "http-status";
 import mkdirp from "mkdirp-promise";
 import Promise from "bluebird";
 import uuid from "uuid";
 
 import { ValidationError, ErrorUtil, APIError } from "makeandship-api-common/lib/modules/error";
-import { ElasticService } from "makeandship-api-common/lib/modules/elasticsearch/";
+import ElasticService from "makeandship-api-common/lib/modules/elasticsearch/ElasticService";
 import ArrayJSONTransformer from "makeandship-api-common/lib/transformers/ArrayJSONTransformer";
 import SearchResultsJSONTransformer from "makeandship-api-common/lib/modules/elasticsearch/transformers/SearchResultsJSONTransformer";
 import SearchQueryJSONTransformer from "makeandship-api-common/lib/modules/elasticsearch/transformers/SearchQueryJSONTransformer";
@@ -41,6 +40,7 @@ import ResultsParserFactory from "../helpers/results/ResultsParserFactory";
 import EventHelper from "../helpers/events/EventHelper";
 import EventProgress from "../helpers/events/EventProgress";
 import ExperimentHelper from "../helpers/ExperimentHelper";
+import SearchHelper from "../helpers/SearchHelper";
 
 import AuditJSONTransformer from "../transformers/AuditJSONTransformer";
 import ExperimentJSONTransformer from "../transformers/ExperimentJSONTransformer";
@@ -51,9 +51,6 @@ import ResultsJSONTransformer from "../transformers/ResultsJSONTransformer";
 import config from "../../config/env";
 import Constants from "../Constants";
 import SearchJSONTransformer from "../transformers/SearchJSONTransformer";
-
-const esConfig = { type: "experiment", ...config.elasticsearch };
-const elasticService = new ElasticService(esConfig, experimentSearchSchema);
 
 /**
  * Load experiment and append to req.
@@ -116,11 +113,6 @@ const get = async (req, res) => {
  */
 const create = async (req, res) => {
   logger.debug("ExperimentController#create: enter");
-  logger.debug(`ExperimentController#create: req.body: ${JSON.stringify(req.body, null, 2)}`);
-  logger.debug(`ExperimentController#create: req.param: ${JSON.stringify(req.param, null, 2)}`);
-  logger.debug(`ExperimentController#create: req.query: ${JSON.stringify(req.query, null, 2)}`);
-  logger.debug(`ExperimentController#create: req.user: ${JSON.stringify(req.user, null, 2)}`);
-  logger.debug(`ExperimentController#create: req.dbUser: ${JSON.stringify(req.dbUser, null, 2)}`);
   const experiment = new Experiment(req.body);
   const trackingService = new TrackingService();
   experiment.owner = req.dbUser;
@@ -143,6 +135,10 @@ const create = async (req, res) => {
       {}
     );
     logger.debug(`ExperimentController#create: Index document ...`);
+    const elasticService = new ElasticService(
+      SearchHelper.getSearchSettings(Constants.SEARCH_TYPE_EXPERIMENT),
+      experimentSearchSchema
+    );
     await elasticService.indexDocument(indexableExperiment);
     logger.debug(`ExperimentController#create: Document indexed ...`);
     logger.debug(`ExperimentController#create: exit`);
@@ -172,6 +168,10 @@ const update = async (req, res) => {
     const indexableExperiment = new ExperimentSearchJSONTransformer().transform(
       savedExperiment,
       {}
+    );
+    const elasticService = new ElasticService(
+      SearchHelper.getSearchSettings(Constants.SEARCH_TYPE_EXPERIMENT),
+      experimentSearchSchema
     );
     await elasticService.updateDocument(indexableExperiment);
     return res.jsend(savedExperiment);
@@ -206,6 +206,10 @@ const remove = async (req, res) => {
   const experiment = req.experiment;
   try {
     await experiment.remove();
+    const elasticService = new ElasticService(
+      SearchHelper.getSearchSettings(Constants.SEARCH_TYPE_EXPERIMENT),
+      experimentSearchSchema
+    );
     await elasticService.deleteDocument(experiment.id);
     return res.jsend("Experiment was successfully deleted.");
   } catch (e) {
@@ -228,6 +232,10 @@ const metadata = async (req, res) => {
     const indexableExperiment = new ExperimentSearchJSONTransformer().transform(
       savedExperiment,
       {}
+    );
+    const elasticService = new ElasticService(
+      SearchHelper.getSearchSettings(Constants.SEARCH_TYPE_EXPERIMENT),
+      experimentSearchSchema
     );
     await elasticService.updateDocument(indexableExperiment);
     return res.jsend(savedExperiment);
@@ -287,6 +295,10 @@ const results = async (req, res) => {
     const indexableExperiment = new ExperimentSearchJSONTransformer().transform(
       savedExperiment,
       {}
+    );
+    const elasticService = new ElasticService(
+      SearchHelper.getSearchSettings(Constants.SEARCH_TYPE_EXPERIMENT),
+      experimentSearchSchema
     );
     await elasticService.updateDocument(indexableExperiment);
     logger.debug(`ExperimentsController#results: Updated experiment in elasticsearch`);
@@ -487,6 +499,11 @@ const uploadStatus = async (req, res) => {
  */
 const reindex = async (req, res) => {
   try {
+    const elasticService = new ElasticService(
+      SearchHelper.getSearchSettings(Constants.SEARCH_TYPE_EXPERIMENT),
+      experimentSearchSchema
+    );
+
     const { indexSizeLimit } = config.elasticsearch;
     const size = req.body.size || req.query.size || indexSizeLimit;
     logger.debug(`ExperimentController#reindex: size: ${size}`);
@@ -552,6 +569,10 @@ const choices = async (req, res) => {
     logger.debug(
       `ExperimentsController#choices: searchQuery: ${JSON.stringify(searchQuery, null, 2)}`
     );
+    const elasticService = new ElasticService(
+      SearchHelper.getSearchSettings(Constants.SEARCH_TYPE_EXPERIMENT),
+      experimentSearchSchema
+    );
     const elasticsearchResults = await elasticService.search(searchQuery, {});
 
     const titles = jsonschemaUtil.schemaTitles(experimentSearchSchema);
@@ -582,6 +603,11 @@ const search = async (req, res) => {
 
       return res.jsend(searchJson);
     } else {
+      const elasticService = new ElasticService(
+        SearchHelper.getSearchSettings(Constants.SEARCH_TYPE_EXPERIMENT),
+        experimentSearchSchema
+      );
+
       // parse the query
       const parsedQuery = new RequestSearchQueryParser(req.originalUrl).parse(clone);
 
@@ -715,6 +741,11 @@ const refreshResults = async (req, res) => {
 const summary = async (req, res) => {
   logger.debug(`ExperimentController#summary: enter`);
   try {
+    const elasticService = new ElasticService(
+      SearchHelper.getSearchSettings(Constants.SEARCH_TYPE_EXPERIMENT),
+      experimentSearchSchema
+    );
+
     const size = await elasticService.count();
     logger.debug(`ExperimentController#summary: size: ${size}`);
 

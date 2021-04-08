@@ -1,10 +1,12 @@
-console.log("ExperimentRoute");
 import express from "express";
 import multer from "multer";
 
 import { jsonschema } from "makeandship-api-common/lib/modules/express/middleware";
 import * as schemas from "mykrobe-atlas-jsonschema";
+
+import AccountsService from "makeandship-api-common/lib/modules/accounts/AccountsService";
 import AccountsHelper from "../helpers/AccountsHelper";
+
 import experimentController from "../controllers/experiment.controller";
 import userController from "../controllers/user.controller";
 import { ownerOnly } from "../modules/security";
@@ -13,7 +15,8 @@ import config from "../../config/env";
 
 const upload = multer({ dest: config.express.uploadsTempLocation || "tmp/" });
 const router = express.Router(); // eslint-disable-line new-cap
-const keycloak = AccountsHelper.keycloakInstance();
+
+const service = new AccountsService(AccountsHelper.getAccountSettings());
 
 /**
  * @swagger
@@ -2741,7 +2744,7 @@ router
    *       401:
    *         description: Failed authentication
    */
-  .get(keycloak.connect.protect(), experimentController.list)
+  .get(service.middleware.protect(), experimentController.list)
   /**
    * @swagger
    * /experiments:
@@ -3499,7 +3502,7 @@ router
    *         description: Failed authentication
    */
   .post(
-    keycloak.connect.protect(),
+    service.middleware.protect(),
     jsonschema.trim(schemas["experiment"]),
     jsonschema.schemaValidation(schemas["experiment"], { message: "Unable to create experiment" }),
     userController.loadCurrentUser,
@@ -3662,7 +3665,7 @@ router
    *       401:
    *         description: Failed authentication
    */
-  .get(keycloak.connect.protect(), experimentController.choices);
+  .get(service.middleware.protect(), experimentController.choices);
 
 router
   .route("/search")
@@ -3838,7 +3841,7 @@ router
    *       401:
    *         description: Failed authentication
    */
-  .get(keycloak.connect.protect(), userController.loadCurrentUser, experimentController.search);
+  .get(service.middleware.protect(), userController.loadCurrentUser, experimentController.search);
 
 router
   .route("/summary")
@@ -4014,7 +4017,7 @@ router
    *       401:
    *         description: Failed authentication
    */
-  .get(keycloak.connect.protect(), experimentController.summary);
+  .get(service.middleware.protect(), experimentController.summary);
 
 router
   .route("/tree")
@@ -4038,7 +4041,7 @@ router
    *       401:
    *         description: Failed authentication
    */
-  .get(keycloak.connect.protect(), experimentController.tree);
+  .get(service.middleware.protect(), experimentController.tree);
 
 router
   .route("/:id")
@@ -4066,7 +4069,7 @@ router
    *         schema:
    *           $ref: '#/definitions/ExperimentResponse'
    */
-  .get(keycloak.connect.protect(), experimentController.get)
+  .get(service.middleware.protect(), experimentController.get)
   /**
    * @swagger
    * /experiments/{id}:
@@ -4184,7 +4187,7 @@ router
    *         description: Failed authentication
    */
   .put(
-    keycloak.connect.protect(),
+    service.middleware.protect(),
     userController.loadCurrentUser,
     ownerOnly,
     experimentController.update
@@ -4214,7 +4217,7 @@ router
    *           $ref: '#/definitions/BasicResponse'
    */
   .delete(
-    keycloak.connect.protect(),
+    service.middleware.protect(),
     userController.loadCurrentUser,
     ownerOnly,
     experimentController.remove
@@ -4250,7 +4253,7 @@ router
    *         schema:
    *           $ref: '#/definitions/ExperimentResponse'
    */
-  .put(keycloak.connect.protect(), experimentController.metadata);
+  .put(service.middleware.protect(), experimentController.metadata);
 router
   .route("/:id/results")
   /**
@@ -4282,7 +4285,7 @@ router
    *         schema:
    *           $ref: '#/definitions/ExperimentResponse'
    */
-  .post(keycloak.connect.protect(), experimentController.results)
+  .post(service.middleware.protect(), experimentController.results)
   /**
    * @swagger
    * /experiments/{id}/results:
@@ -4307,7 +4310,7 @@ router
    *         schema:
    *           $ref: '#/definitions/ExperimentResultsResponse'
    */
-  .get(keycloak.connect.protect(), experimentController.listResults);
+  .get(service.middleware.protect(), experimentController.listResults);
 router
   .route("/:id/file")
   /**
@@ -4343,7 +4346,7 @@ router
    *           $ref: '#/definitions/BasicResponse'
    */
   .put(
-    keycloak.connect.protect(),
+    service.middleware.protect(),
     upload.single("file"),
     userController.loadCurrentUser,
     experimentController.uploadFile
@@ -4375,7 +4378,7 @@ router
    *       401:
    *         description: Failed authentication
    */
-  .get(keycloak.connect.protect(), experimentController.readFile);
+  .get(service.middleware.protect(), experimentController.readFile);
 router
   .route("/:id/provider")
   /**
@@ -4418,7 +4421,7 @@ router
    *           $ref: '#/definitions/BasicResponse'
    */
   .put(
-    keycloak.connect.protect(),
+    service.middleware.protect(),
     jsonschema.schemaValidation(schemas["uploadExperiment"], {
       message: "Unable to upload experiment"
     }),
@@ -4452,7 +4455,7 @@ router
    *         schema:
    *           $ref: '#/definitions/BasicResponse'
    */
-  .get(keycloak.connect.protect(), experimentController.uploadStatus);
+  .get(service.middleware.protect(), experimentController.uploadStatus);
 router
   .route("/:id/refresh")
   /**
@@ -4479,7 +4482,7 @@ router
    *         schema:
    *           $ref: '#/definitions/BasicResponse'
    */
-  .post(keycloak.connect.protect(), experimentController.refreshResults);
+  .post(service.middleware.protect(), experimentController.refreshResults);
 router
   .route("/reindex")
   /**
@@ -4500,7 +4503,7 @@ router
    *         schema:
    *           $ref: '#/definitions/BasicResponse'
    */
-  .post(keycloak.connect.protect(), experimentController.reindex);
+  .post(service.middleware.protect(), experimentController.reindex);
 /** Load user when API with id route parameter is hit */
 router.param("id", experimentController.load);
 
