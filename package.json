@@ -6,7 +6,7 @@
   "main": "src/index.js",
   "private": true,
   "engines": {
-    "node": "12.13.0",
+    "node": "12",
     "npm": ">=6",
     "yarn": ">=1"
   },
@@ -19,7 +19,7 @@
     "prettier": "prettier --find-config-path --write 'src/**/*.js' 'test/**/*.js'",
     "prettier-watch": "onchange 'src/**/*.js' 'test/**/*.js' -- prettier --write {{changed}}",
     "test:version": "jest --version",
-    "test": "yarn test:unit && yarn test:integration",
+    "test": "yarn clean && jest --verbose --colors --detectOpenHandles --forceExit --runInBand -c jest.config.js",
     "test:unit": "yarn clean && jest --verbose --colors --detectOpenHandles --forceExit --runInBand -c jest.config.unit.js",
     "test:unit:debug": "echo \"To attach Chrome DevTools, open chrome://inspect/#devices then click 'Open dedicated DevTools for node'\" && node --inspect node_modules/.bin/jest --verbose --colors --detectOpenHandles --forceExit --runInBand -c jest.config.unit.js",
     "test:integration": "yarn clean && jest --verbose --colors --detectOpenHandles --forceExit --runInBand -c jest.config.integration.js",

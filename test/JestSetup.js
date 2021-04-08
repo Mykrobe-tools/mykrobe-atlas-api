@@ -19,6 +19,15 @@ module.exports = async () => {
       ssl: true
     }
   };
+  if (process.env.MONGOMS_ARCH) {
+    mongoServerConfig.binary.arch = process.env.MONGOMS_ARCH;
+  }
+  if (
+    process.env.MONGOMS_DEBUG &&
+    (process.env.MONGOMS_DEBUG === 1 || process.env.MONGOMS_DEBUG === "1")
+  ) {
+    mongoServerConfig.debug = true;
+  }
   const mongod = new MongoMemoryServer(mongoServerConfig);
 
   if (!mongod.isRunning) {

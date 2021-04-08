@@ -1,27 +1,39 @@
-import setup from "../setup";
+import { MongoClient } from "mongodb";
+import mongoose from "mongoose";
 
-import Experiment from "../../src/server/models/experiment.model";
-import Organisation from "../../src/server/models/organisation.model";
-import User from "../../src/server/models/user.model";
+import Experiment from "./experiment.model";
+import Organisation from "./organisation.model";
+import User from "./user.model";
 
-import ResultsParserFactory from "../../src/server/helpers/results/ResultsParserFactory";
+import ResultsParserFactory from "../helpers/results/ResultsParserFactory";
 
-import Constants from "../../src/server/Constants";
+import Constants from "../Constants";
 
-import users from "../fixtures/users";
-import experiments from "../fixtures/experiments";
-import predictor09results from "../fixtures/files/predictor-0.9.json";
-import predictorINH09Result from "../fixtures/files/predictorINH-0.9.json";
+import Users from "./__fixtures__/Users";
+import Experiments from "./__fixtures__/Experiments";
+import Results from "./__fixtures__/Results";
 
-let id = null;
-let savedExperiment = null;
-let user = null;
+const args = {
+  id: null,
+  client: null,
+  savedExperiment: null,
+  user: null
+};
+
+beforeAll(async done => {
+  // db: Use in-memory db for tests
+  args.client = await MongoClient.connect(global.__MONGO_URI__, {});
+  await args.client.db(global.__MONGO_DB_NAME__);
+  await mongoose.connect(global.__MONGO_URI__, {});
+
+  done();
+});
 
 beforeEach(async done => {
-  const experimentData = new Experiment(experiments.tbUploadMetadata);
+  const experimentData = new Experiment(Experiments.valid.tbUploadMetadata);
   try {
-    savedExperiment = await experimentData.save();
-    id = savedExperiment.id;
+    args.savedExperiment = await experimentData.save();
+    args.id = args.savedExperiment.id;
 
     done();
   } catch (e) {
@@ -41,7 +53,7 @@ describe("Experiment", () => {
     describe("when valid data", () => {
       describe("when saving a core experiment", () => {
         it("should save a new experiment", async done => {
-          const experimentData = new Experiment(experiments.tbUploadMetadataChinese);
+          const experimentData = new Experiment(Experiments.valid.tbUploadMetadataChinese);
           const experiment = await experimentData.save();
 
           expect(experiment.metadata).toHaveProperty("patient");
@@ -61,10 +73,10 @@ describe("Experiment", () => {
       describe("when saving an experiment with results", () => {
         describe("containing predictor results", () => {
           it("should save predictor results", async done => {
-            const experimentData = new Experiment(experiments.tbUploadMetadataChinese);
+            const experimentData = new Experiment(Experiments.valid.tbUploadMetadataChinese);
             const experiment = await experimentData.save();
 
-            const parser = ResultsParserFactory.create(predictor09results);
+            const parser = ResultsParserFactory.create(Results.valid.predictor.unprocessed.inh);
             const result = parser.parse();
 
             const results = [];
@@ -82,7 +94,7 @@ describe("Experiment", () => {
     });
     describe("when isolate country has changed", () => {
       it("should update location", async done => {
-        const experiment = await Experiment.get(id);
+        const experiment = await Experiment.get(args.id);
         experiment.set("metadata.sample.countryIsolate", "MX");
         experiment.set("metadata.sample.cityIsolate", "Puebla");
 
@@ -95,7 +107,7 @@ describe("Experiment", () => {
     });
     describe("when isolate city has changed", () => {
       it("should update location", async done => {
-        const experiment = await Experiment.get(id);
+        const experiment = await Experiment.get(args.id);
         experiment.set("metadata.sample.cityIsolate", "Chennai");
 
         const updated = await experiment.save();
@@ -108,7 +120,7 @@ describe("Experiment", () => {
     });
     describe("when neither isolate country or city have changed", () => {
       it("should update location", async done => {
-        const experiment = await Experiment.get(id);
+        const experiment = await Experiment.get(args.id);
 
         expect(experiment.metadata.sample.latitudeIsolate).toBeCloseTo(18.98, 0);
         expect(experiment.metadata.sample.longitudeIsolate).toBeCloseTo(72.85, 1);
@@ -127,7 +139,7 @@ describe("Experiment", () => {
   describe("#get", () => {
     describe("when the experiment exists", () => {
       it("should return the experiment", async done => {
-        const experiment = await Experiment.get(id);
+        const experiment = await Experiment.get(args.id);
 
         const metadata = experiment.get("metadata");
         expect(metadata).toHaveProperty("patient");
@@ -181,7 +193,7 @@ describe("Experiment", () => {
   });
   describe("#toJSON", () => {
     it("should transform core experiment details", async done => {
-      const experiment = await Experiment.get(id);
+      const experiment = await Experiment.get(args.id);
       const json = experiment.toJSON();
 
       expect(json.id).toBeTruthy();
@@ -190,10 +202,10 @@ describe("Experiment", () => {
       done();
     });
     it("should transform experiment the experiment owner", async done => {
-      const experiment = await Experiment.get(id);
+      const experiment = await Experiment.get(args.id);
 
-      const userData = new User(users.thomas);
-      user = await userData.save();
+      const userData = new User(Users.valid.thomas);
+      const user = await userData.save();
 
       experiment.owner = user;
       const json = experiment.toJSON();
@@ -209,7 +221,7 @@ describe("Experiment", () => {
       done();
     });
     it("should transform experiment metadata", async done => {
-      const experiment = await Experiment.get(id);
+      const experiment = await Experiment.get(args.id);
       const json = experiment.toJSON();
 
       const metadata = json.metadata;
@@ -278,7 +290,9 @@ describe("Experiment", () => {
     describe("when the experiement has results", () => {
       describe("when the results are distance results", () => {
         it("should transform experiment results", async done => {
-          const experimentDataWithResults = new Experiment(experiments.tbUploadMetadataResults);
+          const experimentDataWithResults = new Experiment(
+            Experiments.valid.tbUploadMetadataResults
+          );
 
           const savedExperimentWithResults = await experimentDataWithResults.save();
 
@@ -294,9 +308,11 @@ describe("Experiment", () => {
       });
       describe("when the results are predictor results", () => {
         it("should transform experiment results", async done => {
-          const experimentDataWithResults = new Experiment(experiments.tbWithPredictorResults);
+          const experimentDataWithResults = new Experiment(
+            Experiments.valid.tbWithPredictorResults
+          );
           // add a predictor result
-          const parser = ResultsParserFactory.create(predictorINH09Result);
+          const parser = ResultsParserFactory.create(Results.valid.predictor.unprocessed.inh);
           const result = parser.parse();
 
           experimentDataWithResults.set("results", [result]);
@@ -358,7 +374,7 @@ describe("Experiment", () => {
   describe("#findByIds", () => {
     describe("when there are matching experiments", () => {
       it("should find experiments by ids", async done => {
-        const ids = [id];
+        const ids = [args.id];
         const experiments = await Experiment.findByIds(ids);
 
         const experiment = experiments[0];
@@ -393,7 +409,7 @@ describe("Experiment", () => {
   describe("#findByIsolateIds", () => {
     describe("when there are matching experiments", () => {
       it("should return matching experiments", async done => {
-        const savedMetadata = savedExperiment.get("metadata");
+        const savedMetadata = args.savedExperiment.get("metadata");
         const isolateIds = [savedMetadata.sample.isolateId];
 
         const experiments = await Experiment.findByIsolateIds(isolateIds);
@@ -417,7 +433,7 @@ describe("Experiment", () => {
     });
     describe("when there are no matching experiments", () => {
       it("should return an empty array", async done => {
-        const savedMetadata = savedExperiment.get("metadata");
+        const savedMetadata = args.savedExperiment.get("metadata");
         const isolateIds = ["non-existant-isolate-id"];
 
         const experiments = await Experiment.findByIsolateIds(isolateIds);
@@ -432,7 +448,7 @@ describe("Experiment", () => {
   describe("#findBySampleIds", () => {
     describe("when there are matching experiments", () => {
       it("should return matching experiments", async done => {
-        const sampleIds = [savedExperiment.sampleId];
+        const sampleIds = [args.savedExperiment.sampleId];
 
         const experiments = await Experiment.findBySampleIds(sampleIds);
 
