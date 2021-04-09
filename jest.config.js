@@ -1,5 +1,6 @@
 module.exports = {
   testRegex: "(/src/.*?test).[jt]sx?$",
+  testPathIgnorePatterns: ["src/config/env/test.js"],
   collectCoverage: false,
   globalSetup: "./test/JestSetup.js",
   globalTeardown: "./test/JestTeardown.js",
