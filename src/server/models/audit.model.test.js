@@ -6,7 +6,7 @@ import Audit from "./audit.model";
 import Audits from "./__fixtures__/Audits";
 
 const args = {
-  id: null,
+  audit: null,
   client: null
 };
 
@@ -19,31 +19,31 @@ beforeAll(async done => {
   done();
 });
 
+beforeEach(async done => {
+  const auditData = new Audit(Audits.valid.audit);
+  args.audit = await auditData.save();
+
+  done();
+});
+
+afterEach(async done => {
+  await Audit.deleteMany({});
+  done();
+});
+
 describe("Audit", () => {
-  let audit = null;
-  beforeEach(async done => {
-    const auditData = new Audit(Audits.valid.audit);
-    audit = await auditData.save();
-
-    done();
-  });
-  afterEach(async done => {
-    await Audit.deleteMany({});
-    done();
-  });
-
   describe("#save", () => {
     describe("when valid", () => {
       it("should save properties", async done => {
-        expect(audit.taskId).toEqual("7897d8dc-ad6a-4a46-be4f-7ad9eb2ad08c");
-        expect(audit.experimentId).toEqual("eac95021-a637-443e-b4af-b6a59bda0f21");
-        expect(audit.searchId).toEqual("e16d10ed-f887-45ee-a851-8cf42454ed06");
-        expect(audit.requestMethod).toEqual("GET");
-        expect(audit.requestUri).toEqual("https://cli.mykrobe.com/analysis");
-        expect(audit.fileLocation).toEqual("/data/atlas/MDR.fastq.gz");
-        expect(audit.status).toEqual("complete");
-        expect(audit.type).toEqual("analysis");
-        expect(audit.attempt).toEqual(1);
+        expect(args.audit.taskId).toEqual("7897d8dc-ad6a-4a46-be4f-7ad9eb2ad08c");
+        expect(args.audit.experimentId).toEqual("eac95021-a637-443e-b4af-b6a59bda0f21");
+        expect(args.audit.searchId).toEqual("e16d10ed-f887-45ee-a851-8cf42454ed06");
+        expect(args.audit.requestMethod).toEqual("GET");
+        expect(args.audit.requestUri).toEqual("https://cli.mykrobe.com/analysis");
+        expect(args.audit.fileLocation).toEqual("/data/atlas/MDR.fastq.gz");
+        expect(args.audit.status).toEqual("complete");
+        expect(args.audit.type).toEqual("analysis");
+        expect(args.audit.attempt).toEqual(1);
 
         done();
       });
