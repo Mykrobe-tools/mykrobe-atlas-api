@@ -10,7 +10,8 @@ import JSONMongooseSchema from "./jsonschema.model";
 
 import OrganisationJSONTransformer from "../transformers/OrganisationJSONTransformer";
 
-import AccountsHelper from "../helpers/AccountsHelper";
+import AccountsService from "makeandship-api-common/lib/modules/accounts/AccountsService";
+import AccountsSettings from "../modules/accounts/AccountsSettings";
 
 import Constants from "../Constants";
 
@@ -100,13 +101,46 @@ OrganisationSchema.pre("save", async function(next) {
     this.slug = slugify(this.name, { lower: true });
   }
 
-  await AccountsHelper.setupGroupsAndRoles(this);
+  await this.maybeCreateOwnerGroup(this.slug);
+  await this.maybeCreateMemberGroup(this.slug);
 });
 
 /**
  * Methods
  */
-OrganisationSchema.method({});
+OrganisationSchema.method({
+  getOwnerGroup: function(slug) {
+    return `${slug}-owners`;
+  },
+  maybeCreateOwnerGroup: function(slug) {
+    if (slug) {
+      const name = this.getOwnerGroup(slug);
+      this.maybeCreateGroup(slug, name);
+    }
+  },
+  getMemberGroup: function(slug) {
+    return `${slug}-members`;
+  },
+  maybeCreateMemberGroup: async function(slug) {
+    if (slug) {
+      const name = this.getMemberGroup(slug);
+      this.maybeCreateGroup(slug, name);
+    }
+  },
+  maybeCreateGroup: async function(slug, name) {
+    if (slug && name) {
+      const role = slug;
+
+      const service = new AccountsService(AccountsSettings.getSettings());
+
+      const membersExists = await service.groupExists(name);
+      const members = membersExists
+        ? await service.getGroup(name)
+        : await service.createGroup(name);
+      await service.addRoleToGroup(role, members);
+    }
+  }
+});
 
 /**
  * Statics

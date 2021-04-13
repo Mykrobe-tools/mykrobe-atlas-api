@@ -96,6 +96,7 @@ describe("Group", () => {
       describe("when no groups exist", () => {
         it("should return an empty array", async done => {
           await Group.deleteMany({});
+
           const groups = await Group.list();
           expect(groups.length).toEqual(0);
           expect(groups).toEqual([]);
