@@ -132,6 +132,8 @@ OrganisationSchema.method({
       const role = slug;
 
       const service = new AccountsService(AccountsSettings.getSettings());
+      console.log(`1: ${service.createGroup}`);
+      console.log(`2: ${AccountsService.prototype.createGroup}`);
 
       const membersExists = await service.groupExists(name);
       const members = membersExists
