@@ -12,6 +12,7 @@ import OrganisationJSONTransformer from "../transformers/OrganisationJSONTransfo
 
 import AccountsService from "makeandship-api-common/lib/modules/accounts/AccountsService";
 import AccountsSettings from "../modules/accounts/AccountsSettings";
+import Logger from "../modules/logging/logger";
 
 import Constants from "../Constants";
 
@@ -132,8 +133,6 @@ OrganisationSchema.method({
       const role = slug;
 
       const service = new AccountsService(AccountsSettings.getSettings());
-      console.log(`1: ${service.createGroup}`);
-      console.log(`2: ${AccountsService.prototype.createGroup}`);
 
       const membersExists = await service.groupExists(name);
       const members = membersExists

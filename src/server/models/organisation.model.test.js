@@ -12,7 +12,11 @@ import Organisations from "./__fixtures__/Organisations";
 const args = {
   id: null,
   client: null,
-  organisation: null
+  organisation: null,
+  mockGroupExists: jest.fn().mockReturnValue(true),
+  mockCreateGroup: jest.fn().mockReturnValue({ id: "" }),
+  mockGetGroup: jest.fn().mockReturnValue({ id: "" }),
+  mockAddRoleToGroup: jest.fn()
 };
 
 beforeAll(async done => {
@@ -20,6 +24,15 @@ beforeAll(async done => {
   args.client = await MongoClient.connect(global.__MONGO_URI__, {});
   await args.client.db(global.__MONGO_DB_NAME__);
   await mongoose.connect(global.__MONGO_URI__, {});
+
+  // use beforeAll to setup the mock functions so they can be interrogated by tests
+  AccountsService.mockImplementation(() => ({
+    middleware: {},
+    groupExists: args.mockGroupExists,
+    createGroup: args.mockCreateGroup,
+    getGroup: args.mockGetGroup,
+    addRoleToGroup: args.mockAddRoleToGroup
+  }));
 
   done();
 });
@@ -37,47 +50,7 @@ afterEach(async () => {
 
 // mock keycloak calls as invitation has organisation and organisations have
 // keycloak groups
-jest.mock("makeandship-api-common/lib/modules/accounts/AccountsService");
-AccountsService.mockImplementation(() => ({
-  __esModule: true,
-  default: jest.fn(),
-  groupExists: jest.fn(),
-  createGroup: jest.fn(),
-  addRoleToGroup: jest.fn()
-}));
-// , () => {
-//   return {
-//     __esModule: true,
-//     default: jest.fn().mockImplementation(() => {
-//       return {
-//         middleware: {
-//           protect: jest.fn().mockImplementation(() => {
-//             return (req, res, next) => {
-//               next();
-//             };
-//           }),
-//           express: jest.fn().mockImplementation(() => {
-//             return (req, res, next) => {
-//               next();
-//             };
-//           }),
-//           getUser: jest.fn().mockImplementation(() => {
-//             return (req, res, next) => {
-//               req.user = {
-//                 id: "c1fb8f2b-0963-4656-a3ef-fc08fb9f9df6"
-//               };
-//               next();
-//             };
-//           })
-//         },
-//         groupExists: jest.fn().mockReturnValue(true),
-//         createGroup: jest.fn().mockReturnValue({ id: "" }),
-//         getGroup: jest.fn().mockReturnValue({ id: "" }),
-//         addRoleToGroup: jest.fn()
-//       };
-//     })
-//   };
-// });
+jest.mock("makeandship-api-common/lib/modules/accounts/AccountsService", () => jest.fn());
 
 describe("Organisation", () => {
   describe("#save", () => {
@@ -90,21 +63,81 @@ describe("Organisation", () => {
 
         done();
       });
-      it.only("should create an owner group", async done => {
+      it("should check an owner group exists", async done => {
+        args.mockGroupExists.mockClear();
         const organisationData = new Organisation(Organisations.valid.diagnostics);
         const savedOrganisation = await organisationData.save();
-        expect(savedOrganisation.name).toEqual("Diagnostic systems");
 
-        console.log(AccountsService.mock.instances);
-
+        expect(args.mockGroupExists).toHaveBeenCalledTimes(2);
+        expect(args.mockGroupExists).toHaveBeenCalledTimes(2);
+        const names = args.mockGroupExists.mock.calls.map(item => item[0]);
+        expect(names.includes("diagnostic-systems-owners")).toEqual(true);
         done();
       });
-      it("should create a member group", async done => {
+      it("should check a member group exists", async done => {
+        args.mockGroupExists.mockClear();
         const organisationData = new Organisation(Organisations.valid.diagnostics);
         const savedOrganisation = await organisationData.save();
-        expect(savedOrganisation.name).toEqual("Diagnostic systems");
-        expect(savedOrganisation.slug).toEqual("diagnostic-systems");
+
+        expect(args.mockGroupExists).toHaveBeenCalledTimes(2);
+        const names = args.mockGroupExists.mock.calls.map(item => item[0]);
+
+        expect(names.includes("diagnostic-systems-members")).toEqual(true);
         done();
+      });
+      describe("when an owner group exists", () => {
+        it("should not create an owner group", async done => {
+          args.mockCreateGroup.mockClear();
+          args.mockGroupExists = jest.fn().mockReturnValue(true);
+          const organisationData = new Organisation(Organisations.valid.diagnostics);
+          const savedOrganisation = await organisationData.save();
+
+          expect(args.mockCreateGroup).toHaveBeenCalledTimes(0);
+
+          done();
+        });
+      });
+      describe("when an owner group does not exist", () => {
+        it("should create an owner group", async done => {
+          args.mockCreateGroup.mockClear();
+          args.mockGroupExists = jest.fn().mockReturnValue(false);
+          const organisationData = new Organisation(Organisations.valid.diagnostics);
+          const savedOrganisation = await organisationData.save();
+
+          expect(args.mockCreateGroup).toHaveBeenCalledTimes(2);
+          const names = args.mockCreateGroup.mock.calls.map(item => item[0]);
+
+          expect(names.includes("diagnostic-systems-owners")).toEqual(true);
+
+          done();
+        });
+      });
+      describe("when an member group exists", () => {
+        it("should not create a member group", async done => {
+          args.mockCreateGroup.mockClear();
+          args.mockGroupExists = jest.fn().mockReturnValue(true);
+          const organisationData = new Organisation(Organisations.valid.diagnostics);
+          const savedOrganisation = await organisationData.save();
+
+          expect(args.mockCreateGroup).toHaveBeenCalledTimes(0);
+
+          done();
+        });
+      });
+      describe("when an member group does not exist", () => {
+        it("should create an member group", async done => {
+          args.mockCreateGroup.mockClear();
+          args.mockGroupExists = jest.fn().mockReturnValue(false);
+          const organisationData = new Organisation(Organisations.valid.diagnostics);
+          const savedOrganisation = await organisationData.save();
+
+          expect(args.mockCreateGroup).toHaveBeenCalledTimes(2);
+          const names = args.mockCreateGroup.mock.calls.map(item => item[0]);
+
+          expect(names.includes("diagnostic-systems-members")).toEqual(true);
+
+          done();
+        });
       });
     });
   });
