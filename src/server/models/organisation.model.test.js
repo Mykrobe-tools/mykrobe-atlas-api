@@ -2,7 +2,7 @@ import { MongoClient } from "mongodb";
 import mongoose from "mongoose";
 
 import Constants from "../Constants";
-import AccountsService from "../modules/accounts/AccountsService";
+import AccountsService from "makeandship-api-common/lib/modules/accounts/AccountsService";
 
 import Member from "./member.model";
 import Organisation from "./organisation.model";
@@ -40,7 +40,10 @@ afterEach(async () => {
 jest.mock("makeandship-api-common/lib/modules/accounts/AccountsService");
 AccountsService.mockImplementation(() => ({
   __esModule: true,
-  default: jest.fn()
+  default: jest.fn(),
+  groupExists: jest.fn(),
+  createGroup: jest.fn(),
+  addRoleToGroup: jest.fn()
 }));
 // , () => {
 //   return {
