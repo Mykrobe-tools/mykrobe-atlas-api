@@ -13,8 +13,6 @@ import Constants from "../Constants";
 import Searches from "./__fixtures__/Searches";
 import Users from "./__fixtures__/Users";
 
-let id = null;
-
 const args = {
   id: null,
   search: null,
