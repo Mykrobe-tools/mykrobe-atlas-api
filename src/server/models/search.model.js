@@ -80,8 +80,15 @@ SearchSchema.method({
   },
 
   async addUser(user) {
-    this.users.push(user);
-    return this.save();
+    if (
+      !this.users.find(existingUser => {
+        return existingUser._id == user._id;
+      })
+    ) {
+      this.users.push(user);
+      return this.save();
+    }
+    return this;
   },
 
   async clearUsers() {
@@ -120,17 +127,9 @@ SearchSchema.statics = {
    * @returns {Promise<search, APIError>}
    */
   async get(id) {
-    try {
-      const search = await this.findById(id)
-        .populate("users")
-        .exec();
-      if (search) {
-        return search;
-      }
-      throw new APIError(Constants.ERRORS.GET_SEARCH, `Search not found with id ${id}`);
-    } catch (e) {
-      throw new APIError(Constants.ERRORS.GET_SEARCH, e.message);
-    }
+    return this.findOne({ _id: id })
+      .populate("users")
+      .exec();
   },
 
   /**
@@ -138,7 +137,7 @@ SearchSchema.statics = {
    * @param {ObjectId} id - The objectId of search.
    * @returns {Promise<search, APIError>}
    */
-  findByHash(hash) {
+  async findByHash(hash) {
     return this.findOne({ hash })
       .populate("users")
       .exec();
