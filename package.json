@@ -16,6 +16,7 @@
     "start": "yarn build && yarn serve",
     "start:debug": "yarn build && DEBUG=1 LOG_LEVEL=debug yarn serve",
     "build": "babel src --out-dir dist",
+    "build:production": "babel --config-file ./babel.config.production.json src --out-dir dist",
     "prettier": "prettier --find-config-path --write 'src/**/*.js' 'test/**/*.js'",
     "prettier-watch": "onchange 'src/**/*.js' 'test/**/*.js' -- prettier --write {{changed}}",
     "test:version": "jest --version",

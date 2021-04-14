@@ -1,0 +1,8 @@
+{
+  "presets": ["@babel/preset-env"],
+  "plugins": ["@babel/plugin-transform-runtime", "add-module-exports"],
+  "ignore": [
+    "**/*.test.js",
+    "src/**/__fixtures__/**"
+  ]
+}
