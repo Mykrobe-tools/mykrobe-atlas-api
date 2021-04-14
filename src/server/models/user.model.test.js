@@ -1,16 +1,34 @@
-import User from "../../src/server/models/user.model";
-import setup from "../setup";
+import { MongoClient } from "mongodb";
+import mongoose from "mongoose";
 
-import Constants from "../../src/server/Constants";
+import Invitation from "./invitation.model";
+import Organisation from "./organisation.model";
+import User from "./user.model";
 
-const users = require("../fixtures/users");
+import Constants from "../Constants";
 
-let id = null;
+import Users from "./__fixtures__/Users";
+
+const args = {
+  id: null,
+  user: null,
+  client: null
+};
+
+beforeAll(async done => {
+  // db: Use in-memory db for tests
+  args.client = await MongoClient.connect(global.__MONGO_URI__, {});
+  await args.client.db(global.__MONGO_DB_NAME__);
+  await mongoose.connect(global.__MONGO_URI__, {});
+
+  done();
+});
 
 beforeEach(async done => {
-  const userData = new User(users.thomas);
-  const user = await userData.save();
-  id = user.id;
+  const userData = new User(Users.valid.thomas);
+  args.user = await userData.save();
+  args.id = args.user.id;
+
   done();
 });
 
@@ -23,7 +41,7 @@ describe("User", () => {
   describe("#save", () => {
     describe("when valid", () => {
       it("should save the user", async done => {
-        const userData = new User(users.admin);
+        const userData = new User(Users.valid.admin);
         const user = await userData.save();
         expect(user.firstname).toEqual("David");
         expect(user.lastname).toEqual("Robin");
@@ -32,7 +50,7 @@ describe("User", () => {
         done();
       });
       it("should default valid to false", async done => {
-        const userData = new User(users.userToVerify);
+        const userData = new User(Users.valid.userToVerify);
         const user = await userData.save();
         expect(user.firstname).toEqual("Sara");
         expect(user.lastname).toEqual("Crowe");
@@ -43,7 +61,7 @@ describe("User", () => {
     });
     describe("when using a duplicate email", () => {
       it("should return an error message", async done => {
-        const userData = new User(users.invalid.duplicateEmail);
+        const userData = new User(Users.invalid.duplicateEmail);
         try {
           await userData.save();
         } catch (e) {
@@ -56,7 +74,7 @@ describe("User", () => {
     });
     describe("when missing an email address", () => {
       it("should return an error message", async done => {
-        const userData = new User(users.invalid.missingEmail);
+        const userData = new User(Users.invalid.missingEmail);
         try {
           await userData.save();
         } catch (e) {
@@ -70,7 +88,7 @@ describe("User", () => {
   describe("#get", () => {
     describe("when the id exists", () => {
       it("should return the user", async done => {
-        const user = await User.get(id);
+        const user = await User.get(args.id);
         expect(user.firstname).toEqual("Thomas");
         expect(user.lastname).toEqual("Carlos");
         done();
@@ -142,7 +160,7 @@ describe("User", () => {
   });
   describe("#toJSON", () => {
     it("return core search details", async done => {
-      const foundUser = await User.get(id);
+      const foundUser = await User.get(args.id);
       const json = foundUser.toJSON();
       expect(json.firstname).toEqual("Thomas");
       done();
