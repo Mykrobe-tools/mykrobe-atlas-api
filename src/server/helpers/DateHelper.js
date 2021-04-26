@@ -28,6 +28,8 @@ class DateHelper {
         date = moment(stringValue, "YYYY-MM");
       } else if (this.isddMMMyyyy(stringValue)) {
         date = moment(stringValue, "DD-MMM-YYYY");
+      } else if (this.isddMMyyyy(stringValue)) {
+        date = moment(stringValue, "DD-MM-YYYY");
       } else if (this.isMMMyyyy(stringValue)) {
         date = moment(stringValue, "MMM-YYYY");
       } else if (this.isFullMonthYear(stringValue)) {
@@ -72,6 +74,10 @@ class DateHelper {
     return value.match(
       /^(([0-9])|([0-2][0-9])|([3][0-1]))\-(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\-\d{4}$/
     );
+  }
+
+  static isddMMyyyy(value) {
+    return value.match(/^(([0-9])|([0-2][0-9])|([3][0-1]))\-\d{2}\-\d{4}$/);
   }
 
   static isYearMonthDay(value) {

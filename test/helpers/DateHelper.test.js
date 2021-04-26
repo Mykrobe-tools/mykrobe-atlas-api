@@ -85,6 +85,16 @@ describe("DateHelper", () => {
           expect(date).toEqual("2007-02-26");
         });
       });
+      describe("when passing a day-month-year", () => {
+        it("should return the same date", () => {
+          const date = DateHelper.createValidDateFromString("22-07-2020", "SAMEA3367307", []);
+          expect(date).toEqual("2020-07-22");
+        });
+        it("should return null", () => {
+          const date = DateHelper.createValidDateFromString("22-17-2020", "SAMEA3367307", []);
+          expect(date).toBe(null);
+        });
+      });
     });
   });
 });
