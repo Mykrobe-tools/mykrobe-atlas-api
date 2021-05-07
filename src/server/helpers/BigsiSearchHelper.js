@@ -58,10 +58,14 @@ class BigsiSearchHelper {
       if (search.isPending() && !search.userExists(user)) {
         return this.addAndNotifyUser(search, user);
       } else if (!search.isPending()) {
+        logger.debug(`BigsiSearchHelper#search: get cached samples: ${JSON.stringify(search, null, 2)}`);
         const cachedSampleIds = await this.getCachedResultSampleIds(search);
+        logger.debug(`BigsiSearchHelper#search: cachedSampleIds: ${JSON.stringify(cachedSampleIds, null, 2)}`);
         const experiments = await this.queryElasticsearch(cachedSampleIds, query, user);
-        const search = await this.mergeResults(experiments);
-        return { search, total: cachedSampleIds.length };
+        logger.debug(`BigsiSearchHelper#search: experiments: ${JSON.stringify(experiments, null, 2)}`);
+        const mergedSearch = await this.mergeResults(search, experiments);
+        logger.debug(`BigsiSearchHelper#search: mergedSearch: ${JSON.stringify(mergedSearch, null, 2)}`);
+        return { search: mergedSearch, total: cachedSampleIds.length };
       }
       return { search, total: 0 };
     } else {
