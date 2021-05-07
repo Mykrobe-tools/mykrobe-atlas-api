@@ -85,8 +85,10 @@ SearchSchema.method({
   },
 
   async clearUsers() {
-    this.users = [];
-    return this.save();
+    if (this.users && this.users.length) {
+      this.users = [];
+      return this.save();
+    }
   },
 
   isPending() {
