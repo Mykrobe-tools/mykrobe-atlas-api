@@ -200,6 +200,16 @@ const buildRandomDistanceResult = async () => {
   };
 };
 
+const chunk = (array, size) => {
+  const chunks = [];
+  let index = 0;
+  while (index < array.length) {
+    chunks.push(array.slice(index, size + index));
+    index += size;
+  }
+  return chunks;
+};
+
 const resultsUtil = Object.freeze({
   buildDrugResistanceSummary,
   calculateResistanceAttributes,
@@ -211,7 +221,8 @@ const resultsUtil = Object.freeze({
   parseSusceptibility,
   parsePhylogenetics,
   parseDistance,
-  buildRandomDistanceResult
+  buildRandomDistanceResult,
+  chunk
 });
 
 export default resultsUtil;

@@ -20,6 +20,7 @@ import ExperimentsResultJSONTransformer from "../transformers/es/ExperimentsResu
 import { userEventEmitter } from "../modules/events";
 import Scheduler from "../modules/scheduler/Scheduler";
 import EventHelper from "./events/EventHelper";
+import util from "./results/util";
 import logger from "../modules/logging/logger";
 
 const config = require("../../config/env");
@@ -223,25 +224,30 @@ class BigsiSearchHelper {
     logger.debug(`enhanceBigsiResultsWithExperiments: enter`);
     const sampleIds =
       results && Array.isArray(results) && results.length ? results.map(r => r.sampleId) : [];
-    // filter by sampleId
-    const sampleQuery = { sampleId: sampleIds, per: sampleIds.length };
 
-    // include any elasticsearch side query filters
-    const elasticQuery =
-      query && Object.keys(query).length > 0
-        ? Object.assign(sampleQuery, flatten(query))
-        : sampleQuery;
-
-    const searchQuery = new SearchQuery(elasticQuery, experimentSearchSchema);
-    const resp = await elasticService.search(searchQuery, {});
-    const experiments = new ExperimentsResultJSONTransformer().transform(resp, {
-      currentUser: user
-    });
-
+    const sampleIdsChunks = util.chunk(sampleIds, Constants.SAMPLES_SEARCH_LIMIT);
     const experimentsBySampleId = {};
-    for (const experiment of experiments) {
-      const sampleId = experiment.sampleId;
-      experimentsBySampleId[sampleId] = experiment;
+
+    for (const sampleIdsChunk of sampleIdsChunks) {
+      // filter by sampleId
+      const sampleQuery = { sampleId: sampleIdsChunk, per: sampleIdsChunk.length };
+
+      // include any elasticsearch side query filters
+      const elasticQuery =
+        query && Object.keys(query).length > 0
+          ? Object.assign(sampleQuery, flatten(query))
+          : sampleQuery;
+
+      const searchQuery = new SearchQuery(elasticQuery, experimentSearchSchema);
+      const resp = await elasticService.search(searchQuery, {});
+      const experiments = new ExperimentsResultJSONTransformer().transform(resp, {
+        currentUser: user
+      });
+
+      for (const experiment of experiments) {
+        const sampleId = experiment.sampleId;
+        experimentsBySampleId[sampleId] = experiment;
+      }
     }
 
     // merge results in order
