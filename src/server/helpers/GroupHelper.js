@@ -4,6 +4,7 @@ import Experiment from "../models/experiment.model";
 import BigsiSearchHelper from "./BigsiSearchHelper";
 import SearchHelper from "./SearchHelper";
 import AnalysisService from "../modules/analysis/AnalysisService";
+import BigsiCache from "../modules/cache/BigsiCache";
 import config from "../../config/env";
 
 class GroupHelper {
@@ -16,7 +17,7 @@ class GroupHelper {
     const type = search.type;
     const existingExperiments = group.get("experiments") || [];
 
-    const result = search.get("result");
+    const result = BigsiCache.getResult(search.hash);
     const results = result.results;
     const filteredResults = BigsiSearchHelper.filter(type, results);
     const isolateIds = filteredResults.map(result => result["metadata.sample.isolateId"]);

@@ -44,7 +44,7 @@ class SearchJSONTransformer extends ModelJSONTransformer {
     const status = res.status;
     switch (status) {
       case Constants.SEARCH_COMPLETE:
-        this.transformComplete(res);
+        this.transformComplete(res, options);
         break;
       case Constants.SEARCH_PENDING:
         this.transformPending(res);
@@ -54,7 +54,7 @@ class SearchJSONTransformer extends ModelJSONTransformer {
     return res;
   }
 
-  transformComplete(res) {
+  transformComplete(res, options) {
     if (res.result) {
       // hits
       const results = res.result.results;
@@ -65,13 +65,20 @@ class SearchJSONTransformer extends ModelJSONTransformer {
           transformer: SearchExperimentJSONTransformer
         });
         res.results = experiments;
+
+        const { total, page, per } = options;
+
+        const previous = page === 1 ? 1 : page - 1;
+        const next = per * page > total ? page : page + 1;
+        const pages = Math.ceil(total / per);
+
         // pagination
         res.pagination = {
-          next: 1,
-          page: 1,
-          pages: 1,
-          per: results.length > 10 ? results.length : 10,
-          previous: 1
+          next,
+          page,
+          pages,
+          per,
+          previous
         };
 
         // total

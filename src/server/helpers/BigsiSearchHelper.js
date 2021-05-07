@@ -23,6 +23,8 @@ import EventHelper from "./events/EventHelper";
 import util from "./results/util";
 import logger from "../modules/logging/logger";
 
+import BigsiCache from "../modules/cache/BigsiCache";
+
 const config = require("../../config/env");
 
 const esConfig = { type: "experiment", ...config.elasticsearch };
@@ -53,11 +55,62 @@ class BigsiSearchHelper {
 
     if (search && (!search.isExpired() || search.isPending())) {
       logger.debug(`Search exists and is waiting for results`);
-      return this.returnCachedResults(search, query, user);
+      if (search.isPending() && !search.userExists(user)) {
+        return this.addAndNotifyUser(search, user);
+      } else if (!search.isPending()) {
+        const cachedSampleIds = await getCachedResultSampleIds(search);
+        const experiments = await queryElasticsearch(cachedSampleIds, query, user);
+        const search = await mergeResults(experiments);
+        return { search, total: cachedSampleIds.length };
+      }
+      return { search, total: 0 };
     } else {
       logger.debug(`Search does not exist`);
       return this.triggerBigsiSearch(search, query, user, searchData);
     }
+  }
+
+  static async getCachedResultSampleIds(search) {
+    const result = await BigsiCache.getResult(search.hash);
+    const filteredResults = this.filter(search.type, result.results);
+    return results && Array.isArray(filteredResults) && filteredResults.length
+      ? filteredResults.map(r => r.sampleId)
+      : [];
+  }
+
+  static async queryElasticsearch(sampleIds, query, user) {
+    experimentsBySampleId = {};
+
+    // filter by sampleId
+    const sampleQuery = { sampleId: sampleIds };
+
+    // include any elasticsearch side query filters
+    const elasticQuery =
+      query && Object.keys(query).length > 0
+        ? Object.assign(sampleQuery, flatten(query))
+        : sampleQuery;
+
+    const searchQuery = new SearchQuery(elasticQuery, experimentSearchSchema);
+    const resp = await elasticService.search(searchQuery, {});
+    const experiments = new ExperimentsResultJSONTransformer().transform(resp, {
+      currentUser: user
+    });
+
+    for (const experiment of experiments) {
+      const sampleId = experiment.sampleId;
+      experimentsBySampleId[sampleId] = experiment;
+    }
+
+    return experimentsBySampleId;
+  }
+
+  static async mergeResults(search, experiments) {
+    const result = await BigsiCache.getResult(search.hash);
+
+    result.results = experiments;
+    search.result = result;
+
+    return search;
   }
 
   /**
@@ -177,7 +230,7 @@ class BigsiSearchHelper {
       savedSearch.set("query", query);
       await savedSearch.save();
     }
-    return savedSearch;
+    return { search: savedSearch, total: 0 };
   }
 
   /**
@@ -212,6 +265,8 @@ class BigsiSearchHelper {
         });
       }
     }
+
+    return { search, total: 0 };
   }
 
   /**

@@ -20,7 +20,8 @@ import { userEventEmitter } from "../modules/events";
 import Constants from "../Constants";
 import GroupHelper from "../helpers/GroupHelper";
 import GroupsInitializer from "../initializers/GroupsInitializer";
-import { group } from "yargs";
+
+import BigsiCache from "../modules/cache/BigsiCache";
 
 /**
  * Load organisation and append to req.
@@ -53,7 +54,8 @@ const saveResult = async (req, res) => {
     logger.debug(`SearchController#saveResult: 0`);
     logger.debug(`SearchController#saveResult: parsedResult: ${JSON.stringify(result, null, 2)}`);
 
-    const savedSearch = await search.updateAndSetExpiry(result);
+    const savedSearch = await search.updateAndSetExpiry();
+    BigsiCache.setResult(savedSearch.hash, result);
 
     logger.debug(`SearchController#saveResult: 1`);
 

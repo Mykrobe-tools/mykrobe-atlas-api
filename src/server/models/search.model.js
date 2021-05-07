@@ -69,13 +69,11 @@ SearchSchema.method({
     return moment(this.expires).isBefore(moment());
   },
 
-  async updateAndSetExpiry(result, expiresIn = config.services.bigsiResultsTTL) {
+  async updateAndSetExpiry(expiresIn = config.services.bigsiResultsTTL) {
     const expires = moment();
     expires.add(expiresIn, "hours");
     this.expires = expires.toISOString();
     this.status = Constants.SEARCH_COMPLETE;
-    this.set("result", result);
-
     return this.save();
   },
 
