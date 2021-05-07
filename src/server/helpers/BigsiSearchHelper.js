@@ -58,9 +58,9 @@ class BigsiSearchHelper {
       if (search.isPending() && !search.userExists(user)) {
         return this.addAndNotifyUser(search, user);
       } else if (!search.isPending()) {
-        const cachedSampleIds = await getCachedResultSampleIds(search);
-        const experiments = await queryElasticsearch(cachedSampleIds, query, user);
-        const search = await mergeResults(experiments);
+        const cachedSampleIds = await this.getCachedResultSampleIds(search);
+        const experiments = await this.queryElasticsearch(cachedSampleIds, query, user);
+        const search = await this.mergeResults(experiments);
         return { search, total: cachedSampleIds.length };
       }
       return { search, total: 0 };
