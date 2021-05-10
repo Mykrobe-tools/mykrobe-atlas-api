@@ -77,7 +77,7 @@ class BigsiSearchHelper {
   static async getCachedResultSampleIds(search) {
     const result = await BigsiCache.getResult(search.hash);
     const filteredResults = this.filter(search.type, result.results);
-    return results && Array.isArray(filteredResults) && filteredResults.length
+    return filteredResults && Array.isArray(filteredResults) && filteredResults.length
       ? filteredResults.map(r => r.sampleId)
       : [];
   }
