@@ -218,6 +218,4 @@ Constants.ALL_DRUGS = [
   Constants.STREPTOMYCIN
 ];
 
-Constants.SAMPLES_SEARCH_LIMIT = 1000;
-
 export default Constants;
