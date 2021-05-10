@@ -624,10 +624,20 @@ const search = async (req, res) => {
     const bigsi = container.bigsi;
     const query = container.query;
 
-    if (bigsi) {
-      const search = await BigsiSearchHelper.search(bigsi, query, req.dbUser);
+    // generate the core elastic search structure
+    const options = {
+      per: req.query.per || config.elasticsearch.resultsPerPage,
+      page: req.query.page || 1
+    };
 
-      const searchJson = new SearchJSONTransformer().transform(search);
+    if (bigsi) {
+      const { search, total } = await BigsiSearchHelper.search(
+        bigsi,
+        { ...query, ...options },
+        req.dbUser
+      );
+
+      const searchJson = new SearchJSONTransformer().transform(search, { total, ...options });
       searchJson.search = new SearchQueryJSONTransformer().transform(req.query, {});
 
       return res.jsend(searchJson);
@@ -645,11 +655,6 @@ const search = async (req, res) => {
       const size = await elasticService.count(searchQuery);
       logger.debug(`ExperimentController#search: size: ${size}`);
 
-      // generate the core elastic search structure
-      const options = {
-        per: req.query.per || config.elasticsearch.resultsPerPage,
-        page: req.query.page || 1
-      };
       const results = new SearchResultsJSONTransformer().transform(elasticsearchResults, options);
 
       if (results) {
