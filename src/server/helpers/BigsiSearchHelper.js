@@ -20,7 +20,6 @@ import ExperimentsResultJSONTransformer from "../transformers/es/ExperimentsResu
 import { userEventEmitter } from "../modules/events";
 import Scheduler from "../modules/scheduler/Scheduler";
 import EventHelper from "./events/EventHelper";
-import util from "./results/util";
 import logger from "../modules/logging/logger";
 
 import BigsiCache from "../modules/cache/BigsiCache";
