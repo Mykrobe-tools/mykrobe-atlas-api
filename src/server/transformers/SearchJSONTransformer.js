@@ -82,7 +82,7 @@ class SearchJSONTransformer extends ModelJSONTransformer {
         };
 
         // total
-        res.total = results.length;
+        res.total = total;
       } else {
         res.results = [];
         res.pagination = {};
