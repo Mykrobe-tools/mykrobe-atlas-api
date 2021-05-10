@@ -237,6 +237,11 @@
   dependencies:
     "@babel/types" "^7.4.4"
 
+"@babel/helper-validator-identifier@^7.14.0":
+  version "7.14.0"
+  resolved "https://registry.yarnpkg.com/@babel/helper-validator-identifier/-/helper-validator-identifier-7.14.0.tgz#d26cad8a47c65286b15df1547319a5d0bcf27288"
+  integrity sha512-V3ts7zMSu5lfiwWDVWzRDGIN+lnCEUdaXgtVHJgLb1rGaA6jMrtB9EmE7L18foXJIE8Un/A/h6NJfGQp/e1J4A==
+
 "@babel/helper-wrap-function@^7.1.0":
   version "7.2.0"
   resolved "https://registry.yarnpkg.com/@babel/helper-wrap-function/-/helper-wrap-function-7.2.0.tgz#c4e0012445769e2815b55296ead43a958549f6fa"
@@ -5889,9 +5894,9 @@ make-iterator@^1.0.0:
     type-is "^1.6.18"
     url "^0.11.0"
 
-"makeandship-api-common@https://bitbucket.org/makeandship/makeandship-api-common#v0.4.1":
-  version "0.4.1"
-  resolved "https://bitbucket.org/makeandship/makeandship-api-common#206d5d8da0d464bbc392ddb9b3c71a9b71ecba1a"
+"makeandship-api-common@https://bitbucket.org/makeandship/makeandship-api-common#v0.4.2":
+  version "0.4.2"
+  resolved "https://bitbucket.org/makeandship/makeandship-api-common#e24877b75446fe252f9d711cb05d6d38689fd3fe"
   dependencies:
     "@babel/runtime" "^7.10.1"
     ajv "^6.5.0"
