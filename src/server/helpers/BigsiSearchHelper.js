@@ -138,11 +138,8 @@ class BigsiSearchHelper {
     const results = cachedResult.results;
 
     const hits = [];
-    for (const result of results) {
-      const sampleId = result.sampleId;
-      const match = sampleId ? experiments[sampleId] : null;
-      const hit = match ? deepmerge(result, match) : result;
-      hits.push(hit);
+    for (const sampleId of Object.keys(experiments)) {
+      hits.push(experiments[sampleId]);
     }
 
     cachedResult.results = hits;
