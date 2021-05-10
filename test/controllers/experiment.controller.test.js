@@ -25,6 +25,7 @@ import Tree from "../../src/server/models/tree.model";
 import Search from "../../src/server/models/search.model";
 import Organisation from "../../src/server/models/organisation.model";
 import DistanceCache from "../../src/server/modules/cache/DistanceCache";
+import BigsiCache from "../../src/server/modules/cache/BigsiCache";
 
 import { experimentEventEmitter, userEventEmitter } from "../../src/server/modules/events";
 
@@ -2819,7 +2820,8 @@ describe("ExperimentController", () => {
         });
       });
       describe("when a results are available and not expired", () => {
-        let searchId = null;
+        let searchId,
+          mockRedisServiceGet = null;
         beforeEach(async done => {
           const searchData = new Search(searches.full.proteinVariant);
 
@@ -2839,10 +2841,40 @@ describe("ExperimentController", () => {
             requestMethod: "post"
           });
           await auditData.save();
+
+          const experimentWithMetadataResults = new Experiment(experiments.tbUploadMetadataResults);
+          const savedExperimentWithMetadataResults = await experimentWithMetadataResults.save();
+
+          // mock the RedisService.get method to return a fixed value regardless of key
+          mockRedisServiceGet = jest.spyOn(BigsiCache, "getResult").mockImplementation(() => {
+            return {
+              id: savedSearch.id,
+              reference: "/config/NC_000962.3.fasta",
+              ref: "S",
+              pos: 450,
+              alt: "L",
+              genbank: "/config/NC_000962.3.gb",
+              gene: "rpoB",
+              completed_bigsi_queries: 2,
+              total_bigsi_queries: 1,
+              results: [
+                {
+                  sampleId: savedExperimentWithMetadataResults.sampleId,
+                  genotype: "1/1"
+                }
+              ]
+            };
+          });
+
           done();
         });
+
+        afterEach(() => {
+          jest.clearAllMocks();
+        });
+
         it("should not add the user to the list of users", async done => {
-          // mocks/atlas-experiment/_search/POST.20fbeb4fb3e9780df79d89e99ae08bfb.mock
+          // mocks/atlas-experiment/_search/POST.64ab426d74e36ddbb0a5a31470f14bc5.mock
           request(args.app)
             .get("/experiments/search?q=rpoB_S450L")
             .set("Authorization", `Bearer ${args.token}`)
@@ -2851,6 +2883,62 @@ describe("ExperimentController", () => {
               expect(res.body.status).toEqual("success");
               expect(res.body.data.id).toEqual(searchId);
               expect(res.body.data.users.length).toEqual(0);
+              done();
+            });
+        });
+        it("should populate the search results", async done => {
+          // mocks/atlas-experiment/_search/POST.64ab426d74e36ddbb0a5a31470f14bc5.mock
+          request(args.app)
+            .get("/experiments/search?q=rpoB_S450L")
+            .set("Authorization", `Bearer ${args.token}`)
+            .expect(httpStatus.OK)
+            .end(async (err, res) => {
+              expect(res.body.status).toEqual("success");
+              expect(res.body.data.id).toEqual(searchId);
+              const { results } = res.body.data;
+
+              expect(results.length).toEqual(1);
+              expect(results[0].sampleId).toEqual("49f90e7b-9827-43c1-bfa3-0feac8d02f96");
+              done();
+            });
+        });
+        it("should use default pagination", async done => {
+          // mocks/atlas-experiment/_search/POST.64ab426d74e36ddbb0a5a31470f14bc5.mock
+          request(args.app)
+            .get("/experiments/search?q=rpoB_S450L")
+            .set("Authorization", `Bearer ${args.token}`)
+            .expect(httpStatus.OK)
+            .end(async (err, res) => {
+              expect(res.body.status).toEqual("success");
+              expect(res.body.data.id).toEqual(searchId);
+              const { pagination } = res.body.data;
+
+              expect(pagination.next).toEqual(1);
+              expect(pagination.page).toEqual(1);
+              expect(pagination.pages).toEqual(1);
+              expect(pagination.per).toEqual(10);
+              expect(pagination.previous).toEqual(1);
+
+              done();
+            });
+        });
+        it("should use passed pagination details", async done => {
+          // mocks/atlas-experiment/_search/POST.64ab426d74e36ddbb0a5a31470f14bc5.mock
+          request(args.app)
+            .get("/experiments/search?q=rpoB_S450L&per=3")
+            .set("Authorization", `Bearer ${args.token}`)
+            .expect(httpStatus.OK)
+            .end(async (err, res) => {
+              expect(res.body.status).toEqual("success");
+              expect(res.body.data.id).toEqual(searchId);
+              const { pagination } = res.body.data;
+
+              expect(pagination.next).toEqual(1);
+              expect(pagination.page).toEqual(1);
+              expect(pagination.pages).toEqual(1);
+              expect(pagination.per).toEqual("3");
+              expect(pagination.previous).toEqual(1);
+
               done();
             });
         });
