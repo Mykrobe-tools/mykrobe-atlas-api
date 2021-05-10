@@ -83,7 +83,7 @@ class BigsiSearchHelper {
   }
 
   static async queryElasticsearch(sampleIds, query, user) {
-    experimentsBySampleId = {};
+    const experimentsBySampleId = {};
 
     // filter by sampleId
     const sampleQuery = { sampleId: sampleIds };
