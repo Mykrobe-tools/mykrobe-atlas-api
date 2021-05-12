@@ -593,7 +593,20 @@ const choices = async (req, res) => {
   try {
     const clone = Object.assign({}, req.query);
     const container = parseQuery(clone);
+
+    const bigsi = container.bigsi;
     const query = container.query;
+
+    if (bigsi) {
+      const cachedSampleIds = await BigsiSearchHelper.getCachedSampleIdsForChoices(
+        bigsi,
+        query,
+        req.dbUser
+      );
+      if (cachedSampleIds && cachedSampleIds.length) {
+        query.sampleId = cachedSampleIds;
+      }
+    }
 
     // parse the query
     const parsedQuery = new RequestSearchQueryParser(req.originalUrl).parse(query);
