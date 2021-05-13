@@ -64,7 +64,7 @@ class BigsiSearchHelper {
         logger.debug(
           `BigsiSearchHelper#search: cachedSampleIds: ${JSON.stringify(cachedSampleIds, null, 2)}`
         );
-        const experiments = await this.queryElasticsearch(cachedSampleIds, query, user);
+        const { experiments, total } = await this.queryElasticsearch(cachedSampleIds, query, user);
         logger.debug(
           `BigsiSearchHelper#search: experiments: ${JSON.stringify(experiments, null, 2)}`
         );
@@ -72,7 +72,7 @@ class BigsiSearchHelper {
         logger.debug(
           `BigsiSearchHelper#search: mergedSearch: ${JSON.stringify(mergedSearch, null, 2)}`
         );
-        return { search: mergedSearch, total: cachedSampleIds.length };
+        return { search: mergedSearch, total };
       }
       return { search, total: 0 };
     } else {
@@ -150,7 +150,10 @@ class BigsiSearchHelper {
         : sampleQuery;
 
     const searchQuery = new SearchQuery(elasticQuery, experimentSearchSchema);
+    
     const resp = await elasticService.search(searchQuery, {});
+    const total = await elasticService.count(searchQuery);
+
     const experiments = new ExperimentsResultJSONTransformer().transform(resp, {
       currentUser: user
     });
@@ -160,7 +163,7 @@ class BigsiSearchHelper {
       experimentsBySampleId[sampleId] = experiment;
     }
 
-    return experimentsBySampleId;
+    return { experiments: experimentsBySampleId, total };
   }
 
   /**
