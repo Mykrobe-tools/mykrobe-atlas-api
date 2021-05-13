@@ -2886,6 +2886,51 @@ describe("ExperimentController", () => {
               done();
             });
         });
+        describe("when calling the bigsi choices", () => {
+          it("should return successful bigsi choices", async done => {
+            // mocks/atlas-experiment/_search/POST.30f1527516c6a4f1b342e1033d317837.mock
+            request(args.app)
+              .get("/experiments/choices?q=rpoB_S450L")
+              .set("Authorization", `Bearer ${args.token}`)
+              .expect(httpStatus.OK)
+              .end(async (err, res) => {
+                expect(res.body.status).toEqual("success");
+                done();
+              });
+          });
+          it("should return aggregated data", async done => {
+            // mocks/atlas-experiment/_search/POST.30f1527516c6a4f1b342e1033d317837.mock
+            request(args.app)
+              .get("/experiments/choices?q=rpoB_S450L")
+              .set("Authorization", `Bearer ${args.token}`)
+              .expect(httpStatus.OK)
+              .end(async (err, res) => {
+                expect(res.body.status).toEqual("success");
+                const { data } = res.body;
+                expect(
+                  data["metadata.phenotyping.phenotypeInformationFirstLineDrugs"].choices[0].key
+                ).toEqual("Yes");
+                expect(
+                  data["metadata.phenotyping.phenotypeInformationFirstLineDrugs"].choices[0].count
+                ).toEqual(2);
+                done();
+              });
+          });
+          it("should filter aggregated data", async done => {
+            // mocks/atlas-experiment/_search/POST.30f1527516c6a4f1b342e1033d317837.mock
+            request(args.app)
+              .get("/experiments/choices?q=rpoB_S450L&metadata.patient.smoker=No")
+              .set("Authorization", `Bearer ${args.token}`)
+              .expect(httpStatus.OK)
+              .end(async (err, res) => {
+                expect(res.body.status).toEqual("success");
+                const { data } = res.body;
+                expect(data["metadata.patient.smoker"].choices[0].key).toEqual("No");
+                expect(data["metadata.patient.smoker"].choices[0].count).toEqual(1);
+                done();
+              });
+          });
+        });
         it("should populate the search results", async done => {
           // mocks/atlas-experiment/_search/POST.64ab426d74e36ddbb0a5a31470f14bc5.mock
           request(args.app)

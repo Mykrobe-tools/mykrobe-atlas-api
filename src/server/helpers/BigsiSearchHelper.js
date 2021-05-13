@@ -81,6 +81,42 @@ class BigsiSearchHelper {
     }
   }
 
+  static async getCachedSampleIdsForChoices(bigsi, query, user) {
+    const searchData = {
+      type: bigsi.type,
+      bigsi: bigsi
+    };
+    logger.debug(
+      `BigsiSearchHelper#getCachedSampleIdsForChoices: bigsi: ${JSON.stringify(bigsi, null, 2)}`
+    );
+    logger.debug(
+      `BigsiSearchHelper#getCachedSampleIdsForChoices: query: ${JSON.stringify(query, null, 2)}`
+    );
+
+    const searchHash = SearchHelper.generateHash(searchData);
+    logger.debug(
+      `BigsiSearchHelper#getCachedSampleIdsForChoices: hash: ${JSON.stringify(searchHash, null, 2)}`
+    );
+    const search = await Search.findByHash(searchHash);
+    logger.debug(
+      `BigsiSearchHelper#getCachedSampleIdsForChoices: search: ${JSON.stringify(search, null, 2)}`
+    );
+
+    if (search && !search.isExpired() && !search.isPending()) {
+      logger.debug(
+        `BigsiSearchHelper#getCachedSampleIdsForChoices: get cached samples: ${JSON.stringify(
+          search,
+          null,
+          2
+        )}`
+      );
+      const cachedSampleIds = await this.getCachedResultSampleIds(search);
+      return cachedSampleIds;
+    }
+
+    return null;
+  }
+
   /**
    * Returns cached sampleIds array
    * @param {*} search
