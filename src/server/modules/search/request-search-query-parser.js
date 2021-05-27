@@ -4,6 +4,7 @@ import {
   AggregationSearchQuery
 } from "makeandship-api-common/lib/modules/elasticsearch/";
 import { experimentSearch as experimentSearchSchema } from "mykrobe-atlas-jsonschema";
+import SchemaExplorer from "makeandship-api-common/lib/modules/jsonschema/schema-explorer";
 import Constants from "../../Constants";
 
 /**
@@ -20,14 +21,19 @@ class RequestSearchQueryParser {
    * @param {*} query
    */
   parse(filters) {
+    const ehancedFilters = this.enhanceFilters(filters);
     if (this.pathname.endsWith(Constants.CHOICES_URL_SUFFIX)) {
-      return new AggregationSearchQuery(filters, experimentSearchSchema, Constants.INDEX_TYPE);
+      return new AggregationSearchQuery(
+        ehancedFilters,
+        experimentSearchSchema,
+        Constants.INDEX_TYPE
+      );
     } else if (
       this.pathname.endsWith(Constants.SEARCH_URL_SUFFIX) ||
       this.pathname.endsWith(Constants.EXPERIMENTS_URL_SUFFIX) ||
       this.pathname.endsWith(Constants.SUMMARY_URL_SUFFIX)
     ) {
-      return new SearchQuery(filters, experimentSearchSchema, Constants.INDEX_TYPE);
+      return new SearchQuery(ehancedFilters, experimentSearchSchema, Constants.INDEX_TYPE);
     }
     return null;
   }
@@ -45,6 +51,42 @@ class RequestSearchQueryParser {
     }
 
     return null;
+  }
+
+  /**
+   * Enhance the filters with synonyms
+   * @param {*} filters
+   * @returns
+   */
+  enhanceFilters(filters) {
+    if (filters.q) {
+      const keyword = filters.q;
+      const explorer = new SchemaExplorer(experimentSearchSchema);
+      const attributes = explorer.getAttributes();
+
+      attributes.forEach(path => {
+        const object = explorer.getSchema(path);
+        if (object.synonyms && object.synonyms.length) {
+          object.synonyms.forEach(synonym => {
+            if (synonym.indexOf("=>") > -1) {
+              const synonymValue = synonym.split("=>")[1];
+              const keywords = synonymValue.split(",");
+            }
+            return synonym;
+          });
+          filter[`${name}_syn`] = {
+            type: "synonym",
+            synonyms
+          };
+          analyzer[`${name}_text`] = {
+            tokenizer: "standard",
+            filter: [`${name}_syn`]
+          };
+        }
+      });
+    }
+
+    return filters;
   }
 }
 
