@@ -71,17 +71,12 @@ class RequestSearchQueryParser {
             if (synonym.indexOf("=>") > -1) {
               const synonymValue = synonym.split("=>")[1];
               const keywords = synonymValue.split(",");
+              if (keywords.indexOf(keyword) > -1) {
+                delete filters.q;
+                filters[path] = keyword;
+              }
             }
-            return synonym;
           });
-          filter[`${name}_syn`] = {
-            type: "synonym",
-            synonyms
-          };
-          analyzer[`${name}_text`] = {
-            tokenizer: "standard",
-            filter: [`${name}_syn`]
-          };
         }
       });
     }
