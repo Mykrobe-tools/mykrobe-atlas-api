@@ -5894,9 +5894,9 @@ make-iterator@^1.0.0:
     type-is "^1.6.18"
     url "^0.11.0"
 
-"makeandship-api-common@https://bitbucket.org/makeandship/makeandship-api-common#v0.4.2":
+"makeandship-api-common@https://bitbucket.org/makeandship/makeandship-api-common#feature/1062-add-synonyms":
   version "0.4.2"
-  resolved "https://bitbucket.org/makeandship/makeandship-api-common#e24877b75446fe252f9d711cb05d6d38689fd3fe"
+  resolved "https://bitbucket.org/makeandship/makeandship-api-common#c2ef94f07d5173153150acd8405ea1eaba17474b"
   dependencies:
     "@babel/runtime" "^7.10.1"
     ajv "^6.5.0"
@@ -6416,9 +6416,9 @@ mute-stream@~0.0.4:
   resolved "https://registry.yarnpkg.com/mute-stream/-/mute-stream-0.0.8.tgz#1630c42b2251ff81e2a283de96a5497ea92e5e0d"
   integrity sha512-nnbWWOkoWyUsTjKrhgD0dcz22mdkSnpYqbEjIm2nhwhuxlSkpywJmBo8h0ZqJdkp73mb90SssHkN4rsRaBAfAA==
 
-"mykrobe-atlas-jsonschema@git+ssh://git@github.com/Mykrobe-tools/mykrobe-atlas-jsonschema.git#v0.0.44":
-  version "0.0.44"
-  resolved "git+ssh://git@github.com/Mykrobe-tools/mykrobe-atlas-jsonschema.git#6f0ec1dc58819ca28af8a0d8a53aed66cb1bed0b"
+"mykrobe-atlas-jsonschema@git+ssh://git@github.com/Mykrobe-tools/mykrobe-atlas-jsonschema.git#v0.0.46":
+  version "0.0.46"
+  resolved "git+ssh://git@github.com/Mykrobe-tools/mykrobe-atlas-jsonschema.git#ec16c82adc3b45d10ad7659e677876ddb60cab7a"
   dependencies:
     onchange "^4.0.0"
 
