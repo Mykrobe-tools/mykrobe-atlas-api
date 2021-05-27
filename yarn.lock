@@ -5896,7 +5896,7 @@ make-iterator@^1.0.0:
 
 "makeandship-api-common@https://bitbucket.org/makeandship/makeandship-api-common#feature/1062-add-synonyms":
   version "0.4.2"
-  resolved "https://bitbucket.org/makeandship/makeandship-api-common#c2ef94f07d5173153150acd8405ea1eaba17474b"
+  resolved "https://bitbucket.org/makeandship/makeandship-api-common#083067a3bffe5aa914dc852ba63b3467c52b7695"
   dependencies:
     "@babel/runtime" "^7.10.1"
     ajv "^6.5.0"
