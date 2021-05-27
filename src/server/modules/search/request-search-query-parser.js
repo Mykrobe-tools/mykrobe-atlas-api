@@ -22,6 +22,7 @@ class RequestSearchQueryParser {
    */
   parse(filters) {
     const ehancedFilters = this.enhanceFilters(filters);
+    console.log("ehancedFilters --> " + JSON.stringify(ehancedFilters));
     if (this.pathname.endsWith(Constants.CHOICES_URL_SUFFIX)) {
       return new AggregationSearchQuery(
         ehancedFilters,
@@ -70,7 +71,7 @@ class RequestSearchQueryParser {
           object.synonyms.forEach(synonym => {
             if (synonym.indexOf("=>") > -1) {
               const synonymValue = synonym.split("=>")[1];
-              const keywords = synonymValue.split(",");
+              const keywords = synonymValue.split(",").map(item => item.trim());
               if (keywords.indexOf(keyword) > -1) {
                 delete filters.q;
                 filters[path] = keyword;
