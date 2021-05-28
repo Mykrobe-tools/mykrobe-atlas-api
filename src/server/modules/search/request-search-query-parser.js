@@ -71,18 +71,24 @@ class RequestSearchQueryParser {
             if (synonym.indexOf("=>") > -1) {
               const synonymKey = synonym.split("=>")[0];
               const synonymValue = synonym.split("=>")[1];
-              const fiedlPath = synonymKey.indexOf("/") > -1 ? `${path}.${synonymKey.split("/")[0].toLowerCase()}` : path;
+              const fiedlPath =
+                synonymKey.indexOf("/") > -1
+                  ? `${path}.${synonymKey.split("/")[0].toLowerCase()}`
+                  : path;
               const keywords = synonymValue.split(",").map(item => item.trim());
               if (keywords.indexOf(keyword) > -1) {
                 delete filters.q;
-                if (object.type === "boolean") {
-                  filters[`${fiedlPath}.raw`] = keyword;
-                } else {
-                  filters[fiedlPath] = keyword;
-                }
+                filters[`${fiedlPath}.raw`] = keyword;
               }
             }
           });
+        }
+
+        if (object.useSynonyms && object.enum && object.enumNames) {
+          if (object.enumNames.indexOf(keyword) > -1) {
+            delete filters.q;
+            filters[`${path}.raw`] = keyword;
+          }
         }
       });
     }
