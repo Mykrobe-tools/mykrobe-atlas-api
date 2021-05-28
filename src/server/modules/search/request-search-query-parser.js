@@ -22,7 +22,6 @@ class RequestSearchQueryParser {
    */
   parse(filters) {
     const ehancedFilters = this.enhanceFilters(filters);
-    console.log("ehancedFilters --> " + JSON.stringify(ehancedFilters));
     if (this.pathname.endsWith(Constants.CHOICES_URL_SUFFIX)) {
       return new AggregationSearchQuery(
         ehancedFilters,
@@ -70,14 +69,16 @@ class RequestSearchQueryParser {
         if (object.synonyms && object.synonyms.length) {
           object.synonyms.forEach(synonym => {
             if (synonym.indexOf("=>") > -1) {
+              const synonymKey = synonym.split("=>")[0];
               const synonymValue = synonym.split("=>")[1];
+              const fiedlPath = synonymKey.indexOf("/") > -1 ? `${path}.${synonymKey.split("/")[0].toLowerCase()}` : path;
               const keywords = synonymValue.split(",").map(item => item.trim());
               if (keywords.indexOf(keyword) > -1) {
                 delete filters.q;
                 if (object.type === "boolean") {
-                  filters[`${path}.raw`] = keyword;
+                  filters[`${fiedlPath}.raw`] = keyword;
                 } else {
-                  filters[path] = keyword;
+                  filters[fiedlPath] = keyword;
                 }
               }
             }
