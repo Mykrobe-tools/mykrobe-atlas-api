@@ -74,7 +74,11 @@ class RequestSearchQueryParser {
               const keywords = synonymValue.split(",").map(item => item.trim());
               if (keywords.indexOf(keyword) > -1) {
                 delete filters.q;
-                filters[path] = keyword;
+                if (object.type === "boolean") {
+                  filters[`${path}.raw`] = keyword;
+                } else {
+                  filters[path] = keyword;
+                }
               }
             }
           });
