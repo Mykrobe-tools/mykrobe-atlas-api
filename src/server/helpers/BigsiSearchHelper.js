@@ -150,7 +150,7 @@ class BigsiSearchHelper {
         : sampleQuery;
 
     const searchQuery = new SearchQuery(elasticQuery, experimentSearchSchema);
-    
+
     const resp = await elasticService.search(searchQuery, {});
     const total = await elasticService.count(searchQuery);
 
