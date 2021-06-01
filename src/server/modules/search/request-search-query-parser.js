@@ -69,7 +69,7 @@ class RequestSearchQueryParser {
         if (object.synonyms && object.synonyms.length) {
           object.synonyms.forEach(synonym => {
             if (synonym.indexOf(",") > -1) {
-              const synonymValues = synonymValue.split(",").map(item => item.trim());
+              const synonymValues = synonym.split(",").map(item => item.trim());
               const synonymKey = synonymValues[0];
               const fiedlPath =
                 synonymKey.indexOf("/") > -1
