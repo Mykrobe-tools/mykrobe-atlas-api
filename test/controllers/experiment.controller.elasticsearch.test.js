@@ -858,6 +858,85 @@ describe("ExperimentController > Elasticsearch", () => {
         });
       });
     });
+    describe("when using synonyms", () => {
+      describe("when filtered by metadata", () => {
+        let status = null;
+        let data = null;
+        beforeEach(async done => {
+          request(args.app)
+            .get("/experiments/search?q=Smoker")
+            .set("Authorization", `Bearer ${args.token}`)
+            .expect(httpStatus.OK)
+            .end((err, res) => {
+              status = res.body.status;
+              data = res.body.data;
+
+              done();
+            });
+        });
+        it("should return success", done => {
+          expect(status).toEqual("success");
+
+          done();
+        });
+        it("should return search metadata", () => {
+          expect(data).toHaveProperty("pagination");
+          expect(data).toHaveProperty("metadata");
+          expect(data).toHaveProperty("total", 1);
+          expect(data).toHaveProperty("results");
+          expect(data).toHaveProperty("search");
+        });
+        it("should return matching search results", () => {
+          expect(data.results.length).toEqual(1);
+          data.results.forEach(result => {
+            expect(result).toHaveProperty("metadata");
+            expect(result.metadata.patient.smoker).toEqual("Yes");
+            expect(result).toHaveProperty("created");
+            expect(result).toHaveProperty("modified");
+            expect(result).toHaveProperty("relevance");
+          });
+        });
+      });
+      describe("when filtered by susceptibility", () => {
+        let status = null;
+        let data = null;
+        beforeEach(async done => {
+          request(args.app)
+            .get("/experiments/search?q=Rifampicin")
+            .set("Authorization", `Bearer ${args.token}`)
+            .expect(httpStatus.OK)
+            .end((err, res) => {
+              status = res.body.status;
+              data = res.body.data;
+
+              done();
+            });
+        });
+        it("should return success", done => {
+          expect(status).toEqual("success");
+
+          done();
+        });
+        it("should return search metadata", () => {
+          expect(data).toHaveProperty("pagination");
+          expect(data).toHaveProperty("metadata");
+          expect(data).toHaveProperty("total", 1);
+          expect(data).toHaveProperty("results");
+          expect(data).toHaveProperty("search");
+        });
+        it("should return matching search results", () => {
+          expect(data.results.length).toEqual(1);
+          data.results.forEach(result => {
+            expect(result).toHaveProperty("metadata");
+            expect(result).toHaveProperty("created");
+            expect(result).toHaveProperty("modified");
+            expect(result).toHaveProperty("relevance");
+
+            expect(result.results.predictor.susceptibility.Rifampicin.prediction).toEqual("R");
+          });
+        });
+      });
+    });
   });
   describe("GET /experiments/search", () => {
     beforeEach(async done => {

@@ -68,15 +68,14 @@ class RequestSearchQueryParser {
         const object = explorer.getSchema(path);
         if (object.synonyms && object.synonyms.length) {
           object.synonyms.forEach(synonym => {
-            if (synonym.indexOf("=>") > -1) {
-              const synonymKey = synonym.split("=>")[0];
-              const synonymValue = synonym.split("=>")[1];
+            if (synonym.indexOf(",") > -1) {
+              const synonymValues = synonymValue.split(",").map(item => item.trim());
+              const synonymKey = synonymValues[0];
               const fiedlPath =
                 synonymKey.indexOf("/") > -1
                   ? `${path}.${synonymKey.split("/")[0].toLowerCase()}`
                   : path;
-              const keywords = synonymValue.split(",").map(item => item.trim());
-              if (keywords.indexOf(keyword) > -1) {
+              if (synonymValues.indexOf(keyword) > -1) {
                 delete filters.q;
                 filters[`${fiedlPath}.raw`] = keyword;
               }
