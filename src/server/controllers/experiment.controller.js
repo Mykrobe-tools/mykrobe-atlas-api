@@ -790,7 +790,7 @@ const requestResults = async (experiment, cachedResults) => {
       `ExperimentController#requestResults: Cluster results missing, request from Analysis API`
     );
     await scheduler.schedule("now", "call cluster api", {
-      experiment_id: experiment.id,
+      experiment_id: id,
       experiment: new ExperimentJobJSONTransformer().transform(experiment)
     });
   }

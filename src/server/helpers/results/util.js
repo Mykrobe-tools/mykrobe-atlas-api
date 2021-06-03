@@ -186,6 +186,14 @@ const parseDistance = result => {
   return [];
 };
 
+const parseCluster = result => {
+  const nodes = result.nodes || [];
+  if (nodes && Array.isArray(nodes)) {
+    return nodes;
+  }
+  return [];
+};
+
 const buildRandomDistanceResult = async () => {
   const result = {};
   const experiments = await Experiment.list(5);
@@ -211,6 +219,7 @@ const resultsUtil = Object.freeze({
   parseSusceptibility,
   parsePhylogenetics,
   parseDistance,
+  parseCluster,
   buildRandomDistanceResult
 });
 
