@@ -18,6 +18,8 @@ import ProteinVariantSearchCompleteEventJSONTransformer from "../transformers/ev
 import DnaVariantSearchStartedEventJSONTransformer from "../transformers/events/DnaVariantSearchStartedEventJSONTransformer";
 import DnaVariantSearchCompleteEventJSONTransformer from "../transformers/events/DnaVariantSearchCompleteEventJSONTransformer";
 import DistanceCompletedJSONTransformer from "../transformers/events/DistanceCompletedJSONTransformer";
+import ClusterStartedJSONTransformer from "../transformers/events/ClusterStartedJSONTransformer";
+import ClusterCompletedJSONTransformer from "../transformers/events/ClusterCompletedJSONTransformer";
 
 import logger from "./logging/logger";
 
@@ -150,6 +152,48 @@ experimentEventEmitter.on(Constants.EVENTS.DISTANCE_SEARCH_COMPLETE.EVENT, async
         const userIds = notify.map(user => user.id);
         const uniqueUserIds = [...new Set(userIds)]; // remove id duplicates - notify once per user
         logger.debug(`Distance search complete: User ids: ${JSON.stringify(uniqueUserIds)}`);
+        for (const userId of uniqueUserIds) {
+          sendUserEvent(userId, data);
+        }
+      }
+    }
+  } catch (e) {}
+});
+
+experimentEventEmitter.on(Constants.EVENTS.CLUSTER_SEARCH_STARTED.EVENT, async payload => {
+  try {
+    const { experiment, audit } = payload;
+
+    if (audit && experiment) {
+      const data = new ClusterStartedJSONTransformer().transform(
+        {
+          audit,
+          experiment
+        },
+        {}
+      );
+      sendExperimentOwnerEvent(experiment, data, Constants.EVENTS.CLUSTER_SEARCH_STARTED.EVENT);
+    }
+  } catch (e) {}
+});
+
+experimentEventEmitter.on(Constants.EVENTS.CLUSTER_SEARCH_COMPLETE.EVENT, async payload => {
+  try {
+    const { experiment, users } = payload;
+
+    if (experiment) {
+      const data = new ClusterCompletedJSONTransformer().transform({ experiment }, {});
+
+      const owner = experiment.owner ? [experiment.owner] : [];
+      logger.debug(`Cluster search complete: Owner: ${owner.length}`);
+      const watchers = users && users.length ? users : [];
+      logger.debug(`Cluster search complete: Watchers: ${watchers.length}`);
+      const notify = owner.concat(watchers);
+
+      if (notify && notify.length) {
+        const userIds = notify.map(user => user.id);
+        const uniqueUserIds = [...new Set(userIds)]; // remove id duplicates - notify once per user
+        logger.debug(`Cluster search complete: User ids: ${JSON.stringify(uniqueUserIds)}`);
         for (const userId of uniqueUserIds) {
           sendUserEvent(userId, data);
         }

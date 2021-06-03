@@ -55,6 +55,9 @@ class Scheduler {
       that.agenda.define("call search api", async job => {
         await that.binding.search(job);
       });
+      that.agenda.define("call cluster api", async job => {
+        await that.binding.cluster(job);
+      });
 
       // initialise services when ready
       that.agenda.on("ready", async () => {

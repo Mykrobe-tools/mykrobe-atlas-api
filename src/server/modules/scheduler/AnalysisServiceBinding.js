@@ -152,6 +152,67 @@ class AnalysisServiceBinding {
     logger.debug(`AnalysisServiceBinding#distance: exit`);
   }
 
+  async cluster(job) {
+    logger.debug(`AnalysisServiceBinding#cluster: enter`);
+
+    const data = this.getData(job);
+    logger.debug(`AnalysisServiceBinding#cluster: data: ${JSON.stringify(data)}`);
+
+    if (data) {
+      const experiment = data.experiment;
+      const file = experiment.files && experiment.files.length ? experiment.files[0] : null;
+
+      try {
+        if (!data.attempt) {
+          data.attempt = 0;
+        }
+        if (data.attempt < config.services.analysisApiMaxRetries) {
+          const taskId = await this.service.cluster(experiment);
+
+          // create an audit trail of the successful action
+          const audit = new Audit({
+            experimentId: experiment.id,
+            fileLocation: file,
+            status: "Successful",
+            taskId,
+            type: "Cluster",
+            attempt: data.attempt + 1
+          });
+          const savedAudit = await audit.save();
+
+          // emit an analysis started event
+          const auditJson = new AuditJSONTransformer().transform(savedAudit);
+          experimentEventEmitter.emit("cluster-search-started", {
+            audit: auditJson,
+            experiment
+          });
+        }
+      } catch (e) {
+        logger.debug(`AnalysisServiceBinding#cluster: exception: ${e}`);
+        // create an audit trail of the failure
+        const audit = new Audit({
+          experimentId: experiment.id,
+          fileLocation: file,
+          status: "Failed",
+          type: "Cluster",
+          attempt: data.attempt + 1
+        });
+        await audit.save();
+
+        // re-run after backing off
+        await this.scheduler.schedule(
+          config.services.analysisApiBackOffPeriod,
+          "call cluster api",
+          data
+        );
+
+        throw e;
+      }
+    }
+
+    logger.debug(`AnalysisServiceBinding#cluster: exit`);
+  }
+
   async search(job) {
     logger.debug(`AnalysisServiceBinding#search: enter`);
     logger.debug(`AnalysisServiceBinding#search: job: ${JSON.stringify(job)}`);

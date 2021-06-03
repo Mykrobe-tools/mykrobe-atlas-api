@@ -35,6 +35,18 @@ const enableMockDistanceApi = () => {
   logger.debug(`enableMockDistanceApi: exit`);
 };
 
+const enableMockClusterApi = () => {
+  logger.debug(`enableMockClusterApi: enter`);
+  nock(config.services.analysisApiUrl)
+    .persist()
+    .post("/cluster")
+    .reply(200, {
+      result: "success",
+      task_id: "05011275-a71d-4e77-ae9c-6ee672c449de"
+    });
+  logger.debug(`enableMockClusterApi: exit`);
+};
+
 const enableMockSearchApi = () => {
   logger.debug(`enableMockSearchApi: enter`);
   nock(config.services.analysisApiUrl)
@@ -160,6 +172,7 @@ const enableExternalAtlasMockServices = () => {
   logger.debug(`enableExternalAtlasMockServices: enter`);
   enableMockAnalysisApi();
   enableMockDistanceApi();
+  enableMockClusterApi();
   enableMockSearchApi();
   enableMockTreeApi();
   enableMockIsolateIdMapping();
