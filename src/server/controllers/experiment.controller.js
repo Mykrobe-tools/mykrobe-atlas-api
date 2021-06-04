@@ -832,6 +832,10 @@ const refreshResults = async (req, res) => {
     experiment_id: experiment.id,
     experiment: experimentJson
   });
+  await scheduler.schedule("now", "call cluster api", {
+    experiment_id: experiment.id,
+    experiment: experimentJson
+  });
   return res.jsend("Update of existing results triggered");
 };
 
