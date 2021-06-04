@@ -23,6 +23,7 @@ import Tree from "../models/tree.model";
 import CacheHelper from "../modules/cache/CacheHelper";
 import ResponseCache from "../modules/cache/ResponseCache";
 import DistanceCache from "../modules/cache/DistanceCache";
+import ClusterCache from "../modules/cache/ClusterCache";
 import WatchCache from "../modules/cache/WatchCache";
 
 import SearchConfig from "../modules/search/SearchConfig";
@@ -83,17 +84,10 @@ const get = async (req, res) => {
   logger.debug(`ExperimentController#get: Check #get for: ${JSON.stringify(hash)}`);
   const cached = await ResponseCache.getQueryResponse(`get`, hash);
   if (cached && typeof cached !== "undefined") {
-    if (!cached.results || !cached.results.distance) {
+    if (!cached.results || !cached.results.distance || !cached.results.cluster) {
       const users = await WatchCache.getUsers(id); // current users watching for distance results
       if (!users) {
-        logger.debug(
-          `ExperimentController#get: Distance results missing, request from Analysis API`
-        );
-        const scheduler = await Scheduler.getInstance();
-        await scheduler.schedule("now", "call distance api", {
-          experiment_id: id,
-          experiment: new ExperimentJobJSONTransformer().transform(req.experiment)
-        });
+        await requestResults(req.experiment, cached.results);
       }
       await WatchCache.setUser(id, req.dbUser); // watch
     }
@@ -107,19 +101,22 @@ const get = async (req, res) => {
 
     const results = experimentJSON.results || {};
     const distanceResults = await DistanceCache.getResult(experimentJSON.sampleId);
+    const clusterResults = await ClusterCache.getResult(experimentJSON.sampleId);
 
     if (distanceResults) {
       results.distance = distanceResults;
-    } else {
-      logger.debug(
-        `ExperimentController#get: Distance results missing but experiment in cache, request from Analysis API`
-      );
+    }
+
+    if (clusterResults) {
+      results.cluster = clusterResults;
+    }
+
+    if (!distanceResults || !clusterResults) {
       const users = await WatchCache.getUsers(id); // current users watching for distance results
       if (!users) {
-        const scheduler = await Scheduler.getInstance();
-        await scheduler.schedule("now", "call distance api", {
-          experiment_id: id,
-          experiment: new ExperimentJobJSONTransformer().transform(experimentJSON)
+        await requestResults(experimentJSON, {
+          distance: distanceResults,
+          cluster: clusterResults
         });
       }
       await WatchCache.setUser(id, req.dbUser); // watch
@@ -131,7 +128,10 @@ const get = async (req, res) => {
       const keys = Object.keys(results);
       keys.forEach(key => {
         const result = results[key];
-        promises[key] = inflateResult(result, Constants.DISTANCE_PROJECTION);
+        promises[key] =
+          key === Constants.RESULT_TYPE_CLUSTER
+            ? inflateClusterResult(result, Constants.DISTANCE_PROJECTION)
+            : inflateResult(result, Constants.DISTANCE_PROJECTION);
       });
 
       experimentJSON.results = await Promise.props(promises);
@@ -303,6 +303,25 @@ const results = async (req, res) => {
     });
     logger.debug(
       `ExperimentsController#results: ${Constants.EVENTS.DISTANCE_SEARCH_COMPLETE.NAME} event sent to the client`
+    );
+    await WatchCache.delete(experiment.id);
+  } else if (result.type === Constants.RESULT_TYPE_CLUSTER) {
+    logger.debug(
+      `ExperimentsController#results: Cluster sampleId: ${JSON.stringify(experiment.sampleId)}`
+    );
+    ClusterCache.setResult(experiment.sampleId, result);
+    const users = await WatchCache.getUsers(experiment.id);
+    const watchers = users && users.length ? users : [];
+    logger.debug(
+      `ExperimentsController#results: ${watchers.length} users watching for results of ${experiment.id}`
+    );
+    logger.debug(`ExperimentsController#results: Cluster result added to the cache`);
+    experimentEventEmitter.emit(Constants.EVENTS.CLUSTER_SEARCH_COMPLETE.EVENT, {
+      experiment: new ExperimentJSONTransformer().transform(experiment),
+      users: watchers
+    });
+    logger.debug(
+      `ExperimentsController#results: ${Constants.EVENTS.CLUSTER_SEARCH_COMPLETE.NAME} event sent to the client`
     );
     await WatchCache.delete(experiment.id);
   } else {
@@ -737,6 +756,47 @@ const inflateResult = async (result, projection = null) => {
   return result;
 };
 
+const inflateClusterResult = async (result, projection = null) => {
+  if (result.nodes && Array.isArray(result.nodes)) {
+    const nodes = result.nodes;
+    for (const node of nodes) {
+      const ids = node.samples;
+      const experiments = await Experiment.findBySampleIds(ids, projection);
+      const transformedExperiments = new ArrayJSONTransformer().transform(experiments, {
+        transformer: ExperimentJSONTransformer
+      });
+      node.experiments = transformedExperiments;
+      delete node.samples;
+    }
+  }
+  return result;
+};
+
+const requestResults = async (experiment, cachedResults) => {
+  const results = cachedResults || {};
+  const scheduler = await Scheduler.getInstance();
+
+  if (!results.distance) {
+    logger.debug(
+      `ExperimentController#requestResults: Distance results missing, request from Analysis API`
+    );
+    await scheduler.schedule("now", "call distance api", {
+      experiment_id: experiment.id,
+      experiment: new ExperimentJobJSONTransformer().transform(experiment)
+    });
+  }
+
+  if (!results.cluster) {
+    logger.debug(
+      `ExperimentController#requestResults: Cluster results missing, request from Analysis API`
+    );
+    await scheduler.schedule("now", "call cluster api", {
+      experiment_id: experiment.id,
+      experiment: new ExperimentJobJSONTransformer().transform(experiment)
+    });
+  }
+};
+
 /**
  * Retrieve experiments tree
  * @param {object} req
@@ -769,6 +829,10 @@ const refreshResults = async (req, res) => {
 
   const scheduler = await Scheduler.getInstance();
   await scheduler.schedule("now", "call distance api", {
+    experiment_id: experiment.id,
+    experiment: experimentJson
+  });
+  await scheduler.schedule("now", "call cluster api", {
     experiment_id: experiment.id,
     experiment: experimentJson
   });

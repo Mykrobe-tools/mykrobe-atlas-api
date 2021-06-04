@@ -565,5 +565,32 @@ export default {
     },
     mdr: true,
     xdr: false
+  },
+  cluster: {
+    type: "cluster",
+    result: {
+      nodes: [
+        {
+          id: 0,
+          samples: ["7a1d5a57-de19-4c6a-833c-52b97ae108e3"]
+        },
+        {
+          id: 1,
+          samples: ["9ba328f8-d4aa-4d56-b068-c6f3939ed3f8", "ad06361e-8106-48aa-9c3c-c89c869ced2b"]
+        }
+      ],
+      distance: [
+        {
+          start: 2,
+          end: 9,
+          distance: 1
+        },
+        {
+          start: 26,
+          end: 27,
+          distance: 1
+        }
+      ]
+    }
   }
 };

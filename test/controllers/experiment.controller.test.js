@@ -25,6 +25,7 @@ import Tree from "../../src/server/models/tree.model";
 import Search from "../../src/server/models/search.model";
 import Organisation from "../../src/server/models/organisation.model";
 import DistanceCache from "../../src/server/modules/cache/DistanceCache";
+import ClusterCache from "../../src/server/modules/cache/ClusterCache";
 import BigsiCache from "../../src/server/modules/cache/BigsiCache";
 
 import { experimentEventEmitter, userEventEmitter } from "../../src/server/modules/events";
@@ -35,6 +36,7 @@ import predictor787 from "../fixtures/files/787.predictor.json";
 import predictor788 from "../fixtures/files/788.predictor.json";
 import predictor789 from "../fixtures/files/789.predictor.json";
 import DISTANCE from "../fixtures/files/Distance_Results.json";
+import CLUSTER from "../fixtures/files/Cluster_Results.json";
 
 import results from "../fixtures/results";
 import users from "../fixtures/users";
@@ -342,7 +344,10 @@ describe("ExperimentController", () => {
           const experimentResults = [];
           experimentResults.push(results.mdr);
           experimentResults.push(results.distance);
+          experimentResults.push(results.cluster);
           experiment.set("results", experimentResults);
+          // mock the RedisService.get method to return a fixed value regardless of key
+          jest.spyOn(ClusterCache, "getResult").mockImplementation(() => CLUSTER);
           await experiment.save();
           done();
         });
@@ -373,6 +378,13 @@ describe("ExperimentController", () => {
               expect(distance.analysed).toEqual("2018-09-10T11:23:20.964Z");
               expect(distance.received).toEqual("2018-09-10T11:23:20.964Z");
               expect(distance.type).toEqual("distance");
+
+              expect(results).toHaveProperty("cluster");
+              const cluster = results["cluster"];
+
+              expect(cluster.nodes.length).toEqual(2);
+              expect(cluster.distance.length).toEqual(2);
+              expect(cluster.type).toEqual("cluster");
 
               done();
             });
@@ -547,6 +559,165 @@ describe("ExperimentController", () => {
               expect(distance.experiments.length).toEqual(1);
 
               const first = distance.experiments.shift();
+
+              const targetExperiment = await Experiment.findBySampleIds([
+                "49f90e7b-9827-43c1-bfa3-0feac8d02f96"
+              ]);
+
+              expect(first.sampleId).toEqual(targetExperiment[0].sampleId);
+
+              done();
+            });
+        });
+      });
+      describe("when using cluster results", () => {
+        let mockRedisServiceGet = null;
+        beforeEach(async done => {
+          const experimentWithMetadataResults = new Experiment(experiments.tbUploadMetadataResults);
+          const savedExperimentWithMetadataResults = await experimentWithMetadataResults.save();
+
+          // mock the RedisService.get method to return a fixed value regardless of key
+          mockRedisServiceGet = jest.spyOn(ClusterCache, "getResult").mockImplementation(() => {
+            return {
+              type: "cluster",
+              nodes: [
+                {
+                  id: 0,
+                  samples: [experimentWithMetadataResults.sampleId]
+                }
+              ],
+              distance: [
+                {
+                  start: 2,
+                  end: 9,
+                  distance: 1
+                }
+              ]
+            };
+          });
+          done();
+        });
+        afterEach(() => {
+          jest.clearAllMocks();
+        });
+
+        it("should call redis service", done => {
+          request(args.app)
+            .get(`/experiments/${args.id}`)
+            .set("Authorization", `Bearer ${args.token}`)
+            .expect(httpStatus.OK)
+            .end((err, res) => {
+              expect(mockRedisServiceGet).toHaveBeenCalledTimes(1);
+              expect(mockRedisServiceGet).toHaveBeenCalledWith(
+                "9a981339-d0b4-4dcb-ba0d-efe8ed37b9d6"
+              );
+              done();
+            });
+        });
+
+        it("should inflate the cluster results", done => {
+          request(args.app)
+            .get(`/experiments/${args.id}`)
+            .set("Authorization", `Bearer ${args.token}`)
+            .expect(httpStatus.OK)
+            .end((err, res) => {
+              expect(res.body.status).toEqual("success");
+
+              expect(res.body.data).toHaveProperty("results");
+              const results = res.body.data.results;
+
+              expect(results).toHaveProperty("cluster");
+              const cluster = results["cluster"];
+
+              expect(cluster.type).toEqual("cluster");
+
+              expect(cluster).toHaveProperty("nodes");
+              expect(cluster.nodes.length).toEqual(1);
+
+              const node = cluster.nodes.shift();
+
+              expect(node).toHaveProperty("experiments");
+              expect(node.experiments.length).toEqual(1);
+
+              const first = node.experiments.shift();
+
+              expect(first.sampleId).toBeTruthy();
+              expect(first.metadata.sample.isolateId).toBeTruthy();
+              expect(first.metadata.sample.longitudeIsolate).toBeTruthy();
+              expect(first.metadata.sample.latitudeIsolate).toBeTruthy();
+              expect(first.id).toBeTruthy();
+
+              expect(Object.keys(first.metadata).length).toEqual(1);
+
+              done();
+            });
+        });
+        it("should return a lighweight object when inflating", done => {
+          request(args.app)
+            .get(`/experiments/${args.id}`)
+            .set("Authorization", `Bearer ${args.token}`)
+            .expect(httpStatus.OK)
+            .end((err, res) => {
+              expect(res.body.status).toEqual("success");
+
+              expect(res.body.data).toHaveProperty("results");
+              const results = res.body.data.results;
+
+              expect(results).toHaveProperty("cluster");
+              const cluster = results["cluster"];
+
+              expect(cluster.type).toEqual("cluster");
+
+              expect(cluster).toHaveProperty("nodes");
+              expect(cluster.nodes.length).toEqual(1);
+
+              const node = cluster.nodes.shift();
+
+              expect(node).toHaveProperty("experiments");
+              expect(node.experiments.length).toEqual(1);
+
+              const first = node.experiments.shift();
+
+              expect(first.sampleId).toBeTruthy();
+              expect(first.metadata.sample.isolateId).toBeTruthy();
+              expect(first.metadata.sample.longitudeIsolate).toBeTruthy();
+              expect(first.metadata.sample.latitudeIsolate).toBeTruthy();
+              expect(first.id).toBeTruthy();
+
+              expect(Object.keys(first.metadata).length).toEqual(1);
+
+              expect(first.results).toBeUndefined();
+              expect(first.type).toBeUndefined();
+              expect(first.subType).toBeUndefined();
+
+              done();
+            });
+        });
+        it("should replace the experiments ids", done => {
+          request(args.app)
+            .get(`/experiments/${args.id}`)
+            .set("Authorization", `Bearer ${args.token}`)
+            .expect(httpStatus.OK)
+            .end(async (err, res) => {
+              expect(res.body.status).toEqual("success");
+
+              expect(res.body.data).toHaveProperty("results");
+              const results = res.body.data.results;
+
+              expect(results).toHaveProperty("cluster");
+              const cluster = results["cluster"];
+
+              expect(cluster.type).toEqual("cluster");
+
+              expect(cluster).toHaveProperty("nodes");
+              expect(cluster.nodes.length).toEqual(1);
+
+              const node = cluster.nodes.shift();
+
+              expect(node).toHaveProperty("experiments");
+              expect(node.experiments.length).toEqual(1);
+
+              const first = node.experiments.shift();
 
               const targetExperiment = await Experiment.findBySampleIds([
                 "49f90e7b-9827-43c1-bfa3-0feac8d02f96"
@@ -3218,6 +3389,29 @@ describe("ExperimentController", () => {
               let job = await findJob(jobs, args.id, "call distance api");
               while (!job) {
                 job = await findJob(jobs, args.id, "call distance api");
+              }
+              expect(job.data.experiment_id).toEqual(args.id);
+              expect(job.data.experiment.sampleId).toEqual("9a981339-d0b4-4dcb-ba0d-efe8ed37b9d6");
+              done();
+            } catch (e) {
+              fail(e.message);
+              done();
+            }
+          });
+      });
+      it("should trigger the cluster api", done => {
+        request(args.app)
+          .post(`/experiments/${args.id}/refresh`)
+          .set("Authorization", `Bearer ${args.token}`)
+          .expect(httpStatus.OK)
+          .end(async (err, res) => {
+            const jobs = mongo(config.db.uri, []).agendaJobs;
+            expect(res.body.status).toEqual("success");
+            expect(res.body.data).toEqual("Update of existing results triggered");
+            try {
+              let job = await findJob(jobs, args.id, "call cluster api");
+              while (!job) {
+                job = await findJob(jobs, args.id, "call cluster api");
               }
               expect(job.data.experiment_id).toEqual(args.id);
               expect(job.data.experiment.sampleId).toEqual("9a981339-d0b4-4dcb-ba0d-efe8ed37b9d6");

@@ -88,6 +88,14 @@ const Constants = {
       EVENT: "distance-search-complete",
       NAME: "Distance search complete"
     },
+    CLUSTER_SEARCH_STARTED: {
+      EVENT: "cluster-search-started",
+      NAME: "Cluster search started"
+    },
+    CLUSTER_SEARCH_COMPLETE: {
+      EVENT: "cluster-search-complete",
+      NAME: "Cluster search complete"
+    },
     PROTEIN_VARIANT_SEARCH_STARTED: {
       EVENT: "protein-variant-search-started",
       NAME: "Protein variant search started"
@@ -136,6 +144,7 @@ const Constants = {
   RESPONSE_CACHE_IN_SECONDS: 3600, // 1 hr
   GEO_CACHE_IN_SECONDS: 3600 * 24, // 1 day
   DISTANCE_RESULT_IN_SECONDS: 3600 * 24 * 2, // 2 days
+  CLUSTER_RESULT_IN_SECONDS: 3600 * 24 * 2, // 2 days
 
   AUTOGENERATE_SAMPLE_ID: process.env.AUTOGENERATE_SAMPLE_ID || "no",
 
@@ -151,6 +160,7 @@ const Constants = {
   ],
 
   RESULT_TYPE_DISTANCE: "distance",
+  RESULT_TYPE_CLUSTER: "cluster",
 
   EXTERNAL_ID: "external_id",
   PREDICT: "predict",

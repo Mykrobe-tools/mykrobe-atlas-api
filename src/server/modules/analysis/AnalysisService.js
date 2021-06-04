@@ -56,6 +56,26 @@ class AnalysisService {
     }
   }
 
+  async cluster(experiment) {
+    if (!experiment) {
+      throw new Error(`Call to cluster service failed.  Missing experiment`);
+    }
+
+    const uri = `${config.services.analysisApiUrl}/cluster`;
+    const payload = {
+      sample_id: experiment.sampleId,
+      callback_url: `/experiments/${experiment.id}/results`
+    };
+    logger.debug(`AnalysisService#cluster: POST ${uri}`);
+    logger.debug(`AnalysisService#cluster: payload: ${JSON.stringify(payload, null, 2)}`);
+    const response = await axios.post(uri, payload);
+    if (response && response.data && response.data.task_id) {
+      const taskId = response.data.task_id;
+      logger.debug(`AnalysisService#cluster: taskId: ${taskId}`);
+      return taskId;
+    }
+  }
+
   async search(search) {
     if (!search) {
       throw new Error(`Call to search service failed.  Missing search`);

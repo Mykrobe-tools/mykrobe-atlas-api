@@ -1,5 +1,6 @@
 import PredictorResultParser from "./PredictorResultParser";
 import DistanceResultParser from "./DistanceResultParser";
+import ClusterResultParser from "./ClusterResultParser";
 import ProteinVariantResultParser from "./ProteinVariantResultParser";
 import DnaVariantResultParser from "./DnaVariantResultParser";
 import SequenceResultParser from "./SequenceResultParser";
@@ -25,6 +26,9 @@ class ResultsParserFactory {
 
       case "dna-variant":
         return new DnaVariantResultParser(result);
+
+      case "cluster":
+        return new ClusterResultParser(result);
     }
 
     return null;
