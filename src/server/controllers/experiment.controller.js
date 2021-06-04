@@ -769,6 +769,7 @@ const inflateClusterResult = async (result, projection = null) => {
       delete node.samples;
     }
   }
+  return result;
 };
 
 const requestResults = async (experiment, cachedResults) => {
