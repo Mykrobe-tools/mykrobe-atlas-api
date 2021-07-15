@@ -123,8 +123,20 @@ class BigsiSearchHelper {
    * @returns
    */
   static async getCachedResultSampleIds(search) {
+    logger.debug(
+      `BigsiSearchHelper#getCachedResultSampleIds: search: ${JSON.stringify(search, null, 2)}`
+    );
+    logger.debug(
+      `BigsiSearchHelper#getCachedResultSampleIds: hash: ${JSON.stringify(search.hash, null, 2)}`
+    );
     const result = await BigsiCache.getResult(search.hash);
+    logger.debug(
+      `BigsiSearchHelper#getCachedResultSampleIds: result: ${JSON.stringify(result, null, 2)}`
+    );
     const filteredResults = this.filter(search.type, result.results);
+    logger.debug(
+      `BigsiSearchHelper#getCachedResultSampleIds: filteredResults: ${JSON.stringify(filteredResults, null, 2)}`
+    );
     return filteredResults && Array.isArray(filteredResults) && filteredResults.length
       ? filteredResults.map(r => r.sampleId)
       : [];
