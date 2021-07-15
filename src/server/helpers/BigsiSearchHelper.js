@@ -135,7 +135,11 @@ class BigsiSearchHelper {
     );
     const filteredResults = this.filter(search.type, result.results);
     logger.debug(
-      `BigsiSearchHelper#getCachedResultSampleIds: filteredResults: ${JSON.stringify(filteredResults, null, 2)}`
+      `BigsiSearchHelper#getCachedResultSampleIds: filteredResults: ${JSON.stringify(
+        filteredResults,
+        null,
+        2
+      )}`
     );
     return filteredResults && Array.isArray(filteredResults) && filteredResults.length
       ? filteredResults.map(r => r.sampleId)

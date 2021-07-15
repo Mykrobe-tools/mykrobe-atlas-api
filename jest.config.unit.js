@@ -1,5 +1,5 @@
 module.exports = {
-  testRegex: "(/test/(models|modules|transformers)/.*?test).[jt]sx?$",
+  testRegex: "(/test/(models|modules|helpers|transformers).*?test).[jt]sx?$",
   collectCoverage: false,
   testEnvironment: "node",
   reporters: [
