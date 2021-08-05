@@ -3652,6 +3652,92 @@ router
    *         type: boolean
    *         description: Totally drug resistant
    *         enum: [true, false]
+   *       - in: query
+   *         name: metadata.sample.collectionDate[min]
+   *         type: string
+   *         format: date-time
+   *         description: Return the data after this collection date (included)
+   *       - in: query
+   *         name: metadata.sample.collectionDate[max]
+   *         type: string
+   *         format: date-time
+   *         description: Return the data before this collection date (included)
+   *       - in: query
+   *         name: metadata.sample.dateArrived[min]
+   *         type: string
+   *         format: date-time
+   *         description: Return the data after this arrived date (included)
+   *       - in: query
+   *         name: metadata.sample.dateArrived[max]
+   *         type: string
+   *         format: date-time
+   *         description: Return the data before this arrived date (included)
+   *       - in: query
+   *         name: metadata.sample.latitudeIsolate[min]
+   *         type: number
+   *         description: Return the data with greather latitudeIsolate than the value (included)
+   *       - in: query
+   *         name: metadata.sample.latitudeIsolate[max]
+   *         type: number
+   *         description: Return the data with latitudeIsolate less than the value (included)
+   *       - in: query
+   *         name: metadata.sample.longitudeIsolate[min]
+   *         type: number
+   *         description: Return the data with greather longitudeIsolate than the value (included)
+   *       - in: query
+   *         name: metadata.sample.longitudeIsolate[max]
+   *         type: number
+   *         description: Return the data with longitudeIsolate less than the value (included)
+   *       - in: query
+   *         name: results.distance.analysed[min]
+   *         type: string
+   *         format: date-time
+   *         description: Return the data after this distance analysed date (included)
+   *       - in: query
+   *         name: results.distance.analysed[max]
+   *         type: string
+   *         format: date-time
+   *         description: Return the data before this distance analysed date (included)
+   *       - in: query
+   *         name: results.distance.received[min]
+   *         type: string
+   *         format: date-time
+   *         description: Return the data after this distance received date (included)
+   *       - in: query
+   *         name: results.distance.received[max]
+   *         type: string
+   *         format: date-time
+   *         description: Return the data before this distance received date (included)
+   *       - in: query
+   *         name: results.predictor.received[min]
+   *         type: string
+   *         format: date-time
+   *         description: Return the data after this predictor received date (included)
+   *       - in: query
+   *         name: results.predictor.received[max]
+   *         type: string
+   *         format: date-time
+   *         description: Return the data before this predictor received date (included)
+   *       - in: query
+   *         name: created[min]
+   *         type: string
+   *         format: date-time
+   *         description: Return the data created after this date (included)
+   *       - in: query
+   *         name: created[max]
+   *         type: string
+   *         format: date-time
+   *         description: Return the data created before this date (included)
+   *       - in: query
+   *         name: modified[min]
+   *         type: string
+   *         format: date-time
+   *         description: Return the data modified after this date (included)
+   *       - in: query
+   *         name: modified[max]
+   *         type: string
+   *         format: date-time
+   *         description: Return the data modified before this date (included)
    *     responses:
    *       200:
    *         description: Experiments choices
@@ -3811,6 +3897,92 @@ router
    *         type: boolean
    *         description: Totally drug resistant
    *         enum: [true, false]
+   *       - in: query
+   *         name: metadata.sample.collectionDate[min]
+   *         type: string
+   *         format: date-time
+   *         description: Return the data after this collection date (included)
+   *       - in: query
+   *         name: metadata.sample.collectionDate[max]
+   *         type: string
+   *         format: date-time
+   *         description: Return the data before this collection date (included)
+   *       - in: query
+   *         name: metadata.sample.dateArrived[min]
+   *         type: string
+   *         format: date-time
+   *         description: Return the data after this arrived date (included)
+   *       - in: query
+   *         name: metadata.sample.dateArrived[max]
+   *         type: string
+   *         format: date-time
+   *         description: Return the data before this arrived date (included)
+   *       - in: query
+   *         name: metadata.sample.latitudeIsolate[min]
+   *         type: number
+   *         description: Return the data with greather latitudeIsolate than the value (included)
+   *       - in: query
+   *         name: metadata.sample.latitudeIsolate[max]
+   *         type: number
+   *         description: Return the data with latitudeIsolate less than the value (included)
+   *       - in: query
+   *         name: metadata.sample.longitudeIsolate[min]
+   *         type: number
+   *         description: Return the data with greather longitudeIsolate than the value (included)
+   *       - in: query
+   *         name: metadata.sample.longitudeIsolate[max]
+   *         type: number
+   *         description: Return the data with longitudeIsolate less than the value (included)
+   *       - in: query
+   *         name: results.distance.analysed[min]
+   *         type: string
+   *         format: date-time
+   *         description: Return the data after this distance analysed date (included)
+   *       - in: query
+   *         name: results.distance.analysed[max]
+   *         type: string
+   *         format: date-time
+   *         description: Return the data before this distance analysed date (included)
+   *       - in: query
+   *         name: results.distance.received[min]
+   *         type: string
+   *         format: date-time
+   *         description: Return the data after this distance received date (included)
+   *       - in: query
+   *         name: results.distance.received[max]
+   *         type: string
+   *         format: date-time
+   *         description: Return the data before this distance received date (included)
+   *       - in: query
+   *         name: results.predictor.received[min]
+   *         type: string
+   *         format: date-time
+   *         description: Return the data after this predictor received date (included)
+   *       - in: query
+   *         name: results.predictor.received[max]
+   *         type: string
+   *         format: date-time
+   *         description: Return the data before this predictor received date (included)
+   *       - in: query
+   *         name: created[min]
+   *         type: string
+   *         format: date-time
+   *         description: Return the data created after this date (included)
+   *       - in: query
+   *         name: created[max]
+   *         type: string
+   *         format: date-time
+   *         description: Return the data created before this date (included)
+   *       - in: query
+   *         name: modified[min]
+   *         type: string
+   *         format: date-time
+   *         description: Return the data modified after this date (included)
+   *       - in: query
+   *         name: modified[max]
+   *         type: string
+   *         format: date-time
+   *         description: Return the data modified before this date (included)
    *       - in: query
    *         name: page
    *         type: number
