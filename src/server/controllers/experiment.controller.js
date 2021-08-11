@@ -308,9 +308,13 @@ const results = async (req, res) => {
       `ExperimentsController#results: Distance leafId: ${JSON.stringify(result.leafId)}`
     );
     experiment.leafId = result.leafId;
-    logger.debug(`ExperimentsController#results: setting results to the cache for sampleId: ${experiment.sampleId,}`);
+    logger.debug(
+      `ExperimentsController#results: setting results to the cache for sampleId: ${experiment.sampleId}`
+    );
     DistanceCache.setResult(experiment.sampleId, result);
-    logger.debug(`ExperimentsController#results: saved distance cache for sampleId: ${experiment.sampleId,}`);
+    logger.debug(
+      `ExperimentsController#results: saved distance cache for sampleId: ${experiment.sampleId}`
+    );
     if (experiment.awaitingFirstDistanceResult) {
       await DistanceCache.deleteResults(result);
       experiment.awaitingFirstDistanceResult = false;
