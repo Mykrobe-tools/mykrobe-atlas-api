@@ -2272,7 +2272,7 @@ describe("ExperimentController", () => {
           done();
         });
     });
-    it.only("should not handle errored result", done => {
+    it("should not handle errored result", done => {
       request(args.app)
         .post(`/experiments/${args.id}/results`)
         .set("Authorization", `Bearer ${args.token}`)
