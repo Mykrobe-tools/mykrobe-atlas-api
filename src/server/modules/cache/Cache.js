@@ -1,4 +1,5 @@
 import RedisService from "makeandship-api-common/lib/modules/cache/services/RedisService";
+import logger from "../logging/logger";
 
 const PREFIX = "atlas";
 
@@ -41,11 +42,15 @@ class Cache {
     return null;
   }
 
-  setJson(name, value, expiry = null) {
+  async setJson(name, value, expiry = null) {
     const key = this.getKey(name);
 
     if (key) {
-      return RedisService.set(key, JSON.stringify(value), expiry);
+      logger.debug(`Cache#setJson: setting for key: ${key}`);
+      logger.debug(`Cache#setJson: setting results to the cache: ${JSON.stringify(value)}`);
+      const returnValue = await RedisService.set(key, JSON.stringify(value), expiry);
+      logger.debug(`Cache#setJson: setJson returnValue: ${returnValue}`);
+      return returnValue;
     }
 
     return null;

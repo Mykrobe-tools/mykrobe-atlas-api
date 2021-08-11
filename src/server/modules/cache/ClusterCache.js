@@ -8,9 +8,9 @@ class ClusterCache {
     return `${PREFIX}-${sampleId}`;
   }
 
-  setResult(sampleId, result, expiry = Constants.CLUSTER_RESULT_IN_SECONDS) {
+  async setResult(sampleId, result, expiry = Constants.CLUSTER_RESULT_IN_SECONDS) {
     const key = this.getKey(sampleId);
-    Cache.setJson(key, result, expiry);
+    await Cache.setJson(key, result, expiry);
   }
 
   async getResult(sampleId) {

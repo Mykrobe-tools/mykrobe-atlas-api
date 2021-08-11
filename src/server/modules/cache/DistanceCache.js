@@ -1,5 +1,6 @@
 import Constants from "../../Constants";
 import Cache from "./Cache";
+import logger from "../logging/logger";
 
 const PREFIX = "distance";
 
@@ -8,9 +9,13 @@ class DistanceCache {
     return `${PREFIX}-${sampleId}`;
   }
 
-  setResult(sampleId, result, expiry = Constants.DISTANCE_RESULT_IN_SECONDS) {
+  async setResult(sampleId, result, expiry = Constants.DISTANCE_RESULT_IN_SECONDS) {
     const key = this.getKey(sampleId);
-    Cache.setJson(key, result, expiry);
+    logger.debug(`DistanceCache#setResult: setting for key: ${key}`);
+    logger.debug(
+      `DistanceCache#setResult: setting results to the cache: ${JSON.stringify(result)}`
+    );
+    await Cache.setJson(key, result, expiry);
   }
 
   async getResult(sampleId) {

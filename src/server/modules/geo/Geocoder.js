@@ -29,7 +29,7 @@ class Geocoder {
       const matches = await this.search(address);
       const coordinates = this.getCoordinates(address, matches);
       if (coordinates && Object.keys(coordinates).length) {
-        GeoCache.setLocation(address, coordinates);
+        await GeoCache.setLocation(address, coordinates);
         logger.debug(
           `Geocoder#geocode: Coordinates found and added to cache: ${JSON.stringify(coordinates)}`
         );

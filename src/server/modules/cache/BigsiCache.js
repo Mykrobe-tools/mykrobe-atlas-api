@@ -9,9 +9,9 @@ class BigsiCache {
     return `${PREFIX}-${hash}`;
   }
 
-  setResult(hash, result, expiry = config.services.bigsiResultsTTL * 3600) {
+  async setResult(hash, result, expiry = config.services.bigsiResultsTTL * 3600) {
     const key = this.getKey(hash);
-    Cache.setJson(key, result, expiry);
+    await Cache.setJson(key, result, expiry);
   }
 
   async getResult(hash) {
