@@ -90,6 +90,7 @@ const get = async (req, res) => {
       !cached.results ||
       !cached.results.distance ||
       !cached.results.distance.experiments ||
+      !cached.results.distance.experiments.length ||
       !cached.results.cluster
     ) {
       logger.debug(`ExperimentController#get: No results in the cache`);
