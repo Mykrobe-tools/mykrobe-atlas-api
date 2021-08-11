@@ -296,6 +296,12 @@ const metadata = async (req, res) => {
 const results = async (req, res) => {
   const experiment = req.experiment;
 
+  if (req.body && req.body.status === "error") {
+    return res.jerror(
+      new APIError(Constants.ERRORS.UPDATE_EXPERIMENT_RESULTS, "Invalid result status")
+    );
+  }
+
   const parser = await ResultsParserFactory.create(req.body);
   if (!parser) {
     return res.jerror(
