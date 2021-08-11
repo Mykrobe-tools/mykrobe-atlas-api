@@ -83,11 +83,16 @@ const get = async (req, res) => {
   const hash = CacheHelper.getObjectHash(query);
   logger.debug(`ExperimentController#get: Check #get for: ${JSON.stringify(hash)}`);
   const cached = await ResponseCache.getQueryResponse(`get`, hash);
+  logger.debug(`ExperimentController#get: Returned cached response`);
   if (cached && typeof cached !== "undefined") {
+    logger.debug(`ExperimentController#get: There is a value in the cache`);
     if (!cached.results || !cached.results.distance || !cached.results.cluster) {
+      logger.debug(`ExperimentController#get: No results in the cache`);
       const users = await WatchCache.getUsers(id); // current users watching for distance results
       if (!users) {
+        logger.debug(`ExperimentController#get: Requesting distance results`);
         await requestResults(req.experiment, cached.results);
+        logger.debug(`ExperimentController#get: End requesting distance results`);
       }
       await WatchCache.setUser(id, req.dbUser); // watch
     }
@@ -99,21 +104,31 @@ const get = async (req, res) => {
       calledBy: true
     });
 
+    logger.debug(`ExperimentController#get: Transformed experiment ...`);
     const results = experimentJSON.results || {};
+    logger.debug(`ExperimentController#get: Getting distance results from cache ...`);
     const distanceResults = await DistanceCache.getResult(experimentJSON.sampleId);
+    logger.debug(`ExperimentController#get: Got distance results from cache ...`);
+    logger.debug(`ExperimentController#get: Getting cluster results from cache ...`);
     const clusterResults = await ClusterCache.getResult(experimentJSON.sampleId);
+    logger.debug(`ExperimentController#get: Got cluster results from cache ...`);
 
     if (distanceResults) {
+      logger.debug(`ExperimentController#get: Setting distance results ...`);
       results.distance = distanceResults;
     }
 
     if (clusterResults) {
+      logger.debug(`ExperimentController#get: Setting cluster results ...`);
       results.cluster = clusterResults;
     }
 
     if (!distanceResults || !clusterResults) {
+      logger.debug(`ExperimentController#get: One result is undefined ...`);
       const users = await WatchCache.getUsers(id); // current users watching for distance results
+      logger.debug(`ExperimentController#get: Got current users watching for distance results ...`);
       if (!users) {
+        logger.debug(`ExperimentController#get: requesting the distance results ...`);
         await requestResults(experimentJSON, {
           distance: distanceResults,
           cluster: clusterResults
@@ -122,7 +137,9 @@ const get = async (req, res) => {
       await WatchCache.setUser(id, req.dbUser); // watch
     }
 
+    logger.debug(`ExperimentController#get: checking if results are defined ...`);
     if (results) {
+      logger.debug(`ExperimentController#get: results are defined ...`);
       const promises = {};
 
       const keys = Object.keys(results);
@@ -134,6 +151,7 @@ const get = async (req, res) => {
             : inflateResult(result, Constants.DISTANCE_PROJECTION);
       });
 
+      logger.debug(`ExperimentController#get: storing results in experiments ...`);
       experimentJSON.results = await Promise.props(promises);
     }
 
@@ -141,6 +159,8 @@ const get = async (req, res) => {
       logger.debug(`ExperimentController#get: Store response for #get: ${JSON.stringify(hash)}`);
       await ResponseCache.setQueryResponse(`get`, hash, experimentJSON);
     }
+
+    logger.debug(`ExperimentController#get: return experimentJSON ...`);
     return res.jsend(experimentJSON);
   }
 };
