@@ -86,7 +86,12 @@ const get = async (req, res) => {
   logger.debug(`ExperimentController#get: Returned cached response`);
   if (cached && typeof cached !== "undefined") {
     logger.debug(`ExperimentController#get: There is a value in the cache`);
-    if (!cached.results || !cached.results.distance || !cached.results.cluster) {
+    if (
+      !cached.results ||
+      !cached.results.distance ||
+      !cached.results.distance.experiments ||
+      !cached.results.cluster
+    ) {
       logger.debug(`ExperimentController#get: No results in the cache`);
       const users = await WatchCache.getUsers(id); // current users watching for distance results
       if (!users) {
@@ -311,7 +316,7 @@ const results = async (req, res) => {
     logger.debug(
       `ExperimentsController#results: setting results to the cache for sampleId: ${experiment.sampleId}`
     );
-    DistanceCache.setResult(experiment.sampleId, result);
+    await DistanceCache.setResult(experiment.sampleId, result);
     logger.debug(
       `ExperimentsController#results: saved distance cache for sampleId: ${experiment.sampleId}`
     );
@@ -337,7 +342,7 @@ const results = async (req, res) => {
     logger.debug(
       `ExperimentsController#results: Cluster sampleId: ${JSON.stringify(experiment.sampleId)}`
     );
-    ClusterCache.setResult(experiment.sampleId, result);
+    await ClusterCache.setResult(experiment.sampleId, result);
     const users = await WatchCache.getUsers(experiment.id);
     const watchers = users && users.length ? users : [];
     logger.debug(

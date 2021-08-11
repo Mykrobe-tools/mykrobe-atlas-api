@@ -22,7 +22,7 @@ class WatchCache {
 
     const key = this.getKey(experimentId);
     logger.debug(`WatchCache#setUser: Store in ${key}: ${JSON.stringify(updatedUsers, null, 2)}`);
-    Cache.setJson(key, updatedUsers, expiry);
+    await Cache.setJson(key, updatedUsers, expiry);
   }
 
   async getUsers(experimentId) {

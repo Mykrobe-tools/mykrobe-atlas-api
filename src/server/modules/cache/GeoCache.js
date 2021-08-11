@@ -11,9 +11,9 @@ class GeoCache {
     return `${PREFIX}-${key}`;
   }
 
-  setLocation(locationKey, location, expiry = Constants.GEO_CACHE_IN_SECONDS) {
+  async setLocation(locationKey, location, expiry = Constants.GEO_CACHE_IN_SECONDS) {
     const key = this.getKey(locationKey);
-    Cache.setJson(key, location, expiry);
+    await Cache.setJson(key, location, expiry);
   }
 
   async getLocation(location) {

@@ -54,7 +54,7 @@ const saveResult = async (req, res) => {
     logger.debug(`SearchController#saveResult: parsedResult: ${JSON.stringify(result, null, 2)}`);
 
     const savedSearch = await search.updateAndSetExpiry();
-    BigsiCache.setResult(savedSearch.hash, result);
+    await BigsiCache.setResult(savedSearch.hash, result);
 
     const searchJson = new SearchJSONTransformer().transform(savedSearch);
     let regeneratedSearch;
