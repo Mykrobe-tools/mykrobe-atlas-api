@@ -124,6 +124,8 @@ const get = async (req, res) => {
     }
 
     if (!distanceResults || !clusterResults) {
+      logger.debug(`ExperimentController#get: distanceResults = ${distanceResults}`);
+      logger.debug(`ExperimentController#get: clusterResults = ${clusterResults}`);
       logger.debug(`ExperimentController#get: One result is undefined ...`);
       const users = await WatchCache.getUsers(id); // current users watching for distance results
       logger.debug(`ExperimentController#get: Got current users watching for distance results ...`);
@@ -306,7 +308,9 @@ const results = async (req, res) => {
       `ExperimentsController#results: Distance leafId: ${JSON.stringify(result.leafId)}`
     );
     experiment.leafId = result.leafId;
+    logger.debug(`ExperimentsController#results: setting results to the cache for sampleId: ${experiment.sampleId,}`);
     DistanceCache.setResult(experiment.sampleId, result);
+    logger.debug(`ExperimentsController#results: saved distance cache for sampleId: ${experiment.sampleId,}`);
     if (experiment.awaitingFirstDistanceResult) {
       await DistanceCache.deleteResults(result);
       experiment.awaitingFirstDistanceResult = false;
