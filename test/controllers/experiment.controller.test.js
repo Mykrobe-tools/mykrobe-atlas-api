@@ -2272,6 +2272,19 @@ describe("ExperimentController", () => {
           done();
         });
     });
+    it("should not handle errored result", done => {
+      request(args.app)
+        .post(`/experiments/${args.id}/results`)
+        .set("Authorization", `Bearer ${args.token}`)
+        .send({ type: "distance", status: "error", leafId: "", result: [] })
+        .expect(httpStatus.OK)
+        .end((err, res) => {
+          expect(res.body.status).toEqual("error");
+          expect(res.body.code).toEqual(Constants.ERRORS.UPDATE_EXPERIMENT_RESULTS);
+          expect(res.body.message).toEqual("Invalid result status");
+          done();
+        });
+    });
     it("should save r, mdr, xdr and tdr against the experiment", done => {
       request(args.app)
         .post(`/experiments/${args.id}/results`)

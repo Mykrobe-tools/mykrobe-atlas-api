@@ -90,6 +90,7 @@ const get = async (req, res) => {
       !cached.results ||
       !cached.results.distance ||
       !cached.results.distance.experiments ||
+      !cached.results.distance.experiments.length ||
       !cached.results.cluster
     ) {
       logger.debug(`ExperimentController#get: No results in the cache`);
@@ -294,6 +295,12 @@ const metadata = async (req, res) => {
  */
 const results = async (req, res) => {
   const experiment = req.experiment;
+
+  if (req.body && req.body.status === "error") {
+    return res.jerror(
+      new APIError(Constants.ERRORS.UPDATE_EXPERIMENT_RESULTS, "Invalid result status")
+    );
+  }
 
   const parser = await ResultsParserFactory.create(req.body);
   if (!parser) {
