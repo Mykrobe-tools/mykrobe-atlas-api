@@ -137,10 +137,10 @@ experimentEventEmitter.on(Constants.EVENTS.DISTANCE_SEARCH_STARTED.EVENT, async 
 
 experimentEventEmitter.on(Constants.EVENTS.DISTANCE_SEARCH_COMPLETE.EVENT, async payload => {
   try {
-    const { experiment, users } = payload;
+    const { experiment, users, status } = payload;
 
     if (experiment) {
-      const data = new DistanceCompletedJSONTransformer().transform({ experiment }, {});
+      const data = new DistanceCompletedJSONTransformer().transform({ experiment, status }, {});
 
       const owner = experiment.owner ? [experiment.owner] : [];
       logger.debug(`Distance search complete: Owner: ${owner.length}`);

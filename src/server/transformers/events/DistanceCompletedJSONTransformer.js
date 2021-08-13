@@ -1,6 +1,7 @@
 import AnalysisEventJSONTransformer from "./AnalysisEventJSONTransformer";
 
 import Constants from "../../Constants";
+import logger from "../../modules/logging/logger";
 
 /**
  * A class to transform event payloads
