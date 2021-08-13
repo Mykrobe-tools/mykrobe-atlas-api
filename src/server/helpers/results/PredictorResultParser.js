@@ -29,6 +29,8 @@ class PredictorResultParser extends ResultParser {
       received: new Date()
     };
     if (this.namedResult.result) {
+      result.status = this.getStatus(this.namedResult);
+
       const predictorResult = getPredictorResult(this.namedResult.result);
       if (predictorResult) {
         const keys = Object.keys(predictorResult);

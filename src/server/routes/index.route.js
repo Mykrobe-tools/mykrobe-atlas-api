@@ -98,7 +98,7 @@ router.get("/swagger.json", async (req, res) => {
     res.setHeader("Content-Type", "application/json");
     res.status(200).send(spec);
   } catch (e) {
-    res.jerror(e);
+    res.jsend.error(e);
   }
 });
 

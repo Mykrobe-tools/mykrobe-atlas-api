@@ -296,12 +296,6 @@ const metadata = async (req, res) => {
 const results = async (req, res) => {
   const experiment = req.experiment;
 
-  if (req.body && req.body.status === "error") {
-    return res.jerror(
-      new APIError(Constants.ERRORS.UPDATE_EXPERIMENT_RESULTS, "Invalid result status")
-    );
-  }
-
   const parser = await ResultsParserFactory.create(req.body);
   if (!parser) {
     return res.jerror(
@@ -316,35 +310,55 @@ const results = async (req, res) => {
   logger.debug(`ExperimentsController#results: Parsed results: ${JSON.stringify(result)}`);
 
   if (result.type === Constants.RESULT_TYPE_DISTANCE) {
-    logger.debug(
-      `ExperimentsController#results: Distance leafId: ${JSON.stringify(result.leafId)}`
-    );
-    experiment.leafId = result.leafId;
-    logger.debug(
-      `ExperimentsController#results: setting results to the cache for sampleId: ${experiment.sampleId}`
-    );
-    await DistanceCache.setResult(experiment.sampleId, result);
-    logger.debug(
-      `ExperimentsController#results: saved distance cache for sampleId: ${experiment.sampleId}`
-    );
-    if (experiment.awaitingFirstDistanceResult) {
-      await DistanceCache.deleteResults(result);
-      experiment.awaitingFirstDistanceResult = false;
+    if (result.status === "error") {
+      logger.debug(`ExperimentsController#results: Distance results are in error`);
+      const users = await WatchCache.getUsers(experiment.id);
+      const watchers = users && users.length ? users : [];
+      logger.debug(
+        `ExperimentsController#results: ${watchers.length} users watching for results of ${experiment.id}`
+      );
+      logger.debug(`ExperimentsController#results: Distance result added to the cache`);
+      experimentEventEmitter.emit(Constants.EVENTS.DISTANCE_SEARCH_COMPLETE.EVENT, {
+        experiment: new ExperimentJSONTransformer().transform(experiment),
+        users: watchers,
+        status: result.status
+      });
+      logger.debug(
+        `ExperimentsController#results: ${Constants.EVENTS.DISTANCE_SEARCH_COMPLETE.NAME} event sent to the client`
+      );
+      await WatchCache.delete(experiment.id);
+    } else {
+      logger.debug(
+        `ExperimentsController#results: Distance leafId: ${JSON.stringify(result.leafId)}`
+      );
+      experiment.leafId = result.leafId;
+      logger.debug(
+        `ExperimentsController#results: setting results to the cache for sampleId: ${experiment.sampleId}`
+      );
+      await DistanceCache.setResult(experiment.sampleId, result);
+      logger.debug(
+        `ExperimentsController#results: saved distance cache for sampleId: ${experiment.sampleId}`
+      );
+      if (experiment.awaitingFirstDistanceResult) {
+        await DistanceCache.deleteResults(result);
+        experiment.awaitingFirstDistanceResult = false;
+      }
+      const users = await WatchCache.getUsers(experiment.id);
+      const watchers = users && users.length ? users : [];
+      logger.debug(
+        `ExperimentsController#results: ${watchers.length} users watching for results of ${experiment.id}`
+      );
+      logger.debug(`ExperimentsController#results: Distance result added to the cache`);
+      experimentEventEmitter.emit(Constants.EVENTS.DISTANCE_SEARCH_COMPLETE.EVENT, {
+        experiment: new ExperimentJSONTransformer().transform(experiment),
+        users: watchers,
+        status: result.status
+      });
+      logger.debug(
+        `ExperimentsController#results: ${Constants.EVENTS.DISTANCE_SEARCH_COMPLETE.NAME} event sent to the client`
+      );
+      await WatchCache.delete(experiment.id);
     }
-    const users = await WatchCache.getUsers(experiment.id);
-    const watchers = users && users.length ? users : [];
-    logger.debug(
-      `ExperimentsController#results: ${watchers.length} users watching for results of ${experiment.id}`
-    );
-    logger.debug(`ExperimentsController#results: Distance result added to the cache`);
-    experimentEventEmitter.emit(Constants.EVENTS.DISTANCE_SEARCH_COMPLETE.EVENT, {
-      experiment: new ExperimentJSONTransformer().transform(experiment),
-      users: watchers
-    });
-    logger.debug(
-      `ExperimentsController#results: ${Constants.EVENTS.DISTANCE_SEARCH_COMPLETE.NAME} event sent to the client`
-    );
-    await WatchCache.delete(experiment.id);
   } else if (result.type === Constants.RESULT_TYPE_CLUSTER) {
     logger.debug(
       `ExperimentsController#results: Cluster sampleId: ${JSON.stringify(experiment.sampleId)}`

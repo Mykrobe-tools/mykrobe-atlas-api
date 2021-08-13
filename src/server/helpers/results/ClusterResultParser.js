@@ -16,6 +16,8 @@ class ClusterResultParser extends ResultParser {
 
     if (this.namedResult.result) {
       const clusterResult = this.namedResult.result;
+      result.status = this.getStatus(this.namedResult);
+
       result.nodes = parseCluster(clusterResult);
       result.distance = clusterResult.distance;
     }

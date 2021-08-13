@@ -9,11 +9,14 @@ class DistanceResultParser extends ResultParser {
   }
 
   parse() {
+    logger.debug(`DistanceResultParser#parse: enter`);
     const result = {
       type: "distance",
       received: new Date()
     };
 
+    result.status = this.getStatus(this.namedResult);
+    logger.debug(`DistanceResultParser#parse: result.status: ${result.status}`);
     result.analysed = this.namedResult.analysed ? this.namedResult.analysed : result.received;
     result.leafId = this.namedResult.leafId;
 

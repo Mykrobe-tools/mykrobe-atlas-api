@@ -3,10 +3,20 @@ import DistanceResultParser from "../../../src/server/helpers/results/DistanceRe
 import DISTANCE from "../../fixtures/files/Distance_Results.json";
 import LARGE_DISTANCE from "../../fixtures/files/large-distance-result.json";
 
+import Results from "./__fixtures__/Results";
+
 describe("DistanceResultParser", () => {
   describe("#parse", () => {
     describe("when valid", () => {
       describe("with a standard distance result", () => {
+        it("should set status", done => {
+          const parser = new DistanceResultParser(Results.valid.distance);
+          const result = parser.parse();
+
+          expect(result).toHaveProperty("status", "success");
+
+          done();
+        });
         it("should parse a result", done => {
           const parser = new DistanceResultParser(DISTANCE);
           const result = parser.parse();
@@ -19,7 +29,6 @@ describe("DistanceResultParser", () => {
 
           done();
         });
-
         it("should create distances array", done => {
           const parser = new DistanceResultParser(DISTANCE);
           const result = parser.parse();
@@ -51,6 +60,18 @@ describe("DistanceResultParser", () => {
           const parser = new DistanceResultParser(LARGE_DISTANCE);
           const result = parser.parse();
           expect(result.experiments.length).toEqual(Constants.DISTANCE_RESULT_SIZE_THRESHOLD);
+
+          done();
+        });
+      });
+    });
+    describe("when invalid", () => {
+      describe("when status is error", () => {
+        it("should set status to error", done => {
+          const parser = new DistanceResultParser(Results.invalid.distance.errorState);
+          const result = parser.parse();
+
+          expect(result).toHaveProperty("status", "error");
 
           done();
         });

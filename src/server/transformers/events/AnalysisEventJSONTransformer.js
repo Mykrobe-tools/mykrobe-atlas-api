@@ -28,6 +28,10 @@ class AnalysisEventJSONTransformer extends CLIEventJSONTransformer {
       res.type = o.type;
     }
 
+    if (o.status) {
+      res.status = o.status;
+    }
+
     return res;
   }
 }
