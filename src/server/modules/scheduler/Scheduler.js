@@ -86,8 +86,6 @@ class Scheduler {
 
   async initialize() {
     if (!this.initialized) {
-      logger.debug(`Scheduler#getInstance: Create a new instance using: ${config.db.uri}`);
-
       // initialize agenda instance
       await this.initializeAgenda();
     }
