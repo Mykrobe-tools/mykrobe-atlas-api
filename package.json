@@ -79,7 +79,7 @@
     "mkdirp": "^0.5.1",
     "mkdirp-promise": "^5.0.1",
     "mockery": "^2.1.0",
-    "mongoose": "5.1.5",
+    "mongoose": "6.13.5",
     "mongoose-jsonschema-validator": "git+ssh://git@bitbucket.org/makeandship/mongoose-jsonschema-validator.git#v1.0.4",
     "mongoose-unique-validator": "^2.0.1",
     "morgan": "^1.9.1",
